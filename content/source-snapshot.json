@@ -1,0 +1,199 @@
+{
+  "sourceId": "sd-a365",
+  "url": "https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-agent-365/microsoft-agent-365",
+  "fetchedAt": "2026-10-23",
+  "pageUpdatedAt": "2026-10-01",
+  "pageMsDate": "2026-09-30",
+  "note": "Raw text as published, with non-ASCII characters escaped so invisible ones stay visible. Compare after normalization (see src/lib/content/normalize.ts).",
+  "columns": [
+    "Features",
+    "Management Console",
+    "Included with Microsoft 365 Enterprise, Business, Education, and Front Line Worker plans",
+    "Requires Microsoft 365 E7 / G7 or Agent 365",
+    "GCC Availability"
+  ],
+  "rows": [
+    {
+      "feature": "Inventory of agents across the organization in the Agent Registry",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": true,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Basic governance actions on agents (publish, deploy, block, delete, approve; assign agents to specific user/groups; reassign agent owner, pin, etc.)",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": true,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Automate agent lifecycle actions using conditions-based rules",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": true,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Synchronize agents and agent metadata from external platforms that aren\u2019t managed by Agent 365 into the registry",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": true,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Policy templates applying customized policies and controls to agents",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Observability and monitoring of agent activity (Visualization and telemetry)",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Control which tools (including Microsoft MCP servers) agents can access tenant-wide",
+      "console": "Microsoft 365 Admin Center",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Graph API provides access to agent registry, basic metadata, and governance actions",
+      "console": "N/A",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Access packages for agents to define scope of agent permissions",
+      "console": "Entra",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Built\u2011in Entra lifecycle policies automate sponsor\u2011driven workflows to maintain accountability",
+      "console": "Entra",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Conditional access and identity protection for agents (for agents with delegated access - extend user policies to agents)",
+      "console": "Entra",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Monitor and block malicious and noncompliant network traffic for agents, operating on user devices, and for Copilot Studio agents\u200b",
+      "console": "Entra",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Audit logs of agent activities and eDiscovery (content search) of agent interaction to export and hold for legal, regulatory, and investigative needs",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Data Lifecycle Management for agent-generated data and interactions in line with regulations and org policies",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Detect and review noncompliant agent interactions; extend compliance manager to agents to assess, manage, and demonstrate AI compliance",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Data Security Posture Management with AI Observability provides deep interaction visibility for agents",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Extend Insider Risk Management to agents \u2013 detect anomalous and risky agent activities",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Agents inherit and honor data sensitivity labels",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Data loss prevention \u2013 block agents from accessing and sharing sensitive content",
+      "console": "Purview",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Sync shadow AI endpoint agents",
+      "console": "Defender",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Identify and remediate agent misconfigurations and exposure risks, relationship mapping for local agents (agent to devices, MCPs, etc.)",
+      "console": "Defender",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Detect suspicious agent activity, receive alerts, and allow blocking for tool invocations for agents",
+      "console": "Defender",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Collect Agent 365 unified agent observability logs and allow investigation and hunting for threats for agents",
+      "console": "Defender",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Device compliance for agent conditional access",
+      "console": "Intune",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": true
+    },
+    {
+      "feature": "Policy-controlled environment for agents runtime",
+      "console": "Intune",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    },
+    {
+      "feature": "Block unsanctioned local endpoint agents",
+      "console": "Intune",
+      "includedWithBasePlans": false,
+      "availableWithE7G7OrA365": true,
+      "gccAvailable": false
+    }
+  ]
+}

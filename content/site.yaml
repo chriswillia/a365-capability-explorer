@@ -1,0 +1,209 @@
+# Site copy (brief section 5.7). Every string the interface shows lives here, not in a component.
+# {placeholders} are filled from numbers computed at render time (src/lib/content/metrics.ts).
+# The build fails on a placeholder it does not know.
+
+productName: Control Plane Compass
+tagline: "Map any agent use case to Microsoft Agent 365."
+description: "Map any agent use case to Microsoft Agent 365. See what it offers today, which capabilities apply to your agent, and what to set up first."
+
+# While false, every page carries a noindex tag. Set to true at launch (Phase 7).
+indexable: false
+repoUrl: "https://github.com/chriswillia/control-plane-compass"
+# TODO(verify): add a contact address to turn on the mailto fallback for "Suggest a correction".
+feedbackEmail:
+
+disclaimer: "Guidance tool for planning conversations. Not an official Microsoft licensing determination. Confirm with the Microsoft Agent 365 service description, the Microsoft Product Terms and your Microsoft account team."
+independenceNotice: "Independent project, not an official Microsoft site. Microsoft product names are trademarks of the Microsoft group of companies."
+footerSourceIds: [sd-a365, a365-docs, lic-faq]
+
+ui:
+  skipToContent: Skip to main content
+  previewBanner: "Preview: this site is in development. Capability content is draft and pending subject-matter-expert review."
+  mainNavLabel: Main navigation
+  homeLinkLabel: "Control Plane Compass, home"
+  depth:
+    groupLabel: Detail level
+    executive: Executive
+    technical: Technical
+  nav:
+    overview: Overview
+    capabilities: Capabilities
+    patterns: Patterns
+    learn: Learn
+    diagnostic: Diagnostic
+    portfolio: Portfolio
+    workshop: Workshop
+    methodology: Methodology
+  footer:
+    privacy: Privacy
+    reportIssue: Report an issue or suggest a correction
+    sourceCode: Source code
+    officialSources: Official sources
+    contentVersion: Content version
+  comingSoon:
+    status: "This section is in development."
+    back: "Back to the overview"
+  notFound:
+    body: "We could not find that page."
+    back: "Back to the overview"
+  badges:
+    foundational: "Included with base plans"
+    premium: "Requires Microsoft 365 E7/G7 or Agent 365"
+    gccAvailable: "Available in GCC"
+    gccUnavailable: "Not in GCC"
+    draft: "Pending SME review"
+    reviewed: Reviewed
+    preview: Preview
+    frontierPreview: "Frontier preview"
+    sourcesDiffer: "Sources differ, verify"
+  setup:
+    platform: "Set up once, platform-wide"
+    agent: "Decided per agent"
+    both: "Central policy plus per-agent decisions"
+  exhibit:
+    eyebrow: "Exhibit {number} · {label}"
+    sourcePrefix: "Source:"
+
+routes:
+  overview:
+    title: Overview
+    description: "What Agent 365 offers today, computed from the service description."
+  capabilities:
+    title: Capabilities
+    description: "Every capability in the Microsoft Agent 365 service description, with the layer it acts on and who configures it."
+  capability:
+    title: Capability brief
+    description: "A one-page brief for each capability: the official wording, what it does, where it acts, who owns it and when it applies."
+  patterns:
+    title: Patterns
+    description: "Common types of agent, and the capabilities that typically apply to each."
+  pattern:
+    title: Pattern brief
+    description: "One type of agent: what it is, the platforms it typically runs on, and the capabilities and risks that apply."
+  learn:
+    title: Learn
+    description: "Agent 365 in five minutes: how a request flows, the building blocks, a glossary, and myths versus facts."
+  diagnostic:
+    title: Diagnostic
+    description: "Describe your organization and an agent use case to see which capabilities apply, and why."
+  assessment:
+    title: Assessment
+    description: "Answer the questions for one agent use case and watch the agent anatomy fill in."
+  readout:
+    title: Readout
+    description: "A board-ready readout of the assessment, in Executive and Technical views."
+  canvas:
+    title: Use case canvas
+    description: "A one-page canvas that summarizes one agent use case and its Agent 365 controls."
+  portfolio:
+    title: Portfolio
+    description: "Compare several use cases: control intensity against business value, shared foundations and readiness gaps."
+  workshop:
+    title: Workshop kit
+    description: "A facilitator guide, printable pattern and capability cards, and a blank canvas for a 90-minute session."
+  methodology:
+    title: Methodology
+    description: "How recommendations are made: levels, evidence tags, the rules, the sources and the disclaimers."
+  whatsNew:
+    title: "What's new"
+    description: "Content changes, and the patterns each change affects."
+  contentHealth:
+    title: Content health
+    description: "Content that is stale, still in draft, or where sources differ."
+  privacy:
+    title: Privacy
+    description: "What this site stores, where it stores it, and what GitHub Pages logs."
+  notFound:
+    title: Page not found
+    description: "The page you asked for does not exist."
+
+overview:
+  heroEyebrow: "Built for the Frontier Firm"
+  heroLede: "See what Agent 365 offers today, which capabilities apply to your agent, and what to set up first."
+  ctaExplore: "Explore the capabilities"
+  technicalHint: "Switch to Technical for the console and layer detail."
+  kpis:
+    - id: capabilities
+      valueKey: capabilityCount
+      label: "Capabilities in the service description"
+    - id: foundational
+      valueKey: foundationalCount
+      label: "Included with Microsoft 365 base plans"
+    - id: premium
+      valueKey: premiumCount
+      label: "Require Microsoft 365 E7/G7 or Agent 365"
+    - id: gcc
+      valueKey: gccCount
+      label: "Available in GCC"
+      noteTemplate: "{notInGccCount} are not available in GCC."
+    - id: platform
+      valueKey: platformCount
+      label: "Set up once, platform-wide"
+    - id: per-agent
+      valueKey: agentDecisionCount
+      label: "Involve a decision for each agent"
+  exhibits:
+    glance:
+      label: "Service description at a glance"
+      titleTemplate: "{premiumCount} of {capabilityCount} capabilities require Microsoft 365 E7/G7 or Agent 365; {foundationalCount} come with base plans."
+      sourceNote: "Capability data verified {lastVerified}."
+    pillars:
+      label: "Observe, govern, secure"
+      titleTemplate: "The largest pillar holds {largestPillarCount} of {capabilityCount} capabilities: {largestPillarLabel}."
+      countLabel: "Capabilities: {count}"
+      sourceNote: "Definitions are paraphrased. The grouping is editorial and pending SME review."
+    consoles:
+      label: "Where each capability is configured"
+      titleTemplate: "Configuration spans {consoleCount} consoles, each with its own owner team."
+      sourceNote: "Management Console column. Owner teams are editorial and pending SME review."
+      columns:
+        console: Console
+        ownerTeam: "Owner team"
+        capabilities: Capabilities
+        gcc: "In GCC"
+    layers:
+      label: "Where each capability acts on an agent"
+      titleTemplate: "Capabilities cover {coveredControlPointCount} of {controlPointCount} layers of an agent."
+      sourceNote: "Editorial grouping, pending SME review."
+      columns:
+        layer: Layer
+        governs: "What it governs"
+        capabilities: Capabilities
+  insights:
+    platformFoundation: "Most of Agent 365 is a platform foundation you set up once; only a few decisions are made per agent."
+    platformDetail: "{platformCount} of {capabilityCount} capabilities are set up once on the platform; {agentDecisionCount} involve a decision for each agent."
+
+capabilities:
+  intro: "A first look at the catalog. Lenses, filters, comparison and a brief for each capability are in development."
+  draftNote: "Summaries are drafts pending subject-matter-expert review. The official wording and the availability columns come from the service description."
+  tableCaption: "{capabilityCount} capabilities in the Microsoft Agent 365 service description"
+  scrollRegionLabel: "Capabilities table, scrollable"
+  columns:
+    capability: Capability
+    pillar: Pillar
+    console: Console
+    layer: "Where it acts"
+    setup: Setup
+    licensing: Licensing
+    gcc: GCC
+    wave: Wave
+  waveLabel: "Wave {n}"
+  officialWording: "Official wording"
+  dependencyPrefix: "Depends on"
+  sourcesDifferNote: "Sources differ, verify: the licensing FAQ classifies this capability differently from the service description. Side-by-side detail arrives with the capability briefs."
+
+privacy:
+  statement: "Your answers stay in your browser. This site sends nothing you enter to anyone, and it uses no cookies or analytics. GitHub Pages logs visitor IP addresses for security purposes."
+  storedHeading: "What this site stores in your browser"
+  storedIntro: "Everything is kept in your browser's local storage on this device. Clearing your browser data removes it."
+  storedColumns:
+    what: What
+    where: Where
+    why: Why
+  stored:
+    - what: "Your detail level choice (Executive or Technical)"
+      where: "Local storage, key cpcompass:depth"
+      why: "So the site remembers your choice on your next visit"
+  selfHostedHeading: "Fonts and other files"
+  selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
+  futureNote: "Assessments you save in later versions will also stay in your browser, and you will be able to export and delete them."

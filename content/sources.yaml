@@ -1,0 +1,102 @@
+# Sources of truth (brief section 3). Every sourceId used elsewhere in /content must exist here.
+# lastVerified: the date a person or the tooling last checked the source against our content.
+# Leave lastVerified empty and add TODO(verify) when a source could not be checked.
+- id: sd-a365
+  title: "Microsoft Agent 365: Service Descriptions"
+  url: "https://learn.microsoft.com/en-us/office365/servicedescriptions/microsoft-agent-365/microsoft-agent-365"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Primary source for the capability list and its availability columns. Page last updated 2026-10-01. All 26 feature rows matched content/source-snapshot.json on 2026-10-23."
+
+- id: a365-overview
+  title: "Microsoft Agent 365 overview"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/overview"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Read 2026-10-23 (page date 2026-08-19). Source for the Observe, Govern and Secure pillar definitions, which are paraphrased."
+
+- id: a365-docs
+  title: "Microsoft Agent 365 documentation"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Documentation hub. URL checked (HTTP 200); content not yet compared with content files."
+
+- id: a365-dev
+  title: "Microsoft Agent 365 SDK and CLI"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files."
+
+- id: a365-sdk
+  title: "Microsoft Agent 365 SDK overview"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/agent-365-sdk"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files. Planned source for the request-flow walkthrough."
+
+- id: a365-quickstart
+  title: "Quickstart: Connect an existing agent to Agent 365"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/get-started"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Read 2026-10-23 (page date 2026-10-15). Supports the dependency notes for observability and DLP, and the Frontier preview gate for AI teammates."
+
+- id: a365-registry
+  title: "Agent Registry in Microsoft 365 admin center"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-registry-overview"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Read 2026-10-23 (page date 2026-09-21). Supports the registry agent types, channel values and the Graph API preview label."
+
+- id: a365-agent-map
+  title: "Use Agent Map in the Microsoft 365 admin center"
+  url: "https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-map?view=o365-worldwide"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files."
+
+- id: a365-cps-registry
+  title: "Agent registry integration for Copilot Studio"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/builder/agent-registry"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files."
+
+- id: a365-admin-overview
+  title: "Agent management in Microsoft 365 admin center"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files."
+
+# TODO(verify): the rest of this FAQ, including the sources-differ statements and the myths.
+- id: lic-faq
+  title: "Microsoft Licensing FAQs: Microsoft Agent 365"
+  url: "https://www.microsoft.com/licensing/faqs/122"
+  publisher: Microsoft
+  lastVerified: "2026-10-23"
+  notes: "Partially verified: only the prerequisites-by-segment answer could be read, because the page renders its FAQ with scripts. TODO(verify): everything else that cites this source."
+
+# TODO(verify): this page returned HTTP 403 to automated fetching on 2026-10-23.
+- id: wti-2025
+  title: "2025 Work Trend Index: The year the Frontier Firm is born"
+  url: "https://www.microsoft.com/en-us/worklab/work-trend-index/2025-the-year-the-frontier-firm-is-born"
+  publisher: Microsoft
+  lastVerified:
+  notes: "Not verified: HTTP 403 to automated fetching on 2026-10-23. TODO(verify)."
+
+- id: gh-pages-visibility
+  title: "GitHub Docs: Changing the visibility of your GitHub Pages site"
+  url: "https://docs.github.com/pages/getting-started-with-github-pages/changing-the-visibility-of-your-github-pages-site"
+  publisher: GitHub
+  lastVerified: "2026-10-23"
+  notes: "Read 2026-10-23. Private Pages sites need GitHub Enterprise Cloud; Enterprise Managed Users publish privately only; private sites use a different subdomain."
+
+- id: gh-pages-workflows
+  title: "GitHub Docs: Using custom workflows with GitHub Pages"
+  url: "https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages"
+  publisher: GitHub
+  lastVerified: "2026-10-23"
+  notes: "URL checked (HTTP 200); content not yet compared with content files."

@@ -1,0 +1,42 @@
+# Control points: the layers of an agent where a capability acts (brief section 5.1). Editorial.
+- id: registry
+  order: 1
+  layer: "Registry, lifecycle & policy"
+  shortName: Registry
+  governs: "Who the agent is, who owns it, which policies apply, and how it's published, changed and retired"
+
+- id: identity
+  order: 2
+  layer: "Identity & access"
+  shortName: Identity
+  governs: "How the agent authenticates and what it's allowed to reach"
+
+- id: tools
+  order: 3
+  layer: "Tools & actions"
+  shortName: Tools
+  governs: "Which tools and MCP servers it can call, and what happens when a call looks risky"
+
+- id: data
+  order: 4
+  layer: "Data & knowledge"
+  shortName: Data
+  governs: "What it can see, keep and share"
+
+- id: network
+  order: 5
+  layer: Network
+  shortName: Network
+  governs: "Where its traffic can go"
+
+- id: endpoint
+  order: 6
+  layer: "Devices & runtime"
+  shortName: Devices
+  governs: "Where it runs, and which local agents are allowed"
+
+- id: oversight
+  order: 7
+  layer: "Monitoring, compliance & response"
+  shortName: Oversight
+  governs: "How you watch it, prove compliance and investigate"

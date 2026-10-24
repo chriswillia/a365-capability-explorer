@@ -1,0 +1,44 @@
+# The six consoles named in the service description's Management Console column (brief sections 4.2 and 5.7).
+# id is the value used in capabilities.yaml (source.console). ownerTeam is the default owner for its capabilities.
+- id: Microsoft 365 admin center
+  slug: m365-admin
+  order: 1
+  displayName: Microsoft 365 admin center
+  shortName: Admin center
+  ownerTeam: AI & Microsoft 365 admin team
+
+- id: Entra
+  slug: entra
+  order: 2
+  displayName: Microsoft Entra
+  shortName: Entra
+  ownerTeam: Identity team
+
+- id: Purview
+  slug: purview
+  order: 3
+  displayName: Microsoft Purview
+  shortName: Purview
+  ownerTeam: Data security & compliance team
+
+- id: Defender
+  slug: defender
+  order: 4
+  displayName: Microsoft Defender
+  shortName: Defender
+  ownerTeam: Security operations
+
+- id: Intune
+  slug: intune
+  order: 5
+  displayName: Microsoft Intune
+  shortName: Intune
+  ownerTeam: Endpoint management team
+
+# The service description shows N/A; the interface shows "Programmatic (Graph API)".
+- id: N/A
+  slug: graph-api
+  order: 6
+  displayName: Programmatic (Graph API)
+  shortName: Graph API
+  ownerTeam: AI & Microsoft 365 admin team, with integration owners

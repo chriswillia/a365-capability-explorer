@@ -1,0 +1,24 @@
+# Lifecycle stages: when in an agent's life a capability matters (brief section 5.2). Editorial.
+- id: plan
+  order: 1
+  label: "Plan & design"
+
+- id: build
+  order: 2
+  label: "Build & register"
+
+- id: deploy
+  order: 3
+  label: "Publish & deploy"
+
+- id: operate
+  order: 4
+  label: "Operate & monitor"
+
+- id: respond
+  order: 5
+  label: "Investigate & respond"
+
+- id: retire
+  order: 6
+  label: Retire

@@ -1,0 +1,21 @@
+# Pillar definitions are paraphrased from the Agent 365 overview (a365-overview) in 25 words or fewer.
+- id: observe
+  order: 1
+  label: Observe
+  definition: "See every agent in one registry, with a unified view of adoption, activity and health, so admins spot performance and risk signals early."
+  sourceId: a365-overview
+  reviewStatus: draft
+
+- id: govern
+  order: 2
+  label: Govern
+  definition: "Set consistent guardrails by managing agent lifecycle, access and compliance centrally, so permissions, policies and reviews stay in place and agents stay audit-ready."
+  sourceId: a365-overview
+  reviewStatus: draft
+
+- id: secure
+  order: 3
+  label: Secure
+  definition: "Extend identity, data and threat protection to agents so they reach only authorized resources, avoid leaking data and are defended against threats."
+  sourceId: a365-overview
+  reviewStatus: draft

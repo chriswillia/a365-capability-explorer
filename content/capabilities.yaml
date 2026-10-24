@@ -1,0 +1,786 @@
+# Capability catalog (brief section 4).
+#
+# source.featureText and the three availability flags are copied from the Microsoft Agent 365 service
+# description (sd-a365), checked against content/source-snapshot.json. Do not paraphrase them.
+# Everything else (pillar, wave, control points, setup, lifecycle stages and all text fields) is editorial
+# and stays reviewStatus: draft until a subject-matter expert signs it off.
+#
+# TODO(verify): every sourceNotes entry with sourceId lic-faq was taken from the build brief. The licensing
+# FAQ could not be fully read on 2026-10-23, so those statements need checking against the live page.
+
+- id: registry-inventory
+  shortName: Agent Registry inventory
+  source:
+    sourceId: sd-a365
+    featureText: "Inventory of agents across the organization in the Agent Registry"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: true
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: observe
+  defaultWave: 1
+  controlPoints: [registry]
+  setup: platform
+  lifecycleStages: [build, operate]
+  summary: "Lists the agents across your organization in the Agent Registry. Each entry shows who published it: Microsoft, an external partner, your organization, or an individual creator."
+  executiveValue: "One place to see which agents the organization has, before deciding how to govern them."
+  withoutIt: "Agents built by different teams and tools can go unseen, so nobody can say how many exist or who owns them."
+  withIt: "Admins see every registered agent in one list, which is the starting point for ownership, policy and lifecycle decisions."
+  questionsItAnswers:
+    - "How many agents do we have in our organization?"
+    - "Where can I see all of our agents in one place?"
+  discoveryQuestions:
+    - "Which teams are building or sharing agents today?"
+    - "Who tracks the list of agents in use right now?"
+  sourceNotes:
+    - sourceId: a365-registry
+      note: "Registry entries carry a publisher type: Microsoft, external partner-built, published by your org, or shared by creator."
+  tags: [inventory, catalog, discovery, agent list]
+  reviewStatus: draft
+
+- id: governance-actions
+  shortName: Core governance actions
+  source:
+    sourceId: sd-a365
+    featureText: "Basic governance actions on agents (publish, deploy, block, delete, approve; assign agents to specific user/groups; reassign agent owner, pin, etc.)"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: true
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 1
+  controlPoints: [registry]
+  setup: agent
+  lifecycleStages: [deploy, operate, retire]
+  summary: "Lets admins act on agents in the Microsoft 365 admin center: publish, deploy, block, delete or approve them, assign them to specific users or groups, reassign an owner, and pin them, among other actions."
+  executiveValue: "Gives administrators direct levers over which agents are available, to whom, and who is accountable for each."
+  withoutIt: "Admins may lack a central way to block, approve or reassign agents, so changes depend on whoever built them."
+  withIt: "Admins can approve, restrict, reassign or remove agents centrally and choose which users or groups can reach each one."
+  questionsItAnswers:
+    - "How do I block or remove an agent?"
+    - "How do I limit an agent to certain users or groups?"
+    - "Who approves agents before they are published?"
+  discoveryQuestions:
+    - "Who should approve agents before they reach the wider organization?"
+    - "What should happen to an agent when its owner leaves?"
+  tags: [block, approve, publish, assign, reassign owner, pin]
+  reviewStatus: draft
+
+- id: lifecycle-automation
+  shortName: Rules-based lifecycle automation
+  source:
+    sourceId: sd-a365
+    featureText: "Automate agent lifecycle actions using conditions-based rules"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: true
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 2
+  controlPoints: [registry]
+  setup: platform
+  lifecycleStages: [operate, retire]
+  summary: "Applies lifecycle actions to agents automatically when conditions you define are met, rather than relying on manual admin steps."
+  executiveValue: "Keeps a growing agent estate tidy by applying consistent rules instead of one-off admin actions."
+  withoutIt: "Every lifecycle change depends on someone noticing the agent and acting by hand."
+  withIt: "Defined conditions trigger the lifecycle action, so agents are handled the same way every time."
+  questionsItAnswers:
+    - "Can agent lifecycle actions be automated?"
+    - "How do we manage agents at scale without manual reviews?"
+  discoveryQuestions:
+    - "Which agent lifecycle actions do we repeat often enough to automate?"
+    - "Which conditions should trigger an action, for example an agent with no sponsor?"
+  sourceNotes:
+    # TODO(verify)
+    - sourceId: lic-faq
+      differs: true
+      note: 'Lists "Automate agent lifecycle actions" as requiring an Agent 365 license.'
+  tags: [automation, rules, conditions, lifecycle]
+  reviewStatus: draft
+
+- id: registry-sync
+  shortName: External registry sync
+  source:
+    sourceId: sd-a365
+    featureText: "Synchronize agents and agent metadata from external platforms that aren't managed by Agent 365 into the registry"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: true
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: observe
+  defaultWave: 1
+  controlPoints: [registry]
+  setup: platform
+  lifecycleStages: [build, operate]
+  summary: "Brings agents and agent metadata from external platforms that Agent 365 doesn't manage into the Agent Registry, so they appear alongside agents built on Microsoft platforms."
+  executiveValue: "Extends one inventory across platforms, so agents built elsewhere are not a blind spot."
+  withoutIt: "Agents running on other platforms stay outside the registry, leaving a gap in the inventory."
+  withIt: "Agents from external platforms appear in the registry with their metadata, next to Microsoft-built agents."
+  questionsItAnswers:
+    - "How do I see agents built on other platforms in the registry?"
+    - "Can the registry include agents that Agent 365 doesn't manage?"
+  discoveryQuestions:
+    - "Which platforms outside Microsoft are teams building agents on?"
+    - "Who owns those platforms and the agents on them?"
+  sourceNotes:
+    # TODO(verify)
+    - sourceId: lic-faq
+      differs: true
+      note: 'Lists "Registry sync" as requiring an Agent 365 license.'
+  tags: [sync, external platforms, third-party agents, multi-platform]
+  reviewStatus: draft
+
+- id: policy-templates
+  shortName: Agent policy templates
+  source:
+    sourceId: sd-a365
+    featureText: "Policy templates applying customized policies and controls to agents"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 2
+  controlPoints: [registry]
+  setup: both
+  lifecycleStages: [deploy]
+  summary: "Applies customized policies and controls to agents through policy templates, so the same set of controls can be reused across agents."
+  executiveValue: "Sets a standard baseline of controls once and applies it to many agents instead of configuring each one."
+  withoutIt: "Controls are set agent by agent, so coverage varies with whoever configures each one."
+  withIt: "Admins define customized policies and controls once in a template and apply them to agents."
+  questionsItAnswers:
+    - "How do I apply the same controls to all our agents?"
+    - "Can I standardize policies for agents?"
+  discoveryQuestions:
+    - "Which controls should every agent have by default?"
+    - "Do some kinds of agents need stricter policies than others?"
+  tags: [policy, baseline, standards, templates, controls]
+  reviewStatus: draft
+
+- id: observability
+  shortName: Agent observability & monitoring
+  source:
+    sourceId: sd-a365
+    featureText: "Observability and monitoring of agent activity (Visualization and telemetry)"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: observe
+  defaultWave: 1
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Provides visualization and telemetry of agent activity for monitoring. Telemetry comes from instrumenting the agent for observability; registering an agent alone gives catalog visibility only."
+  executiveValue: "Shows how agents are actually used, so decisions about value and risk rest on evidence."
+  withoutIt: "Agent activity is hard to see after launch, so usage, health and problems surface late."
+  withIt: "Admins can see and monitor agent activity through visualization and telemetry."
+  questionsItAnswers:
+    - "How do I monitor what my agents are doing?"
+    - "How do I get telemetry from an agent?"
+  discoveryQuestions:
+    - "Who reviews agent activity today, and how often?"
+    - "What would you want to know about an agent once it is live?"
+  dependencies:
+    - note: "Telemetry comes from instrumenting the agent for observability; registration alone gives catalog visibility."
+      sourceId: a365-quickstart
+    - note: "If no telemetry appears, confirm that at least one user in the tenant has a Microsoft 365 E7 or Agent 365 license assigned."
+      sourceId: a365-quickstart
+  tags: [telemetry, monitoring, visualization, usage, health]
+  reviewStatus: draft
+
+- id: tool-controls
+  shortName: Tenant-wide tool & MCP controls
+  source:
+    sourceId: sd-a365
+    featureText: "Control which tools (including Microsoft MCP servers) agents can access tenant-wide"
+    console: Microsoft 365 admin center
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 2
+  controlPoints: [tools]
+  setup: both
+  lifecycleStages: [deploy, operate]
+  summary: "Lets admins decide, tenant-wide, which tools agents can access, including Microsoft MCP servers."
+  executiveValue: "Keeps the tools agents can reach under central control instead of leaving the choice to each agent."
+  withoutIt: "Agents may connect to tools nobody has reviewed, and admins cannot limit that across the tenant."
+  withIt: "Admins set which tools, including Microsoft MCP servers, agents can use across the tenant."
+  questionsItAnswers:
+    - "How do I control which tools and MCP servers agents can use?"
+    - "How do I limit which tools agents can access?"
+  discoveryQuestions:
+    - "Which tools and MCP servers do our agents need, and which should be off limits?"
+    - "Who approves a new tool for agents?"
+  tags: [MCP, tools, allow list, connectors]
+  reviewStatus: draft
+
+- id: registry-graph-api
+  shortName: Agent Registry Graph API
+  source:
+    sourceId: sd-a365
+    featureText: "Graph API provides access to agent registry, basic metadata, and governance actions"
+    console: N/A
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 3
+  controlPoints: [registry]
+  setup: platform
+  lifecycleStages: [operate]
+  status: preview
+  summary: "A Microsoft Graph API gives programmatic access to the agent registry, basic agent metadata and governance actions, so agent inventory and governance can plug into existing workflows."
+  executiveValue: "Lets the organization connect agent inventory and governance to its own systems and reports."
+  withoutIt: "Teams that want agent data in their own systems may have to copy it by hand from the admin center."
+  withIt: "Registry data and governance actions can be called programmatically and connected to existing workflows."
+  questionsItAnswers:
+    - "Is there an API for the agent registry?"
+    - "How do I pull the agent inventory into my own reports?"
+  discoveryQuestions:
+    - "Which systems should receive agent inventory data?"
+    - "Who would build and maintain that integration?"
+  dependencies:
+    - note: "The Microsoft Graph API for the Agent Registry works with the AI Admin role."
+      sourceId: a365-registry
+  sourceNotes:
+    - sourceId: a365-registry
+      note: 'Documented as "Microsoft Graph API for Agent Registry and Agent Details (preview)".'
+  docs:
+    - title: "Agent and app Package Management API overview (preview)"
+      url: "https://learn.microsoft.com/en-us/microsoft-365-copilot/extensibility/api/admin-settings/package/overview"
+  tags: [Graph, API, programmatic, automation, integration, CMDB]
+  reviewStatus: draft
+
+- id: entra-access-packages
+  shortName: Access packages for agents
+  source:
+    sourceId: sd-a365
+    featureText: "Access packages for agents to define scope of agent permissions"
+    console: Entra
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 2
+  controlPoints: [identity]
+  setup: agent
+  lifecycleStages: [build, deploy]
+  summary: "Defines the scope of an agent's permissions through Microsoft Entra access packages."
+  executiveValue: "Keeps what an agent can reach explicit and bounded, instead of letting permissions grow ad hoc."
+  withoutIt: "An agent with its own access may hold broader permissions than its job needs, with no defined scope to review."
+  withIt: "Each agent's permissions are defined as an access package, giving a clear scope that can be reviewed."
+  questionsItAnswers:
+    - "How do I limit what an agent is allowed to access?"
+    - "How do I define the scope of an agent's permissions?"
+  discoveryQuestions:
+    - "What data and systems does this agent actually need?"
+    - "Who approves access for the agent?"
+  tags: [Entra, permissions, least privilege, access, scope]
+  reviewStatus: draft
+
+- id: entra-sponsor-lifecycle
+  shortName: Sponsor-driven lifecycle policies
+  source:
+    sourceId: sd-a365
+    featureText: "Built-in Entra lifecycle policies automate sponsor-driven workflows to maintain accountability"
+    console: Entra
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 1
+  controlPoints: [identity]
+  setup: both
+  lifecycleStages: [build, operate, retire]
+  summary: "Built-in Entra lifecycle policies automate workflows driven by an agent's sponsor, so a named person stays accountable for each agent."
+  executiveValue: "Ties every agent to an accountable person and keeps that accountability current over time."
+  withoutIt: "Agents can outlive the people who created them, leaving no one accountable for what they can do."
+  withIt: "Sponsor-driven workflows run automatically, helping each agent keep an accountable owner."
+  questionsItAnswers:
+    - "How do I make sure every agent has an accountable owner?"
+    - "What is an agent sponsor?"
+  discoveryQuestions:
+    - "Who should sponsor each agent, and what are they accountable for?"
+    - "How do we handle agents with no sponsor today?"
+  tags: [sponsor, owner, accountability, lifecycle, Entra]
+  reviewStatus: draft
+
+- id: entra-conditional-access
+  shortName: Conditional Access & Identity Protection
+  source:
+    sourceId: sd-a365
+    featureText: "Conditional access and identity protection for agents (for agents with delegated access - extend user policies to agents)"
+    console: Entra
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [identity]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Extends Microsoft Entra Conditional Access and identity protection to agents. For agents with delegated access, the policies that apply to the user extend to the agent."
+  executiveValue: "Applies the sign-in and risk controls already trusted for people to the agents that act for them."
+  withoutIt: "An agent acting on a user's behalf may not be held to the same access conditions as the user."
+  withIt: "User policies extend to agents with delegated access, so the same conditions apply to the agent."
+  questionsItAnswers:
+    - "How do Conditional Access policies apply to agents?"
+    - "How do I apply user policies to an agent acting on behalf of a user?"
+  discoveryQuestions:
+    - "Which of our agents act on behalf of users?"
+    - "Which existing user policies should extend to agents?"
+  tags: [conditional access, identity protection, delegated access, on-behalf-of, sign-in]
+  reviewStatus: draft
+
+- id: entra-network-controls
+  shortName: Network controls for agents
+  source:
+    sourceId: sd-a365
+    featureText: "Monitor and block malicious and noncompliant network traffic for agents, operating on user devices, and for Copilot Studio agents"
+    console: Entra
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [network]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Monitors and blocks malicious and noncompliant network traffic for agents operating on user devices and for Copilot Studio agents."
+  executiveValue: "Puts network guardrails around agent traffic, so risky destinations can be blocked, not just reported."
+  withoutIt: "Agent traffic to malicious or noncompliant destinations goes unchecked."
+  withIt: "Agent network traffic is monitored, and malicious or noncompliant traffic can be blocked."
+  questionsItAnswers:
+    - "How do I stop agents from reaching malicious websites?"
+    - "How do I control network traffic from agents?"
+  discoveryQuestions:
+    - "Which agents browse the web or call external services?"
+    - "Do the devices where agents run already have network protection?"
+  tags: [network, traffic, web filtering, Copilot Studio, endpoints]
+  reviewStatus: draft
+
+- id: purview-audit-ediscovery
+  shortName: Audit & eDiscovery
+  source:
+    sourceId: sd-a365
+    featureText: "Audit logs of agent activities and eDiscovery (content search) of agent interaction to export and hold for legal, regulatory, and investigative needs"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 3
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [operate, respond]
+  summary: "Records agent activities in audit logs and supports eDiscovery content search of agent interactions, so they can be exported and held for legal, regulatory and investigative needs."
+  executiveValue: "Keeps an evidence trail of agent activity that legal, compliance and security teams can search, export and hold."
+  withoutIt: "When a legal, regulatory or investigative request arrives, there may be no searchable record of what an agent did."
+  withIt: "Agent activity is auditable, and agent interactions can be searched, exported and placed on hold."
+  questionsItAnswers:
+    - "How do I audit what an agent did?"
+    - "Can I run eDiscovery on agent interactions?"
+    - "How do I place agent interactions on legal hold?"
+  discoveryQuestions:
+    - "Which legal, regulatory or investigative requests could involve agent interactions?"
+    - "Who in legal or compliance runs eDiscovery today?"
+  sourceNotes:
+    # TODO(verify)
+    - sourceId: lic-faq
+      differs: true
+      note: 'Lists "Audit logs and eDiscovery for agent activity" under both included and licensed capabilities.'
+  tags: [audit, eDiscovery, legal hold, evidence, investigation]
+  reviewStatus: draft
+
+- id: purview-dlm
+  shortName: Data Lifecycle Management
+  source:
+    sourceId: sd-a365
+    featureText: "Data Lifecycle Management for agent-generated data and interactions in line with regulations and org policies"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 3
+  controlPoints: [data]
+  setup: platform
+  lifecycleStages: [operate, retire]
+  summary: "Applies Purview Data Lifecycle Management to agent-generated data and interactions, so they are managed in line with regulations and organizational policies."
+  executiveValue: "Brings the data agents create under the same lifecycle rules as other organizational data."
+  withoutIt: "Data and interactions created by agents may fall outside the policies that govern the rest of the organization's data."
+  withIt: "Agent-generated data and interactions are managed in line with regulations and organizational policies."
+  questionsItAnswers:
+    - "How do I apply retention policies to agent data?"
+    - "How do I manage the data agents generate?"
+  discoveryQuestions:
+    - "Which retention or deletion requirements apply to content agents create?"
+    - "Do any agents generate records the organization must keep?"
+  tags: [retention, records, data lifecycle, compliance, agent-generated data]
+  reviewStatus: draft
+
+- id: purview-ai-compliance
+  shortName: Interaction compliance & Compliance Manager
+  source:
+    sourceId: sd-a365
+    featureText: "Detect and review noncompliant agent interactions; extend compliance manager to agents to assess, manage, and demonstrate AI compliance"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: govern
+  defaultWave: 3
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [operate, respond]
+  summary: "Detects and supports review of noncompliant agent interactions, and extends Compliance Manager to agents to assess, manage and demonstrate AI compliance."
+  executiveValue: "Helps show regulators and auditors that agent use is assessed and managed, not just permitted."
+  withoutIt: "Noncompliant agent interactions may go unnoticed, and AI compliance can be hard to demonstrate."
+  withIt: "Noncompliant interactions are detected and reviewed, and AI compliance is assessed, managed and demonstrated through Compliance Manager."
+  questionsItAnswers:
+    - "How do I detect noncompliant agent interactions?"
+    - "How do I demonstrate AI compliance for agents?"
+  discoveryQuestions:
+    - "Which AI regulations or internal standards apply to our agents?"
+    - "Who owns AI compliance assessments today?"
+  tags: [Compliance Manager, regulation, AI governance, review, assessment]
+  reviewStatus: draft
+
+- id: purview-dspm-ai
+  shortName: DSPM with AI Observability
+  source:
+    sourceId: sd-a365
+    featureText: "Data Security Posture Management with AI Observability provides deep interaction visibility for agents"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [data]
+  setup: platform
+  lifecycleStages: [plan, operate]
+  summary: "Data Security Posture Management (DSPM) with AI Observability gives deep visibility into agent interactions."
+  executiveValue: "Shows how agents interact with organizational data, so security decisions rest on what actually happens."
+  withoutIt: "It is hard to see what agents are doing with data, so data risks surface late."
+  withIt: "Security teams get deep visibility into agent interactions, which helps them spot data risks."
+  questionsItAnswers:
+    - "How do I see what agents are doing with our data?"
+    - "Where can I observe AI interactions for data security?"
+  discoveryQuestions:
+    - "Which sensitive data sources can agents reach?"
+    - "Does the security team already use DSPM for AI?"
+  tags: [DSPM, data security, posture, AI observability, interactions]
+  reviewStatus: draft
+
+- id: purview-insider-risk
+  shortName: Insider Risk Management for agents
+  source:
+    sourceId: sd-a365
+    featureText: "Extend Insider Risk Management to agents – detect anomalous and risky agent activities"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [operate, respond]
+  summary: "Extends Purview Insider Risk Management to agents to detect anomalous and risky agent activities."
+  executiveValue: "Applies the insider-risk lens to agents, so unusual behavior is flagged for review."
+  withoutIt: "Unusual or risky agent activity may not be flagged by the programs already watching for insider risk."
+  withIt: "Anomalous and risky agent activities are detected through Insider Risk Management."
+  questionsItAnswers:
+    - "How do I detect risky agent behavior?"
+    - "Does insider risk management cover agents?"
+  discoveryQuestions:
+    - "Does the organization run an insider-risk program today?"
+    - "Who would review alerts about agent activity?"
+  tags: [insider risk, anomaly, risky activity, behavior]
+  reviewStatus: draft
+
+- id: purview-labels
+  shortName: Sensitivity label inheritance
+  source:
+    sourceId: sd-a365
+    featureText: "Agents inherit and honor data sensitivity labels"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [data]
+  setup: platform
+  lifecycleStages: [plan, operate]
+  summary: "Agents inherit and honor the sensitivity labels on the data they use, so label-based protections apply to agent use of that data."
+  executiveValue: "Makes the data classification you already maintain apply to what agents can do with that data."
+  withoutIt: "Agents may use or share labeled content without the label's protections being applied."
+  withIt: "Agents respect the sensitivity labels on content, so classification travels with the data."
+  questionsItAnswers:
+    - "How do sensitivity labels apply to agents?"
+    - "How do I stop agents sharing sensitive files?"
+  discoveryQuestions:
+    - "How broadly are sensitivity labels applied to our data today?"
+    - "Which content must agents never expose?"
+  tags: [sensitivity labels, classification, labeling, oversharing]
+  reviewStatus: draft
+
+- id: purview-dlp
+  shortName: Data loss prevention for agents
+  source:
+    sourceId: sd-a365
+    featureText: "Data loss prevention – block agents from accessing and sharing sensitive content"
+    console: Purview
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [data]
+  setup: platform
+  lifecycleStages: [deploy, operate]
+  summary: "Data loss prevention policies block agents from accessing and sharing sensitive content."
+  executiveValue: "Stops agents from becoming a path for sensitive information to leave its intended boundaries."
+  withoutIt: "An agent could surface or share sensitive content with people or systems that should not receive it."
+  withIt: "DLP policies block agents from accessing and sharing sensitive content."
+  questionsItAnswers:
+    - "How do I block agents from sharing sensitive data?"
+    - "How do I apply DLP to agents?"
+  discoveryQuestions:
+    - "Which content types must agents never access or share?"
+    - "Which existing DLP policies should agents follow?"
+  dependencies:
+    - note: "In the quickstart, adding DLP requires Purview DLP for AI to be enabled in the tenant, including licensing, pay-as-you-go billing and DSPM for AI onboarding."
+      sourceId: a365-quickstart
+  tags: [DLP, data loss prevention, leakage, sharing, sensitive content]
+  reviewStatus: draft
+
+- id: defender-shadow-ai
+  shortName: Shadow AI endpoint agent sync
+  source:
+    sourceId: sd-a365
+    featureText: "Sync shadow AI endpoint agents"
+    console: Defender
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: observe
+  defaultWave: 1
+  controlPoints: [endpoint]
+  setup: platform
+  lifecycleStages: [operate]
+  # TODO(verify): where synced shadow AI agents appear (the registry, the Defender portal, or both).
+  summary: "Syncs shadow AI endpoint agents: agents running on endpoints outside sanctioned channels, so admins can discover them."
+  executiveValue: "Brings unsanctioned agents on devices into view, so they can be governed instead of ignored."
+  withoutIt: "Agents installed on employee devices can operate unseen, outside any inventory or policy."
+  withIt: "Shadow AI agents on endpoints are discovered and synced so they can be reviewed."
+  questionsItAnswers:
+    - "How do I find AI agents employees run on their own devices?"
+    - "How do I detect shadow AI?"
+  discoveryQuestions:
+    - "Do employees run coding or command-line agents on their devices today?"
+    - "Is endpoint protection already deployed on those devices?"
+  sourceNotes:
+    # TODO(verify)
+    - sourceId: lic-faq
+      differs: true
+      note: 'Lists "Discovery of AI on endpoints" as included. This may be a different capability, so flagged for SME review.'
+  tags: [shadow AI, endpoints, local agents, discovery, unsanctioned]
+  reviewStatus: draft
+
+- id: defender-posture
+  shortName: Agent posture & exposure management
+  source:
+    sourceId: sd-a365
+    featureText: "Identify and remediate agent misconfigurations and exposure risks, relationship mapping for local agents (agent to devices, MCPs, etc.)"
+    console: Defender
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Identifies and helps remediate agent misconfigurations and exposure risks, and maps relationships for local agents, such as agent to devices and MCP servers."
+  executiveValue: "Shows where agents are misconfigured or exposed, and how local agents connect to devices and tools."
+  withoutIt: "Misconfigured or exposed agents, and the devices and tools local agents connect to, stay hard to see and fix."
+  withIt: "Misconfigurations and exposure risks are identified and remediated, and local-agent relationships are mapped."
+  questionsItAnswers:
+    - "How do I find misconfigured agents?"
+    - "How do I see which devices and MCP servers a local agent connects to?"
+  discoveryQuestions:
+    - "Does the security team already manage posture and exposure for other assets?"
+    - "Who would remediate agent findings?"
+  tags: [posture, exposure, misconfiguration, relationship map, attack surface]
+  reviewStatus: draft
+
+- id: defender-threat-protection
+  shortName: Threat detection & tool-call blocking
+  source:
+    sourceId: sd-a365
+    featureText: "Detect suspicious agent activity, receive alerts, and allow blocking for tool invocations for agents"
+    console: Defender
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [tools]
+  setup: platform
+  lifecycleStages: [operate, respond]
+  summary: "Detects suspicious agent activity, raises alerts, and allows tool invocations by agents to be blocked."
+  executiveValue: "Adds runtime protection: suspicious agent behavior triggers alerts, and risky tool calls can be stopped."
+  withoutIt: "Suspicious agent activity and risky tool calls may go unnoticed."
+  withIt: "Security teams get alerts on suspicious agent activity and can block tool invocations."
+  questionsItAnswers:
+    - "How do I block risky tool calls by agents?"
+    - "How do I get alerts about suspicious agent behavior?"
+  discoveryQuestions:
+    - "Which tool calls would the business want blocked automatically?"
+    - "Who triages security alerts today?"
+  tags: [threat detection, alerts, tool blocking, runtime protection, suspicious activity]
+  reviewStatus: draft
+
+- id: defender-hunting
+  shortName: Threat hunting & investigation
+  source:
+    sourceId: sd-a365
+    featureText: "Collect Agent 365 unified agent observability logs and allow investigation and hunting for threats for agents"
+    console: Defender
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [oversight]
+  setup: platform
+  lifecycleStages: [respond]
+  summary: "Collects Agent 365 unified agent observability logs so security teams can investigate and hunt for threats involving agents."
+  executiveValue: "Gives security analysts the agent telemetry they need to investigate incidents and hunt proactively."
+  withoutIt: "Analysts investigating an incident may lack agent logs to work from."
+  withIt: "Unified agent observability logs are collected and can be queried to investigate and hunt for threats."
+  questionsItAnswers:
+    - "How do I hunt for threats involving agents?"
+    - "Where do agent observability logs go for investigation?"
+  discoveryQuestions:
+    - "Does the security operations team already hunt for threats in Defender?"
+    - "What agent activity would be most useful to query?"
+  tags: [hunting, investigation, logs, SOC, threat hunting]
+  reviewStatus: draft
+
+- id: intune-device-compliance
+  shortName: Device compliance for agent CA
+  source:
+    sourceId: sd-a365
+    featureText: "Device compliance for agent conditional access"
+    console: Intune
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: true
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [identity]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Brings device compliance into Conditional Access for agents, so access decisions for agents can take the compliance of the device into account."
+  executiveValue: "Extends device-health requirements to agent access, not just to people."
+  withoutIt: "Conditional Access for agents may not take device compliance into account."
+  withIt: "Conditional Access decisions for agents can take device compliance into account."
+  questionsItAnswers:
+    - "How do I require compliant devices for agent access?"
+    - "Does device compliance apply to agents?"
+  discoveryQuestions:
+    - "Are the devices where agents run managed and compliant today?"
+    - "Which agents should only work from compliant devices?"
+  tags: [device compliance, Intune, conditional access, managed devices]
+  reviewStatus: draft
+
+- id: intune-runtime-policy
+  shortName: Policy-controlled agent runtime
+  source:
+    sourceId: sd-a365
+    featureText: "Policy-controlled environment for agents runtime"
+    console: Intune
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 3
+  controlPoints: [endpoint]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Provides a policy-controlled environment for the runtime where agents execute."
+  executiveValue: "Lets IT set and enforce policy for the environment agents run in."
+  withoutIt: "Agents run in environments whose settings no policy governs."
+  withIt: "Agents run in an environment controlled by organizational policy."
+  questionsItAnswers:
+    - "How do I control the environment agents run in?"
+    - "How do I enforce policy on the agent runtime?"
+  discoveryQuestions:
+    - "Where do agents run today: in the cloud, on devices or both?"
+    - "Which runtime settings would IT want to enforce?"
+  tags: [runtime, policy, environment, Intune, endpoints]
+  reviewStatus: draft
+
+- id: intune-block-local
+  shortName: Block unsanctioned local agents
+  source:
+    sourceId: sd-a365
+    featureText: "Block unsanctioned local endpoint agents"
+    console: Intune
+    includedWithBasePlans: false
+    availableWithE7G7OrA365: true
+    gccAvailable: false
+    lastVerified: "2026-10-23"
+  pillar: secure
+  defaultWave: 2
+  controlPoints: [endpoint]
+  setup: platform
+  lifecycleStages: [operate]
+  summary: "Blocks unsanctioned local agents on endpoints, so only approved agents run on managed devices."
+  executiveValue: "Turns a decision about which local agents are allowed into an enforced control on devices."
+  withoutIt: "Anyone could install and run an unsanctioned agent on a work device."
+  withIt: "Unsanctioned local agents are blocked on endpoints."
+  questionsItAnswers:
+    - "How do I block unapproved AI agents on employee devices?"
+    - "Can I stop people from running unsanctioned agents locally?"
+  discoveryQuestions:
+    - "Which local agents are approved, and who decides?"
+    - "How would a blocked user request an exception?"
+  sourceNotes:
+    # TODO(verify)
+    - sourceId: lic-faq
+      differs: true
+      note: 'Lists "Block unsanctioned local endpoint agents" as included.'
+  tags: [block, local agents, endpoints, unsanctioned, shadow AI]
+  reviewStatus: draft
