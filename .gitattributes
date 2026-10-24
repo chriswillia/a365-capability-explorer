@@ -1,0 +1,5 @@
+# Keep line endings identical on Windows and Linux, so the content hash (and CI) never disagree.
+* text=auto eol=lf
+*.png binary
+*.woff binary
+*.woff2 binary

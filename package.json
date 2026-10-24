@@ -1,0 +1,68 @@
+{
+  "name": "control-plane-compass",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Control Plane Compass: map any agent use case to Microsoft Agent 365. An independent project.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "content:build": "tsx scripts/build-content.ts",
+    "predev": "npm run content:build",
+    "dev": "vite",
+    "prebuild": "npm run content:build",
+    "build": "tsc -b && vite build",
+    "postbuild": "tsx scripts/postbuild.ts",
+    "build:all": "npm run content:build && tsc -b && tsx scripts/build-all.ts",
+    "preview": "vite preview",
+    "pretypecheck": "npm run content:build",
+    "typecheck": "tsc -b",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "pretest": "npm run content:build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build:all && playwright test",
+    "test:e2e:live": "playwright test"
+  },
+  "dependencies": {
+    "@fluentui/react-components": "^9.74.11",
+    "@fluentui/react-icons": "^2.0.344",
+    "@fontsource/source-serif-4": "^5.3.1",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "react-router": "^8.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.64.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.6",
+    "globals": "^17.12.0",
+    "js-yaml": "^5.5.0",
+    "jsdom": "^30.1.3",
+    "prettier": "^3.9.10",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.5"
+  },
+  "allowScripts": {
+    "esbuild": false
+  }
+}
