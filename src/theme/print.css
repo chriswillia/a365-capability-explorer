@@ -1,0 +1,27 @@
+/* Print output. Readouts and canvases extend this in later phases (cover page, running footer, page breaks). */
+
+@page {
+  margin: 16mm;
+}
+
+@media print {
+  body {
+    background: var(--color-white);
+  }
+
+  [data-no-print] {
+    display: none !important;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  section,
+  table,
+  figure,
+  tr {
+    break-inside: avoid;
+  }
+}
