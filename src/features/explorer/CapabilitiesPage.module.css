@@ -1,0 +1,44 @@
+.intro {
+  max-width: 42rem;
+  font-size: var(--text-20);
+  line-height: var(--line-height-snug);
+}
+
+.cell {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 14rem;
+  max-width: 26rem;
+}
+
+.name {
+  font-weight: 700;
+}
+
+.detail {
+  color: var(--color-slate);
+}
+
+.id {
+  color: var(--color-slate);
+  font-family: var(--font-mono);
+  font-size: var(--text-12);
+}
+
+.wording {
+  color: var(--color-slate);
+  font-size: var(--text-12);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.note {
+  max-width: 52rem;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}

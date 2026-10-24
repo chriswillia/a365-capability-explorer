@@ -1,0 +1,8 @@
+.heading {
+  font-size: clamp(var(--text-32), 4vw, var(--text-44));
+}
+
+/* Focus lands here programmatically after navigation; the heading itself is not a control. */
+.heading:focus {
+  outline: none;
+}

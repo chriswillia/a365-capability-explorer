@@ -1,0 +1,17 @@
+.page {
+  display: grid;
+  gap: var(--space-6);
+  max-width: var(--layout-max-width);
+  margin: 0 auto;
+  padding: var(--space-12) var(--layout-gutter) 0;
+}
+
+.narrow {
+  max-width: 52rem;
+}
+
+@media (max-width: 40rem) {
+  .page {
+    padding: var(--space-8) var(--layout-gutter-narrow) 0;
+  }
+}

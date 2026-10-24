@@ -1,0 +1,19 @@
+.statement {
+  font-family: var(--font-display);
+  font-size: var(--text-24);
+  line-height: var(--line-height-snug);
+}
+
+.section {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.section h2 {
+  font-size: var(--text-24);
+}
+
+.note {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}

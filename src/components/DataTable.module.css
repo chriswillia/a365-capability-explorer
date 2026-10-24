@@ -1,0 +1,45 @@
+.scroll {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  font-size: var(--text-14);
+}
+
+.caption {
+  padding-bottom: var(--space-3);
+  text-align: left;
+  font-weight: 600;
+}
+
+.table th,
+.table td {
+  padding: var(--space-3);
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.table thead th {
+  color: var(--color-slate);
+  font-size: var(--text-12);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom-color: var(--color-control-border);
+}
+
+.rowHeader {
+  font-weight: 400;
+}
+
+.table .numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.table .nowrap {
+  white-space: nowrap;
+}

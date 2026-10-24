@@ -1,0 +1,9 @@
+.lede {
+  font-size: var(--text-20);
+  line-height: var(--line-height-snug);
+}
+
+.status {
+  color: var(--color-slate);
+  font-weight: 600;
+}

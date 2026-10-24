@@ -1,0 +1,42 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 1px var(--space-2);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-12);
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.icon {
+  display: inline-flex;
+}
+
+.outline {
+  color: var(--color-ink);
+  border-color: var(--color-control-border);
+}
+
+.info {
+  color: var(--color-link);
+  background: var(--color-tint);
+}
+
+.amber {
+  color: var(--color-amber-text);
+  background: var(--color-amber-background);
+}
+
+.neutral {
+  color: var(--color-slate);
+  border-color: var(--color-control-border);
+}
+
+/* Draft content: a dashed outline, so it reads differently from reviewed content. */
+.draft {
+  color: var(--color-slate);
+  border-style: dashed;
+}

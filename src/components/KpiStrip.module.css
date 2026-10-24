@@ -1,0 +1,36 @@
+.strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11.5rem, 1fr));
+  gap: var(--space-4);
+}
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.value {
+  order: 1;
+  font-family: var(--font-display);
+  font-size: var(--text-44);
+  font-weight: 700;
+  line-height: var(--line-height-tight);
+  font-variant-numeric: tabular-nums;
+}
+
+.label {
+  order: 2;
+  font-size: var(--text-14);
+  font-weight: 600;
+}
+
+.note {
+  order: 3;
+  color: var(--color-slate);
+  font-size: var(--text-12);
+}
