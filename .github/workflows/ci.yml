@@ -1,0 +1,69 @@
+name: CI
+
+# Runs on pull requests, and is called by deploy-pages.yml so that a push to main is checked before it is published.
+on:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Validates /content and compiles it to src/generated. Everything below needs that output.
+      - name: Build content
+        run: npm run content:build
+
+      - name: Lint and format check
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc -b
+
+      - name: Unit and component tests
+        run: npx vitest run
+
+      # Builds the site twice: from "/" and from "/<repo>/", the two ways GitHub Pages can serve it.
+      - name: Build both base paths
+        run: npm run build:all
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: End-to-end and accessibility tests
+        run: npx playwright test
+
+      - name: Keep the Playwright report when a test fails
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+      - name: Upload the built site as a preview
+        uses: actions/upload-artifact@v7
+        with:
+          name: site-preview
+          path: |
+            dist-root
+            dist-repo
+          retention-days: 14
