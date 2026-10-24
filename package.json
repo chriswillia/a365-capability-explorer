@@ -21,6 +21,8 @@
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
+    "lockfile:check": "tsx scripts/lockfile.ts check",
+    "lockfile:fix": "tsx scripts/lockfile.ts fix",
     "pretest": "npm run content:build",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -58,7 +58,7 @@ The [build brief](A365-Navigator-Build-Brief.md) is kept as written. Where the b
 
 1. **Renamed** from "Agent 365 Navigator" to **Control Plane Compass**. Read the old name in the brief as the new one.
 2. **Hosting:** a public project site from a personal account. The brief's private pilot was not used: a private Pages site needs GitHub Enterprise Cloud. The site carries `noindex` until launch.
-3. **Toolchain pins:** TypeScript 6.0 (typescript-eslint supports up to 6.0.x) and ESLint 9.39 (`eslint-plugin-jsx-a11y` does not support ESLint 10). Revisit when those plugins catch up.
+3. **Toolchain pins:** TypeScript 6.0 (typescript-eslint supports up to 6.0.x) and ESLint 9.39 (`eslint-plugin-jsx-a11y` does not support ESLint 10). Revisit when those plugins catch up. Dependabot is told to skip those updates, and major updates of `@types/node`, which follows the Node version in `.nvmrc`.
 4. **`js-yaml` is a dev dependency.** It runs at build time only, so the browser receives compiled JSON.
 5. **Contrast:** the brief's `#0078D4` is 4.27:1 on the paper canvas, below AA for text. Link text uses `#106EBE`, and form controls get their own border token (the hairline is decorative).
 6. **`sourceNotes[].differs`** (an addition) marks a statement that differs from the service description, which drives "Sources differ, verify".
@@ -66,3 +66,4 @@ The [build brief](A365-Navigator-Build-Brief.md) is kept as written. Where the b
 8. **Orphaned sources warn instead of failing** until the content that cites them exists. Set `failOnOrphanedSources: true` in the `buildContent` call in `scripts/build-content.ts` once all content files are in (Phase 3).
 9. **Not validated yet:** that every capability is mitigated by a risk, and question and option references. They need `risks.yaml` and `questions.yaml`.
 10. **Unverified sources:** the licensing FAQ (`lic-faq`) could be read only in part, and the Work Trend Index (`wti-2025`) not at all. Content that depends on them is marked `TODO(verify)`.
+11. **The lockfile resolves from the public npm registry.** The first lockfile was written through a private npm proxy and recorded that proxy's hostname for every package. It was regenerated with the same versions: each locked version was checked against the registry's published checksum, and every entry now carries a sha512 integrity. `npm run lockfile:check` and a unit test fail on any other registry, and `npm run lockfile:fix` rewrites the URLs offline. No registry is configured in the repo, so each machine keeps its own, and npm's `replace-registry-host` default lets a proxy serve the public URLs.
