@@ -511,6 +511,62 @@ export const LearnSchema = z.strictObject({
 const Template = Text; // may contain {placeholders}; validate.ts checks them against TEMPLATE_KEYS
 const RouteCopy = z.strictObject({ title: Text, description: Text });
 
+export const ReadoutCopySchema = z.strictObject({
+  open: Text,
+  title: Template,
+  draft: Text,
+  current: Text,
+  preparedFor: Text,
+  summary: Text,
+  takeaways: z.array(Template).length(3),
+  foundational: Text,
+  premium: Text,
+  platform: Text,
+  agent: Text,
+  setupNote: Text,
+  roadmap: Text,
+  waves: z.strictObject({ 1: Text, 2: Text, 3: Text }),
+  roadmapNote: Text,
+  empty: Text,
+  anatomy: Text,
+  details: Text,
+  edit: Text,
+  print: Text,
+  markdown: Text,
+  json: Text,
+  copySummary: Text,
+  copied: Text,
+  exportError: Text,
+  sharingNote: Text,
+  backup: Text,
+  import: Text,
+  importNote: Text,
+  importConfirm: Template,
+  importSuccess: Text,
+  importErrors: z.strictObject({ size: Text, json: Text, format: Text, read: Text }),
+  cancelImport: Text,
+  applyImport: Text,
+  whatIfNote: Text,
+  baseline: Text,
+  canvas: Text,
+  blankCanvas: Text,
+  canvasNote: Text,
+  answers: Text,
+  sources: Text,
+  canvasBoxes: z
+    .array(
+      z.strictObject({
+        id: Id,
+        title: Text,
+        questionIds: z
+          .array(QuestionId)
+          .refine((ids) => new Set(ids).size === ids.length, 'must not contain duplicates'),
+        prompt: Text,
+      }),
+    )
+    .min(1),
+});
+
 export const SiteSchema = z.strictObject({
   productName: Text,
   tagline: Text,
@@ -782,6 +838,7 @@ export const SiteSchema = z.strictObject({
     savedLocally: Text,
     renameTitle: Text,
   }),
+  readout: ReadoutCopySchema,
   mapping: z.strictObject({
     intro: Text,
     neutralNote: Text,

@@ -1,0 +1,173 @@
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+}
+
+.actions button {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  font: inherit;
+  cursor: pointer;
+}
+
+.document {
+  overflow-wrap: anywhere;
+}
+
+.document select {
+  max-width: 100%;
+  padding: var(--space-2);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  font: inherit;
+}
+
+.cover {
+  padding-block: var(--space-6);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.draft {
+  font-weight: 700;
+  color: var(--color-amber-text);
+}
+
+.metadata,
+.roadmap {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+}
+
+.metadata dd,
+.canvasBox dd {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.metadata dt,
+.canvasBox dt {
+  font-weight: 600;
+}
+
+.roadmap > div,
+.canvasBox {
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+}
+
+.disclaimer {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--color-hairline);
+  font-size: var(--text-12);
+}
+
+.canvasGrid,
+.canvasControls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  gap: var(--space-3);
+  margin-block: var(--space-3);
+}
+
+.canvasBox h2 {
+  margin-top: 0;
+  font-size: var(--text-20);
+}
+
+.canvasControls h3 {
+  font-size: var(--text-14);
+}
+
+.canvasControls ul {
+  padding-left: var(--space-4);
+}
+
+.prompt {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+@page canvas {
+  size: landscape;
+  margin: 10mm;
+}
+
+@media print {
+  .document {
+    font-size: var(--text-12);
+  }
+
+  .document section,
+  .document table {
+    break-inside: auto;
+  }
+
+  .document h2,
+  .document h3 {
+    break-after: avoid;
+  }
+
+  .document [role='region'] {
+    overflow: visible;
+  }
+
+  .document table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  .cover {
+    break-after: page;
+  }
+
+  .canvas {
+    page: canvas;
+    line-height: 1.2;
+  }
+
+  .canvas h1 {
+    margin-block: var(--space-2);
+    font-size: var(--text-24);
+  }
+
+  .canvas p,
+  .canvas dl,
+  .canvas ul {
+    margin-block: var(--space-1);
+  }
+
+  .canvasGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .canvasControls {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .canvasBox {
+    padding: var(--space-2);
+    break-inside: avoid;
+  }
+
+  .canvasBox h2,
+  .canvasControls h3 {
+    margin-block: var(--space-1);
+    font-size: var(--text-14);
+  }
+
+  .canvas .prompt {
+    font-size: var(--text-12);
+  }
+}

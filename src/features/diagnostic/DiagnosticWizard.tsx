@@ -258,6 +258,13 @@ function Wizard({
             <>
               <h3>{copy.preview}</h3>
               <p>{copy.previewNote}</p>
+              {result && (
+                <p>
+                  <Link to={`/diagnostic/${assessment.id}/readout`}>
+                    {content.site.readout.open}
+                  </Link>
+                </p>
+              )}
               {result ? <MappingReport result={result} /> : <p>{copy.noPreview}</p>}
             </>
           )}

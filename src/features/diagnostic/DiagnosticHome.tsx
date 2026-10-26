@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRestoreFocusTarget } from '@fluentui/react-components';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
@@ -13,6 +14,7 @@ import {
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { ConfirmDialog } from './ConfirmDialog.tsx';
 import { QuestionInput } from './QuestionInput.tsx';
+import { DiagnosticTransfer } from './DiagnosticTransfer.tsx';
 import styles from './Diagnostic.module.css';
 
 export function Component() {
@@ -51,6 +53,7 @@ export function Component() {
   } | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const restoreFocusTarget = useRestoreFocusTarget();
   const organization =
     store.data.organizations.find((o) => o.id === selectedId) ?? store.data.organizations[0];
   const orgName = (id: string) =>
@@ -125,6 +128,10 @@ export function Component() {
       <PageHeading>{content.site.routes.diagnostic.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
       <p className={styles.note}>{copy.privacy}</p>
+      <DiagnosticTransfer />
+      <p>
+        <Link to="/canvas/blank">{content.site.readout.blankCanvas}</Link>
+      </p>
       {invalidStarter && <p role="alert">{copy.invalidStarter}</p>}
       <section>
         <h2>{copy.organization}</h2>
@@ -182,6 +189,7 @@ export function Component() {
             ))}
             <div className={styles.actions}>
               <button
+                {...restoreFocusTarget}
                 type="button"
                 disabled={store.data.assessments.some((a) => a.organizationId === organization.id)}
                 onClick={() =>
@@ -294,6 +302,9 @@ export function Component() {
                 ) : (
                   <div className={styles.actions}>
                     <Link to={`/diagnostic/${assessment.id}`}>{copy.resume}</Link>
+                    <Link to={`/diagnostic/${assessment.id}/readout`}>
+                      {content.site.readout.open}
+                    </Link>
                     <button type="button" onClick={() => duplicate(assessment)}>
                       {copy.duplicate}
                     </button>
@@ -307,6 +318,7 @@ export function Component() {
                       {copy.rename}
                     </button>
                     <button
+                      {...restoreFocusTarget}
                       type="button"
                       onClick={() =>
                         setDeleting({

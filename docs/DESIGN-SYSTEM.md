@@ -38,7 +38,7 @@ A 12-column grid with a 1,240px maximum width and an 8-point spacing scale (with
 
 ## Motion and print
 
-Motion is 150–200ms and respects `prefers-reduced-motion`. Print output hides navigation and keeps the disclaimer. Readouts and canvases extend `print.css` later with a cover page, a running footer and page breaks, for both Letter and A4.
+Motion is 150–200ms and respects `prefers-reduced-motion`. Print output hides navigation and keeps the disclaimer. Readouts extend `print.css` with a cover page, expanded evidence and responsive tables. Canvases use a landscape grid for Letter and A4; the blank workshop canvas is a single page, while long populated answers can flow onto more pages. A running page footer remains a later refinement.
 
 ## Components
 

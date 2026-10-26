@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useRestoreFocusTarget } from '@fluentui/react-components';
 import { Outlet, useBlocker } from 'react-router';
 import { DiagnosticContext } from '../../lib/state/diagnostics.ts';
 import {
@@ -20,6 +21,7 @@ export function Component() {
   const latest = useRef(state);
   const [confirm, setConfirm] = useState<'reload' | 'reset' | null>(null);
   const copy = content.site.diagnostic;
+  const restoreFocusTarget = useRestoreFocusTarget();
   const publish = useCallback((next: typeof state) => {
     latest.current = next;
     setState(next);
@@ -86,7 +88,11 @@ export function Component() {
               {copy.retry}
             </button>
           )}
-          <button type="button" onClick={() => (state.dirty ? setConfirm('reload') : reload())}>
+          <button
+            {...restoreFocusTarget}
+            type="button"
+            onClick={() => (state.dirty ? setConfirm('reload') : reload())}
+          >
             {copy.reload}
           </button>
           {recovery && (
@@ -96,7 +102,7 @@ export function Component() {
                 <summary>{copy.recovery}</summary>
                 <textarea aria-label={copy.recovery} readOnly value={state.recoveryRaw ?? ''} />
               </details>
-              <button type="button" onClick={() => setConfirm('reset')}>
+              <button {...restoreFocusTarget} type="button" onClick={() => setConfirm('reset')}>
                 {copy.reset}
               </button>
             </>

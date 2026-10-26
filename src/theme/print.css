@@ -1,4 +1,4 @@
-/* Print output. Readouts and canvases extend this in later phases (cover page, running footer, page breaks). */
+/* Shared print output; readouts and canvases supply their own disclaimer and layout. */
 
 @page {
   margin: 16mm;
@@ -11,6 +11,14 @@
 
   [data-no-print] {
     display: none !important;
+  }
+
+  body:has([data-print-document]) footer {
+    display: none;
+  }
+
+  body:has([data-print-document]) main > div {
+    padding: 0;
   }
 
   a {

@@ -288,7 +288,7 @@ learn:
 
 diagnostic:
   intro: "Build a local planning assessment from a blank form, an illustrative pattern or a sample. Set the organization context first; linked use cases reuse it."
-  privacy: "Answers and optional names stay in this browser profile. They are not sent to a server or placed in links. Other people using this browser profile can access them. Clearing site data removes them; JSON backup and import arrive with Phase 5."
+  privacy: "Answers and optional names stay in this browser profile. They are not sent to a server or placed in links. Other people using this browser profile can access them. Download a JSON backup before clearing site data. Exported files contain your answers; share them only with intended recipients."
   organization: Organization profile
   newOrganization: New organization or engagement
   organizationName: Organization or engagement name
@@ -354,7 +354,7 @@ diagnostic:
   emerging: Emerging control-plane anatomy
   emergingNote: "Updates from your current answers. A textual table lists all layers and in-scope controls; this is not evidence that any control is deployed."
   preview: Current planning preview
-  previewNote: "A live rule-engine preview, not the formal readout package. Exhibits, exports, branding and the canvas arrive in Phase 5."
+  previewNote: "A live rule-engine preview. Open the readout for a discussion draft, printable canvas and local exports. PowerPoint and logo co-branding are still in development."
   review: Review current mapping
   noPreview: "Correct incompatible answers to resume the live planning preview."
   knownAnswers: Known answers in this view
@@ -363,6 +363,97 @@ diagnostic:
   startFromPattern: Customize in the diagnostic
   savedLocally: Local only
   renameTitle: Rename local assessment
+
+readout:
+  open: Open readout
+  title: "Control-plane readout: {label}"
+  draft: Draft for discussion
+  current: "Recomputed from the assessment answers with the current content. Recommendations remain draft; this is not deployment certification or a licensing determination."
+  preparedFor: Prepared for
+  summary: Executive summary
+  takeaways:
+    - "{count} capabilities are in scope for discussion. Recommendation levels are planning priorities, not mandates."
+    - "{count} configured readiness checks remain gaps or unknown. A ready check is not proof that a control is deployed."
+    - "{count} unanswered questions may change this mapping. Validate unknowns with the relevant stakeholders."
+  foundational: In-scope foundational capabilities
+  premium: In-scope premium capabilities
+  platform: Platform foundations
+  agent: Agent decisions
+  setupNote: "Platform foundations are set up once; agent decisions need this agent's sponsor. A capability can involve both, so these counts overlap."
+  roadmap: Discussion roadmap
+  waves: { 1: Now, 2: Next, 3: Later }
+  roadmapNote: "Groups follow the mapping rules and catalog waves. Agree owners, dependencies and dates before treating this as a delivery plan."
+  empty: Nothing mapped in this group
+  anatomy: Control-plane anatomy
+  details: Mapping details and evidence
+  edit: Edit this assessment
+  print: Print / save PDF
+  markdown: Download Markdown
+  json: Download assessment JSON
+  copySummary: Copy executive summary
+  copied: Executive summary copied
+  exportError: "The export could not be completed. Check browser download or clipboard permissions and try again."
+  sharingNote: "Downloads and copied text contain organization details and answers. Review before sharing. Nothing is uploaded; exported files are not encrypted by this app."
+  backup: Download workspace JSON backup
+  import: Import JSON backup
+  importNote: "Choose an A365 Capability Explorer JSON export, up to 5 MiB. Review before importing. Every organization and assessment is added as a new copy; nothing is replaced or merged by name. Older answers are preserved for explicit correction."
+  importConfirm: "Import {count} assessments as new local copies?"
+  importSuccess: "Imported copies are available below. Check the save status: a storage failure leaves them in memory until saving succeeds."
+  importErrors:
+    size: "This file exceeds the 5 MiB import limit. Export a single assessment instead of the whole workspace."
+    json: "This is not valid JSON. Choose a JSON backup exported by this app."
+    format: "This file is not a supported A365 Capability Explorer backup, or its entity relationships are invalid. No local data has changed."
+    read: "The file could not be read. Check access to the file and try again."
+  cancelImport: Cancel import
+  applyImport: Import as new copies
+  whatIfNote: "Compare one illustrative change with the saved baseline. This does not change or save your answers."
+  baseline: Current assessment baseline
+  canvas: Use Case Canvas
+  blankCanvas: Blank printable canvas
+  canvasNote: "A discussion canvas, not a deployment specification. Empty boxes need stakeholder input. Print in landscape for a compact workshop handout."
+  answers: Assessment answers
+  sources: Sources and methodology
+  canvasBoxes:
+    - id: outcome
+      title: Outcome and value
+      questionIds: [businessOutcome, businessValue]
+      prompt: Agree the business outcome and the value it creates.
+    - id: users
+      title: Users and channels
+      questionIds: [audience, expectedUsers, channels]
+      prompt: Identify the people who use the agent and where they interact.
+    - id: triggers
+      title: Triggers
+      questionIds: [triggers]
+      prompt: Describe what starts an interaction or background run.
+    - id: autonomy
+      title: Autonomy and human oversight
+      questionIds: [autonomy, actions]
+      prompt: Agree which actions need a human decision.
+    - id: identity
+      title: Identity and access
+      questionIds: [accessModel, sponsor]
+      prompt: Confirm the identity, access model and accountable sponsor.
+    - id: data
+      title: Knowledge and data
+      questionIds: [dataSources, dataSensitivity, regulatedData]
+      prompt: Identify data sources, permissions and handling expectations.
+    - id: tools
+      title: Tools and actions
+      questionIds: [tools, agentToAgent, networkEgress]
+      prompt: List integrations, actions and network boundaries.
+    - id: risks
+      title: Risks
+      questionIds: [obligations]
+      prompt: Validate risk themes and any missing mitigations with the relevant teams.
+    - id: success
+      title: Success measures
+      questionIds: []
+      prompt: Agree measurable outcomes, a baseline, a target and a review date.
+    - id: ownership
+      title: Owner and sponsor
+      questionIds: [businessFunction, sponsor]
+      prompt: Name the accountable owner and sponsor during the workshop.
 
 mapping:
   intro: "Use illustrative agent patterns to explore how capabilities fit together. Every recommendation is generated by the same rules, not a hand-maintained matrix."
@@ -436,7 +527,7 @@ mapping:
     - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; advisor judgment identifies an editorial choice. Recommendation levels, canonical patterns, risk associations and operating-model groupings are planning advice, not official mandates."
     - "The matrix is generated from canonical pattern answers and the displayed neutral organization. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a pattern alone."
     - "Golden scenarios assert Essential inclusions and complete exclusions for each pattern and sample. Automated agreement is not SME approval: unsigned scenarios produce build warnings until a reviewer and date are recorded."
-  pendingDiagnostic: "These are read-only planning results. Customize a pattern in the local diagnostic; formal readout exhibits, exports and the canvas arrive in Phase 5."
+  pendingDiagnostic: "These are read-only planning results. Customize a pattern in the local diagnostic to create a saved readout and canvas."
   startAssessment: "Open the local diagnostic"
   back: "Back to patterns"
   typicalPatterns: "Typical patterns"
@@ -475,4 +566,4 @@ privacy:
       why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backup/import and readout exports arrive in Phase 5. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backups, Markdown, copied summaries and printed readouts contain your answers and optional names. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

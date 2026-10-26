@@ -7,6 +7,7 @@ import {
   DialogSurface,
   DialogTitle,
 } from '@fluentui/react-components';
+import { useState } from 'react';
 import { content } from '../../lib/content/index.ts';
 
 export function ConfirmDialog({
@@ -24,6 +25,10 @@ export function ConfirmDialog({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const [hasOpened, setHasOpened] = useState(open);
+  if (open && !hasOpened) setHasOpened(true);
+  // Fluent must stay mounted after opening so closing can restore focus and modal state.
+  if (!hasOpened && !open) return null;
   return (
     <Dialog
       open={open}

@@ -7,6 +7,14 @@ const clone = (): Content => structuredClone(content);
 const NOW = new Date('2026-10-25T00:00:00Z');
 
 describe('validateContent', () => {
+  it('validates canvas ids and question references', () => {
+    const data = clone();
+    data.site.readout.canvasBoxes[0]!.questionIds = ['missing-question'];
+    data.site.readout.canvasBoxes.push(structuredClone(data.site.readout.canvasBoxes[0]!));
+    const errors = validateContent(data, { now: NOW }).errors.join('\n');
+    expect(errors).toContain('readout.canvasBoxes id: duplicate');
+    expect(errors).toContain('unknown question "missing-question"');
+  });
   it('validates source and capability references for every learning collection', () => {
     for (const collection of ['flow', 'integration', 'positioning', 'frontier'] as const) {
       const data = clone();

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   CapabilitySchema,
   ConditionSchema,
+  ReadoutCopySchema,
   SiteSchema,
   SourceSchema,
   countWords,
@@ -30,6 +31,18 @@ const capability = (overrides: Record<string, unknown> = {}) => ({
 });
 
 describe('explorer and brief copy schemas', () => {
+  it('requires complete readout copy, three takeaways and known canvas question ids', () => {
+    expect(ReadoutCopySchema.safeParse(content.site.readout).success).toBe(true);
+    expect(ReadoutCopySchema.safeParse({ ...content.site.readout, importErrors: {} }).success).toBe(
+      false,
+    );
+    expect(
+      ReadoutCopySchema.safeParse({ ...content.site.readout, takeaways: ['Only one'] }).success,
+    ).toBe(false);
+    for (const box of content.site.readout.canvasBoxes)
+      for (const id of box.questionIds)
+        expect(content.questions.some((question) => question.id === id)).toBe(true);
+  });
   it('requires all explorer and brief labels and rejects misspelled keys', () => {
     expect(SiteSchema.safeParse(content.site).success).toBe(true);
     expect(

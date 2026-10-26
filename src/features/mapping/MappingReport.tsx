@@ -22,7 +22,15 @@ function CapabilityLinks({ ids }: { ids: string[] }) {
   );
 }
 
-export function MappingReport({ result }: { result: AssessmentResult }) {
+export function MappingReport({
+  result,
+  showDiagnosticNote = true,
+  showAnatomy = true,
+}: {
+  result: AssessmentResult;
+  showDiagnosticNote?: boolean;
+  showAnatomy?: boolean;
+}) {
   const { depth } = useDepth();
   const technical = depth === 'technical';
   const copy = content.site.mapping;
@@ -247,31 +255,33 @@ export function MappingReport({ result }: { result: AssessmentResult }) {
       </section>
       {technical && (
         <>
-          <section>
-            <h2>{copy.anatomy}</h2>
-            <DataTable
-              caption={copy.anatomy}
-              hideCaption
-              scrollLabel={copy.anatomy}
-              rows={result.anatomy}
-              rowKey={(r) => r.point.id}
-              columns={[
-                {
-                  key: 'layer',
-                  header: content.site.capabilities.columns.layer,
-                  rowHeader: true,
-                  render: (r) => r.point.layer,
-                },
-                {
-                  key: 'capabilities',
-                  header: content.site.capabilities.columns.capability,
-                  render: (r) => (
-                    <CapabilityLinks ids={r.capabilities.map((c) => c.capability.id)} />
-                  ),
-                },
-              ]}
-            />
-          </section>
+          {showAnatomy && (
+            <section>
+              <h2>{copy.anatomy}</h2>
+              <DataTable
+                caption={copy.anatomy}
+                hideCaption
+                scrollLabel={copy.anatomy}
+                rows={result.anatomy}
+                rowKey={(r) => r.point.id}
+                columns={[
+                  {
+                    key: 'layer',
+                    header: content.site.capabilities.columns.layer,
+                    rowHeader: true,
+                    render: (r) => r.point.layer,
+                  },
+                  {
+                    key: 'capabilities',
+                    header: content.site.capabilities.columns.capability,
+                    render: (r) => (
+                      <CapabilityLinks ids={r.capabilities.map((c) => c.capability.id)} />
+                    ),
+                  },
+                ]}
+              />
+            </section>
+          )}
           <section>
             <h2>{copy.operatingModel}</h2>
             <DataTable
@@ -351,7 +361,7 @@ export function MappingReport({ result }: { result: AssessmentResult }) {
           ))}
         </ul>
       </details>
-      <p className={styles.note}>{copy.pendingDiagnostic}</p>
+      {showDiagnosticNote && <p className={styles.note}>{copy.pendingDiagnostic}</p>}
     </div>
   );
 }

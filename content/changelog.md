@@ -8,6 +8,14 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-26 · Saved readouts and portable assessments
+
+affects: [all]
+
+Added discussion readouts with generated executive summaries, planning roadmaps, control-plane anatomy and current engine evidence. Added a printable Use Case Canvas and blank workshop canvas, local Markdown and JSON downloads, clipboard summaries and copy-only JSON import with explicit validation and save-status notices. Downloads include personal answers and must be reviewed before sharing. PowerPoint, logo co-branding and further exhibit refinements remain in development. Product statements, licensing semantics and source availability flags are unchanged.
+
+The repository and Pages path now use a365-capability-explorer; browser-storage keys remain unchanged.
+
 ## 2026-10-26 · Local diagnostic and organization profiles
 
 affects: [all]

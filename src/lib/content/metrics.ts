@@ -19,6 +19,7 @@ import {
   SETUPS,
 } from './schemas.ts';
 import type { TemplateValues } from './template.ts';
+import type { AssessmentResult } from '../engine/evaluate.ts';
 
 export interface MetricsInput {
   capabilities: Capability[];
@@ -55,6 +56,22 @@ export function templateValues(metrics: Metrics): TemplateValues {
   for (const key of METRIC_NUMBER_KEYS) values[key] = metrics[key];
   for (const key of METRIC_TEXT_KEYS) values[key] = metrics[key];
   return values;
+}
+
+export function computeReadoutMetrics(result: AssessmentResult) {
+  return {
+    levels: tally(
+      ['essential', 'recommended', 'consider'],
+      result.inScope.map((r) => r.level),
+    ),
+    capabilityCount: result.inScope.length,
+    foundational: result.licensing.foundational,
+    premium: result.licensing.premium,
+    platform: result.inScope.filter((r) => r.capability.setup !== 'agent').length,
+    agent: result.agentDecisions.length,
+    unresolved: result.readiness.checks.filter((check) => check.status !== 'ready').length,
+    unanswered: result.openQuestions.length,
+  };
 }
 
 /** Every number shown in a headline, KPI or action title comes from here, never from typed copy. */

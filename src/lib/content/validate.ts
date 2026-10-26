@@ -196,6 +196,15 @@ export function validateContent(
     }
   }
 
+  duplicates(
+    'site.yaml readout.canvasBoxes id',
+    content.site.readout.canvasBoxes.map((b) => b.id),
+  );
+  for (const box of content.site.readout.canvasBoxes)
+    for (const id of box.questionIds)
+      if (!content.questions.some((q) => q.id === id))
+        errors.push(`site.yaml readout.canvasBoxes › ${box.id}: unknown question "${id}"`);
+
   // Template placeholders must be values the app computes; stray braces are typos.
   for (const [path, text] of stringLeaves(content.site, '')) {
     for (const match of text.matchAll(PLACEHOLDER)) {

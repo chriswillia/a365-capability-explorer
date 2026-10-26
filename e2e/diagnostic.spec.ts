@@ -119,6 +119,7 @@ test.describe('Phase 4 diagnostic', () => {
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await dialog.getByRole('button', { name: copy.cancel }).click();
     await expect(card).toBeVisible();
+    await expect(card.getByRole('button', { name: copy.delete, exact: true })).toBeFocused();
     await card.getByRole('button', { name: copy.delete, exact: true }).click();
     await dialog.getByRole('button', { name: copy.confirm }).click();
     await expect(card).toHaveCount(0);

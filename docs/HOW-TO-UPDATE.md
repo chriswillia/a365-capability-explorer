@@ -69,7 +69,9 @@ Update the question schema and its tests first when adding a question kind or fi
 
 Question ids and option values are persisted data: avoid renaming them casually. Older incompatible answers are preserved on load, block live previews, and can be corrected or explicitly cleared; they are never silently coerced. Organization-profile edits affect all linked assessments. Quick/Full switching changes the questions shown, not the answers saved. Pattern customization seeds only use-case answers, retaining the selected organization.
 
-All diagnostic copy is in `site.yaml`. Document storage keys and deletion behavior on Privacy. Run schema, reference, storage, wizard and browser tests when changing these behaviors. Formal readouts, backup/import and exports remain Phase 5.
+All diagnostic and readout copy is in `site.yaml`. Readout takeaways use computed `{count}` values; canvas boxes reference question ids and are checked for duplicate ids and unknown questions. Empty question lists deliberately leave a workshop discussion box, not an invented answer. Document storage keys, deletion behavior and export privacy on Privacy.
+
+Run schema, reference, storage, wizard, transfer, report and browser tests when changing these behaviors. JSON backups use a strict versioned envelope; never silently accept a new format or overwrite local entities during import. Imports create new ids and remap relationships while retaining original answers for explicit compatibility checks. Update round-trip, invalid-file, download and A4/Letter print checks when changing exports. PowerPoint and logo co-branding remain in development.
 
 ## When CI fails
 

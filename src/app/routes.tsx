@@ -53,10 +53,24 @@ export const routes: RouteObject[] = [
             handle: { routeKey: 'assessment' satisfies RouteKey },
             lazy: () => import('../features/diagnostic/DiagnosticWizard.tsx'),
           },
+          {
+            path: ':id/readout',
+            handle: { routeKey: 'readout' satisfies RouteKey },
+            lazy: () => import('../features/readout/ReadoutPage.tsx'),
+          },
         ],
       },
-      soon('diagnostic/:id/readout', 'readout'),
-      soon('canvas/:id', 'canvas'),
+      {
+        path: 'canvas/blank',
+        handle: { routeKey: 'canvas' satisfies RouteKey },
+        lazy: () => import('../features/readout/CanvasPage.tsx'),
+      },
+      {
+        path: 'canvas/:id',
+        handle: { routeKey: 'canvas' satisfies RouteKey },
+        lazy: () => import('../features/diagnostic/DiagnosticLayout.tsx'),
+        children: [{ index: true, lazy: () => import('../features/readout/CanvasPage.tsx') }],
+      },
       soon('portfolio', 'portfolio'),
       soon('workshop', 'workshop'),
       {
