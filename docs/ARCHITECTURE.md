@@ -81,7 +81,7 @@ The legacy prefix is retained after the rename so existing preferences and asses
 
 ## Testing
 
-- **CI browser environment:** the verification job pins Ubuntu 24.04 rather than following `ubuntu-latest` OS migrations. Browser/dependency installation has a five-minute timeout; a stalled download fails explicitly without bypassing browser or accessibility tests. The overall verification job remains capped at twenty minutes.
+- **CI browser environment:** verification uses the official version-matched Playwright container on an Ubuntu 24.04 host. Browsers and OS dependencies are preinstalled, avoiding deployment-blocking apt mirror downloads. A two-minute browser-launch check fails explicitly if the runtime is unusable; all browser and accessibility tests still gate deployment. Update the container tag with the locked Playwright version; a unit test keeps them aligned. The overall verification job remains capped at twenty minutes.
 
 - **Public dependencies:** `npm run lockfile:check` checks locked package URLs without installing dependencies; CI runs it before `npm ci`. Upstream lockfile helpers also support offline URL repair, and unit tests enforce public URLs and integrity-checksum presence. No registry is configured in this repository. Registry URL repairs must preserve package versions and integrity hashes.
 
