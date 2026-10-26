@@ -73,11 +73,11 @@ function Anatomy({ result }: { result: AssessmentResult }) {
       <details>
         <summary>{copy.anatomy}</summary>
         <DataTable
-          caption={copy.anatomy}
+          caption={content.site.diagnostic.emerging}
           columns={columns}
           rows={result.anatomy}
           rowKey={(row) => row.point.id}
-          scrollLabel={copy.anatomy}
+          scrollLabel={content.site.diagnostic.emerging}
         />
       </details>
     </aside>

@@ -133,6 +133,52 @@ test.describe('Phase 4 diagnostic', () => {
       cloudEnvironment: 'gcc',
     });
   });
+  test('failed saves keep the draft and the real leave dialog traps keyboard focus', async ({
+    page,
+  }) => {
+    await start(page);
+    await page
+      .getByRole('navigation', { name: copy.sectionRail })
+      .getByRole('button', { name: 'Use case profile', exact: true })
+      .click();
+    await page.evaluate((storageKey) => {
+      const original = Storage.prototype.setItem;
+      Storage.prototype.setItem = function (name, value) {
+        if (name === storageKey) throw new DOMException('Test quota failure', 'QuotaExceededError');
+        original.call(this, name, value);
+      };
+      window.addEventListener(
+        'restore-test-storage',
+        () => {
+          Storage.prototype.setItem = original;
+        },
+        { once: true },
+      );
+    }, key);
+    await page
+      .getByRole('textbox', { name: label('useCaseName'), exact: true })
+      .fill('In-memory draft');
+    await expect(page.getByRole('alert')).toContainText(copy.storageQuota);
+    await page.getByRole('link', { name: site.ui.nav.learn, exact: true }).click();
+    const dialog = page.getByRole('alertdialog');
+    const cancel = dialog.getByRole('button', { name: copy.cancel });
+    await expect(cancel).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(dialog.getByRole('button', { name: copy.leave })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(cancel).toBeFocused();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await cancel.click();
+    await expect(page).toHaveURL(/diagnostic\/[0-9a-f-]{36}$/);
+    await page.evaluate(() => window.dispatchEvent(new Event('restore-test-storage')));
+    await page.getByRole('button', { name: copy.retry }).click();
+    await expect(page.getByText(copy.storageQuota, { exact: true })).toHaveCount(0);
+    const saved = await page.evaluate(
+      (storageKey) => JSON.parse(localStorage.getItem(storageKey)!),
+      key,
+    );
+    expect(saved.assessments[0].answers.useCaseName).toBe('In-memory draft');
+  });
   for (const depth of ['executive', 'technical'] as const) {
     test(`zero axe violations on home, full wizard and review in ${depth}`, async ({ page }) => {
       await page.goto('diagnostic');

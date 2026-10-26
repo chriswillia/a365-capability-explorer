@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, within, waitForElementToBeRemoved } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -20,13 +20,37 @@ import './DiagnosticHome.tsx';
 import './DiagnosticLayout.tsx';
 import './DiagnosticWizard.tsx';
 
+// Fluent's focus trapping needs real layout; browser tests cover the actual dialog.
+vi.mock('./ConfirmDialog.tsx', async () => {
+  const { content } = await import('../../lib/content/index.ts');
+  return {
+    ConfirmDialog: ({
+      open,
+      title,
+      body,
+      confirmLabel,
+      onConfirm,
+      onCancel,
+    }: Parameters<(typeof import('./ConfirmDialog.tsx'))['ConfirmDialog']>[0]) =>
+      open ? (
+        <div role="alertdialog" aria-label={title}>
+          <p>{body}</p>
+          <button type="button" onClick={onCancel}>
+            {content.site.diagnostic.cancel}
+          </button>
+          <button type="button" onClick={onConfirm}>
+            {confirmLabel ?? content.site.diagnostic.confirm}
+          </button>
+        </div>
+      ) : null,
+  };
+});
+
 const copy = content.site.diagnostic;
 const questionLabel = (id: string) => content.questions.find((q) => q.id === id)!.label;
 async function dialogAction(name: string) {
-  const dialog = await screen.findByRole('alertdialog', { hidden: true });
-  // jsdom has no layout for Tabster's automatic focus target.
-  dialog.focus();
-  return within(dialog).findByRole('button', { name });
+  const dialog = await screen.findByRole('alertdialog');
+  return within(dialog).getByRole('button', { name });
 }
 function renderPage(path = '/diagnostic') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
@@ -160,9 +184,7 @@ describe('local diagnostic', () => {
       ),
     ).toBe(true);
     await user.click(card.getByRole('button', { name: copy.delete }));
-    const cancelledDialog = await screen.findByRole('alertdialog', { hidden: true });
     await user.click(await dialogAction(copy.cancel));
-    if (cancelledDialog.isConnected) await waitForElementToBeRemoved(cancelledDialog);
     expect(loadDiagnostics().data.assessments).toHaveLength(2);
     await user.click(card.getByRole('button', { name: copy.delete }));
     await user.click(await dialogAction(copy.confirm));
@@ -214,7 +236,7 @@ describe('local diagnostic', () => {
     await user.type(screen.getByRole('textbox', { name: questionLabel('orgName') }), ' draft');
     expect(screen.getByRole('alert')).toHaveTextContent(copy.storageQuota);
     await user.click(screen.getByRole('link', { name: content.site.routes.learn.title }));
-    await screen.findByRole('alertdialog', { hidden: true });
+    await screen.findByRole('alertdialog');
     expect(router.state.location.pathname).toBe('/diagnostic');
     await user.click(await dialogAction(copy.cancel));
     fail.mockRestore();
