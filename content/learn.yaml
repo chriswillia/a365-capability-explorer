@@ -1,0 +1,154 @@
+# A conceptual reading order, not a claim about a fixed product execution pipeline.
+flow:
+  - id: trigger
+    title: "A person or event starts the work"
+    summary: "An agent can receive a request through a channel or respond to an event. The integration path depends on its platform and access model."
+    technical: "Messaging and notifications for an agent's own user account require the Frontier preview program. Not every agent uses that path."
+    technicalSourceId: a365-sdk
+    capabilityIds: []
+    sourceId: a365-sdk
+    evidence: inferred
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: identity
+    title: "Check whose access the agent uses"
+    summary: "For delegated access, user Conditional Access policies extend to agents. Access packages define the scope of agent permissions."
+    technical: "Do not treat delegated access and an agent's own access as interchangeable. Review the permissions and consent for the chosen integration."
+    technicalSourceId: a365-quickstart
+    capabilityIds: [entra-conditional-access, entra-access-packages]
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: registry
+    title: "Understand registration and governance"
+    summary: "The registry provides inventory. Governance actions and policy templates support administration; registration alone is not evidence that every control is configured."
+    capabilityIds: [registry-inventory, governance-actions, policy-templates]
+    sourceId: sd-a365
+    evidence: inferred
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: tools
+    title: "Govern tool access and risky calls"
+    summary: "Tenant-wide tool controls govern access to tools, including Microsoft MCP servers. Defender detects suspicious activity and allows blocking of tool invocations."
+    technical: "The Agent 365 SDK registers governed MCP servers; the agent's runtime still executes the tool calls."
+    technicalSourceId: a365-sdk
+    capabilityIds: [tool-controls, defender-threat-protection]
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: data
+    title: "Protect the information involved"
+    summary: "Sensitivity labels and data loss prevention address how agents access and share sensitive content."
+    technical: "For the developer integration, follow the quickstart's DLP onboarding and runtime requirements rather than assuming registration enables DLP."
+    technicalSourceId: a365-quickstart
+    capabilityIds: [purview-labels, purview-dlp]
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: environment
+    title: "Consider network and device controls"
+    summary: "Network controls address malicious or noncompliant traffic for agents on user devices and Copilot Studio agents. Intune adds device compliance and local runtime controls."
+    capabilityIds:
+      [entra-network-controls, intune-device-compliance, intune-runtime-policy, intune-block-local]
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: oversight
+    title: "Observe, investigate and retain evidence"
+    summary: "Observability, audit, compliance, insider risk and threat hunting provide different views of agent activity. Inventory and telemetry are separate concerns."
+    technical: "New developer observability integrations use Microsoft OpenTelemetry separately from the Agent 365 SDK. Validate instrumentation and licensing against the quickstart."
+    technicalSourceId: a365-sdk
+    capabilityIds:
+      [
+        observability,
+        purview-audit-ediscovery,
+        purview-ai-compliance,
+        purview-insider-risk,
+        defender-hunting,
+      ]
+    sourceId: a365-quickstart
+    evidence: inferred
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+integration:
+  - id: native
+    title: "Native platform integration"
+    summary: "Microsoft platforms and supported third-party agents can use native Agent 365 integration. Confirm the platform guidance before adding SDK code."
+    capabilityIds: [registry-inventory]
+    sourceId: a365-sdk
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: custom
+    title: "Developer integration for an existing agent"
+    summary: "Use the Agent 365 SDK for identity, governed tooling or notifications. Add Microsoft OpenTelemetry separately for new observability integrations."
+    technical: "Builder checklist: choose capabilities, register identity and permissions, integrate the corresponding packages, instrument telemetry where needed, then validate the result. The SDK does not host or orchestrate your agent."
+    technicalSourceId: a365-sdk
+    capabilityIds: [tool-controls, observability]
+    sourceId: a365-sdk
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: synchronized
+    title: "Registry synchronization"
+    summary: "Connected platforms can synchronize agents into the inventory. Inventory synchronization does not necessarily provide the same code-level capabilities as SDK integration."
+    capabilityIds: [registry-sync]
+    sourceId: a365-sdk
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+positioning:
+  - id: control-plane
+    title: "Agent 365 is a control plane, not an agent builder"
+    summary: "Agent 365 helps organizations discover, manage, govern and secure agents across Microsoft and third-party environments."
+    capabilityIds: [registry-inventory, governance-actions]
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: plans
+    title: "Check the plan and the individual capability"
+    summary: "Agent 365 is offered standalone for eligible Microsoft 365 subscriptions and is included with Microsoft 365 E7. Feature availability varies; use the service description rather than assuming every capability is included with base plans."
+    capabilityIds: []
+    sourceId: sd-a365
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: complementary
+    title: "Copilot, E5 and E7: confirm the full relationship"
+    # TODO(verify): the licensing FAQ exposes only part of its answers to automated reading.
+    summary:
+    capabilityIds: []
+    sourceId: lic-faq
+    evidence: stated
+    reviewStatus: draft
+    lastVerified:
+frontier:
+  - id: assistant
+    title: "Human with assistant"
+    summary: "AI helps people do existing work better and faster. People remain directly involved in the work."
+    capabilityIds: []
+    sourceId: wti-2025
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: team
+    title: "Human-agent teams"
+    summary: "Agents take on specific tasks at human direction, extending what teams can do."
+    capabilityIds: []
+    sourceId: wti-2025
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"
+  - id: operated
+    title: "Human-led, agent-operated"
+    summary: "People set direction for agents running business processes and workflows, checking in as needed."
+    capabilityIds: []
+    sourceId: wti-2025
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-24"

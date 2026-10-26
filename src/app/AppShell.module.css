@@ -12,14 +12,6 @@
   outline: none;
 }
 
-.banner {
-  padding: var(--space-2) var(--layout-gutter);
-  background: var(--color-ink);
-  color: var(--color-on-dark);
-  font-size: var(--text-14);
-  text-align: center;
-}
-
 .skipLink {
   position: absolute;
   top: -100px;

@@ -1,0 +1,22 @@
+# Editorial access-model associations, not Microsoft's organizational phase definitions.
+- id: assistant-access
+  phaseId: assistant
+  accessModels: [delegated, mixed]
+  rationale: "Delegated access can support people working with assistants. Access alone does not determine organizational maturity."
+  sourceIds: [wti-2025]
+  evidence: judgment
+  reviewStatus: draft
+- id: teammate-access
+  phaseId: team
+  accessModels: [own-teammate, mixed]
+  rationale: "A teammate model can support human-agent teams. This editorial association is separate from Frontier preview eligibility."
+  sourceIds: [wti-2025, a365-sdk]
+  evidence: judgment
+  reviewStatus: draft
+- id: background-access
+  phaseId: operated
+  accessModels: [own-background, mixed]
+  rationale: "Background access can support agent-operated processes under human direction. Own access does not establish autonomy or a maturity score."
+  sourceIds: [wti-2025]
+  evidence: judgment
+  reviewStatus: draft

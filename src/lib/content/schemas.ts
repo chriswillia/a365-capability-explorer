@@ -132,19 +132,196 @@ export const ConditionSchema: z.ZodType<Condition> = z.lazy(() =>
     z.strictObject({ all: z.array(ConditionSchema).min(1) }),
     z.strictObject({ any: z.array(ConditionSchema).min(1) }),
     z.strictObject({ not: ConditionSchema }),
-    z.strictObject({
-      q: z.string().regex(/^[a-z][A-Za-z0-9]*$/, 'must be a camelCase question id'),
-      equals: Text.optional(),
-      in: z.array(Text).min(1).optional(),
-      includes: Text.optional(),
-      includesAny: z.array(Text).min(1).optional(),
-      answered: z.boolean().optional(),
-      unknown: z.boolean().optional(),
-    }),
+    z
+      .strictObject({
+        q: z.string().regex(/^[a-z][A-Za-z0-9]*$/, 'must be a camelCase question id'),
+        equals: Text.optional(),
+        in: z.array(Text).min(1).optional(),
+        includes: Text.optional(),
+        includesAny: z.array(Text).min(1).optional(),
+        answered: z.boolean().optional(),
+        unknown: z.boolean().optional(),
+      })
+      .refine(
+        (condition) =>
+          Object.entries(condition).filter(([key, value]) => key !== 'q' && value !== undefined)
+            .length === 1,
+        'use exactly one condition operator',
+      ),
   ]),
 );
 
 // ---------- Sources, taxonomy ----------
+
+export const AnswersSchema = z.record(z.string(), z.union([z.string(), z.array(Text), z.null()]));
+export type Answers = z.infer<typeof AnswersSchema>;
+const QuestionId = z.string().regex(/^[a-z][A-Za-z0-9]*$/);
+export const QuestionSchema = z
+  .strictObject({
+    id: QuestionId,
+    scope: z.enum(['org', 'useCase']),
+    label: Text,
+    type: z.enum(['single', 'multi', 'text', 'longtext', 'scale', 'date']),
+    maxLength: z.int().positive().optional(),
+    options: z
+      .array(
+        z.strictObject({
+          value: Text,
+          label: Text,
+          range: z
+            .strictObject({ min: z.int().nonnegative(), max: z.int().nonnegative().nullable() })
+            .optional(),
+        }),
+      )
+      .default([]),
+    ifUnknown: Text,
+  })
+  .superRefine((question, ctx) => {
+    const freeText = ['text', 'longtext', 'date'].includes(question.type);
+    if (freeText ? question.options.length > 0 : question.options.length === 0) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'choice questions need options; text and date questions cannot have options',
+        path: ['options'],
+      });
+    }
+    if (freeText && question.maxLength === undefined)
+      ctx.addIssue({
+        code: 'custom',
+        message: 'text and date questions need maxLength',
+        path: ['maxLength'],
+      });
+  });
+export const DiagnosticSchema = z.strictObject({
+  sections: z
+    .array(
+      z.strictObject({
+        id: Id,
+        title: Text,
+        description: Text,
+        scope: z.enum(['org', 'useCase']),
+        questionIds: uniqueList(QuestionId),
+      }),
+    )
+    .min(1),
+  quickQuestionIds: uniqueList(QuestionId),
+  consultantNotes: z.record(QuestionId, Text),
+  visibility: z.array(z.strictObject({ questionId: QuestionId, when: ConditionSchema })),
+});
+const EditorialEvidence = {
+  sourceIds: uniqueList(Id),
+  evidence: z.enum(EVIDENCE),
+  reviewStatus: z.enum(REVIEW_STATUSES),
+};
+export const RecommendationSchema = z.strictObject({
+  capability: Id,
+  level: z.enum(LEVELS),
+  because: Text,
+  detail: Text.optional(),
+  evidence: z.enum(EVIDENCE),
+  sourceIds: uniqueList(Id),
+  wave: z.union([z.literal(1), z.literal(2), z.literal(3)]).optional(),
+});
+export const RuleSchema = z
+  .strictObject({
+    id: Id,
+    scope: z.enum(['org', 'useCase']),
+    description: Text,
+    when: ConditionSchema,
+    recommend: z.array(RecommendationSchema),
+    advisories: z.array(Id),
+    reviewStatus: z.enum(REVIEW_STATUSES),
+  })
+  .refine((rule) => rule.recommend.length + rule.advisories.length > 0, 'rule needs an output');
+export const AdvisorySchema = z.strictObject({
+  id: Id,
+  title: Text,
+  body: Text,
+  ...EditorialEvidence,
+});
+export const PatternSchema = z.strictObject({
+  id: Id,
+  title: Text,
+  summary: maxWords(40),
+  narrative: Text,
+  answers: AnswersSchema,
+  ...EditorialEvidence,
+});
+export const RiskSchema = z.strictObject({
+  id: Id,
+  title: Text,
+  summary: maxWords(40),
+  triggeredWhen: ConditionSchema,
+  mitigatedBy: uniqueList(Id),
+  ...EditorialEvidence,
+});
+export const SampleSchema = z.strictObject({
+  id: Id,
+  title: Text,
+  patternId: Id,
+  summary: maxWords(40),
+  answers: AnswersSchema,
+  ...EditorialEvidence,
+});
+export const GoldenScenarioSchema = z
+  .strictObject({
+    id: Id,
+    patternId: Id,
+    sampleId: Id.optional(),
+    org: AnswersSchema,
+    answers: AnswersSchema,
+    mustInclude: uniqueList(Id),
+    mustNotInclude: z.array(Id),
+    reviewedBy: Text.nullable(),
+    reviewedOn: IsoDate.nullable(),
+  })
+  .refine(
+    (item) => (item.reviewedBy === null) === (item.reviewedOn === null),
+    'reviewer and review date must be supplied together',
+  );
+export const IntegrationPathSchema = z.strictObject({
+  id: Id,
+  title: Text,
+  when: ConditionSchema,
+  checklist: uniqueList(Text),
+  status: z.enum(['documented', 'verify']),
+  ...EditorialEvidence,
+});
+export const FrontierMappingSchema = z.strictObject({
+  id: Id,
+  phaseId: Id,
+  accessModels: uniqueList(Text),
+  rationale: Text,
+  ...EditorialEvidence,
+});
+export const WhatIfSchema = z.strictObject({
+  id: Id,
+  title: Text,
+  org: AnswersSchema,
+  answers: AnswersSchema,
+  reviewStatus: z.enum(REVIEW_STATUSES),
+});
+export const MappingConfigSchema = z.strictObject({
+  neutralOrg: AnswersSchema,
+  readinessChecks: z.array(
+    z.strictObject({
+      id: Id,
+      appliesWhen: ConditionSchema,
+      when: ConditionSchema,
+      gap: Text,
+      evidence: z.enum(EVIDENCE),
+      sourceId: Id,
+    }),
+  ),
+  licensingNote: Text,
+  licensingSourceIds: uniqueList(Id),
+  // Kept empty until the full licensing source can be verified.
+  licenseBasis: z.strictObject({
+    delegated: Text.nullable(),
+    own: Text.nullable(),
+    mixed: Text.nullable(),
+  }),
+});
 
 export const SourceSchema = z.strictObject({
   id: Id,
@@ -272,6 +449,65 @@ export const ROUTE_KEYS = [
 ] as const;
 export type RouteKey = (typeof ROUTE_KEYS)[number];
 
+// Null text is deliberately unpublished until the source can be checked.
+const LearningEvidence = {
+  sourceId: Id,
+  evidence: z.enum(EVIDENCE),
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  lastVerified: IsoDate.nullable(),
+};
+export const LearningItemSchema = z
+  .strictObject({
+    id: Id,
+    title: Text,
+    summary: maxWords(40).nullable(),
+    technical: Text.optional(),
+    technicalSourceId: Id.optional(),
+    capabilityIds: z.array(Id),
+    ...LearningEvidence,
+  })
+  .refine((item) => item.summary === null || item.lastVerified !== null, {
+    message: 'published learning text needs a verification date',
+  });
+export const GlossaryEntrySchema = z.strictObject({
+  id: Id,
+  term: Text,
+  aliases: z.array(Text),
+  definition: maxWords(40),
+  ...LearningEvidence,
+  lastVerified: IsoDate,
+});
+export const FaqSchema = z
+  .strictObject({
+    id: Id,
+    myth: Text,
+    fact: Text.nullable(),
+    ...LearningEvidence,
+  })
+  .refine((item) => item.fact === null || item.lastVerified !== null, {
+    message: 'published facts need a verification date',
+  });
+export const PersonaSchema = z.strictObject({
+  id: Id,
+  label: Text,
+  need: maxWords(40),
+  startLabel: Text,
+  href: Text.refine(
+    (value) =>
+      /^\/(?:learn(?:#[a-z0-9-]+)?|capabilities(?:\?lens=(?:pillar|console|layer|lifecycle))?)$/.test(
+        value,
+      ),
+    'must target an available learning or explorer route',
+  ),
+  reviewStatus: z.enum(REVIEW_STATUSES),
+});
+export const LearnSchema = z.strictObject({
+  flow: z.array(LearningItemSchema).min(1),
+  integration: z.array(LearningItemSchema).min(1),
+  positioning: z.array(LearningItemSchema).min(1),
+  frontier: z.array(LearningItemSchema).min(1),
+});
+
 const Template = Text; // may contain {placeholders}; validate.ts checks them against TEMPLATE_KEYS
 const RouteCopy = z.strictObject({ title: Text, description: Text });
 
@@ -330,6 +566,12 @@ export const SiteSchema = z.strictObject({
     heroLede: Text,
     ctaExplore: Text,
     technicalHint: Text,
+    personasHeading: Text,
+    personasNote: Text,
+    questionsHeading: Text,
+    questions: uniqueList(Text),
+    frontierHeading: Text,
+    frontierNote: Text,
     kpis: z
       .array(
         z.strictObject({
@@ -387,6 +629,238 @@ export const SiteSchema = z.strictObject({
     officialWording: Text,
     dependencyPrefix: Text,
     sourcesDifferNote: Text,
+    explorer: z.strictObject({
+      search: Text,
+      lens: Text,
+      group: Text,
+      all: Text,
+      view: Text,
+      lenses: z.strictObject({
+        pillar: Text,
+        console: Text,
+        layer: Text,
+        lifecycle: Text,
+        risk: Text,
+        pattern: Text,
+      }),
+      views: z.strictObject({ table: Text, cards: Text, matrix: Text }),
+      results: Template,
+      empty: Text,
+      reset: Text,
+      compare: Text,
+      comparison: Text,
+      comparisonHint: Template,
+      clearComparison: Text,
+      invalidLink: Text,
+      applies: Text,
+      notApplicable: Text,
+    }),
+    brief: z.strictObject({
+      back: Text,
+      summary: Text,
+      withoutIt: Text,
+      withIt: Text,
+      where: Text,
+      when: Text,
+      owner: Text,
+      setup: Text,
+      availability: Text,
+      questions: Text,
+      discovery: Text,
+      dependencies: Text,
+      prerequisites: Text,
+      conditionalNote: Text,
+      sourceNotes: Text,
+      docs: Text,
+      verified: Text,
+      correction: Text,
+      assessmentPending: Text,
+      evidence: z.strictObject({ stated: Text, inferred: Text, judgment: Text }),
+    }),
+  }),
+  learn: z.strictObject({
+    intro: Text,
+    contents: Text,
+    draftNote: Text,
+    pending: Text,
+    verified: Text,
+    related: Text,
+    sections: z.strictObject({
+      concepts: Text,
+      integration: Text,
+      buildingBlocks: Text,
+      glossary: Text,
+      myths: Text,
+      positioning: Text,
+    }),
+    flowNote: Text,
+    flowTable: Text,
+    flowColumns: z.strictObject({ step: Text, concept: Text, capabilities: Text }),
+    previous: Text,
+    next: Text,
+    progress: Template,
+    buildingBlocksNote: Text,
+    mythLabel: Text,
+    factLabel: Text,
+    evidence: z.strictObject({ stated: Text, inferred: Text, judgment: Text }),
+  }),
+  diagnostic: z.strictObject({
+    intro: Text,
+    privacy: Text,
+    organization: Text,
+    newOrganization: Text,
+    organizationName: Text,
+    createOrganization: Text,
+    organizationSaved: Text,
+    sharedOrganization: Text,
+    selectOrganization: Text,
+    deleteOrganization: Text,
+    organizationInUse: Text,
+    noOrganization: Text,
+    start: Text,
+    startBlank: Text,
+    starter: Text,
+    blank: Text,
+    mode: Text,
+    modes: z.strictObject({ quick: Text, full: Text }),
+    quickNote: Text,
+    fullNote: Text,
+    unknown: Text,
+    why: Text,
+    next: Text,
+    previous: Text,
+    sectionRail: Text,
+    progress: Text,
+    assessments: Text,
+    empty: Text,
+    resume: Text,
+    duplicate: Text,
+    rename: Text,
+    delete: Text,
+    assessmentName: Text,
+    untitledAssessment: Text,
+    untitledOrganization: Text,
+    duplicateName: Text,
+    cancel: Text,
+    confirm: Text,
+    deleteTitle: Text,
+    deleteBody: Text,
+    resetTitle: Text,
+    resetBody: Text,
+    save: Text,
+    saved: Text,
+    unsaved: Text,
+    retry: Text,
+    reload: Text,
+    storageUnavailable: Text,
+    storageQuota: Text,
+    storageConflict: Text,
+    storageInvalid: Text,
+    recovery: Text,
+    reset: Text,
+    leaveTitle: Text,
+    leaveBody: Text,
+    leave: Text,
+    stay: Text,
+    incompatible: Text,
+    clearIncompatible: Text,
+    oldContent: Text,
+    currentContent: Text,
+    invalidStarter: Text,
+    allAssessments: Text,
+    back: Text,
+    emerging: Text,
+    emergingNote: Text,
+    preview: Text,
+    previewNote: Text,
+    review: Text,
+    noPreview: Text,
+    knownAnswers: Text,
+    notFound: Text,
+    updated: Text,
+    startFromPattern: Text,
+    savedLocally: Text,
+    renameTitle: Text,
+  }),
+  mapping: z.strictObject({
+    intro: Text,
+    neutralNote: Text,
+    matrix: Text,
+    patternCount: Text,
+    levels: z.strictObject({ essential: Text, recommended: Text, consider: Text }),
+    levelDescriptions: z.strictObject({ essential: Text, recommended: Text, consider: Text }),
+    condition: z.strictObject({
+      always: Text,
+      all: Text,
+      any: Text,
+      not: Text,
+      equals: Text,
+      in: Text,
+      includes: Text,
+      includesAny: Text,
+      answered: Text,
+      unanswered: Text,
+      unknown: Text,
+      known: Text,
+    }),
+    inScope: Text,
+    notInScope: Text,
+    becomesRelevant: Text,
+    noRule: Text,
+    reasons: Text,
+    origin: z.strictObject({ org: Text, useCase: Text }),
+    answers: Text,
+    unknownAnswer: Text,
+    readiness: Text,
+    readinessNote: Text,
+    readinessStatuses: z.strictObject({ ready: Text, gap: Text, unknown: Text }),
+    readinessPercent: Text,
+    noChecks: Text,
+    anatomy: Text,
+    operatingModel: Text,
+    agentDecisions: Text,
+    risks: Text,
+    riskNote: Text,
+    mitigationsInScope: Text,
+    mitigationsOutOfScope: Text,
+    potentialRisks: Text,
+    noRisks: Text,
+    riskAssociations: Text,
+    integration: Text,
+    verify: Text,
+    frontier: Text,
+    frontierNote: Text,
+    licensing: Text,
+    licensingCounts: Text,
+    expectedUsers: Text,
+    intensity: Text,
+    intensityNote: Text,
+    gcc: Text,
+    sovereign: Text,
+    advisories: Text,
+    openQuestions: Text,
+    methodology: Text,
+    rules: Text,
+    assumptions: Text,
+    pendingDiagnostic: Text,
+    startAssessment: Text,
+    methodologyNotes: uniqueList(Text),
+    back: Text,
+    typicalPatterns: Text,
+    whenInScope: Text,
+    why: Text,
+    samples: Text,
+    sampleNote: Text,
+    golden: Text,
+    pendingReview: Text,
+    whatIfs: Text,
+    added: Text,
+    removed: Text,
+    changed: Text,
+    noChanges: Text,
+    scenarioSource: Text,
+    hostingSources: Text,
+    hostingSourceIds: uniqueList(Id),
   }),
   privacy: z.strictObject({
     statement: Text,
@@ -419,6 +893,26 @@ export const CONTENT_FILES = {
   controlPoints: { file: 'control-points.yaml', schema: z.array(ControlPointSchema).min(1) },
   lifecycle: { file: 'lifecycle.yaml', schema: z.array(StageSchema).min(1) },
   capabilities: { file: 'capabilities.yaml', schema: z.array(CapabilitySchema).min(1) },
+  personas: { file: 'personas.yaml', schema: z.array(PersonaSchema).min(1) },
+  learn: { file: 'learn.yaml', schema: LearnSchema },
+  buildingBlocks: { file: 'building-blocks.yaml', schema: z.array(LearningItemSchema).min(1) },
+  glossary: { file: 'glossary.yaml', schema: z.array(GlossaryEntrySchema).min(1) },
+  faq: { file: 'faq.yaml', schema: z.array(FaqSchema).min(1) },
+  questions: { file: 'questions.yaml', schema: z.array(QuestionSchema).min(1) },
+  diagnostic: { file: 'diagnostic.yaml', schema: DiagnosticSchema },
+  rules: { file: 'rules.yaml', schema: z.array(RuleSchema).min(1) },
+  advisories: { file: 'advisories.yaml', schema: z.array(AdvisorySchema).min(1) },
+  patterns: { file: 'patterns.yaml', schema: z.array(PatternSchema).min(1) },
+  risks: { file: 'risks.yaml', schema: z.array(RiskSchema).min(1) },
+  samples: { file: 'samples.yaml', schema: z.array(SampleSchema).min(1) },
+  goldenScenarios: { file: 'golden-scenarios.yaml', schema: z.array(GoldenScenarioSchema).min(1) },
+  integrationPaths: {
+    file: 'integration-paths.yaml',
+    schema: z.array(IntegrationPathSchema).min(1),
+  },
+  frontierMappings: { file: 'frontier-phases.yaml', schema: z.array(FrontierMappingSchema).min(1) },
+  whatIfs: { file: 'what-ifs.yaml', schema: z.array(WhatIfSchema).min(1) },
+  mappingConfig: { file: 'mapping.yaml', schema: MappingConfigSchema },
   site: { file: 'site.yaml', schema: SiteSchema },
 } as const;
 
@@ -430,6 +924,24 @@ export type StageDef = z.infer<typeof StageSchema>;
 export type Capability = z.infer<typeof CapabilitySchema>;
 export type Site = z.infer<typeof SiteSchema>;
 export type ChangelogEntry = z.infer<typeof ChangelogEntrySchema>;
+export type LearningItem = z.infer<typeof LearningItemSchema>;
+export type GlossaryEntry = z.infer<typeof GlossaryEntrySchema>;
+export type Faq = z.infer<typeof FaqSchema>;
+export type Persona = z.infer<typeof PersonaSchema>;
+export type Learn = z.infer<typeof LearnSchema>;
+export type Question = z.infer<typeof QuestionSchema>;
+export type Diagnostic = z.infer<typeof DiagnosticSchema>;
+export type Rule = z.infer<typeof RuleSchema>;
+export type Recommendation = z.infer<typeof RecommendationSchema>;
+export type Advisory = z.infer<typeof AdvisorySchema>;
+export type Pattern = z.infer<typeof PatternSchema>;
+export type Risk = z.infer<typeof RiskSchema>;
+export type Sample = z.infer<typeof SampleSchema>;
+export type GoldenScenario = z.infer<typeof GoldenScenarioSchema>;
+export type IntegrationPath = z.infer<typeof IntegrationPathSchema>;
+export type FrontierMapping = z.infer<typeof FrontierMappingSchema>;
+export type WhatIf = z.infer<typeof WhatIfSchema>;
+export type MappingConfig = z.infer<typeof MappingConfigSchema>;
 
 export interface Content {
   sources: Source[];
@@ -438,6 +950,23 @@ export interface Content {
   controlPoints: ControlPointDef[];
   lifecycle: StageDef[];
   capabilities: Capability[];
+  personas: Persona[];
+  learn: Learn;
+  buildingBlocks: LearningItem[];
+  glossary: GlossaryEntry[];
+  faq: Faq[];
+  questions: Question[];
+  diagnostic: Diagnostic;
+  rules: Rule[];
+  advisories: Advisory[];
+  patterns: Pattern[];
+  risks: Risk[];
+  samples: Sample[];
+  goldenScenarios: GoldenScenario[];
+  integrationPaths: IntegrationPath[];
+  frontierMappings: FrontierMapping[];
+  whatIfs: WhatIf[];
+  mappingConfig: MappingConfig;
   site: Site;
   changelog: ChangelogEntry[];
 }

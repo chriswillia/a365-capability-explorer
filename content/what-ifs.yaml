@@ -1,0 +1,30 @@
+- id: to-production
+  title: Move to production
+  org: {}
+  answers: { stage: production }
+  reviewStatus: draft
+- id: add-confidential-data
+  title: Add confidential data
+  org: {}
+  answers: { dataSensitivity: confidential }
+  reviewStatus: draft
+- id: go-autonomous
+  title: Give the agent autonomous background access
+  org: {}
+  answers: { accessModel: own-background, autonomy: autonomous }
+  reviewStatus: draft
+- id: add-mcp-tools
+  title: Add Microsoft MCP tools
+  org: {}
+  answers: { tools: [microsoft-mcp] }
+  reviewStatus: draft
+- id: open-to-customers
+  title: Open the audience to customers
+  org: {}
+  answers: { audience: [customers] }
+  reviewStatus: draft
+- id: move-to-gcc
+  title: Move to GCC
+  org: { cloudEnvironment: gcc }
+  answers: {}
+  reviewStatus: draft

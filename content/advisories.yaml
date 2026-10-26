@@ -1,0 +1,54 @@
+- id: registry-sync
+  title: Verify the connected-platform integration
+  body: "Registry synchronization imports inventory metadata. Confirm supported platforms, permissions and synchronization scope; it does not imply telemetry or every SDK capability is present."
+  sourceIds: [a365-sdk, sd-a365]
+  evidence: stated
+  reviewStatus: draft
+- id: agent365-sdk
+  title: Add only the developer capabilities you need
+  body: "The Agent 365 SDK extends an existing agent with identity, governed tooling and notifications. It does not host or run the agent. New observability integrations use the separate Microsoft OpenTelemetry Distro, not the deprecated Agent 365 Observability SDK."
+  sourceIds: [a365-sdk, a365-quickstart]
+  evidence: stated
+  reviewStatus: draft
+- id: native
+  title: Copilot Studio native registration
+  body: "Copilot Studio agents register automatically. Verify identity, permissions, telemetry and data-protection configuration separately; a registry entry is not proof that all controls are operating."
+  sourceIds: [a365-cps-registry, a365-quickstart]
+  evidence: inferred
+  reviewStatus: draft
+- id: license-basis
+  title: Verify who and what must be licensed
+  body: "The complete licensing answer could not be verified. Do not infer per-agent licensing, a user-license quantity, or an exemption from this illustrative mapping. Confirm current terms with your licensing team."
+  sourceIds: [lic-faq, sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: frontier-preview
+  title: AI teammate preview gate
+  body: "The SDK documentation gates an agent's own user account, mailbox and notifications on Frontier preview enrollment. Verify tenant enrollment and current preview guidance before implementation."
+  sourceIds: [a365-sdk, a365-quickstart]
+  evidence: stated
+  reviewStatus: draft
+- id: labeling-readiness
+  title: Establish labeling coverage
+  body: "Incomplete labeling is a planning gap for label-aware data protection. Verify coverage and DLP onboarding; this recommendation does not certify technical enforcement."
+  sourceIds: [sd-a365, a365-quickstart]
+  evidence: judgment
+  reviewStatus: draft
+- id: windows-agents
+  title: Verify the computer-use runtime offer
+  body: "Computer use does not establish a Windows 365 for Agents entitlement or runtime. Verify the actual hosting offer, platform support, licensing and isolation before selecting endpoint controls."
+  sourceIds: [lic-faq, sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: agent-map
+  title: Review agent relationships
+  body: "Use Agent Map to review inventory and relationships. Treat it as an administrative view, not an orchestration engine or a separate service-description capability."
+  sourceIds: [a365-agent-map]
+  evidence: inferred
+  reviewStatus: draft
+- id: sovereign
+  title: Verify sovereign-cloud availability separately
+  body: "The catalog's GCC column is not evidence for GCC High, DoD or another sovereign cloud. Confirm current capability and integration availability with the relevant service documentation."
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft

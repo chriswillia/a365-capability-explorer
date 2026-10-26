@@ -1,0 +1,20 @@
+neutralOrg:
+  cloudEnvironment: commercial
+  agentEstate: one
+  orgGovernance: [none]
+  securityOps: [none]
+  shadowAI: "no"
+readinessChecks:
+  - id: teammate-frontier
+    appliesWhen: { q: accessModel, equals: own-teammate }
+    when: { not: { q: frontierProgram, equals: enrolled } }
+    gap: Verify Frontier preview enrollment before using an agent user account and notifications.
+    evidence: stated
+    sourceId: a365-sdk
+licensingNote: "Foundational and premium counts follow the service description. User range is the illustrative audience, not a license quantity. The full license basis, sizing-report guidance and eligibility require verification; no license quote or eligibility approval is produced."
+licensingSourceIds: [sd-a365, lic-faq]
+licenseBasis:
+  # TODO(verify): confirm the full licensing FAQ before publishing who must be licensed.
+  delegated:
+  own:
+  mixed:

@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { CapabilitySchema, ConditionSchema, SourceSchema, countWords } from './schemas.ts';
+import {
+  CapabilitySchema,
+  ConditionSchema,
+  SiteSchema,
+  SourceSchema,
+  countWords,
+} from './schemas.ts';
+import { content } from './index.ts';
 
 const capability = (overrides: Record<string, unknown> = {}) => ({
   id: 'purview-dlp',
@@ -20,6 +27,27 @@ const capability = (overrides: Record<string, unknown> = {}) => ({
   lifecycleStages: ['deploy', 'operate'],
   reviewStatus: 'draft',
   ...overrides,
+});
+
+describe('explorer and brief copy schemas', () => {
+  it('requires all explorer and brief labels and rejects misspelled keys', () => {
+    expect(SiteSchema.safeParse(content.site).success).toBe(true);
+    expect(
+      SiteSchema.safeParse({
+        ...content.site,
+        capabilities: { ...content.site.capabilities, explorer: undefined },
+      }).success,
+    ).toBe(false);
+    expect(
+      SiteSchema.safeParse({
+        ...content.site,
+        capabilities: {
+          ...content.site.capabilities,
+          brief: { ...content.site.capabilities.brief, summmary: 'typo' },
+        },
+      }).success,
+    ).toBe(false);
+  });
 });
 
 const issues = (value: unknown) => {

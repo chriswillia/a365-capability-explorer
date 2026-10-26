@@ -2,7 +2,7 @@
 # {placeholders} are filled from numbers computed at render time (src/lib/content/metrics.ts).
 # The build fails on a placeholder it does not know.
 
-productName: Control Plane Compass
+productName: A365 Capability Explorer
 tagline: "Map any agent use case to Microsoft Agent 365."
 description: "Map any agent use case to Microsoft Agent 365. See what it offers today, which capabilities apply to your agent, and what to set up first."
 
@@ -20,7 +20,7 @@ ui:
   skipToContent: Skip to main content
   previewBanner: "Preview: this site is in development. Capability content is draft and pending subject-matter-expert review."
   mainNavLabel: Main navigation
-  homeLinkLabel: "Control Plane Compass, home"
+  homeLinkLabel: "A365 Capability Explorer, home"
   depth:
     groupLabel: Detail level
     executive: Executive
@@ -122,6 +122,18 @@ overview:
   heroLede: "See what Agent 365 offers today, which capabilities apply to your agent, and what to set up first."
   ctaExplore: "Explore the capabilities"
   technicalHint: "Switch to Technical for the console and layer detail."
+  personasHeading: "Start with your role"
+  personasNote: "Suggested starting paths are editorial and pending SME review. Explore illustrative patterns or create a local diagnostic assessment; formal readouts follow in Phase 5."
+  questionsHeading: "Questions to guide the conversation"
+  questions:
+    - "What does Agent 365 offer today?"
+    - "Which capabilities might apply to this agent, and why?"
+    - "Where do controls act across the agent?"
+    - "Who configures them, and when do they matter?"
+    - "What is already in place, and what needs validation?"
+    - "What would change the answer as the agent evolves?"
+  frontierHeading: "The journey to a Frontier Firm"
+  frontierNote: "An organizational model, not a licensing tier, access-model rule or technical maturity score. Organizations can operate across these phases at the same time. Do not confuse it with the Frontier preview program."
   kpis:
     - id: capabilities
       valueKey: capabilityCount
@@ -174,7 +186,7 @@ overview:
     platformDetail: "{platformCount} of {capabilityCount} capabilities are set up once on the platform; {agentDecisionCount} involve a decision for each agent."
 
 capabilities:
-  intro: "A first look at the catalog. Lenses, filters, comparison and a brief for each capability are in development."
+  intro: "Explore the catalog by pillar, console, layer, lifecycle, risk or pattern. Search the questions you need to answer, compare capabilities, or open a brief."
   draftNote: "Summaries are drafts pending subject-matter-expert review. The official wording and the availability columns come from the service description."
   tableCaption: "{capabilityCount} capabilities in the Microsoft Agent 365 service description"
   scrollRegionLabel: "Capabilities table, scrollable"
@@ -190,12 +202,263 @@ capabilities:
   waveLabel: "Wave {n}"
   officialWording: "Official wording"
   dependencyPrefix: "Depends on"
-  sourcesDifferNote: "Sources differ, verify: the licensing FAQ classifies this capability differently from the service description. Side-by-side detail arrives with the capability briefs."
+  sourcesDifferNote: "Sources differ, verify: the licensing FAQ classifies this capability differently from the service description. Open the capability brief to see both sources."
+  explorer:
+    search: "Search capabilities, questions and synonyms"
+    lens: Lens
+    group: "Filter within this lens"
+    all: "All groups"
+    view: View
+    lenses:
+      pillar: Pillar
+      console: Console
+      layer: Layer
+      lifecycle: Lifecycle
+      risk: Risk
+      pattern: Pattern
+    views:
+      table: Table
+      cards: Cards
+      matrix: Matrix
+    results: "{count} of {capabilityCount} capabilities"
+    empty: "No capabilities match. Try a different search or clear the filters."
+    reset: "Clear filters"
+    compare: Compare
+    comparison: "Capability comparison"
+    comparisonHint: "Select up to {n} capabilities. Selected capabilities remain here when you change filters."
+    clearComparison: "Clear comparison"
+    invalidLink: "Some explorer settings in this link are invalid. Only valid settings are shown; choose new settings below."
+    applies: Applies
+    notApplicable: "Not mapped"
+  brief:
+    back: "Back to capabilities"
+    summary: "What it does"
+    withoutIt: "Without it"
+    withIt: "With it"
+    where: "Where it acts"
+    when: "When it matters"
+    owner: "Who owns it"
+    setup: Setup
+    availability: "Licensing and availability"
+    questions: "Questions it answers"
+    discovery: "Questions to take to your team"
+    dependencies: Dependencies
+    prerequisites: "Conditional readiness checks"
+    conditionalNote: "These gaps apply only when their assessment conditions match; they are not universal prerequisites."
+    sourceNotes: "Source notes and differences"
+    docs: "Official documentation"
+    verified: "Service description last verified"
+    correction: "Suggest a correction"
+    assessmentPending: "Rules and typical patterns below explain planning relevance. Open the diagnostic for a personalized local assessment; this catalog brief is not an assessment."
+    evidence:
+      stated: Stated
+      inferred: Inferred
+      judgment: "Advisor judgment"
+
+learn:
+  intro: "Understand the control plane before choosing controls. Follow a conceptual request, explore integration paths, and check terminology and common assumptions."
+  contents: "On this page"
+  draftNote: "Editorial explanations and capability associations are drafts pending SME review. Evidence labels describe the source basis, not approval."
+  pending: "Answer pending verification. Read the official source; do not treat the question's premise as a confirmed fact."
+  verified: "Source checked"
+  related: "Related catalog capabilities"
+  sections:
+    concepts: "Concepts in a few minutes"
+    integration: "Integration paths and builder checklist"
+    buildingBlocks: "Building blocks"
+    glossary: Glossary
+    myths: "Myths and facts"
+    positioning: "Where Agent 365 fits"
+  flowNote: "This is a conceptual guide, not a guaranteed runtime sequence or a promise that controls are enabled. Coverage depends on the platform, integration, licensing and configuration. Use the table for the complete reading order."
+  flowTable: "Conceptual request flow and related capabilities"
+  flowColumns:
+    step: Step
+    concept: Concept
+    capabilities: "Related capabilities"
+  previous: "Previous concept"
+  next: "Next concept"
+  progress: "Concept {n} of {count}"
+  buildingBlocksNote: "Related concepts, not additional rows in the service-description catalog. These do not increase the capability count."
+  mythLabel: "Assumption to check"
+  factLabel: "Source-backed answer"
+  evidence:
+    stated: Stated
+    inferred: Inferred
+    judgment: "Advisor judgment"
+
+diagnostic:
+  intro: "Build a local planning assessment from a blank form, an illustrative pattern or a sample. Set the organization context first; linked use cases reuse it."
+  privacy: "Answers and optional names stay in this browser profile. They are not sent to a server or placed in links. Other people using this browser profile can access them. Clearing site data removes them; JSON backup and import arrive with Phase 5."
+  organization: Organization profile
+  newOrganization: New organization or engagement
+  organizationName: Organization or engagement name
+  createOrganization: Create local organization
+  organizationSaved: Local organization profile
+  sharedOrganization: "These organization answers are shared by all assessments linked to this profile. Changes update their current mappings too."
+  selectOrganization: Select a saved organization
+  deleteOrganization: Delete organization
+  organizationInUse: "Delete linked assessments before deleting this organization profile."
+  noOrganization: "Create an organization profile before starting an assessment."
+  start: Start local assessment
+  startBlank: Start blank
+  starter: Starting point
+  blank: Blank assessment
+  mode: Diagnostic mode
+  modes: { quick: Quick scan, full: Full diagnostic }
+  quickNote: "A short scan of platform, channels, access, autonomy, data and tools. Questions outside this scan remain unknown unless seeded or answered in Full diagnostic."
+  fullNote: "All applicable questions, including reusable organization context and optional readout details."
+  unknown: Not sure yet
+  why: Why we ask
+  next: Next section
+  previous: Previous section
+  sectionRail: Diagnostic sections
+  progress: "Section {n} of {count}"
+  assessments: Saved local assessments
+  empty: "No assessments saved in this browser profile yet."
+  resume: Resume
+  duplicate: Duplicate
+  rename: Rename
+  delete: Delete
+  assessmentName: Assessment name
+  untitledAssessment: Untitled assessment
+  untitledOrganization: Unnamed organization
+  duplicateName: "{label} — copy"
+  cancel: Cancel
+  confirm: Confirm
+  deleteTitle: Delete local data?
+  deleteBody: "Permanently delete {label} from this browser profile? This cannot be undone."
+  resetTitle: Reset diagnostic storage?
+  resetBody: "Remove all local organization profiles and assessments. Copy recovery data first if needed. Other site preferences are not removed."
+  save: Save name
+  saved: Saved on this device
+  unsaved: "Changes are in memory only — not safely saved."
+  retry: Retry saving
+  reload: Reload saved data
+  storageUnavailable: "Browser storage could not be accessed. You can work in memory, but your changes will be lost on refresh or leaving unless saving succeeds."
+  storageQuota: "Browser storage is full. Your current changes are still in memory, but are not saved. Free space or delete unneeded local assessments, then retry."
+  storageConflict: "Saved data changed in another tab. This draft has not overwritten it. Reload saved data to continue with the other tab's version, or keep this page open to preserve your unsaved draft."
+  storageInvalid: "Diagnostic storage is unreadable or uses an unsupported format. Existing data has not been changed. Copy the recovery data before choosing a reset."
+  recovery: Stored data for recovery
+  reset: Reset diagnostic storage
+  leaveTitle: Leave with unsaved changes?
+  leaveBody: "Saving has failed. Leaving or reloading may discard your in-memory changes."
+  leave: Leave without saving
+  stay: Keep editing
+  incompatible: "Some saved answers are incompatible with the current question definitions. No planning result is shown until they are corrected. Clear incompatible answers to mark only those inputs unknown."
+  clearIncompatible: Clear incompatible answers
+  oldContent: "Saved with an older content version. The preview uses today's content; changing an answer saves the current version. Version-to-version deltas arrive in Phase 7."
+  currentContent: Current content version
+  invalidStarter: "The pattern or sample in this link is invalid. Choose a valid starting point below; no assessment has been created."
+  allAssessments: All organizations
+  back: Back to local assessments
+  emerging: Emerging control-plane anatomy
+  emergingNote: "Updates from your current answers. A textual table lists all layers and in-scope controls; this is not evidence that any control is deployed."
+  preview: Current planning preview
+  previewNote: "A live rule-engine preview, not the formal readout package. Exhibits, exports, branding and the canvas arrive in Phase 5."
+  review: Review current mapping
+  noPreview: "Correct incompatible answers to resume the live planning preview."
+  knownAnswers: Known answers in this view
+  notFound: "This assessment is not saved in this browser profile. It may have been deleted or created on another device."
+  updated: Last updated
+  startFromPattern: Customize in the diagnostic
+  savedLocally: Local only
+  renameTitle: Rename local assessment
+
+mapping:
+  intro: "Use illustrative agent patterns to explore how capabilities fit together. Every recommendation is generated by the same rules, not a hand-maintained matrix."
+  neutralNote: "Pattern results use a neutral commercial organization: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. Canonical answers are examples, not facts about your organization."
+  matrix: "Generated Pattern × Capability matrix"
+  patternCount: "In-scope capabilities"
+  levels: { essential: Essential, recommended: Recommended, consider: Consider }
+  levelDescriptions:
+    essential: "Prioritize in this planning scenario; not an official product or licensing mandate."
+    recommended: "A useful supporting control to discuss with the owning team."
+    consider: "A conditional option worth checking for the chosen environment."
+  condition:
+    always: "All agent scenarios"
+    all: "All of"
+    any: "Any of"
+    not: "Not"
+    equals: "is"
+    in: "is one of"
+    includes: "includes"
+    includesAny: "includes any of"
+    answered: "has a known answer"
+    unanswered: "has no known answer"
+    unknown: "is unknown"
+    known: "is known"
+  inScope: "In scope"
+  notInScope: "Not currently in scope"
+  becomesRelevant: "Becomes relevant if"
+  noRule: "No configured recommendation rule; verify planning relevance with the owner."
+  reasons: "Why this is in scope"
+  origin: { org: Organization, useCase: Use case }
+  answers: "Canonical answers and assumptions"
+  unknownAnswer: "Unknown — verify"
+  readiness: "Configured readiness checks"
+  readinessNote: "This is not deployment or licensing certification. Ready means only that the configured gap conditions are false. The score is ready checks divided by all applicable configured checks; unknown checks remain in the denominator. Capabilities without checks remain unknown and do not enter that percentage."
+  readinessStatuses:
+    { ready: "Ready for configured checks", gap: "Planning gap", unknown: "Unknown — verify" }
+  readinessPercent: "Configured checks ready"
+  noChecks: "No configured checks; readiness is unknown."
+  anatomy: "Control-plane anatomy"
+  operatingModel: "Owner team × lifecycle operating model"
+  agentDecisions: "Decisions for this agent"
+  risks: "Triggered risk themes"
+  riskNote: "Editorial risk-to-capability associations, pending SME review. A mitigation association is not proof of enforcement or a guarantee of prevention. Not in scope means no rule matched, not that a capability is unnecessary."
+  mitigationsInScope: "Mitigations in scope"
+  mitigationsOutOfScope: "Mitigations not currently in scope"
+  potentialRisks: "Risk themes with unknown applicability"
+  noRisks: "No risk themes in this state."
+  riskAssociations: "Risk associations"
+  integration: "Integration paths and checklist"
+  verify: "Verify current support"
+  frontier: "Frontier Firm planning association"
+  frontierNote: "Editorial association only, not an organizational maturity rating, official phase rule or Frontier preview enrollment decision. Mixed access can relate to multiple phases."
+  licensing: "Licensing and audience"
+  licensingCounts: "Foundational / premium capability counts"
+  expectedUsers: "Illustrative user range, not a license quantity"
+  intensity: "Control intensity"
+  intensityNote: "Planning density, not a risk or maturity score. Essential = 3, Recommended = 2, Consider = 1; normalize against all catalog capabilities at 3 points each, overall and within each pillar."
+  gcc: "In-scope capabilities marked unavailable in GCC"
+  sovereign: "GCC data must not be extrapolated to GCC High, DoD or other sovereign clouds."
+  advisories: "Advisories and verification"
+  openQuestions: "Open questions"
+  methodology: "How the mapping works"
+  rules: "Rule catalog"
+  assumptions: "Condition and merge semantics"
+  methodologyNotes:
+    - "Inputs are typed single- or multiple-choice answers. Multi-select none and unknown cannot be combined with other choices. Invalid question ids, answer shapes, scopes and option values are rejected."
+    - "Conditions use three-valued logic: true, false or unknown. Missing, null, empty and explicitly unknown answers stay unknown. Not preserves unknown; all is false if any child is false, and any is true if any child is true. Only a true condition triggers a recommendation."
+    - "Each condition renders question and option labels. Organization rules use organization inputs; use-case rules may also consult organization context. Reason origins follow the rule scope."
+    - "The highest recommendation level wins, but every matching rule, reason, evidence label, source and origin is retained. The earliest explicit wave override wins; otherwise the capability's default wave applies. Results sort by pillar order, level, then capability short name."
+    - "Not currently in scope does not mean unnecessary. Its matching conditions remain visible as becomes-relevant explanations. Unknown risk applicability and unresolved inputs are reported separately."
+    - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; advisor judgment identifies an editorial choice. Recommendation levels, canonical patterns, risk associations and operating-model groupings are planning advice, not official mandates."
+    - "The matrix is generated from canonical pattern answers and the displayed neutral organization. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a pattern alone."
+    - "Golden scenarios assert Essential inclusions and complete exclusions for each pattern and sample. Automated agreement is not SME approval: unsigned scenarios produce build warnings until a reviewer and date are recorded."
+  pendingDiagnostic: "These are read-only planning results. Customize a pattern in the local diagnostic; formal readout exhibits, exports and the canvas arrive in Phase 5."
+  startAssessment: "Open the local diagnostic"
+  back: "Back to patterns"
+  typicalPatterns: "Typical patterns"
+  whenInScope: "When this capability is in scope"
+  why: "Reason and evidence"
+  samples: "Illustrative sample use cases"
+  sampleNote: "Fictional discussion starters, not claims about deployed customer solutions. Sample results reuse their pattern plus the visible answer overrides."
+  golden: "Golden scenarios and review status"
+  pendingReview: "Unsigned — pending SME review"
+  whatIfs: "Illustrative what-if changes"
+  added: Added
+  removed: Removed
+  changed: "Level changed"
+  noChanges: "No recommendation change"
+  scenarioSource: "Source basis"
+  hostingSources: "Implementation and hosting references"
+  hostingSourceIds: [gh-pages-visibility, gh-pages-workflows]
 
 privacy:
-  statement: "Your answers stay in your browser. This site sends nothing you enter to anyone, and it uses no cookies or analytics. GitHub Pages logs visitor IP addresses for security purposes."
+  statement: "This site uses no cookies or analytics. Catalog searches, filters and comparison selections appear in the URL; loading or sharing that URL exposes its query string to the host or recipient. Do not enter confidential information in catalog search. GitHub Pages logs visitor IP addresses for security purposes."
   storedHeading: "What this site stores in your browser"
-  storedIntro: "Everything is kept in your browser's local storage on this device. Clearing your browser data removes it."
+  storedIntro: "Application preferences and diagnostic data are kept in local storage in this browser profile. Navigation scroll positions use session storage. Other people using this profile can access saved data. Clearing site data removes it."
   storedColumns:
     what: What
     where: Where
@@ -204,6 +467,12 @@ privacy:
     - what: "Your detail level choice (Executive or Technical)"
       where: "Local storage, key cpcompass:depth"
       why: "So the site remembers your choice on your next visit"
+    - what: "Organization profiles, assessment answers, optional names, diagnostic mode and current section"
+      where: "Local storage, key cpcompass:diagnostic"
+      why: "Autosave and resume local assessments. Nothing is uploaded. Delete individual assessments or unused organizations from the diagnostic."
+    - what: "Navigation scroll positions managed by React Router"
+      where: "Session storage, key react-router-scroll-positions"
+      why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Assessments you save in later versions will also stay in your browser, and you will be able to export and delete them."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backup/import and readout exports arrive in Phase 5. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

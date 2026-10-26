@@ -25,6 +25,9 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Check public dependency URLs
+        run: node scripts/lockfile.ts check
+
       - name: Install
         run: npm ci
 

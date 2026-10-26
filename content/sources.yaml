@@ -26,15 +26,15 @@
   title: "Microsoft Agent 365 SDK and CLI"
   url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "URL checked (HTTP 200); content not yet compared with content files."
+  lastVerified: "2026-10-24"
+  notes: "Read 2026-10-24 for developer setup and the Agent 365 CLI building block."
 
 - id: a365-sdk
   title: "Microsoft Agent 365 SDK overview"
   url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/agent-365-sdk"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "URL checked (HTTP 200); content not yet compared with content files. Planned source for the request-flow walkthrough."
+  lastVerified: "2026-10-24"
+  notes: "Read 2026-10-24. Supports integration paths, SDK boundaries, governed Work IQ tooling, Frontier preview gate and separate Microsoft OpenTelemetry instrumentation. The Learn request flow is a conceptual editorial guide, not a documented runtime pipeline."
 
 - id: a365-quickstart
   title: "Quickstart: Connect an existing agent to Agent 365"
@@ -54,22 +54,22 @@
   title: "Use Agent Map in the Microsoft 365 admin center"
   url: "https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-map?view=o365-worldwide"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "URL checked (HTTP 200); content not yet compared with content files."
+  lastVerified: "2026-10-24"
+  notes: "Read 2026-10-24. Supports the Agent Map building block and its total, at-risk, ownerless and unmanaged summary cards."
 
 - id: a365-cps-registry
   title: "Agent registry integration for Copilot Studio"
   url: "https://learn.microsoft.com/en-us/microsoft-agent-365/builder/agent-registry"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "URL checked (HTTP 200); content not yet compared with content files."
+  lastVerified: "2026-10-25"
+  notes: "Read 2026-10-25. Supports automatic Copilot Studio registration and synchronized metadata; native registration does not establish all telemetry or SDK capabilities."
 
 - id: a365-admin-overview
   title: "Agent management in Microsoft 365 admin center"
   url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-365-overview"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "URL checked (HTTP 200); content not yet compared with content files."
+  lastVerified: "2026-10-25"
+  notes: "Read 2026-10-25. Supports centralized governance, lifecycle accountability and organization-level agent usage insights."
 
 # TODO(verify): the rest of this FAQ, including the sources-differ statements and the myths.
 - id: lic-faq
@@ -79,13 +79,12 @@
   lastVerified: "2026-10-23"
   notes: "Partially verified: only the prerequisites-by-segment answer could be read, because the page renders its FAQ with scripts. TODO(verify): everything else that cites this source."
 
-# TODO(verify): this page returned HTTP 403 to automated fetching on 2026-10-23.
 - id: wti-2025
   title: "2025 Work Trend Index: The year the Frontier Firm is born"
   url: "https://www.microsoft.com/en-us/worklab/work-trend-index/2025-the-year-the-frontier-firm-is-born"
   publisher: Microsoft
-  lastVerified:
-  notes: "Not verified: HTTP 403 to automated fetching on 2026-10-23. TODO(verify)."
+  lastVerified: "2026-10-24"
+  notes: "Read official article 2026-10-24. Verified the three organizational phases and that organizations can occupy them simultaneously. Labels and summaries are editorial paraphrases, not access-model or licensing rules."
 
 - id: gh-pages-visibility
   title: "GitHub Docs: Changing the visibility of your GitHub Pages site"

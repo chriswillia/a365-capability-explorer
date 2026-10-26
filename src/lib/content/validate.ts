@@ -1,5 +1,6 @@
 import type { Content } from './schemas.ts';
 import { CONSOLES, CONTROL_POINTS, PILLARS, STAGES, TEMPLATE_KEYS } from './schemas.ts';
+import { validateMapping } from './validate-mapping.ts';
 
 export interface ValidationOptions {
   now?: Date;
@@ -32,8 +33,6 @@ function* stringLeaves(value: unknown, path: string): Generator<[string, string]
  * Cross-reference checks that a per-file schema can't express. Runs on content that already passed its
  * schema, so shapes are trusted here. Pure: no file access, so tests can feed it fixtures.
  *
- * Not checked yet: "every capability is mitigated by at least one risk" and question or option references.
- * Those need risks.yaml and questions.yaml, which arrive with the rule engine and diagnostic.
  */
 export function validateContent(
   content: Content,
@@ -131,6 +130,71 @@ export function validateContent(
   }
   for (const p of content.pillars) citeSource(`pillars.yaml › ${p.id}`, p.sourceId);
   for (const id of content.site.footerSourceIds) citeSource('site.yaml › footerSourceIds', id);
+  const mapping = validateMapping(content, (where, id) => citeSource(where, id));
+  errors.push(...mapping.errors);
+  warnings.push(...mapping.warnings);
+
+  const learningCollections = [
+    ['building-blocks.yaml', content.buildingBlocks],
+    ['learn.yaml flow', content.learn.flow],
+    ['learn.yaml integration', content.learn.integration],
+    ['learn.yaml positioning', content.learn.positioning],
+    ['learn.yaml frontier', content.learn.frontier],
+  ] as const;
+  const catalogIds = new Set(content.capabilities.map((c) => c.id));
+  for (const [file, items] of learningCollections) {
+    duplicates(
+      `${file} id`,
+      items.map((item) => item.id),
+    );
+    for (const item of items) {
+      const where = `${file} › ${item.id}`;
+      citeSource(where, item.sourceId);
+      citeSource(`${where} › technicalSourceId`, item.technicalSourceId);
+      if (item.technical !== undefined && item.technicalSourceId === undefined) {
+        errors.push(`${where}: technical text needs a technicalSourceId`);
+      }
+      duplicates(`${where} capabilityIds`, item.capabilityIds);
+      for (const id of item.capabilityIds) {
+        if (!catalogIds.has(id)) errors.push(`${where}: unknown capability "${id}"`);
+      }
+    }
+  }
+  for (const [file, items] of [
+    ['glossary.yaml', content.glossary],
+    ['faq.yaml', content.faq],
+  ] as const) {
+    duplicates(
+      `${file} id`,
+      items.map((item) => item.id),
+    );
+    for (const item of items) citeSource(`${file} › ${item.id}`, item.sourceId);
+  }
+  duplicates(
+    'glossary.yaml term or alias',
+    content.glossary.flatMap((entry) =>
+      [entry.term, ...entry.aliases].map((term) => term.toLocaleLowerCase()),
+    ),
+  );
+  duplicates(
+    'personas.yaml id',
+    content.personas.map((persona) => persona.id),
+  );
+  const learningAnchors = new Set([
+    'concepts',
+    'integration',
+    'building-blocks',
+    'glossary',
+    'myths',
+    'positioning',
+    ...content.glossary.map((entry) => `glossary-${entry.id}`),
+  ]);
+  for (const persona of content.personas) {
+    const anchor = persona.href.split('#')[1];
+    if (anchor && !learningAnchors.has(anchor)) {
+      errors.push(`personas.yaml › ${persona.id}: unknown learning anchor "${anchor}"`);
+    }
+  }
 
   // Template placeholders must be values the app computes; stray braces are typos.
   for (const [path, text] of stringLeaves(content.site, '')) {
@@ -189,6 +253,20 @@ export function validateContent(
   for (const s of content.sources) {
     if (s.lastVerified === null) warnings.push(`sources.yaml › ${s.id}: not verified yet`);
     else checkDate(`sources.yaml › ${s.id}`, s.lastVerified);
+  }
+  const datedLearning = [
+    ...learningCollections.flatMap(([file, items]) =>
+      items.map((item) => ({ where: `${file} › ${item.id}`, date: item.lastVerified })),
+    ),
+    ...content.glossary.map((item) => ({
+      where: `glossary.yaml › ${item.id}`,
+      date: item.lastVerified,
+    })),
+    ...content.faq.map((item) => ({ where: `faq.yaml › ${item.id}`, date: item.lastVerified })),
+  ];
+  for (const { where, date } of datedLearning) {
+    if (date === null) warnings.push(`${where}: not verified yet`);
+    else checkDate(where, date);
   }
 
   return { errors, warnings };

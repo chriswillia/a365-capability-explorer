@@ -1,0 +1,85 @@
+# Empty facts are visible verification gaps, not permission to publish the build brief's unverified claims.
+- id: copilot-governance
+  myth: "Microsoft 365 Copilot alone governs all our agents."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: per-agent-license
+  myth: "Every agent needs its own license."
+  fact: "Microsoft Agent 365 is licensed per user. Confirm the applicable user and subscription requirements in the licensing FAQ before making a licensing determination."
+  sourceId: a365-overview
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: blueprint-license
+  myth: "Blueprints and agent instances each count as licenses."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: platform-license
+  myth: "The Agent 365 licensing model varies by agent build platform."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: sponsor-cap
+  myth: "A sponsor can oversee only a fixed number of agents."
+  # TODO(verify): confirm licensing and service limits independently.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: replaces-e5
+  myth: "Agent 365 replaces Microsoft 365 E5."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: e7-only
+  myth: "Microsoft 365 E7 is the only way to obtain Agent 365."
+  fact: "The service description lists a standalone Agent 365 subscription for eligible Microsoft 365 subscriptions, as well as inclusion in Microsoft 365 E7."
+  sourceId: sd-a365
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: dspm-license
+  myth: "All DSPM for AI use requires Agent 365."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: sdk-builder
+  myth: "The Agent 365 SDK builds and hosts the agent."
+  fact: "It extends an existing agent with identity, tooling and notifications; it does not build or host it. The Microsoft 365 Agents SDK is a separate framework for building conversational agents."
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: registration-monitoring
+  myth: "Registering an agent automatically enables telemetry."
+  fact: "Registration provides catalog visibility. Instrumentation adds telemetry. The quickstart separates registration and observability and lists additional licensing and runtime requirements."
+  sourceId: a365-quickstart
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: windows-included
+  myth: "Windows 365 for Agents is included with Agent 365."
+  # TODO(verify): full licensing FAQ answer unavailable.
+  fact:
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:

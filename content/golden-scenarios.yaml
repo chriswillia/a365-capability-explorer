@@ -1,0 +1,207 @@
+# Authored expectations, not generated from engine output. Unsigned until SME review.
+- {
+    id: personal-assistant,
+    patternId: personal-assistant,
+    org: {},
+    answers: {},
+    mustInclude: [registry-inventory, governance-actions, entra-conditional-access, purview-dlm],
+    mustNotInclude: [registry-sync, defender-shadow-ai, entra-access-packages],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: knowledge-agent,
+    patternId: knowledge-agent,
+    org: {},
+    answers: {},
+    mustInclude: [registry-inventory, governance-actions, entra-conditional-access, observability],
+    mustNotInclude: [registry-sync, entra-access-packages, defender-shadow-ai],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: process-agent,
+    patternId: process-agent,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        entra-access-packages,
+        entra-sponsor-lifecycle,
+        observability,
+        defender-threat-protection,
+        purview-audit-ediscovery,
+        purview-labels,
+        purview-dlp,
+        tool-controls,
+      ],
+    mustNotInclude: [entra-conditional-access, registry-sync, intune-block-local],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: ai-teammate,
+    patternId: ai-teammate,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        entra-access-packages,
+        entra-sponsor-lifecycle,
+        observability,
+        purview-audit-ediscovery,
+        purview-dlm,
+        tool-controls,
+      ],
+    mustNotInclude: [entra-conditional-access, registry-sync, intune-block-local],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: customer-agent,
+    patternId: customer-agent,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        entra-access-packages,
+        entra-sponsor-lifecycle,
+        observability,
+        purview-labels,
+        purview-dlp,
+        entra-network-controls,
+        tool-controls,
+      ],
+    mustNotInclude: [entra-conditional-access, registry-sync, defender-shadow-ai],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: multi-agent,
+    patternId: multi-agent,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        entra-access-packages,
+        observability,
+        defender-threat-protection,
+        purview-audit-ediscovery,
+        purview-labels,
+        purview-dlp,
+        tool-controls,
+      ],
+    mustNotInclude: [entra-conditional-access, registry-sync, intune-block-local],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: external-platform-agent,
+    patternId: external-platform-agent,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        registry-sync,
+        entra-access-packages,
+        observability,
+        defender-threat-protection,
+        purview-audit-ediscovery,
+        tool-controls,
+      ],
+    mustNotInclude: [entra-conditional-access, defender-shadow-ai, entra-network-controls],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: local-agent,
+    patternId: local-agent,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        defender-shadow-ai,
+        defender-posture,
+        entra-conditional-access,
+        purview-labels,
+        purview-dlp,
+        purview-dlm,
+        tool-controls,
+      ],
+    mustNotInclude: [registry-sync, entra-access-packages],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: computer-use-agent,
+    patternId: computer-use-agent,
+    org: {},
+    answers: {},
+    mustInclude: [entra-access-packages, entra-sponsor-lifecycle, tool-controls],
+    mustNotInclude: [registry-sync, entra-conditional-access, defender-shadow-ai],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: store-operations,
+    patternId: knowledge-agent,
+    sampleId: store-operations,
+    org: {},
+    answers: {},
+    mustInclude: [observability, entra-conditional-access],
+    mustNotInclude: [registry-sync, entra-access-packages],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: returns-refunds,
+    patternId: process-agent,
+    sampleId: returns-refunds,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        entra-access-packages,
+        purview-labels,
+        purview-dlp,
+        purview-dlm,
+        purview-audit-ediscovery,
+        defender-threat-protection,
+      ],
+    mustNotInclude: [entra-conditional-access, registry-sync],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: demand-planning,
+    patternId: external-platform-agent,
+    sampleId: demand-planning,
+    org: {},
+    answers: {},
+    mustInclude: [registry-sync, purview-labels, purview-dlp, observability],
+    mustNotInclude: [entra-conditional-access, defender-shadow-ai],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: askhr,
+    patternId: process-agent,
+    sampleId: askhr,
+    org: {},
+    answers: {},
+    mustInclude: [purview-labels, purview-dlp, purview-dlm, purview-audit-ediscovery],
+    mustNotInclude: [entra-conditional-access, registry-sync],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
+    id: developer-coding,
+    patternId: local-agent,
+    sampleId: developer-coding,
+    org: {},
+    answers: {},
+    mustInclude: [defender-shadow-ai, defender-posture, tool-controls, purview-labels, purview-dlp],
+    mustNotInclude: [registry-sync, entra-access-packages],
+    reviewedBy: null,
+    reviewedOn: null,
+  }

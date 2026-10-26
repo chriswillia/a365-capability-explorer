@@ -178,7 +178,10 @@ export function buildContent(options: BuildOptions): BuildResult {
 
   if (errors.length === 0) {
     const content = { ...parsed, changelog } as unknown as Content;
-    const validation = validateContent(content, options.validation);
+    const validation = validateContent(content, {
+      failOnOrphanedSources: true,
+      ...options.validation,
+    });
     errors.push(...validation.errors);
     warnings = validation.warnings;
 

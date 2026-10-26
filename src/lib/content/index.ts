@@ -7,6 +7,23 @@ import meta from '../../generated/meta.json';
 import pillars from '../../generated/pillars.json';
 import site from '../../generated/site.json';
 import sources from '../../generated/sources.json';
+import personas from '../../generated/personas.json';
+import learn from '../../generated/learn.json';
+import buildingBlocks from '../../generated/buildingBlocks.json';
+import glossary from '../../generated/glossary.json';
+import faq from '../../generated/faq.json';
+import questions from '../../generated/questions.json';
+import diagnostic from '../../generated/diagnostic.json';
+import rules from '../../generated/rules.json';
+import advisories from '../../generated/advisories.json';
+import patterns from '../../generated/patterns.json';
+import risks from '../../generated/risks.json';
+import samples from '../../generated/samples.json';
+import goldenScenarios from '../../generated/goldenScenarios.json';
+import integrationPaths from '../../generated/integrationPaths.json';
+import frontierMappings from '../../generated/frontierMappings.json';
+import whatIfs from '../../generated/whatIfs.json';
+import mappingConfig from '../../generated/mappingConfig.json';
 import { computeMetrics, templateValues } from './metrics.ts';
 import type { ConsoleId, Content, ContentMeta, ControlPointId, PillarId } from './schemas.ts';
 
@@ -23,6 +40,23 @@ export const content = {
   capabilities,
   site,
   changelog,
+  personas,
+  learn,
+  buildingBlocks,
+  glossary,
+  faq,
+  questions,
+  diagnostic,
+  rules,
+  advisories,
+  patterns,
+  risks,
+  samples,
+  goldenScenarios,
+  integrationPaths,
+  frontierMappings,
+  whatIfs,
+  mappingConfig,
 } as unknown as Content;
 
 export const contentMeta = meta as ContentMeta;

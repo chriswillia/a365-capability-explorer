@@ -1,0 +1,37 @@
+.term {
+  position: relative;
+}
+
+.tooltip {
+  display: none;
+  position: absolute;
+  z-index: 5;
+  inset-inline-start: 0;
+  top: 100%;
+  width: min(18rem, 65vw);
+  padding: var(--space-3);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  background: var(--color-white);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-14);
+  font-weight: 400;
+  line-height: var(--line-height-body);
+  box-shadow: var(--shadow-overlay);
+}
+
+.term:hover .tooltip,
+.term:focus-within .tooltip {
+  display: block;
+}
+
+.term .tooltip.dismissed {
+  display: none;
+}
+
+@media print {
+  .term .tooltip {
+    display: none;
+  }
+}

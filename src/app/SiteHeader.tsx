@@ -20,6 +20,7 @@ export function SiteHeader() {
 
   return (
     <header className={styles.header} data-no-print>
+      <div className={styles.banner}>{ui.previewBanner}</div>
       <div className={styles.top}>
         <Link to="/" className={styles.brand} aria-label={ui.homeLinkLabel}>
           <svg className={styles.mark} viewBox="0 0 32 32" aria-hidden="true" focusable="false">

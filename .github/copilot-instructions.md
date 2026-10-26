@@ -1,4 +1,4 @@
-# Control Plane Compass: project guidelines
+# A365 Capability Explorer: project guidelines
 
 A static GitHub Pages app (Vite, React, TypeScript strict, Fluent UI v9) that maps agent use cases to Microsoft Agent 365. It is built in phases from the [build brief](../docs/A365-Navigator-Build-Brief.md), which predates the project's rename. See [architecture](../docs/ARCHITECTURE.md), [how to update content](../docs/HOW-TO-UPDATE.md), [writing style](../docs/CONTENT-STYLE.md) and [design system](../docs/DESIGN-SYSTEM.md).
 

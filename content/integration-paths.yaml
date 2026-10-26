@@ -1,0 +1,74 @@
+- id: native-copilot-studio
+  title: Copilot Studio native integration
+  when: { q: buildPlatform, equals: copilot-studio }
+  checklist:
+    [
+      "Check the automatically registered entry and publisher metadata.",
+      "Verify identity, permissions, DLP configuration and telemetry separately.",
+    ]
+  status: documented
+  sourceIds: [a365-cps-registry, a365-quickstart]
+  evidence: stated
+  reviewStatus: draft
+- id: sdk
+  title: Developer-integrated agent
+  when: { q: buildPlatform, in: [pro-code-microsoft, pro-code-third-party] }
+  checklist:
+    [
+      "Select only the Agent 365 SDK identity, tooling or notification packages needed.",
+      "Instrument new observability with the separate Microsoft OpenTelemetry Distro.",
+      "Register the agent and verify permissions, licensing and end-to-end signals.",
+    ]
+  status: documented
+  sourceIds: [a365-sdk, a365-quickstart]
+  evidence: stated
+  reviewStatus: draft
+- id: teammate
+  title: AI teammate extension
+  when: { q: accessModel, equals: own-teammate }
+  checklist:
+    [
+      "Verify Frontier preview enrollment.",
+      "Verify the agent identity, own user account and notification configuration.",
+    ]
+  status: documented
+  sourceIds: [a365-sdk]
+  evidence: stated
+  reviewStatus: draft
+- id: registry-sync
+  title: Connected-platform registry synchronization
+  when: { q: buildPlatform, in: [hyperscaler, saas-platform] }
+  checklist:
+    [
+      "Verify the currently supported connected platform and synchronization permissions.",
+      "Check inventory coverage and update behavior.",
+      "Verify telemetry and runtime controls independently from registry synchronization.",
+    ]
+  status: verify
+  sourceIds: [a365-sdk, sd-a365]
+  evidence: inferred
+  reviewStatus: draft
+- id: endpoint
+  title: Local agent and endpoint integration
+  when: { q: buildPlatform, equals: local-agent }
+  checklist:
+    [
+      "Verify endpoint onboarding, device management and supported local-agent discovery.",
+      "Check runtime policies and outbound access for the actual execution environment.",
+    ]
+  status: verify
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: platform
+  title: Verify the selected platform path
+  when: { q: buildPlatform, in: [m365-agent-builder, microsoft-foundry, partner-agent, undecided] }
+  checklist:
+    [
+      "Consult current platform guidance for native, developer or connected-registry integration.",
+      "Verify inventory, permissions, instrumentation and control coverage rather than assuming equivalence.",
+    ]
+  status: verify
+  sourceIds: [a365-sdk]
+  evidence: judgment
+  reviewStatus: draft

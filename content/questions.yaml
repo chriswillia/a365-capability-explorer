@@ -1,0 +1,486 @@
+# Typed rule inputs and diagnostic questions. Boolean choices and scales use string values.
+# Missing, null, empty or "unknown" answers never mean "no".
+- id: cloudEnvironment
+  scope: org
+  label: Cloud environment
+  type: single
+  options:
+    [
+      { value: commercial, label: Commercial },
+      { value: gcc, label: GCC },
+      { value: gcc-high-dod, label: GCC High or DoD },
+      { value: other-sovereign, label: Other sovereign cloud },
+    ]
+  ifUnknown: Confirm the deployment cloud and capability availability.
+- id: basePlan
+  scope: org
+  label: Microsoft 365 base plan
+  type: single
+  options:
+    [
+      { value: m365-e7, label: Microsoft 365 E7 },
+      { value: m365-e5, label: Microsoft 365 E5 },
+      { value: m365-e3, label: Microsoft 365 E3 },
+      { value: o365-e3-ems-e3, label: Office 365 E3 plus EMS E3 },
+      { value: business-premium, label: Business Premium },
+      { value: frontline-f1-f3, label: Frontline F1 or F3 },
+      { value: education-a5, label: Education A5 },
+      { value: education-a3, label: Education A3 },
+      { value: other, label: Other },
+    ]
+  ifUnknown: Verify subscription eligibility against the current licensing terms.
+- id: securitySuites
+  scope: org
+  label: Defender and Purview suites in place
+  type: single
+  options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+  ifUnknown: Confirm the relevant Defender and Purview suites for your segment.
+- id: agent365Status
+  scope: org
+  label: Agent 365 license assignment
+  type: single
+  options:
+    [
+      { value: none, label: None },
+      { value: trial, label: Trial },
+      { value: some-users, label: Some users },
+      { value: broad, label: Broad assignment },
+    ]
+  ifUnknown: Confirm actual Agent 365 license assignments and telemetry prerequisites.
+- id: frontierProgram
+  scope: org
+  label: Frontier preview enrollment
+  type: single
+  options: [{ value: enrolled, label: Enrolled }, { value: not-enrolled, label: Not enrolled }]
+  ifUnknown: Confirm preview enrollment before selecting an AI teammate integration.
+- id: labelsProgram
+  scope: org
+  label: Sensitivity labeling program
+  type: single
+  options:
+    [
+      { value: broad, label: Broad coverage },
+      { value: partial, label: Partial coverage },
+      { value: not-yet, label: Not yet established },
+    ]
+  ifUnknown: Confirm labeling coverage and DLP onboarding.
+- id: entraP1
+  scope: org
+  label: Entra ID P1 or higher
+  type: single
+  options:
+    [
+      { value: "yes", label: "Yes" },
+      { value: partial, label: Partial coverage },
+      { value: "no", label: "No" },
+    ]
+  ifUnknown: Verify network-control licensing and identity prerequisites.
+- id: defenderEndpoint
+  scope: org
+  label: Devices onboarded to Defender for Endpoint
+  type: single
+  options:
+    [
+      { value: most, label: Most devices },
+      { value: some, label: Some devices },
+      { value: none, label: No devices },
+    ]
+  ifUnknown: Confirm Defender device coverage before planning endpoint protection.
+- id: intuneWindows
+  scope: org
+  label: Windows devices managed by Intune
+  type: single
+  options:
+    [
+      { value: most, label: Most devices },
+      { value: some, label: Some devices },
+      { value: none, label: No devices },
+    ]
+  ifUnknown: Confirm Intune device coverage and runtime policy readiness.
+- id: agentEstate
+  scope: org
+  label: Size of the agent estate
+  type: single
+  options:
+    [
+      { value: one, label: One agent },
+      { value: handful, label: A handful },
+      { value: dozens, label: Dozens },
+      { value: hundreds, label: Hundreds },
+    ]
+  ifUnknown: Estimate the estate size before designing lifecycle automation.
+- id: orgGovernance
+  scope: org
+  label: Organization governance priorities
+  type: multi
+  options:
+    [
+      { value: ownerless-handling, label: Ownerless agent handling },
+      { value: policy-baseline, label: Policy baseline },
+      { value: cmdb-integration, label: CMDB integration },
+      { value: exec-reporting, label: Executive reporting },
+      { value: none, label: None selected },
+    ]
+  ifUnknown: Confirm organization-wide governance priorities.
+- id: securityOps
+  scope: org
+  label: Security operations priorities
+  type: multi
+  options:
+    [
+      { value: soc-monitoring, label: SOC monitoring },
+      { value: threat-hunting, label: Threat hunting },
+      { value: posture-management, label: Posture management },
+      { value: insider-risk, label: Insider risk },
+      { value: none, label: None selected },
+    ]
+  ifUnknown: Confirm the security operations programs that will own agent oversight.
+- id: shadowAI
+  scope: org
+  label: Shadow AI concern
+  type: single
+  options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+  ifUnknown: Confirm whether unsanctioned endpoint agents are a concern.
+- id: stage
+  scope: useCase
+  label: Agent rollout stage
+  type: single
+  options:
+    [
+      { value: idea, label: Idea },
+      { value: prototype, label: Prototype },
+      { value: pilot, label: Pilot },
+      { value: production, label: Production },
+      { value: scaling, label: Scaling },
+    ]
+  ifUnknown: Confirm whether this agent is a concept, pilot or production workload.
+- id: audience
+  scope: useCase
+  label: Agent audience
+  type: multi
+  options:
+    [
+      { value: employees, label: Employees },
+      { value: frontline, label: Frontline workers },
+      { value: partners, label: Partners },
+      { value: customers, label: Customers },
+    ]
+  ifUnknown: Identify the people who will use the agent.
+- id: expectedUsers
+  scope: useCase
+  label: Expected users
+  type: single
+  options:
+    - { value: lt-50, label: Fewer than 50, range: { min: 0, max: 49 } }
+    - { value: 50-500, label: 50 to 500, range: { min: 50, max: 500 } }
+    - { value: 500-5000, label: 500 to 5000, range: { min: 500, max: 5000 } }
+    - { value: gt-5000, label: More than 5000, range: { min: 5001, max: null } }
+  ifUnknown: Estimate the user range; it is not a count of agents or a license quote.
+- id: buildPlatform
+  scope: useCase
+  label: Build platform
+  type: single
+  options:
+    [
+      { value: m365-agent-builder, label: Microsoft 365 Agent Builder },
+      { value: copilot-studio, label: Copilot Studio },
+      { value: microsoft-foundry, label: Microsoft Foundry },
+      { value: pro-code-microsoft, label: Pro-code with a Microsoft framework },
+      { value: pro-code-third-party, label: Pro-code with a third-party framework },
+      { value: hyperscaler, label: Amazon Bedrock or Google Vertex AI },
+      { value: saas-platform, label: SaaS platform },
+      { value: partner-agent, label: Partner agent },
+      { value: local-agent, label: Local endpoint agent },
+      { value: undecided, label: Undecided },
+    ]
+  ifUnknown: Choose a platform and verify its current integration path.
+- id: publisherType
+  scope: useCase
+  label: Registry publisher type
+  type: single
+  options:
+    [
+      { value: microsoft, label: Microsoft },
+      { value: external-partner, label: External partner-built },
+      { value: published-by-org, label: Published by your organization },
+      { value: shared-by-creator, label: Shared by creator },
+    ]
+  ifUnknown: Confirm who publishes and owns the registry entry.
+- id: channels
+  scope: useCase
+  label: Agent channels
+  type: multi
+  options:
+    [
+      { value: m365-copilot, label: Microsoft 365 Copilot },
+      { value: teams, label: Teams },
+      { value: outlook, label: Outlook },
+      { value: m365-apps, label: Microsoft 365 apps },
+      { value: sharepoint, label: SharePoint },
+      { value: web-or-custom, label: Web or custom channel },
+      { value: background, label: Background },
+    ]
+  ifUnknown: Confirm the channels where people or systems interact with the agent.
+- id: accessModel
+  scope: useCase
+  label: Access model
+  type: single
+  options:
+    [
+      { value: delegated, label: Delegated user access },
+      { value: own-teammate, label: Own access as an AI teammate },
+      { value: own-background, label: Own access in the background },
+      { value: mixed, label: Mixed delegated and own access },
+    ]
+  ifUnknown: Confirm whose identity and permissions the agent uses.
+- id: autonomy
+  scope: useCase
+  label: Agent autonomy
+  type: single
+  options:
+    [
+      { value: suggests, label: Suggests only },
+      { value: approval-gated, label: Approval-gated actions },
+      { value: autonomous, label: Autonomous actions },
+    ]
+  ifUnknown: Confirm which actions require human approval.
+- id: actions
+  scope: useCase
+  label: Agent actions
+  type: multi
+  options:
+    [
+      { value: read, label: Read content },
+      { value: create-content, label: Create content },
+      { value: update-records, label: Update records },
+      { value: transactions, label: Execute transactions },
+      { value: change-config, label: Change configuration },
+      { value: communicate-externally, label: Communicate externally },
+    ]
+  ifUnknown: List the actions the agent can take, not only its intended outcome.
+- id: triggers
+  scope: useCase
+  label: Agent triggers
+  type: multi
+  options:
+    [
+      { value: user-prompt, label: User prompt },
+      { value: events, label: Events },
+      { value: schedule, label: Schedule },
+      { value: other-agents, label: Other agents },
+    ]
+  ifUnknown: Confirm what starts each agent invocation.
+- id: sponsor
+  scope: useCase
+  label: Named sponsor
+  type: single
+  options: [{ value: "yes", label: Sponsor identified }, { value: not-yet, label: No sponsor yet }]
+  ifUnknown: Identify a named sponsor and ownership process.
+- id: managedDevices
+  scope: useCase
+  label: Managed device access
+  type: single
+  options:
+    [
+      { value: "yes", label: Managed devices },
+      { value: mixed, label: Mixed devices },
+      { value: "no", label: Unmanaged devices },
+      { value: n-a, label: Not applicable },
+    ]
+  ifUnknown: Confirm whether managed devices participate in delegated access.
+- id: dataSensitivity
+  scope: useCase
+  label: Data sensitivity
+  type: single
+  options:
+    [
+      { value: public, label: Public },
+      { value: internal, label: Internal },
+      { value: confidential, label: Confidential },
+      { value: highly-confidential, label: Highly confidential },
+    ]
+  ifUnknown: Confirm the highest sensitivity of data the agent can reach.
+- id: regulatedData
+  scope: useCase
+  label: Regulated or sensitive data categories
+  type: multi
+  options:
+    [
+      { value: personal, label: Personal data },
+      { value: payment-card, label: Payment card data },
+      { value: health, label: Health data },
+      { value: financial-reporting, label: Financial reporting },
+      { value: employee, label: Employee data },
+      { value: trade-secrets, label: Trade secrets },
+      { value: none, label: None },
+    ]
+  ifUnknown: Identify regulated data categories or explicitly select none.
+- id: generatesContent
+  scope: useCase
+  label: Generates content
+  type: single
+  options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+  ifUnknown: Confirm whether agent-generated content needs lifecycle controls.
+- id: obligations
+  scope: useCase
+  label: Compliance obligations
+  type: multi
+  options:
+    [
+      { value: legal-hold, label: Legal hold },
+      { value: records-retention, label: Records retention },
+      { value: regulator-audit, label: Regulatory audit },
+      { value: ai-regulation, label: AI regulation },
+      { value: none, label: None },
+    ]
+  ifUnknown: Confirm retention, investigation and regulatory obligations.
+- id: tools
+  scope: useCase
+  label: Tools and execution
+  type: multi
+  options:
+    [
+      { value: microsoft-mcp, label: Microsoft MCP },
+      { value: third-party-mcp, label: Third-party MCP },
+      { value: connectors-apis, label: Connectors or APIs },
+      { value: code-execution, label: Code execution },
+      { value: web-browsing, label: Web browsing },
+      { value: computer-use, label: Computer use },
+      { value: none, label: None },
+    ]
+  ifUnknown: Identify tool access, including browser and code execution.
+- id: agentToAgent
+  scope: useCase
+  label: Agent-to-agent interactions
+  type: single
+  options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+  ifUnknown: Confirm whether the agent calls or coordinates other agents.
+- id: networkEgress
+  scope: useCase
+  label: Network egress
+  type: single
+  options: [{ value: "yes", label: "Yes" }, { value: "no", label: "No" }]
+  ifUnknown: Confirm outbound network access and destinations.
+- id: agentGovernance
+  scope: useCase
+  label: Agent governance priorities
+  type: multi
+  options:
+    [
+      { value: approval, label: Approval },
+      { value: restrict-audience, label: Restrict audience },
+      { value: exec-reporting, label: Executive reporting },
+      { value: none, label: None },
+    ]
+  ifUnknown: Confirm publication approval, audience restrictions and reporting needs.
+- id: orgName
+  scope: org
+  label: Organization or engagement name
+  type: text
+  maxLength: 120
+  ifUnknown: Give this local organization profile a recognizable name.
+- id: industry
+  scope: org
+  label: Industry or sector
+  type: text
+  maxLength: 120
+  ifUnknown: Describe the industry when it is useful to the planning conversation.
+- id: socPlatform
+  scope: org
+  label: Security operations platform
+  type: single
+  options:
+    [
+      { value: defender-xdr, label: Microsoft Defender XDR },
+      { value: other, label: Other },
+      { value: none, label: None },
+    ]
+  ifUnknown: Identify the platform and team that will investigate agent incidents.
+- id: useCaseName
+  scope: useCase
+  label: Use case name
+  type: text
+  maxLength: 120
+  ifUnknown: Give the use case a recognizable local name.
+- id: businessOutcome
+  scope: useCase
+  label: Intended business outcome
+  type: longtext
+  maxLength: 2000
+  ifUnknown: Describe the intended outcome and how success will be measured.
+- id: businessFunction
+  scope: useCase
+  label: Business function
+  type: text
+  maxLength: 120
+  ifUnknown: Identify the business function that owns the outcome.
+- id: businessValue
+  scope: useCase
+  label: Relative business value
+  type: scale
+  options:
+    [
+      { value: "1", label: "1 — Lower" },
+      { value: "2", label: "2" },
+      { value: "3", label: "3 — Medium" },
+      { value: "4", label: "4" },
+      { value: "5", label: "5 — Higher" },
+    ]
+  ifUnknown: Agree an internal relative value; this is not a financial valuation.
+- id: codeStack
+  scope: useCase
+  label: Pro-code stack
+  type: single
+  options:
+    [
+      { value: python, label: Python },
+      { value: node, label: Node.js },
+      { value: dotnet, label: .NET },
+      { value: other, label: Other },
+    ]
+  ifUnknown: Confirm the developer stack for the selected pro-code integration.
+- id: hosting
+  scope: useCase
+  label: Runtime hosting
+  type: multi
+  options:
+    [
+      { value: microsoft-cloud, label: Microsoft cloud },
+      { value: aws, label: AWS },
+      { value: google-cloud, label: Google Cloud },
+      { value: other-cloud-onprem, label: Other cloud or on-premises },
+      { value: user-devices, label: User devices },
+    ]
+  ifUnknown: Confirm where the runtime executes and which team owns it.
+- id: dataSources
+  scope: useCase
+  label: Knowledge and data sources
+  type: multi
+  options:
+    [
+      { value: m365, label: Microsoft 365 },
+      { value: dataverse, label: Dataverse },
+      { value: lob, label: Line-of-business systems },
+      { value: third-party-saas, label: Third-party SaaS },
+      { value: public-web, label: Public web },
+      { value: maker-files, label: Maker-provided files },
+    ]
+  ifUnknown: List the data sources and the permissions the agent will use.
+- id: engagementName
+  scope: useCase
+  label: Engagement name
+  type: text
+  maxLength: 120
+  ifUnknown: Add an optional engagement label for future readouts.
+- id: preparedBy
+  scope: useCase
+  label: Prepared by
+  type: text
+  maxLength: 120
+  ifUnknown: Add an optional preparer name only if appropriate for this device.
+- id: preparedOn
+  scope: useCase
+  label: Prepared on
+  type: date
+  maxLength: 10
+  ifUnknown: Add an optional preparation date for future readouts.

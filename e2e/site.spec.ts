@@ -1,33 +1,18 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
+import type { Capability, Site, Learn, Persona } from '../src/lib/content/schemas.ts';
 
 /*
  * Reads the same compiled content the app was built from, so expectations follow the content rather than
  * repeating it. Relative URLs ("capabilities", "./") resolve against each project's baseURL, which ends in "/".
  */
-interface Site {
-  productName: string;
-  tagline: string;
-  indexable: boolean;
-  disclaimer: string;
-  ui: {
-    depth: { groupLabel: string; executive: string; technical: string };
-    skipToContent: string;
-  };
-  routes: Record<string, { title: string }>;
-  overview: { kpis: { id: string; label: string; valueKey: string }[] };
-  privacy: { statement: string };
-}
-interface Capability {
-  id: string;
-  source: { includedWithBasePlans: boolean; gccAvailable: boolean };
-  setup: string;
-}
 const read = <T>(name: string): T =>
   JSON.parse(readFileSync(`src/generated/${name}.json`, 'utf8')) as T;
 const site = read<Site>('site');
 const capabilities = read<Capability[]>('capabilities');
+const learn = read<Learn>('learn');
+const personas = read<Persona[]>('personas');
 
 const DEPTH_KEY = 'cpcompass:depth';
 
@@ -117,7 +102,16 @@ test.describe('hosting behavior (GitHub Pages)', () => {
     });
     page.on('requestfailed', (request) => failures.push(`failed ${request.url()}`));
 
-    for (const path of ['./', 'capabilities', 'privacy']) {
+    for (const path of [
+      './',
+      'capabilities',
+      `capabilities/${capabilities[0]!.id}`,
+      'learn',
+      'privacy',
+      'patterns',
+      'patterns/ai-teammate',
+      'methodology',
+    ]) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
     }
@@ -130,7 +124,19 @@ test.describe('hosting behavior (GitHub Pages)', () => {
       const url = new URL(request.url());
       if (url.protocol === 'http:' || url.protocol === 'https:') origins.add(url.origin);
     });
-    for (const path of ['./', 'capabilities', 'privacy', 'patterns']) {
+    for (const path of [
+      './',
+      'capabilities',
+      `capabilities/${capabilities[0]!.id}`,
+      'privacy',
+      'patterns',
+      'patterns/ai-teammate',
+      'patterns/process-agent?sample=askhr',
+      'capabilities?lens=risk&group=shadow-ai',
+      'capabilities?lens=pattern&group=local-agent&view=matrix',
+      'methodology',
+      'learn',
+    ]) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');
     }
@@ -146,7 +152,126 @@ test.describe('hosting behavior (GitHub Pages)', () => {
   });
 });
 
+test.describe('Understand and Learn', () => {
+  test('persona starts reach available sections under either base path', async ({
+    page,
+    baseURL,
+  }) => {
+    for (const persona of personas) {
+      await page.goto('./');
+      await page.getByRole('link', { name: persona.startLabel, exact: true }).click();
+      const expected = new URL(persona.href.slice(1), baseURL);
+      await expect(page).toHaveURL(expected.href);
+      await expect(
+        page.getByRole('heading', {
+          level: 1,
+          name: persona.href.startsWith('/learn')
+            ? site.routes.learn.title
+            : site.routes.capabilities.title,
+        }),
+      ).toBeVisible();
+      if (expected.hash) {
+        await expect(page.locator(expected.hash)).toBeInViewport();
+      }
+    }
+  });
+  test('walkthrough advances with the keyboard and retains its table alternative', async ({
+    page,
+  }) => {
+    await page.goto('learn');
+    await expect(
+      page.getByRole('table', { name: site.learn.flowTable }).getByRole('row'),
+    ).toHaveCount(learn.flow.length + 1);
+    const next = page.getByRole('button', { name: site.learn.next });
+    await next.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.getByRole('status')).toContainText(`2`);
+    await expect(page.getByRole('heading', { name: learn.flow[1]!.title }).first()).toBeVisible();
+    await expect(page.getByRole('button', { name: site.learn.previous })).toBeEnabled();
+    await setDepth(page, 'technical');
+    await expect(page.getByText(learn.flow[1]!.technical!, { exact: true })).toBeVisible();
+  });
+  test('glossary links expose keyboard tooltips and survive refresh at the definition', async ({
+    page,
+  }) => {
+    await page.goto('learn');
+    const link = page.locator('main a[href$="#glossary-sdk"]').first();
+    await link.focus();
+    const description = await link.getAttribute('aria-describedby');
+    const tooltip = page.locator(`[id="${description}"]`);
+    await expect(tooltip).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(tooltip).toBeHidden();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#glossary-sdk$/);
+    await expect(page.locator('#glossary-sdk')).toBeInViewport();
+    await page.reload();
+    await expect(page.locator('#glossary-sdk')).toBeInViewport();
+  });
+  test('Learn and persona cards fit a narrow screen without page overflow', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    for (const path of ['./', 'learn', 'learn#glossary']) {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      ).toBe(true);
+    }
+  });
+});
+
 test.describe('capabilities page', () => {
+  test('keeps lenses, views and comparison in the URL through refresh and history', async ({
+    page,
+  }) => {
+    const copy = site.capabilities.explorer;
+    await page.goto('capabilities?lens=layer&group=data&view=cards');
+    const expected = capabilities.filter((c) => c.controlPoints.includes('data'));
+    await expect(page.getByRole('checkbox')).toHaveCount(expected.length);
+    await page.getByLabel(copy.view, { exact: true }).selectOption('matrix');
+    await expect(page).toHaveURL(/view=matrix/);
+    await page.reload();
+    await expect(page.getByLabel(copy.view, { exact: true })).toHaveValue('matrix');
+    const checkbox = page.getByRole('checkbox').first();
+    await checkbox.click();
+    await expect(checkbox).toBeChecked();
+    await expect(page).toHaveURL(/compare=/);
+    await page.goBack();
+    await expect(page).not.toHaveURL(/compare=/);
+    await page.goBack();
+    await expect(page.getByLabel(copy.view, { exact: true })).toHaveValue('cards');
+  });
+
+  test('deep-linked briefs and corrections work under either base path', async ({ page }) => {
+    const c = capabilities[0]!;
+    await page.goto(`capabilities/${c.id}`);
+    await expect(page.getByRole('heading', { level: 1, name: c.shortName })).toBeVisible();
+    await page.reload();
+    await expect(page.getByText(c.source.featureText, { exact: true })).toBeVisible();
+    await expect(
+      page.getByRole('link', { name: site.capabilities.brief.correction, exact: true }),
+    ).toHaveAttribute(
+      'href',
+      /github\.com\/chriswillia\/control-plane-compass\/issues\/new\?title=/,
+    );
+  });
+
+  test('cards and matrix remain usable on a narrow screen', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto('capabilities?view=cards');
+    await expect(page.getByRole('link', { name: capabilities[0]!.shortName })).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+    await page.getByLabel(site.capabilities.explorer.view, { exact: true }).selectOption('matrix');
+    await expect(
+      page.getByRole('region', { name: site.capabilities.scrollRegionLabel }),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+  });
+
   test('badge icons keep their size (an icon squeezed to a sliver is invisible)', async ({
     page,
   }) => {
@@ -189,7 +314,23 @@ test.describe('keyboard and focus', () => {
 });
 
 test.describe('accessibility (axe, WCAG 2.2 AA)', () => {
-  const pages = ['./', 'capabilities', 'privacy', 'patterns', 'no/such/page'];
+  const pages = [
+    './',
+    'capabilities',
+    'capabilities?view=cards',
+    'capabilities?view=matrix',
+    `capabilities?compare=${capabilities[0]!.id}&compare=${capabilities[1]!.id}`,
+    `capabilities/${capabilities[0]!.id}`,
+    'privacy',
+    'learn',
+    'patterns',
+    'patterns/ai-teammate',
+    'patterns/process-agent?sample=askhr',
+    'capabilities?lens=risk&group=shadow-ai',
+    'capabilities?lens=pattern&group=local-agent&view=matrix',
+    'methodology',
+    'no/such/page',
+  ];
 
   for (const depth of ['executive', 'technical'] as const) {
     for (const path of pages) {

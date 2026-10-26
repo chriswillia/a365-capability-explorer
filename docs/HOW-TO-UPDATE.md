@@ -12,14 +12,25 @@ You do not need to be a developer. Capabilities, sources and all interface copy 
 
 ## What the files are
 
-| File                                                                     | Holds                                                                                      |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
-| `capabilities.yaml`                                                      | The 26 capabilities: verbatim service-description text, availability, and editorial drafts |
-| `sources.yaml`                                                           | Every source, with its URL and when it was last verified                                   |
-| `site.yaml`                                                              | All interface copy, page titles and the footer disclaimer                                  |
-| `pillars.yaml`, `consoles.yaml`, `control-points.yaml`, `lifecycle.yaml` | The labels and groupings that capabilities refer to                                        |
-| `changelog.md`                                                           | What changed, and which capabilities each change touches                                   |
-| `source-snapshot.json`                                                   | The service description's feature table as published. Do not edit by hand                  |
+| File                                                                     | Holds                                                                                               |
+| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `capabilities.yaml`                                                      | The 26 capabilities: verbatim service-description text, availability, and editorial drafts          |
+| `sources.yaml`                                                           | Every source, with its URL and when it was last verified                                            |
+| `site.yaml`                                                              | All interface copy, page titles and the footer disclaimer                                           |
+| `personas.yaml`                                                          | Role-based starting paths to available explorer lenses and Learn sections                           |
+| `learn.yaml`                                                             | Conceptual flow, integration paths, product positioning and Frontier Firm phases                    |
+| `building-blocks.yaml`                                                   | Related concepts; these do not add service-description capabilities                                 |
+| `glossary.yaml`                                                          | Terms, aliases, definitions and source evidence                                                     |
+| `faq.yaml`                                                               | Assumptions to check and verified answers; unknown answers stay empty                               |
+| `questions.yaml`                                                         | Typed rule inputs, option labels and open-question guidance                                         |
+| `rules.yaml`, `advisories.yaml`                                          | Conditions, recommendation levels, reasons, evidence and verification advice                        |
+| `patterns.yaml`, `risks.yaml`                                            | Canonical pattern answers and editorial risk-to-capability associations                             |
+| `samples.yaml`, `golden-scenarios.yaml`                                  | Illustrative overrides, authored expectations and nullable SME signoff                              |
+| `integration-paths.yaml`, `frontier-phases.yaml`                         | Conditional builder checklists and editorial access-model associations                              |
+| `mapping.yaml`, `what-ifs.yaml`                                          | Neutral organization, configured global checks, unknown licensing basis and answer-change scenarios |
+| `pillars.yaml`, `consoles.yaml`, `control-points.yaml`, `lifecycle.yaml` | The labels and groupings that capabilities refer to                                                 |
+| `changelog.md`                                                           | What changed, and which capabilities each change touches                                            |
+| `source-snapshot.json`                                                   | The service description's feature table as published. Do not edit by hand                           |
 
 ## Rules of thumb
 
@@ -38,9 +49,35 @@ You do not need to be a developer. Capabilities, sources and all interface copy 
 4. Add an entry to `changelog.md` with an `affects:` line that lists the new id.
 5. Update the expected numbers in `src/lib/content/catalog.test.ts` (see below).
 
-The new capability then appears in the overview numbers and the capabilities table. Later phases will carry it into every lens, matrix and readout automatically.
+6. Add at least one recommendation rule and one risk mitigation association. Update affected golden expectations intentionally.
+
+The capability appears in the computed metrics, explorer and generated pattern matrix. Do not maintain a second pattern-to-capability list.
+
+## Update rules or patterns
+
+Change schemas and schema tests before adding a field. Conditions have exactly one operator per question leaf: `equals`/`in` for single choice, `includes`/`includesAny` for multiple choice, or `answered`/`unknown`. Groups use nonempty `all`/`any` or `not`. Use option values in data; the renderer supplies human-readable labels. Missing, empty and explicitly `unknown` answers preserve uncertainty, including under `not`. Multi-select `none` and `unknown` must be exclusive.
+
+Each rule declares an organization or use-case scope and retains every recommendation's reason, evidence and source ids. Organization rules cannot depend on use-case questions. Recommendation levels are editorial, even when a source states the underlying applicability. Keep drafts until SME review. A YAML anchor shares the endpoint recommendation data between local-agent and organization shadow-AI rules; their conditions and reason origins remain separate.
+
+Pattern answers and sample overrides are illustrative use-case inputs. `mapping.yaml` supplies the displayed neutral organization; do not silently inject large-estate or security-operations priorities. Readiness gap conditions belong in capability prerequisites or conditional global checks. Ready covers configured checks only, never product eligibility. Keep unverified licensing basis fields null with `TODO(verify)`.
+
+Add a golden scenario for every pattern and sample: `mustInclude` means **Essential**, while `mustNotInclude` means absent at every level. Author expectations independently; never regenerate them from actual output to make a test pass. Leave `reviewedBy` and `reviewedOn` null until genuine SME signoff, then fill both together. Run `npm test` to exercise golden expectations and table-driven rule cases; a content build validates references but does not substitute for engine tests.
+
+## Diagnostic questions
+
+Update the question schema and its tests first when adding a question kind or field. Choices and scales use string-valued options; text, long-text and date fields have explicit maximum lengths and no option list. Dates use real `YYYY-MM-DD` values. Every question needs exactly one correctly scoped section and a consultant note in `diagnostic.yaml`. Quick-scan ids must exist. Visibility conditions use the same validated three-valued condition language as rules.
+
+Question ids and option values are persisted data: avoid renaming them casually. Older incompatible answers are preserved on load, block live previews, and can be corrected or explicitly cleared; they are never silently coerced. Organization-profile edits affect all linked assessments. Quick/Full switching changes the questions shown, not the answers saved. Pattern customization seeds only use-case answers, retaining the selected organization.
+
+All diagnostic copy is in `site.yaml`. Document storage keys and deletion behavior on Privacy. Run schema, reference, storage, wizard and browser tests when changing these behaviors. Formal readouts, backup/import and exports remain Phase 5.
 
 ## When CI fails
+
+### Learning content
+
+Learning items need a `sourceId`, `evidence`, `reviewStatus` and `lastVerified`. Keep text draft until SME approval. Use `summary:` or `fact:` with no value, `lastVerified:` with no value, and a `# TODO(verify)` comment when the source is not verified. The UI displays a pending-verification notice. Do not fill a missing fact from memory or copy the unverified build brief's claims.
+
+`capabilityIds` must reference catalog ids; related building blocks never increase catalog metrics. Technical guidance needs `technicalSourceId`. Glossary terms and aliases must be unique ignoring case. Persona links must point to an available Learn anchor or explorer lens, not a future assessment. The content build checks all of these references and warns about stale or unverified learning items.
 
 | The message says                   | What to do                                                                   |
 | ---------------------------------- | ---------------------------------------------------------------------------- |
@@ -51,7 +88,7 @@ The new capability then appears in the overview numbers and the capabilities tab
 | `unknown placeholder {…}`          | A `{placeholder}` in `site.yaml` is not one of the computed values           |
 | `catalog.test.ts` fails on a count | You changed the catalog on purpose. Update the expected numbers in that test |
 
-Warnings (stale `lastVerified`, a source nothing cites yet) do not fail the build, but they show what needs attention.
+Warnings (stale `lastVerified`, unverified facts and unsigned golden scenarios) do not fail the build. Orphaned sources now fail content builds: cite them in a meaningful displayed surface or remove them. Unknown questions/options, mismatched scopes/operators and missing capability/risk/rule/scenario coverage also fail.
 
 ## Check it on your computer
 

@@ -84,11 +84,11 @@ describe('layout shell', () => {
   });
 
   it('shows a coming-soon page, with its own copy, for a section still in development', async () => {
-    renderApp('/patterns');
+    renderApp('/portfolio');
     expect(
-      await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title }),
+      await screen.findByRole('heading', { level: 1, name: site.routes.portfolio.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText(site.routes.patterns.description)).toBeInTheDocument();
+    expect(screen.getByText(site.routes.portfolio.description)).toBeInTheDocument();
     expect(screen.getByText(site.ui.comingSoon.status)).toBeInTheDocument();
   });
 });
@@ -161,6 +161,57 @@ describe('Overview', () => {
 });
 
 describe('Capabilities page', () => {
+  it('filters through URL state, changes views and supports browser history', async () => {
+    const router = renderApp('/capabilities?lens=layer&group=data&view=cards');
+    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    const expected = content.capabilities.filter((c) => c.controlPoints.includes('data'));
+    expect(screen.getAllByRole('checkbox')).toHaveLength(expected.length);
+    await userEvent.selectOptions(screen.getByLabelText(site.capabilities.explorer.view), 'matrix');
+    expect(router.state.location.search).toContain('view=matrix');
+    expect(await screen.findByRole('table')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: site.capabilities.explorer.reset }));
+    expect(router.state.location.search).not.toContain('group=');
+    expect(screen.getAllByRole('checkbox')).toHaveLength(content.capabilities.length);
+  });
+
+  it('shows empty results, keeps search focus and updates the URL', async () => {
+    const router = renderApp('/capabilities');
+    const search = await screen.findByLabelText(site.capabilities.explorer.search);
+    await userEvent.type(search, 'no-such-capability');
+    expect(search).toHaveFocus();
+    expect(router.state.location.search).toContain('q=no-such-capability');
+    expect(screen.getByText(site.capabilities.explorer.empty)).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+  });
+
+  it('enforces a four-capability comparison and keeps selections across filters', async () => {
+    renderApp('/capabilities');
+    const table = await screen.findByRole('table');
+    const boxes = within(table).getAllByRole('checkbox');
+    for (const box of boxes.slice(0, 4)) await userEvent.click(box);
+    expect(boxes[4]).toBeDisabled();
+    const comparison = screen.getByRole('region', { name: site.capabilities.explorer.comparison });
+    expect(within(comparison).getAllByRole('row')).toHaveLength(5);
+    await userEvent.type(
+      screen.getByLabelText(site.capabilities.explorer.search),
+      'no-such-capability',
+    );
+    expect(within(comparison).getAllByRole('row')).toHaveLength(5);
+    await userEvent.click(
+      screen.getByRole('button', { name: site.capabilities.explorer.clearComparison }),
+    );
+    expect(
+      screen.queryByRole('region', { name: site.capabilities.explorer.comparison }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('warns about malformed explorer links', async () => {
+    renderApp('/capabilities?lens=unknown&compare=invalid');
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      site.capabilities.explorer.invalidLink,
+    );
+  });
+
   it('lists every capability, with a draft marker on each', async () => {
     renderApp('/capabilities');
     const table = await screen.findByRole('table');
@@ -168,6 +219,43 @@ describe('Capabilities page', () => {
     expect(within(table).getAllByText(site.ui.badges.draft)).toHaveLength(
       content.capabilities.length,
     );
+  });
+
+  describe('Capability briefs', () => {
+    it('opens a brief with source fidelity, availability and editorial status', async () => {
+      const first = content.capabilities[0]!;
+      renderApp('/capabilities');
+      await userEvent.click(await screen.findByRole('link', { name: first.shortName }));
+      expect(
+        await screen.findByRole('heading', { level: 1, name: first.shortName }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(first.source.featureText)).toBeInTheDocument();
+      expect(screen.getByText(first.withoutIt!)).toBeInTheDocument();
+      expect(screen.getAllByText(site.ui.badges.draft).length).toBeGreaterThan(0);
+      expect(document.title).toBe(`${first.shortName} · ${site.productName}`);
+      expect(
+        screen.getByRole('link', { name: site.capabilities.brief.correction }),
+      ).toHaveAttribute('href', expect.stringContaining('/issues/new?title='));
+    });
+
+    it('shows both sources when they differ, without hiding official availability', async () => {
+      const c = content.capabilities.find((item) =>
+        item.sourceNotes?.some((note) => note.differs),
+      )!;
+      renderApp(`/capabilities/${c.id}`);
+      await screen.findByRole('heading', { level: 1, name: c.shortName });
+      expect(screen.getByText(c.source.featureText)).toBeInTheDocument();
+      for (const note of c.sourceNotes ?? [])
+        expect(screen.getByText(note.note)).toBeInTheDocument();
+      expect(screen.getAllByText(site.ui.badges.sourcesDiffer).length).toBeGreaterThan(0);
+    });
+
+    it('shows a not-found page, not a fabricated brief, for unknown capability ids', async () => {
+      renderApp('/capabilities/does-not-exist');
+      expect(
+        await screen.findByRole('heading', { level: 1, name: site.routes.notFound.title }),
+      ).toBeInTheDocument();
+    });
   });
 
   it('shows the official wording and ids in Technical, and outcomes in Executive', async () => {

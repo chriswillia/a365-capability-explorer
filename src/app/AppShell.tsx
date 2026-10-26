@@ -32,9 +32,6 @@ export function AppShell() {
       >
         {ui.skipToContent}
       </a>
-      <div className={styles.banner} data-no-print>
-        {ui.previewBanner}
-      </div>
       <SiteHeader />
       <main id="main" ref={mainRef} tabIndex={-1} className={styles.main}>
         <Outlet />

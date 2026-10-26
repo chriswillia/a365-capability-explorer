@@ -1,0 +1,132 @@
+# Editorial questionnaire organization. These notes do not assert product eligibility.
+sections:
+  - id: organization
+    title: Organization profile
+    description: "Reusable context for this organization or engagement. Edits apply to every linked assessment."
+    scope: org
+    questionIds:
+      [
+        orgName,
+        industry,
+        cloudEnvironment,
+        basePlan,
+        securitySuites,
+        agent365Status,
+        frontierProgram,
+        labelsProgram,
+        entraP1,
+        defenderEndpoint,
+        intuneWindows,
+        socPlatform,
+        agentEstate,
+        orgGovernance,
+        securityOps,
+        shadowAI,
+      ]
+  - id: profile
+    title: Use case profile
+    description: "Describe the outcome, audience and rollout stage."
+    scope: useCase
+    questionIds:
+      [
+        useCaseName,
+        businessOutcome,
+        businessFunction,
+        stage,
+        audience,
+        expectedUsers,
+        businessValue,
+      ]
+  - id: build
+    title: Build and run
+    description: "Identify the platform, publisher, hosting and interaction channels."
+    scope: useCase
+    questionIds: [buildPlatform, publisherType, codeStack, hosting, channels]
+  - id: identity
+    title: Identity and autonomy
+    description: "Describe access, consequential actions and human accountability."
+    scope: useCase
+    questionIds: [accessModel, autonomy, actions, triggers, sponsor, managedDevices]
+  - id: data
+    title: Data and obligations
+    description: "Identify accessible information and retention or investigation obligations."
+    scope: useCase
+    questionIds: [dataSources, dataSensitivity, regulatedData, generatesContent, obligations]
+  - id: tools
+    title: Tools and interactions
+    description: "Include tool execution, agent coordination and outbound access."
+    scope: useCase
+    questionIds: [tools, agentToAgent, networkEgress]
+  - id: governance
+    title: Agent governance
+    description: "Agree publication, audience and reporting priorities."
+    scope: useCase
+    questionIds: [agentGovernance]
+  - id: details
+    title: Optional readout details
+    description: "Local metadata for later readouts. Leave personal details empty on shared devices."
+    scope: useCase
+    questionIds: [engagementName, preparedBy, preparedOn]
+quickQuestionIds:
+  [
+    orgName,
+    cloudEnvironment,
+    useCaseName,
+    stage,
+    buildPlatform,
+    channels,
+    accessModel,
+    autonomy,
+    dataSensitivity,
+    tools,
+  ]
+visibility:
+  - questionId: codeStack
+    when: { q: buildPlatform, in: [pro-code-microsoft, pro-code-third-party] }
+consultantNotes:
+  orgName: "A recognizable local label keeps different organizations or engagements separate."
+  industry: "Industry supplies conversation context, not an automatic regulatory determination."
+  cloudEnvironment: "The GCC column must not be extrapolated to other sovereign clouds."
+  basePlan: "A subscription name helps frame licensing verification; it does not certify eligibility."
+  securitySuites: "Suite coverage is a licensing and configuration question to verify with the owner."
+  agent365Status: "Actual license assignment and instrumentation are distinct from buying a subscription."
+  frontierProgram: "The documented teammate user-account and notification path has a preview enrollment gate."
+  labelsProgram: "Labeling coverage helps identify data-protection planning gaps."
+  entraP1: "Identity coverage informs the configured network-control readiness discussion."
+  defenderEndpoint: "Endpoint onboarding affects the intended coverage of endpoint-related controls."
+  intuneWindows: "Managed-device coverage informs endpoint policy readiness."
+  socPlatform: "Security operations needs an identified investigation platform and owner."
+  agentEstate: "Larger estates can change the priority of lifecycle and policy automation."
+  orgGovernance: "Organization-wide priorities are retained as organization-origin reasons."
+  securityOps: "Existing security programs shape monitoring and investigation priorities."
+  shadowAI: "A declared shadow-AI concern brings endpoint discovery and control planning into scope."
+  useCaseName: "Use a recognizable name without secrets; answers stay on this browser profile."
+  businessOutcome: "A clear outcome helps stakeholders judge usefulness and success."
+  businessFunction: "The business function identifies who should validate the intended outcome."
+  stage: "Production use increases the planning priority of sustained monitoring."
+  audience: "External audiences change sharing and compliance questions."
+  expectedUsers: "The audience range is not a license quantity or a count of agents."
+  businessValue: "This relative planning score supports future portfolio discussions, not a financial forecast."
+  buildPlatform: "Native, developer-integrated and registry-synchronized paths are not equivalent."
+  publisherType: "Publisher ownership helps explain how an agent appears in the registry."
+  codeStack: "The developer stack helps choose relevant SDK guidance; it does not establish deployment support."
+  hosting: "The runtime still needs its own hosting, operations and isolation decisions."
+  channels: "Channels identify the interaction surface without assuming every integration is configured."
+  accessModel: "Whose identity and permissions the agent uses is central to control planning."
+  autonomy: "Independent actions increase the importance of guardrails and investigation evidence."
+  actions: "Describe what the agent can actually do, including state changes and external communications."
+  triggers: "Events, schedules and other agents can start work without a fresh user prompt."
+  sponsor: "A named sponsor supports accountability and lifecycle decisions."
+  managedDevices: "Delegated access can involve device-compliance policies."
+  dataSources: "Data locations and permissions define the intended information boundary."
+  dataSensitivity: "The highest reachable sensitivity helps frame protection needs."
+  regulatedData: "Select actual categories or none; missing information does not mean unregulated."
+  generatesContent: "Generated content can need retention and lifecycle planning."
+  obligations: "Investigation, retention and AI obligations need stakeholder confirmation."
+  tools: "Include every tool surface; none cannot be combined with actual tools."
+  agentToAgent: "Coordination across agents increases traceability and relationship-review needs."
+  networkEgress: "Outbound access creates destination and traffic-control questions."
+  agentGovernance: "Approval, audience restriction and reporting should be deliberate decisions."
+  engagementName: "This optional label can help organize a future readout."
+  preparedBy: "This optional personal detail stays on this browser profile; avoid it on shared devices."
+  preparedOn: "An optional date can distinguish planning sessions without changing the rules."

@@ -1,0 +1,98 @@
+# Related concepts, not additional service-description feature rows.
+- id: agent-identity
+  title: "Agent identity"
+  summary: "A Microsoft Entra-backed identity supports agent authentication and controlled access to tools and data."
+  capabilityIds: [entra-access-packages]
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: blueprint
+  title: "Agent identity blueprint"
+  summary: "The developer registration path creates a blueprint in Microsoft Entra and an agent identity from it, with permissions for the chosen authentication mode."
+  capabilityIds: []
+  sourceId: a365-quickstart
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: registry-types
+  title: "Agent Registry publisher types"
+  summary: "The registry groups agents as Microsoft, external partner-built, published by your organization or shared by a creator. Publisher type describes distribution and ownership, not the build platform."
+  capabilityIds: [registry-inventory]
+  sourceId: a365-registry
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: agent-map
+  title: "Agent Map"
+  summary: "A visual view of the agent environment, with summary cards for total agents, agents at risk, agents without owners and unmanaged agents."
+  capabilityIds: [registry-inventory]
+  sourceId: a365-agent-map
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: agent-365-sdk
+  title: "Agent 365 SDK"
+  summary: "Adds identity, governed tooling and notifications to an existing agent. It does not build, host, orchestrate or execute the agent."
+  capabilityIds: [tool-controls]
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: agent-365-cli
+  title: "Agent 365 CLI"
+  summary: "Developer command-line tooling for Agent 365 setup and registration. Follow the current setup guidance for tenant permissions and client application configuration."
+  capabilityIds: []
+  sourceId: a365-dev
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: agents-sdk
+  title: "Microsoft 365 Agents SDK"
+  summary: "A framework for building conversational agents, handling channel message delivery and conversation state. It can work alongside the Agent 365 SDK."
+  capabilityIds: []
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: opentelemetry
+  title: "Microsoft OpenTelemetry"
+  summary: "Separate instrumentation for agent observability. Use the Microsoft OpenTelemetry Distro for new integrations rather than the deprecated Agent 365 Observability SDK."
+  capabilityIds: [observability]
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: work-iq
+  title: "Work IQ tools"
+  summary: "Governed tools expose Microsoft 365 workloads such as mail, calendar, SharePoint and Teams through MCP servers under admin control."
+  capabilityIds: [tool-controls]
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: mcp
+  title: "MCP servers"
+  summary: "Model Context Protocol servers expose tools that agents can call. Agent 365 integration provides governed access to Microsoft Work IQ MCP servers."
+  capabilityIds: [tool-controls]
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: windows-365
+  title: "Windows 365 for Agents"
+  # TODO(verify): confirm the offer and licensing from the complete licensing FAQ.
+  summary:
+  capabilityIds: []
+  sourceId: lic-faq
+  evidence: stated
+  reviewStatus: draft
+  lastVerified:
+- id: frontier
+  title: "Frontier preview program"
+  summary: "The developer path for agents with their own user account, mailbox and notifications is available only to participating tenants. Do not confuse this preview gate with the Frontier Firm organizational model."
+  capabilityIds: []
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"

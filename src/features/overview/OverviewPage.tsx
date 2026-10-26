@@ -5,6 +5,10 @@ import { HeroBand } from '../../components/HeroBand.tsx';
 import { KeyTakeaway } from '../../components/KeyTakeaway.tsx';
 import { KpiStrip, type Kpi } from '../../components/KpiStrip.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { Link } from 'react-router';
+import { Badge } from '../../components/Badge.tsx';
+import { LearningEvidence } from '../../components/LearningEvidence.tsx';
+import { createGlossaryAnnotator } from '../../lib/content/annotateGlossary.tsx';
 import { content, metrics, values } from '../../lib/content/index.ts';
 import type { ConsoleDef, ControlPointDef } from '../../lib/content/schemas.ts';
 import { formatNumber, renderTemplate } from '../../lib/content/template.ts';
@@ -21,6 +25,7 @@ export function Component() {
   const { site } = content;
   const { overview } = site;
   const { glance, pillars, consoles, layers } = overview.exhibits;
+  const annotate = createGlossaryAnnotator();
 
   const kpis: Kpi[] = overview.kpis.map((kpi) => ({
     id: kpi.id,
@@ -80,6 +85,32 @@ export function Component() {
       </HeroBand>
 
       <div className={styles.page}>
+        <section aria-labelledby="personas-heading" className={styles.section}>
+          <h2 id="personas-heading">{overview.personasHeading}</h2>
+          <p>{overview.personasNote}</p>
+          <ul className={styles.pillars}>
+            {content.personas.map((persona) => (
+              <li key={persona.id} className={styles.pillar}>
+                <h3>{persona.label}</h3>
+                <p>{persona.need}</p>
+                <Link to={persona.href}>{persona.startLabel}</Link>
+                <Badge tone={persona.reviewStatus === 'draft' ? 'draft' : 'outline'}>
+                  {persona.reviewStatus === 'draft'
+                    ? site.ui.badges.draft
+                    : site.ui.badges.reviewed}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section aria-labelledby="questions-heading" className={styles.section}>
+          <h2 id="questions-heading">{overview.questionsHeading}</h2>
+          <ol>
+            {overview.questions.map((question) => (
+              <li key={question}>{question}</li>
+            ))}
+          </ol>
+        </section>
         <ExhibitFrame
           number={1}
           label={glance.label}
@@ -107,7 +138,7 @@ export function Component() {
                 <p className={styles.pillarCount}>
                   {renderTemplate(pillars.countLabel, { count: metrics.byPillar[pillar.id] })}
                 </p>
-                <p>{pillar.definition}</p>
+                <p>{annotate(pillar.definition)}</p>
               </li>
             ))}
           </ul>
@@ -148,6 +179,19 @@ export function Component() {
         ) : (
           <p className={styles.hint}>{overview.technicalHint}</p>
         )}
+        <section aria-labelledby="frontier-heading" className={styles.section}>
+          <h2 id="frontier-heading">{overview.frontierHeading}</h2>
+          <p>{overview.frontierNote}</p>
+          <ol className={styles.pillars}>
+            {content.learn.frontier.map((phase) => (
+              <li key={phase.id} className={styles.pillar}>
+                <h3>{phase.title}</h3>
+                <p>{phase.summary === null ? site.learn.pending : annotate(phase.summary)}</p>
+                <LearningEvidence item={phase} />
+              </li>
+            ))}
+          </ol>
+        </section>
       </div>
     </>
   );

@@ -346,6 +346,11 @@
   reviewStatus: draft
 
 - id: entra-network-controls
+  prerequisites:
+    - when: { not: { q: entraP1, equals: "yes" } }
+      gap: Verify Entra identity coverage and current network-control prerequisites.
+      evidence: judgment
+      sourceId: lic-faq
   shortName: Network controls for agents
   source:
     sourceId: sd-a365
@@ -520,6 +525,11 @@
   reviewStatus: draft
 
 - id: purview-labels
+  prerequisites:
+    - when: { not: { q: labelsProgram, equals: broad } }
+      gap: Establish broad sensitivity-label coverage for the intended data.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Sensitivity label inheritance
   source:
     sourceId: sd-a365
@@ -548,6 +558,11 @@
   reviewStatus: draft
 
 - id: purview-dlp
+  prerequisites:
+    - when: { not: { q: labelsProgram, equals: broad } }
+      gap: Confirm labeling coverage and onboard the agent to the applicable DLP policies.
+      evidence: judgment
+      sourceId: a365-quickstart
   shortName: Data loss prevention for agents
   source:
     sourceId: sd-a365
@@ -579,6 +594,11 @@
   reviewStatus: draft
 
 - id: defender-shadow-ai
+  prerequisites:
+    - when: { not: { q: defenderEndpoint, equals: most } }
+      gap: Confirm Defender for Endpoint coverage for the intended devices.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Shadow AI endpoint agent sync
   source:
     sourceId: sd-a365
@@ -613,6 +633,11 @@
   reviewStatus: draft
 
 - id: defender-posture
+  prerequisites:
+    - when: { not: { q: defenderEndpoint, equals: most } }
+      gap: Verify endpoint coverage and the applicable agent exposure-management integration.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Agent posture & exposure management
   source:
     sourceId: sd-a365
@@ -669,6 +694,11 @@
   reviewStatus: draft
 
 - id: defender-hunting
+  prerequisites:
+    - when: { not: { q: defenderEndpoint, equals: most } }
+      gap: Verify endpoint coverage, log collection and the applicable hunting integration.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Threat hunting & investigation
   source:
     sourceId: sd-a365
@@ -697,6 +727,11 @@
   reviewStatus: draft
 
 - id: intune-device-compliance
+  prerequisites:
+    - when: { not: { q: intuneWindows, equals: most } }
+      gap: Verify device-management coverage for the agent access policy.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Device compliance for agent CA
   source:
     sourceId: sd-a365
@@ -725,6 +760,11 @@
   reviewStatus: draft
 
 - id: intune-runtime-policy
+  prerequisites:
+    - when: { not: { q: intuneWindows, equals: most } }
+      gap: Verify managed Windows device coverage and the supported agent runtime.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Policy-controlled agent runtime
   source:
     sourceId: sd-a365
@@ -753,6 +793,11 @@
   reviewStatus: draft
 
 - id: intune-block-local
+  prerequisites:
+    - when: { not: { q: intuneWindows, equals: most } }
+      gap: Verify Intune onboarding and coverage before planning local-agent blocking.
+      evidence: judgment
+      sourceId: sd-a365
   shortName: Block unsanctioned local agents
   source:
     sourceId: sd-a365

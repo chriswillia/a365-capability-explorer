@@ -1,0 +1,271 @@
+# Illustrative canonical answers, not deployment facts or approved architectures.
+- id: personal-assistant
+  title: Personal assistant
+  summary: "A user-prompted assistant reads and drafts with delegated access."
+  narrative: "Start with inventory, delegated identity policy and the lifecycle of generated content. The user remains in control of decisions and actions."
+  answers:
+    {
+      stage: pilot,
+      audience: [employees],
+      expectedUsers: lt-50,
+      buildPlatform: m365-agent-builder,
+      publisherType: shared-by-creator,
+      channels: [m365-copilot],
+      accessModel: delegated,
+      autonomy: suggests,
+      actions: [read, create-content],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: "yes",
+      dataSensitivity: internal,
+      regulatedData: [none],
+      generatesContent: "yes",
+      obligations: [none],
+      tools: [none],
+      agentToAgent: "no",
+      networkEgress: "no",
+      agentGovernance: [none],
+    }
+  sourceIds: [sd-a365, a365-registry]
+  evidence: judgment
+  reviewStatus: draft
+- id: knowledge-agent
+  title: Knowledge agent
+  summary: "An internal Copilot Studio agent answers employee and frontline questions."
+  narrative: "This example uses delegated access to internal knowledge. Native registry integration does not remove the need to verify permissions, monitoring and data controls."
+  answers:
+    {
+      stage: production,
+      audience: [employees, frontline],
+      expectedUsers: 50-500,
+      buildPlatform: copilot-studio,
+      publisherType: published-by-org,
+      channels: [m365-copilot, teams],
+      accessModel: delegated,
+      autonomy: suggests,
+      actions: [read],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: mixed,
+      dataSensitivity: internal,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [none],
+      agentToAgent: "no",
+      networkEgress: "no",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, a365-cps-registry]
+  evidence: judgment
+  reviewStatus: draft
+- id: process-agent
+  title: Process agent
+  summary: "A background agent updates business records from events or a schedule."
+  narrative: "Independent access and state-changing actions bring permissions, sponsorship, audit and threat monitoring into focus. Confidential business data adds protection and readiness questions."
+  answers:
+    {
+      stage: production,
+      audience: [employees],
+      expectedUsers: 50-500,
+      buildPlatform: microsoft-foundry,
+      publisherType: published-by-org,
+      channels: [background],
+      accessModel: own-background,
+      autonomy: autonomous,
+      actions: [read, update-records],
+      triggers: [events, schedule],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: confidential,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [connectors-apis],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, a365-sdk]
+  evidence: judgment
+  reviewStatus: draft
+- id: ai-teammate
+  title: AI teammate
+  summary: "A pro-code teammate collaborates through Teams and Outlook with its own access."
+  narrative: "The teammate drafts content and uses governed Microsoft tools behind human approvals. Confirm the Frontier preview gate for its own user account and notifications."
+  answers:
+    {
+      stage: pilot,
+      audience: [employees],
+      expectedUsers: 50-500,
+      buildPlatform: pro-code-microsoft,
+      publisherType: published-by-org,
+      channels: [teams, outlook],
+      accessModel: own-teammate,
+      autonomy: approval-gated,
+      actions: [read, create-content],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: internal,
+      regulatedData: [none],
+      generatesContent: "yes",
+      obligations: [records-retention],
+      tools: [microsoft-mcp],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, a365-sdk]
+  evidence: judgment
+  reviewStatus: draft
+- id: customer-agent
+  title: Customer-facing agent
+  summary: "A Copilot Studio agent communicates with customers using personal data."
+  narrative: "External communication, personal data and independent access bring sharing controls, accountability and compliance review into scope. This example does not assume eligibility for external users."
+  answers:
+    {
+      stage: production,
+      audience: [customers],
+      expectedUsers: 500-5000,
+      buildPlatform: copilot-studio,
+      publisherType: published-by-org,
+      channels: [web-or-custom],
+      accessModel: own-background,
+      autonomy: approval-gated,
+      actions: [read, communicate-externally],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: confidential,
+      regulatedData: [personal],
+      generatesContent: "yes",
+      obligations: [none],
+      tools: [connectors-apis],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval, restrict-audience],
+    }
+  sourceIds: [sd-a365, a365-cps-registry]
+  evidence: judgment
+  reviewStatus: draft
+- id: multi-agent
+  title: Multi-agent workflow
+  summary: "Pro-code agents coordinate autonomous work through tools and agent-to-agent calls."
+  narrative: "Trace activity across participants and review tool permissions, consequential actions and ownership. Agent Map can support relationship review but does not orchestrate the workflow."
+  answers:
+    {
+      stage: production,
+      audience: [employees],
+      expectedUsers: 50-500,
+      buildPlatform: pro-code-third-party,
+      publisherType: published-by-org,
+      channels: [background],
+      accessModel: own-background,
+      autonomy: autonomous,
+      actions: [read, update-records],
+      triggers: [other-agents],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: confidential,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [third-party-mcp, code-execution],
+      agentToAgent: "yes",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, a365-sdk, a365-agent-map]
+  evidence: judgment
+  reviewStatus: draft
+- id: external-platform-agent
+  title: External-platform agent
+  summary: "An agent on Amazon Bedrock or Google Vertex AI updates records in the background."
+  narrative: "Verify registry synchronization for the connected platform. Inventory visibility alone does not establish telemetry, runtime enforcement or SDK-equivalent capabilities."
+  answers:
+    {
+      stage: production,
+      audience: [employees],
+      expectedUsers: 50-500,
+      buildPlatform: hyperscaler,
+      publisherType: published-by-org,
+      channels: [background],
+      accessModel: own-background,
+      autonomy: approval-gated,
+      actions: [read, update-records],
+      triggers: [events],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: internal,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [connectors-apis],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, a365-sdk]
+  evidence: judgment
+  reviewStatus: draft
+- id: local-agent
+  title: Local coding or endpoint agent
+  summary: "A local agent uses code execution, browsing and third-party tools on user devices."
+  narrative: "Local execution brings shadow-AI discovery, endpoint posture and runtime policy questions. Trade-secret access makes data protection relevant even when a person prompts each action."
+  answers:
+    {
+      stage: pilot,
+      audience: [employees],
+      expectedUsers: lt-50,
+      buildPlatform: local-agent,
+      publisherType: external-partner,
+      channels: [web-or-custom],
+      accessModel: delegated,
+      autonomy: approval-gated,
+      actions: [read, create-content],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: mixed,
+      dataSensitivity: highly-confidential,
+      regulatedData: [trade-secrets],
+      generatesContent: "yes",
+      obligations: [none],
+      tools: [code-execution, web-browsing, third-party-mcp],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: computer-use-agent
+  title: Computer-use agent
+  summary: "An approval-gated agent interacts with applications through browser and computer use."
+  narrative: "Verify the execution environment and any separate hosting offer. Tool governance and threat review matter; a computer-use answer alone does not identify an endpoint product entitlement."
+  answers:
+    {
+      stage: pilot,
+      audience: [employees],
+      expectedUsers: lt-50,
+      buildPlatform: microsoft-foundry,
+      publisherType: published-by-org,
+      channels: [background],
+      accessModel: own-background,
+      autonomy: approval-gated,
+      actions: [read],
+      triggers: [user-prompt],
+      sponsor: "yes",
+      managedDevices: n-a,
+      dataSensitivity: internal,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [computer-use, web-browsing],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, lic-faq]
+  evidence: judgment
+  reviewStatus: draft

@@ -1,0 +1,723 @@
+# Recommendation levels are editorial planning judgments, not official licensing requirements.
+# "stated" marks the capability/source applicability basis, not an official mandate.
+- id: baseline
+  scope: useCase
+  description: Inventory and central governance form a baseline for every agent discussion.
+  when: { always: true }
+  recommend:
+    - {
+        capability: registry-inventory,
+        level: essential,
+        because: "A known inventory is the starting point for governance.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: governance-actions,
+        level: essential,
+        because: "Administrators need levers to approve, restrict and retire agents.",
+        evidence: inferred,
+        sourceIds: [sd-a365, a365-admin-overview],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: pilot
+  scope: useCase
+  description: Pilot and later stages need activity visibility and accountable sponsorship.
+  when: { q: stage, in: [pilot, production, scaling] }
+  recommend:
+    - {
+        capability: observability,
+        level: recommended,
+        because: "A pilot needs observable activity before wider rollout.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: entra-sponsor-lifecycle,
+        level: recommended,
+        because: "Review sponsor accountability through the rollout.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: production
+  scope: useCase
+  description: Production and scaling increase the importance of monitoring.
+  when: { q: stage, in: [production, scaling] }
+  recommend:
+    - {
+        capability: observability,
+        level: essential,
+        because: "Operating production agents needs sustained visibility.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: external-platform
+  scope: useCase
+  description: Connected external platforms need registry synchronization.
+  when: { q: buildPlatform, in: [hyperscaler, saas-platform] }
+  recommend:
+    - {
+        capability: registry-sync,
+        level: essential,
+        because: "Synchronize agents and metadata from connected external platforms.",
+        evidence: stated,
+        sourceIds: [sd-a365, a365-sdk],
+      }
+  advisories: [registry-sync]
+  reviewStatus: draft
+- id: pro-code
+  scope: useCase
+  description: Custom-code integration needs explicit instrumentation and permission planning.
+  when: { q: buildPlatform, in: [pro-code-microsoft, pro-code-third-party] }
+  recommend:
+    - {
+        capability: observability,
+        level: essential,
+        because: "Registration provides catalog visibility; telemetry needs instrumentation.",
+        evidence: stated,
+        sourceIds: [a365-quickstart],
+      }
+    - {
+        capability: entra-access-packages,
+        level: recommended,
+        because: "Review the scope of agent permissions for the chosen integration.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: [agent365-sdk]
+  reviewStatus: draft
+- id: copilot-studio
+  scope: useCase
+  description: Copilot Studio has a documented native registration path.
+  when: { q: buildPlatform, equals: copilot-studio }
+  recommend: []
+  advisories: [native]
+  reviewStatus: draft
+- id: copilot-network
+  scope: useCase
+  description: Copilot Studio agents with browsing or egress need network-control consideration.
+  when:
+    {
+      all:
+        [
+          { q: buildPlatform, equals: copilot-studio },
+          { any: [{ q: tools, includes: web-browsing }, { q: networkEgress, equals: "yes" }] },
+        ],
+    }
+  recommend:
+    - {
+        capability: entra-network-controls,
+        level: essential,
+        because: "The service description explicitly covers Copilot Studio agent network traffic.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: local-agent
+  scope: useCase
+  description: Local agents bring endpoint controls into scope.
+  when: { q: buildPlatform, equals: local-agent }
+  recommend: &endpointControls
+    - {
+        capability: defender-shadow-ai,
+        level: essential,
+        because: "Discover shadow AI endpoint agents.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: defender-posture,
+        level: essential,
+        because: "Review local agent exposure and relationships.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: intune-block-local,
+        level: recommended,
+        because: "Control unsanctioned local endpoint agents.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: intune-runtime-policy,
+        level: recommended,
+        because: "Review a policy-controlled local runtime.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: entra-network-controls,
+        level: recommended,
+        because: "The network capability covers agents operating on user devices.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: org-shadow-ai
+  scope: org
+  description: An organization shadow-AI concern brings endpoint controls into scope.
+  when: { q: shadowAI, equals: "yes" }
+  recommend: *endpointControls
+  advisories: []
+  reviewStatus: draft
+- id: delegated
+  scope: useCase
+  description: Delegated or mixed access brings extended user identity policies into scope.
+  when: { q: accessModel, in: [delegated, mixed] }
+  recommend:
+    - {
+        capability: entra-conditional-access,
+        level: essential,
+        because: "User Conditional Access policies extend to agents with delegated access.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: delegated-devices
+  scope: useCase
+  description: Managed devices can contribute to delegated agent access policies.
+  when:
+    { all: [{ q: accessModel, in: [delegated, mixed] }, { q: managedDevices, in: ["yes", mixed] }] }
+  recommend:
+    - {
+        capability: intune-device-compliance,
+        level: recommended,
+        because: "Device compliance supports agent Conditional Access.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: own-access
+  scope: useCase
+  description: An agent's own access needs scoped permissions and accountable sponsorship.
+  when: { q: accessModel, in: [own-teammate, own-background, mixed] }
+  recommend:
+    - {
+        capability: entra-access-packages,
+        level: essential,
+        because: "Define a deliberate scope for agent permissions.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: entra-sponsor-lifecycle,
+        level: essential,
+        because: "Maintain sponsor accountability for the agent identity.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: policy-templates,
+        level: recommended,
+        because: "Apply an intentional policy baseline.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: [license-basis]
+  reviewStatus: draft
+- id: teammate
+  scope: useCase
+  description: An AI teammate's collaboration footprint needs investigation, compliance and retention planning.
+  when: { q: accessModel, equals: own-teammate }
+  recommend:
+    - {
+        capability: purview-audit-ediscovery,
+        level: essential,
+        because: "Plan investigation and legal review of teammate interactions.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-ai-compliance,
+        level: recommended,
+        because: "Review compliance of teammate interactions.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-dlm,
+        level: recommended,
+        because: "Plan retention of teammate-generated content.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: [frontier-preview]
+  reviewStatus: draft
+- id: no-sponsor
+  scope: useCase
+  description: An explicitly missing sponsor needs ownership and lifecycle planning.
+  when: { q: sponsor, equals: not-yet }
+  recommend:
+    - {
+        capability: entra-sponsor-lifecycle,
+        level: essential,
+        because: "Resolve the missing accountable sponsor.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: lifecycle-automation,
+        level: recommended,
+        because: "Plan handling for agents with incomplete ownership.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: active-actions
+  scope: useCase
+  description: Autonomous or state-changing actions increase monitoring and investigation needs.
+  when:
+    {
+      any:
+        [
+          { q: autonomy, equals: autonomous },
+          { q: actions, includesAny: [update-records, transactions, change-config] },
+        ],
+    }
+  recommend:
+    - {
+        capability: defender-threat-protection,
+        level: essential,
+        because: "Detect suspicious behavior and review blocking risky tool invocations.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: observability,
+        level: essential,
+        because: "Track consequential agent activity.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-audit-ediscovery,
+        level: essential,
+        because: "Retain an investigation trail for consequential actions.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: policy-templates,
+        level: recommended,
+        because: "Establish policy guardrails for consequential actions.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: external-audience
+  scope: useCase
+  description: External communications or audiences raise data-sharing and compliance concerns.
+  when:
+    {
+      any:
+        [
+          { q: actions, includes: communicate-externally },
+          { q: audience, includesAny: [partners, customers] },
+        ],
+    }
+  recommend:
+    - {
+        capability: purview-dlp,
+        level: essential,
+        because: "Review sensitive content access and external sharing.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-ai-compliance,
+        level: recommended,
+        because: "Review noncompliant external interactions.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: sensitive-data
+  scope: useCase
+  description: Confidential or regulated data increases protection and risk-review needs.
+  when:
+    {
+      any:
+        [
+          { q: dataSensitivity, in: [confidential, highly-confidential] },
+          {
+            q: regulatedData,
+            includesAny:
+              [personal, payment-card, health, financial-reporting, employee, trade-secrets],
+          },
+        ],
+    }
+  recommend:
+    - {
+        capability: purview-labels,
+        level: essential,
+        because: "Honor sensitivity labels on data used by agents.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-dlp,
+        level: essential,
+        because: "Protect sensitive content from inappropriate access or sharing.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-dspm-ai,
+        level: recommended,
+        because: "Review agent interactions and data posture.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: purview-insider-risk,
+        level: recommended,
+        because: "Review anomalous or risky agent activity around sensitive data.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: labeling-gap
+  scope: useCase
+  description: Sensitive data with incomplete labeling needs a readiness discussion.
+  when:
+    {
+      all:
+        [
+          {
+            any:
+              [
+                { q: dataSensitivity, in: [confidential, highly-confidential] },
+                {
+                  q: regulatedData,
+                  includesAny:
+                    [personal, payment-card, health, financial-reporting, employee, trade-secrets],
+                },
+              ],
+          },
+          { not: { q: labelsProgram, equals: broad } },
+        ],
+    }
+  recommend: []
+  advisories: [labeling-readiness]
+  reviewStatus: draft
+- id: retention
+  scope: useCase
+  description: Generated content or records obligations bring data lifecycle management into scope.
+  when:
+    {
+      any:
+        [
+          { q: generatesContent, equals: "yes" },
+          { q: actions, includes: create-content },
+          { q: obligations, includes: records-retention },
+        ],
+    }
+  recommend:
+    - {
+        capability: purview-dlm,
+        level: essential,
+        because: "Manage agent-generated data and interactions in line with retention policies.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: investigation
+  scope: useCase
+  description: Legal hold or regulatory audits need audit and eDiscovery capabilities.
+  when: { q: obligations, includesAny: [legal-hold, regulator-audit] }
+  recommend:
+    - {
+        capability: purview-audit-ediscovery,
+        level: essential,
+        because: "Export and hold interactions for legal, regulatory and investigative needs.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: ai-regulation
+  scope: useCase
+  description: AI regulation brings compliance assessment into scope.
+  when: { q: obligations, includes: ai-regulation }
+  recommend:
+    - {
+        capability: purview-ai-compliance,
+        level: essential,
+        because: "Assess, manage and demonstrate agent compliance.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: tools
+  scope: useCase
+  description: Any actual tool access needs tool governance and exposure review.
+  when:
+    {
+      q: tools,
+      includesAny:
+        [
+          microsoft-mcp,
+          third-party-mcp,
+          connectors-apis,
+          code-execution,
+          web-browsing,
+          computer-use,
+        ],
+    }
+  recommend:
+    - {
+        capability: tool-controls,
+        level: essential,
+        because: "Control tenant-wide tool access, including Microsoft MCP servers.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: defender-threat-protection,
+        level: recommended,
+        because: "Review suspicious tool activity and invocation blocking.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: defender-posture,
+        level: recommended,
+        because: "Review exposure and misconfiguration risks.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: computer-use
+  scope: useCase
+  description: Computer use needs runtime and separate-hosting-offer verification.
+  when: { q: tools, includes: computer-use }
+  recommend:
+    - {
+        capability: intune-runtime-policy,
+        level: consider,
+        because: "Consider runtime policy for the chosen execution environment.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: [windows-agents]
+  reviewStatus: draft
+- id: agent-to-agent
+  scope: useCase
+  description: Agent coordination increases observability and relationship-review needs.
+  when: { q: agentToAgent, equals: "yes" }
+  recommend:
+    - {
+        capability: observability,
+        level: essential,
+        because: "Trace activity across cooperating agents.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: [agent-map]
+  reviewStatus: draft
+- id: large-estate
+  scope: org
+  description: Larger estates need scalable lifecycle and policy administration.
+  when: { q: agentEstate, in: [dozens, hundreds] }
+  recommend:
+    - {
+        capability: lifecycle-automation,
+        level: essential,
+        because: "Scale lifecycle actions beyond individual manual handling.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: policy-templates,
+        level: essential,
+        because: "Establish consistent policies across a larger estate.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: registry-graph-api,
+        level: recommended,
+        because: "Consider programmatic inventory and governance integration.",
+        evidence: judgment,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: cmdb
+  scope: org
+  description: CMDB integration needs programmatic registry access.
+  when: { q: orgGovernance, includes: cmdb-integration }
+  recommend:
+    - {
+        capability: registry-graph-api,
+        level: essential,
+        because: "The Graph API exposes registry metadata and governance actions.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: ownerless
+  scope: org
+  description: Ownerless-agent handling needs lifecycle and sponsorship controls.
+  when: { q: orgGovernance, includes: ownerless-handling }
+  recommend:
+    - {
+        capability: lifecycle-automation,
+        level: essential,
+        because: "Automate ownerless-agent handling workflows.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: entra-sponsor-lifecycle,
+        level: essential,
+        because: "Maintain sponsor-driven accountability.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: policy-baseline
+  scope: org
+  description: Organization-wide policy baselines need policy templates.
+  when: { q: orgGovernance, includes: policy-baseline }
+  recommend:
+    - {
+        capability: policy-templates,
+        level: essential,
+        because: "Apply customized policies and controls consistently.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: org-reporting
+  scope: org
+  description: Executive reporting across the estate needs monitoring evidence.
+  when: { q: orgGovernance, includes: exec-reporting }
+  recommend:
+    - {
+        capability: observability,
+        level: essential,
+        because: "Base organization-level reporting on observed activity.",
+        evidence: inferred,
+        sourceIds: [sd-a365, a365-admin-overview],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: agent-reporting
+  scope: useCase
+  description: Agent-level executive reporting needs monitoring evidence.
+  when: { q: agentGovernance, includes: exec-reporting }
+  recommend:
+    - {
+        capability: observability,
+        level: essential,
+        because: "Base use-case reporting on observed activity.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: approval-audience
+  scope: useCase
+  description: Approval and audience restriction are governance actions.
+  when: { q: agentGovernance, includesAny: [approval, restrict-audience] }
+  recommend:
+    - {
+        capability: governance-actions,
+        level: essential,
+        because: "Approve agents and assign them to specific users or groups.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: soc
+  scope: org
+  description: SOC monitoring needs threat detection and investigation.
+  when: { q: securityOps, includes: soc-monitoring }
+  recommend:
+    - {
+        capability: defender-threat-protection,
+        level: essential,
+        because: "Detect suspicious agent activity and receive alerts.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+    - {
+        capability: defender-hunting,
+        level: recommended,
+        because: "Investigate activity from unified agent logs.",
+        evidence: inferred,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: hunting
+  scope: org
+  description: Threat hunting needs access to agent observability logs.
+  when: { q: securityOps, includes: threat-hunting }
+  recommend:
+    - {
+        capability: defender-hunting,
+        level: essential,
+        because: "Collect unified observability logs for investigation and hunting.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: posture
+  scope: org
+  description: Posture management needs agent exposure assessment.
+  when: { q: securityOps, includes: posture-management }
+  recommend:
+    - {
+        capability: defender-posture,
+        level: essential,
+        because: "Identify and remediate agent misconfigurations and exposure.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: insider-risk
+  scope: org
+  description: Insider-risk programs need agent activity review.
+  when: { q: securityOps, includes: insider-risk }
+  recommend:
+    - {
+        capability: purview-insider-risk,
+        level: essential,
+        because: "Detect anomalous and risky agent activity.",
+        evidence: stated,
+        sourceIds: [sd-a365],
+      }
+  advisories: []
+  reviewStatus: draft
+- id: sovereign
+  scope: org
+  description: Sovereign clouds need independent availability verification.
+  when: { q: cloudEnvironment, in: [gcc-high-dod, other-sovereign] }
+  recommend: []
+  advisories: [sovereign]
+  reviewStatus: draft

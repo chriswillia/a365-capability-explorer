@@ -1,0 +1,55 @@
+# Fictional discussion starters, not claims about deployed customer solutions.
+- id: store-operations
+  title: Store Operations Assistant
+  patternId: knowledge-agent
+  summary: "Illustrative frontline knowledge assistant for store procedures."
+  answers: { audience: [frontline], expectedUsers: 500-5000 }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: returns-refunds
+  title: Returns and Refunds Resolution
+  patternId: process-agent
+  summary: "Illustrative process agent handling sensitive return records and approval-gated transactions."
+  answers:
+    {
+      autonomy: approval-gated,
+      actions: [read, update-records, transactions],
+      regulatedData: [personal],
+      obligations: [records-retention],
+      generatesContent: "yes",
+    }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: demand-planning
+  title: Category Demand-Planning Analyst
+  patternId: external-platform-agent
+  summary: "Illustrative external-platform agent for internal demand-planning workflows."
+  answers: { buildPlatform: hyperscaler, dataSensitivity: confidential }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: askhr
+  title: AskHR
+  patternId: process-agent
+  summary: "Illustrative employee-service workflow using sensitive employee information."
+  answers:
+    {
+      regulatedData: [employee],
+      obligations: [records-retention],
+      generatesContent: "yes",
+      autonomy: approval-gated,
+    }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: developer-coding
+  title: Developer coding agents
+  patternId: local-agent
+  summary: "Illustrative local coding agents with tool access and sensitive source material."
+  answers:
+    { tools: [code-execution, third-party-mcp, web-browsing], regulatedData: [trade-secrets] }
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft

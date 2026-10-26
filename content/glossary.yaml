@@ -1,0 +1,64 @@
+- id: agent-registry
+  term: "Agent Registry"
+  aliases: []
+  definition: "The inventory of agents available to an organization, with publisher types and administrative actions."
+  sourceId: a365-registry
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: delegated-access
+  term: "Delegated access"
+  aliases: []
+  definition: "Access on a user's behalf. The service description extends user Conditional Access policies to agents using delegated access."
+  sourceId: sd-a365
+  evidence: inferred
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: access-packages
+  term: "Access packages"
+  aliases: []
+  definition: "Packages that define the scope of agent permissions."
+  sourceId: sd-a365
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: dlp
+  term: "Data loss prevention"
+  aliases: [DLP]
+  definition: "Controls that block agents from accessing and sharing sensitive content."
+  sourceId: sd-a365
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: mcp
+  term: "Model Context Protocol"
+  aliases: [MCP]
+  definition: "The protocol used by governed Work IQ tool servers in the Agent 365 developer integration."
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: observability
+  term: Observability
+  aliases: []
+  definition: "Visibility into agent activity through telemetry and monitoring. Registration alone does not add telemetry."
+  sourceId: a365-quickstart
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: blueprint
+  term: "Agent identity blueprint"
+  aliases: [blueprint]
+  definition: "The Microsoft Entra registration foundation from which the developer setup creates an agent identity."
+  sourceId: a365-quickstart
+  evidence: inferred
+  reviewStatus: draft
+  lastVerified: "2026-10-24"
+- id: sdk
+  term: "Agent 365 SDK"
+  aliases: []
+  definition: "Packages that extend an existing agent with identity, governed tooling and notifications. New observability integrations use Microsoft OpenTelemetry separately."
+  sourceId: a365-sdk
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-24"

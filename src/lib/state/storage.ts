@@ -5,6 +5,41 @@
  */
 export const STORAGE_PREFIX = 'cpcompass:';
 
+export type StorageFailure = 'unavailable' | 'quota';
+export type StorageResult<T> = { ok: true; value: T } | { ok: false; error: StorageFailure };
+
+function storageFailure(error: unknown): StorageFailure {
+  return error instanceof DOMException && error.name === 'QuotaExceededError'
+    ? 'quota'
+    : 'unavailable';
+}
+
+export function tryReadStored(key: string): StorageResult<string | null> {
+  try {
+    return { ok: true, value: window.localStorage.getItem(STORAGE_PREFIX + key) };
+  } catch (error) {
+    return { ok: false, error: storageFailure(error) };
+  }
+}
+
+export function tryWriteStored(key: string, value: string): StorageResult<void> {
+  try {
+    window.localStorage.setItem(STORAGE_PREFIX + key, value);
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: storageFailure(error) };
+  }
+}
+
+export function tryRemoveStored(key: string): StorageResult<void> {
+  try {
+    window.localStorage.removeItem(STORAGE_PREFIX + key);
+    return { ok: true, value: undefined };
+  } catch (error) {
+    return { ok: false, error: storageFailure(error) };
+  }
+}
+
 export function readStored(key: string): string | null {
   try {
     return window.localStorage.getItem(STORAGE_PREFIX + key);

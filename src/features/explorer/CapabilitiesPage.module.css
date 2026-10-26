@@ -42,3 +42,66 @@
   color: var(--color-slate);
   font-size: var(--text-14);
 }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-4);
+  margin-block: var(--space-6);
+}
+
+.controls > div {
+  display: grid;
+  gap: var(--space-2);
+  flex: 1 1 12rem;
+}
+
+.controls input,
+.controls select,
+.controls button {
+  font: inherit;
+}
+
+.controls input,
+.controls select {
+  min-width: 0;
+  padding: var(--space-2);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+}
+
+.compare {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block: var(--space-3);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+  list-style: none;
+  padding: 0;
+}
+
+.card {
+  padding: var(--space-6);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-white);
+}
+
+.relatedLinks {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.relatedLinks a,
+.relatedLink {
+  display: inline-block;
+  padding-block: var(--space-1);
+}

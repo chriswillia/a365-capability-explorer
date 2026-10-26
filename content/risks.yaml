@@ -1,0 +1,152 @@
+# Editorial mitigation associations describe planning relevance, not a guarantee of prevention.
+- id: agent-sprawl
+  title: Agent sprawl and ownerless agents
+  summary: "Agents become difficult to inventory, govern and retire consistently."
+  triggeredWhen: { always: true }
+  mitigatedBy:
+    [
+      registry-inventory,
+      registry-sync,
+      lifecycle-automation,
+      entra-sponsor-lifecycle,
+      governance-actions,
+    ]
+  sourceIds: [sd-a365, a365-admin-overview]
+  evidence: judgment
+  reviewStatus: draft
+- id: over-permissioned
+  title: Over-permissioned agents
+  summary: "Agent identities or tools receive more access than their intended purpose needs."
+  triggeredWhen:
+    {
+      any:
+        [
+          { q: accessModel, in: [own-teammate, own-background, mixed] },
+          {
+            q: tools,
+            includesAny:
+              [microsoft-mcp, third-party-mcp, connectors-apis, code-execution, computer-use],
+          },
+        ],
+    }
+  mitigatedBy: [entra-access-packages, tool-controls, policy-templates]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: identity-misuse
+  title: Identity misuse
+  summary: "Delegated access or unmanaged devices expose agent activity to identity risk."
+  triggeredWhen: { q: accessModel, in: [delegated, mixed] }
+  mitigatedBy: [entra-conditional-access, intune-device-compliance]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: data-leakage
+  title: Sensitive data leakage
+  summary: "Sensitive information is accessed, generated or shared inappropriately."
+  triggeredWhen:
+    {
+      any:
+        [
+          { q: dataSensitivity, in: [confidential, highly-confidential] },
+          {
+            q: regulatedData,
+            includesAny:
+              [personal, payment-card, health, financial-reporting, employee, trade-secrets],
+          },
+          { q: audience, includesAny: [partners, customers] },
+          { q: actions, includes: communicate-externally },
+        ],
+    }
+  mitigatedBy: [purview-labels, purview-dlp, purview-dspm-ai]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: unsafe-tools
+  title: Unsafe tool execution
+  summary: "Tool invocations become a path to harmful or unintended actions."
+  triggeredWhen:
+    {
+      q: tools,
+      includesAny:
+        [
+          microsoft-mcp,
+          third-party-mcp,
+          connectors-apis,
+          code-execution,
+          web-browsing,
+          computer-use,
+        ],
+    }
+  mitigatedBy: [tool-controls, defender-threat-protection, defender-posture]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: network-threats
+  title: Network threats
+  summary: "Agent traffic reaches risky destinations or carries threats."
+  triggeredWhen:
+    {
+      any:
+        [
+          { q: networkEgress, equals: "yes" },
+          { q: tools, includesAny: [web-browsing, third-party-mcp] },
+        ],
+    }
+  mitigatedBy: [entra-network-controls]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: shadow-ai
+  title: Unsanctioned endpoint agents
+  summary: "Local or unapproved agents operate outside an intentional governance process."
+  triggeredWhen:
+    { any: [{ q: buildPlatform, equals: local-agent }, { q: shadowAI, equals: "yes" }] }
+  mitigatedBy: [defender-shadow-ai, intune-block-local, intune-runtime-policy, defender-posture]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: compliance-exposure
+  title: Compliance and retention exposure
+  summary: "Agent interactions or generated content lack investigation, retention or compliance planning."
+  triggeredWhen:
+    {
+      any:
+        [
+          { q: generatesContent, equals: "yes" },
+          { q: accessModel, equals: own-teammate },
+          {
+            q: obligations,
+            includesAny: [legal-hold, records-retention, regulator-audit, ai-regulation],
+          },
+        ],
+    }
+  mitigatedBy: [purview-audit-ediscovery, purview-dlm, purview-ai-compliance]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: anomalous-behavior
+  title: Anomalous agent behavior
+  summary: "Consequential or sensitive activity becomes hard to detect and investigate."
+  triggeredWhen:
+    {
+      any:
+        [
+          { q: autonomy, equals: autonomous },
+          { q: actions, includesAny: [update-records, transactions, change-config] },
+          { q: dataSensitivity, in: [confidential, highly-confidential] },
+          { q: securityOps, includesAny: [soc-monitoring, threat-hunting, insider-risk] },
+        ],
+    }
+  mitigatedBy: [defender-threat-protection, defender-hunting, purview-insider-risk]
+  sourceIds: [sd-a365]
+  evidence: judgment
+  reviewStatus: draft
+- id: blind-spots
+  title: Operational blind spots
+  summary: "Inventory and activity evidence are missing or disconnected from operations."
+  triggeredWhen: { always: true }
+  mitigatedBy: [observability, registry-inventory, registry-graph-api]
+  sourceIds: [sd-a365, a365-quickstart]
+  evidence: judgment
+  reviewStatus: draft

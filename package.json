@@ -1,8 +1,8 @@
 {
-  "name": "control-plane-compass",
+  "name": "a365-capability-explorer",
   "private": true,
   "version": "0.1.0",
-  "description": "Control Plane Compass: map any agent use case to Microsoft Agent 365. An independent project.",
+  "description": "A365 Capability Explorer: map any agent use case to Microsoft Agent 365. An independent project.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {
@@ -21,8 +21,8 @@
     "typecheck": "tsc -b",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "lockfile:check": "tsx scripts/lockfile.ts check",
-    "lockfile:fix": "tsx scripts/lockfile.ts fix",
+    "lockfile:check": "node scripts/lockfile.ts check",
+    "lockfile:fix": "node scripts/lockfile.ts fix",
     "pretest": "npm run content:build",
     "test": "vitest run",
     "test:watch": "vitest",

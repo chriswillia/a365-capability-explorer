@@ -52,6 +52,10 @@ describe('buildContent', () => {
   });
 
   it('stamps contentVersion as the newest changelog date plus a short hash', () => {
+    writeFileSync(
+      join(contentDir, 'changelog.md'),
+      '# Changelog\n\n## 2026-10-23 · Newer entry\n\naffects: [all]\n\nNewer.\n\n## 2026-10-22 · Older entry\n\naffects: [all]\n\nOlder.\n',
+    );
     expect(run().contentVersion).toMatch(/^2026\.10\.23-[0-9a-f]{7}$/);
     expect(JSON.parse(readFileSync(join(outDir, 'meta.json'), 'utf8'))).toEqual({
       contentVersion: run().contentVersion,

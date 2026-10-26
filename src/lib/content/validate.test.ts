@@ -4,13 +4,52 @@ import type { Content } from './schemas.ts';
 import { validateContent } from './validate.ts';
 
 const clone = (): Content => structuredClone(content);
-const NOW = new Date('2026-10-24T00:00:00Z');
+const NOW = new Date('2026-10-25T00:00:00Z');
 
 describe('validateContent', () => {
+  it('validates source and capability references for every learning collection', () => {
+    for (const collection of ['flow', 'integration', 'positioning', 'frontier'] as const) {
+      const data = clone();
+      data.learn[collection][0]!.sourceId = 'missing-source';
+      data.learn[collection][0]!.capabilityIds = ['missing-capability'];
+      const errors = validateContent(data, { now: NOW }).errors.join('\n');
+      expect(errors).toContain('unknown source "missing-source"');
+      expect(errors).toContain('unknown capability "missing-capability"');
+    }
+    const data = clone();
+    data.buildingBlocks[0]!.capabilityIds = ['missing-capability'];
+    data.glossary[0]!.sourceId = 'missing-source';
+    data.faq[0]!.sourceId = 'missing-source';
+    expect(validateContent(data, { now: NOW }).errors).toHaveLength(3);
+  });
+
+  it('checks duplicate learning ids, glossary aliases, persona anchors and technical sources', () => {
+    const data = clone();
+    data.buildingBlocks.push(structuredClone(data.buildingBlocks[0]!));
+    data.glossary[1]!.aliases = [data.glossary[0]!.term.toUpperCase()];
+    data.personas[0]!.href = '/learn#missing';
+    data.learn.flow[0]!.technicalSourceId = 'missing-source';
+    const errors = validateContent(data, { now: NOW }).errors.join('\n');
+    expect(errors).toContain('building-blocks.yaml id: duplicate');
+    expect(errors).toContain('glossary.yaml term or alias: duplicate');
+    expect(errors).toContain('unknown learning anchor "missing"');
+    expect(errors).toContain('technicalSourceId: unknown source "missing-source"');
+  });
+
+  it('requires an explicit source for technical guidance and checks learning dates', () => {
+    const data = clone();
+    data.learn.flow[0]!.technicalSourceId = undefined;
+    data.glossary[0]!.lastVerified = '2030-01-01';
+    const errors = validateContent(data, { now: NOW }).errors.join('\n');
+    expect(errors).toContain('technical text needs a technicalSourceId');
+    expect(errors).toContain('glossary.yaml');
+    expect(errors).toContain('in the future');
+    expect(validateContent(data, { now: NOW }).warnings.join('\n')).toContain('faq.yaml');
+  });
   it('passes on the real content, with warnings only for sources awaiting later content', () => {
     const { errors, warnings } = validateContent(clone(), { now: NOW });
     expect(errors).toEqual([]);
-    expect(warnings.every((w) => /not referenced|not verified/.test(w))).toBe(true);
+    expect(warnings.every((w) => /not referenced|not verified|unsigned/.test(w))).toBe(true);
   });
 
   it('fails on a duplicate capability id', () => {
