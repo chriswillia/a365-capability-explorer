@@ -115,6 +115,7 @@ test.describe('Phase 4 diagnostic', () => {
     const dialog = page.getByRole('alertdialog');
     await expect(dialog).toBeVisible();
     await expect(dialog.getByRole('button', { name: copy.cancel })).toBeFocused();
+    await expect(dialog).toHaveCSS('opacity', '1');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await dialog.getByRole('button', { name: copy.cancel }).click();
     await expect(card).toBeVisible();
@@ -167,6 +168,7 @@ test.describe('Phase 4 diagnostic', () => {
     await expect(dialog.getByRole('button', { name: copy.leave })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(cancel).toBeFocused();
+    await expect(dialog).toHaveCSS('opacity', '1');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await cancel.click();
     await expect(page).toHaveURL(/diagnostic\/[0-9a-f-]{36}$/);
