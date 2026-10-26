@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
@@ -49,6 +49,7 @@ jobs:
         run: npm run build:all
 
       - name: Install the test browser
+        timeout-minutes: 5
         run: npx playwright install --with-deps chromium
 
       - name: End-to-end and accessibility tests

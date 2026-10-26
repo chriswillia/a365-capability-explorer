@@ -81,6 +81,8 @@ The legacy prefix is retained after the rename so existing preferences and asses
 
 ## Testing
 
+- **CI browser environment:** the verification job pins Ubuntu 24.04 rather than following `ubuntu-latest` OS migrations. Browser/dependency installation has a five-minute timeout; a stalled download fails explicitly without bypassing browser or accessibility tests. The overall verification job remains capped at twenty minutes.
+
 - **Public dependencies:** `npm run lockfile:check` checks locked package URLs without installing dependencies; CI runs it before `npm ci`. Upstream lockfile helpers also support offline URL repair, and unit tests enforce public URLs and integrity-checksum presence. No registry is configured in this repository. Registry URL repairs must preserve package versions and integrity hashes.
 
 - **Vitest, `node` project:** schemas, validation, build script, tokens. **`dom` project:** the shell and pages, with Testing Library.
