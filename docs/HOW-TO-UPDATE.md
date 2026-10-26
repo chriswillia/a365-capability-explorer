@@ -71,7 +71,9 @@ Question ids and option values are persisted data: avoid renaming them casually.
 
 All diagnostic and readout copy is in `site.yaml`. Readout takeaways use computed `{count}` values; canvas boxes reference question ids and are checked for duplicate ids and unknown questions. Empty question lists deliberately leave a workshop discussion box, not an invented answer. Document storage keys, deletion behavior and export privacy on Privacy.
 
-Run schema, reference, storage, wizard, transfer, report and browser tests when changing these behaviors. JSON backups use a strict versioned envelope; never silently accept a new format or overwrite local entities during import. Imports create new ids and remap relationships while retaining original answers for explicit compatibility checks. Update round-trip, invalid-file, download and A4/Letter print checks when changing exports. PowerPoint and logo co-branding remain in development.
+Run schema, reference, storage, wizard, transfer, report and browser tests when changing these behaviors. JSON backups use a strict versioned envelope; never silently accept a new format or overwrite local entities during import. Imports create new ids and remap relationships while retaining original answers for explicit compatibility checks. Update round-trip, invalid-file, download and A4/Letter print checks when changing exports.
+
+Readout exhibit labels, notices, PowerPoint copy and logo-validation messages are schema-validated site data. Keep the eleven exhibit numbers stable and preserve Executive/Technical gating. Markdown and speaker notes carry the full technical detail; any visual PowerPoint shortening must remain explicitly disclosed. Check exactly six readout slides and one canvas slide, no external asset relationships, complete speaker notes and local rendering when changing presentation layouts. Safe logos are optional assessment data in workspace v1; do not add defaults to legacy records, accept URLs/SVG, bypass normalization or write outside the storage adapter.
 
 ## When CI fails
 

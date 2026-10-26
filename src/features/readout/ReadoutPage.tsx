@@ -1,21 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
-import { DataTable } from '../../components/DataTable.tsx';
 import { KpiStrip } from '../../components/KpiStrip.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { formatNumber } from '../../lib/content/template.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
-import { evaluateWhatIfs } from '../../lib/engine/evaluate.ts';
 import { answerLabel, buildReadout, readoutMarkdown } from '../../lib/readout/report.ts';
-import { downloadText } from '../../lib/readout/files.ts';
+import { downloadBlob, downloadText } from '../../lib/readout/files.ts';
+import { PresentationError, readoutPowerPoint } from '../../lib/readout/powerpoint.ts';
 import { diagnosticBundle } from '../../lib/state/diagnostic-transfer.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import type { Assessment, Organization } from '../../lib/state/diagnostic-model.ts';
-import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
-import { MappingReport } from '../mapping/MappingReport.tsx';
+import { BrandingEditor } from './BrandingEditor.tsx';
+import { ReadoutExhibits } from './ReadoutExhibits.tsx';
 import styles from './Readout.module.css';
 
 function Readout({
@@ -26,13 +25,12 @@ function Readout({
   organization: Organization;
 }) {
   const store = useDiagnostics();
-  const { depth } = useDepth();
   const copy = content.site.readout;
   const mapping = content.site.mapping;
   const report = buildReadout(content, organization, assessment, contentMeta.contentVersion);
   const { result, metrics } = report;
   const [message, setMessage] = useState<'copied' | 'error' | null>(null);
-  const [whatIf, setWhatIf] = useState('');
+  const [exporting, setExporting] = useState(false);
   usePageTitle('readout', report.title);
   useEffect(() => {
     const opened = new Set<HTMLDetailsElement>();
@@ -61,19 +59,15 @@ function Readout({
     try {
       await action();
     } catch (error) {
-      if (!(error instanceof DOMException || error instanceof TypeError)) throw error;
+      if (!(
+        error instanceof DOMException ||
+        error instanceof TypeError ||
+        error instanceof PresentationError
+      ))
+        throw error;
       setMessage('error');
     }
   };
-  const deltas =
-    depth === 'technical'
-      ? evaluateWhatIfs(
-          content,
-          { org: organization.answers, useCase: assessment.answers },
-          contentMeta.contentVersion,
-        )
-      : [];
-  const delta = deltas.find((d) => d.whatIf.id === whatIf);
   return (
     <PageContainer>
       <div className={styles.actions} data-no-print>
@@ -81,6 +75,25 @@ function Readout({
         <Link to={`/canvas/${assessment.id}`}>{copy.canvas}</Link>
         <button type="button" onClick={() => void perform(() => window.print())}>
           {copy.print}
+        </button>
+        <button
+          type="button"
+          disabled={exporting}
+          onClick={() =>
+            void perform(async () => {
+              setExporting(true);
+              try {
+                downloadBlob(
+                  `a365-readout-${assessment.id}.pptx`,
+                  await readoutPowerPoint(content, report),
+                );
+              } finally {
+                setExporting(false);
+              }
+            })
+          }
+        >
+          {exporting ? copy.exporting : copy.powerpoint}
         </button>
         <button
           type="button"
@@ -139,13 +152,29 @@ function Readout({
         </button>
       </div>
       <p data-no-print>{copy.sharingNote}</p>
+      <p data-no-print>{copy.presentationNote}</p>
+      <BrandingEditor assessment={assessment} />
       {message && (
         <p role={message === 'error' ? 'alert' : 'status'}>
           {message === 'error' ? copy.exportError : copy.copied}
         </p>
       )}
+      <style>{`@page readout {
+        @bottom-left {
+          content: ${JSON.stringify(`${copy.draft} · ${result.contentVersion}`)} "\\A" ${JSON.stringify(content.site.disclaimer)};
+        }
+      }`}</style>
       <article className={styles.document} data-print-document>
         <header className={styles.cover}>
+          {report.logo && (
+            <img
+              className={styles.logo}
+              src={report.logo.data}
+              alt={report.logo.alt}
+              width={report.logo.width}
+              height={report.logo.height}
+            />
+          )}
           <p className={styles.draft}>{copy.draft}</p>
           <PageHeading>{report.title}</PageHeading>
           <p>{copy.current}</p>
@@ -192,102 +221,24 @@ function Readout({
               { id: 'premium', label: copy.premium, value: formatNumber(metrics.premium) },
               { id: 'platform', label: copy.platform, value: formatNumber(metrics.platform) },
               { id: 'agent', label: copy.agent, value: formatNumber(metrics.agent) },
+              {
+                id: 'readiness',
+                label: mapping.readinessPercent,
+                value:
+                  metrics.readinessPercent === null
+                    ? mapping.unknownAnswer
+                    : `${formatNumber(metrics.readinessPercent)}%`,
+              },
             ]}
           />
           <p>{copy.setupNote}</p>
         </section>
-        <section>
-          <h2>{copy.anatomy}</h2>
-          <DataTable
-            caption={copy.anatomy}
-            hideCaption
-            scrollLabel={copy.anatomy}
-            rows={result.anatomy}
-            rowKey={(row) => row.point.id}
-            columns={[
-              {
-                key: 'layer',
-                header: content.site.capabilities.columns.layer,
-                rowHeader: true,
-                render: (row) => row.point.layer,
-              },
-              {
-                key: 'controls',
-                header: mapping.inScope,
-                render: (row) =>
-                  row.capabilities.map((r) => r.capability.shortName).join(', ') ||
-                  mapping.unknownAnswer,
-              },
-            ]}
-          />
-        </section>
-        <section>
-          <h2>{copy.roadmap}</h2>
-          <p>{copy.roadmapNote}</p>
-          <div className={styles.roadmap}>
-            {([1, 2, 3] as const).map((wave) => {
-              const rows = result.inScope.filter((r) => r.wave === wave);
-              return (
-                <div key={wave}>
-                  <h3>{copy.waves[wave]}</h3>
-                  {rows.length === 0 ? (
-                    <p>{copy.empty}</p>
-                  ) : (
-                    <ul>
-                      {rows.map((r) => (
-                        <li key={r.capability.id}>
-                          <Link to={`/capabilities/${r.capability.id}`}>
-                            {r.capability.shortName}
-                          </Link>
-                          {' — '}
-                          {mapping.levels[r.level]}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-        <MappingReport result={result} showDiagnosticNote={false} showAnatomy={false} />
-        {depth === 'technical' && (
-          <section>
-            <h2>{mapping.whatIfs}</h2>
-            <p>{copy.whatIfNote}</p>
-            <label htmlFor="readout-what-if">{mapping.whatIfs}</label>
-            <select id="readout-what-if" value={whatIf} onChange={(e) => setWhatIf(e.target.value)}>
-              <option value="">{copy.baseline}</option>
-              {deltas.map((d) => (
-                <option key={d.whatIf.id} value={d.whatIf.id}>
-                  {d.whatIf.title}
-                </option>
-              ))}
-            </select>
-            {delta && (
-              <div role="status">
-                <h3>{delta.whatIf.title}</h3>
-                <p>
-                  {mapping.added}:{' '}
-                  {delta.added.map((r) => r.capability.shortName).join(', ') || copy.empty}
-                </p>
-                <p>
-                  {mapping.removed}:{' '}
-                  {delta.removed.map((r) => r.capability.shortName).join(', ') || copy.empty}
-                </p>
-                <ul>
-                  {delta.changed.map((change) => (
-                    <li key={change.capability.id}>
-                      {change.capability.shortName}: {mapping.levels[change.from]} →{' '}
-                      {mapping.levels[change.to]}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </section>
-        )}
-        <p className={styles.disclaimer}>{content.site.disclaimer}</p>
+        <ReadoutExhibits report={report} assessment={assessment} organization={organization} />
+        <p className={styles.disclaimer}>
+          {copy.draft} · {result.contentVersion}
+          <br />
+          {content.site.disclaimer}
+        </p>
       </article>
     </PageContainer>
   );

@@ -484,3 +484,15 @@
   type: date
   maxLength: 10
   ifUnknown: Add an optional preparation date for future readouts.
+- id: successMeasures
+  scope: useCase
+  label: Success measures
+  type: longtext
+  maxLength: 2000
+  ifUnknown: Agree a measurable outcome, baseline, target and review date.
+- id: accountableOwner
+  scope: useCase
+  label: Accountable owner
+  type: text
+  maxLength: 120
+  ifUnknown: Identify the accountable person or team; avoid unnecessary personal details.

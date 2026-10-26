@@ -123,7 +123,7 @@ overview:
   ctaExplore: "Explore the capabilities"
   technicalHint: "Switch to Technical for the console and layer detail."
   personasHeading: "Start with your role"
-  personasNote: "Suggested starting paths are editorial and pending SME review. Explore illustrative patterns or create a local diagnostic assessment; formal readouts follow in Phase 5."
+  personasNote: "Suggested starting paths are editorial and pending SME review. Explore illustrative patterns or create a local diagnostic assessment and discussion readout."
   questionsHeading: "Questions to guide the conversation"
   questions:
     - "What does Agent 365 offer today?"
@@ -354,7 +354,7 @@ diagnostic:
   emerging: Emerging control-plane anatomy
   emergingNote: "Updates from your current answers. A textual table lists all layers and in-scope controls; this is not evidence that any control is deployed."
   preview: Current planning preview
-  previewNote: "A live rule-engine preview. Open the readout for a discussion draft, printable canvas and local exports. PowerPoint and logo co-branding are still in development."
+  previewNote: "A live rule-engine preview. Open the readout for numbered exhibits, a discussion canvas and local exports, including PowerPoint."
   review: Review current mapping
   noPreview: "Correct incompatible answers to resume the live planning preview."
   knownAnswers: Known answers in this view
@@ -366,6 +366,7 @@ diagnostic:
 
 readout:
   open: Open readout
+  tableLabel: "{label} — table"
   title: "Control-plane readout: {label}"
   draft: Draft for discussion
   current: "Recomputed from the assessment answers with the current content. Recommendations remain draft; this is not deployment certification or a licensing determination."
@@ -388,6 +389,41 @@ readout:
   details: Mapping details and evidence
   edit: Edit this assessment
   print: Print / save PDF
+  powerpoint: Download PowerPoint
+  exporting: Preparing PowerPoint…
+  presentationNote: "PowerPoint is a compact discussion summary. Full detail, sources and any shortened text are preserved in speaker notes. Markdown contains the complete technical readout."
+  notesDetail: "Summary only; complete detail in speaker notes."
+  appendix: Appendix — scope, unknowns and discovery
+  discovery: Stakeholder discovery questions
+  eligibility: "License eligibility: unknown — verify"
+  verifyNext: "Next steps: validate unknown answers, agree owners and dates, and verify licensing and configuration with the responsible teams."
+  riskControls: Risks → controls
+  foundations: Platform foundations and agent decisions
+  anatomyNote: "Each layer shows in-scope controls and muted, explicitly labeled out-of-scope options. Placement is an editorial planning aid, not a technical deployment diagram."
+  methodologyNote: "The same deterministic rules generate patterns, diagnostics and exports. Unknown answers remain unknown; only matching rules create recommendations. Editorial associations remain draft. Consult the linked methodology and source documents before implementation."
+  exhibits:
+    frontier: Frontier Firm placement
+    anatomy: Control-plane anatomy
+    risks: Risks → controls
+    capabilities: Technical capability table
+    decisions: Platform foundations and agent decisions
+    readiness: Configured readiness checks
+    operatingModel: Owner team × lifecycle operating model
+    integration: Integration path and builder checklist
+    licensing: Licensing and access-model implications
+    roadmap: Discussion roadmap
+    whatIfs: What-if comparisons
+  branding:
+    title: Optional local co-branding
+    choose: Choose a logo
+    alt: Logo description
+    remove: Remove logo
+    note: "Optional PNG or JPEG, up to 2 MiB and 4096 pixels per side. The image is normalized locally to a PNG no larger than 512 pixels per side and 512 KiB. Its description, up to 120 characters, is required. The logo stays with this assessment and is included in JSON backups, PDF and PowerPoint. Nothing is uploaded."
+    errors:
+      size: "The logo exceeds the 2 MiB limit. Choose a smaller PNG or JPEG."
+      format: "Choose a valid PNG or JPEG and enter a logo description of 1–120 characters. SVG, animated images and external image URLs are not accepted."
+      dimensions: "The logo dimensions must be between 1 and 4096 pixels per side."
+      read: "The image could not be decoded. Choose another PNG or JPEG and try again."
   markdown: Download Markdown
   json: Download assessment JSON
   copySummary: Copy executive summary
@@ -411,6 +447,7 @@ readout:
   canvas: Use Case Canvas
   blankCanvas: Blank printable canvas
   canvasNote: "A discussion canvas, not a deployment specification. Empty boxes need stakeholder input. Print in landscape for a compact workshop handout."
+  canvasPrintNote: "Compact discussion summary. Shortened answers are marked …; complete answers are in the assessment readout and Markdown export."
   answers: Assessment answers
   sources: Sources and methodology
   canvasBoxes:
@@ -448,11 +485,11 @@ readout:
       prompt: Validate risk themes and any missing mitigations with the relevant teams.
     - id: success
       title: Success measures
-      questionIds: []
+      questionIds: [successMeasures]
       prompt: Agree measurable outcomes, a baseline, a target and a review date.
     - id: ownership
       title: Owner and sponsor
-      questionIds: [businessFunction, sponsor]
+      questionIds: [accountableOwner, businessFunction, sponsor]
       prompt: Name the accountable owner and sponsor during the workshop.
 
 mapping:
@@ -558,7 +595,7 @@ privacy:
     - what: "Your detail level choice (Executive or Technical)"
       where: "Local storage, key cpcompass:depth"
       why: "So the site remembers your choice on your next visit"
-    - what: "Organization profiles, assessment answers, optional names, diagnostic mode and current section"
+    - what: "Organization profiles, assessment answers, optional names, optional normalized PNG logos and their descriptions, diagnostic mode and current section"
       where: "Local storage, key cpcompass:diagnostic"
       why: "Autosave and resume local assessments. Nothing is uploaded. Delete individual assessments or unused organizations from the diagnostic."
     - what: "Navigation scroll positions managed by React Router"
@@ -566,4 +603,4 @@ privacy:
       why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backups, Markdown, copied summaries and printed readouts contain your answers and optional names. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backups, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

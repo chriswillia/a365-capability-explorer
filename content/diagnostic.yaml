@@ -36,6 +36,7 @@ sections:
         audience,
         expectedUsers,
         businessValue,
+        successMeasures,
       ]
   - id: build
     title: Build and run
@@ -46,7 +47,8 @@ sections:
     title: Identity and autonomy
     description: "Describe access, consequential actions and human accountability."
     scope: useCase
-    questionIds: [accessModel, autonomy, actions, triggers, sponsor, managedDevices]
+    questionIds:
+      [accessModel, autonomy, actions, triggers, sponsor, accountableOwner, managedDevices]
   - id: data
     title: Data and obligations
     description: "Identify accessible information and retention or investigation obligations."
@@ -130,3 +132,5 @@ consultantNotes:
   engagementName: "This optional label can help organize a future readout."
   preparedBy: "This optional personal detail stays on this browser profile; avoid it on shared devices."
   preparedOn: "An optional date can distinguish planning sessions without changing the rules."
+  successMeasures: "A baseline, target and review date make the outcome testable. This workshop input does not change recommendation rules."
+  accountableOwner: "Name the person or team accountable for the agent without entering unnecessary personal details. This is separate from whether a sponsor exists."

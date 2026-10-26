@@ -8,7 +8,7 @@ import { useDepth } from '../../lib/state/depth.ts';
 import { Evidence } from './Evidence.tsx';
 import styles from './Mapping.module.css';
 
-function CapabilityLinks({ ids }: { ids: string[] }) {
+export function CapabilityLinks({ ids }: { ids: string[] }) {
   return (
     <ul className={styles.links}>
       {ids.map((id) => (

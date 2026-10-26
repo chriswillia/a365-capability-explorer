@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { AnswersSchema } from '../content/schemas.ts';
+import { LogoSchema } from './logo.ts';
 
 const Entity = {
   id: z.uuid(),
@@ -16,6 +17,7 @@ export const AssessmentSchema = z.strictObject({
   sectionId: z.string().min(1),
   patternId: z.string().nullable(),
   sampleId: z.string().nullable(),
+  logo: LogoSchema.optional(),
 });
 export const DiagnosticWorkspaceSchema = z
   .strictObject({

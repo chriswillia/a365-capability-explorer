@@ -38,7 +38,9 @@ A 12-column grid with a 1,240px maximum width and an 8-point spacing scale (with
 
 ## Motion and print
 
-Motion is 150–200ms and respects `prefers-reduced-motion`. Print output hides navigation and keeps the disclaimer. Readouts extend `print.css` with a cover page, expanded evidence and responsive tables. Canvases use a landscape grid for Letter and A4; the blank workshop canvas is a single page, while long populated answers can flow onto more pages. A running page footer remains a later refinement.
+Motion is 150–200ms and respects `prefers-reduced-motion`. Print output hides navigation and keeps the disclaimer. Readouts extend `print.css` with a cover page, expanded evidence, responsive tables and a running draft/version/disclaimer footer in CSS page-margin boxes. The document-end disclaimer is also retained for browsers without margin-box support. Canvases use a landscape grid for Letter and A4. Blank and filled canvases are one page; filled print views show bounded summaries with a visible shortening notice, while complete answers remain on screen and in the readout/Markdown.
+
+PowerPoint uses token-derived ink/paper/white/slate, Georgia and Segoe UI fallback fonts, editable shapes/text and locally embedded optional logos. The six-slide readout alternates dark cover/conclusion with light summary, anatomy, risk and roadmap layouts. The canvas uses eleven compact discussion boxes on one slide. Every slide carries a draft/version/disclaimer and a speaker-note detail notice. Dense inputs are explicitly summarized rather than silently shrunk into unreadable text; full content remains in notes. Out-of-scope anatomy uses muted slate plus explicit scope labels, never color alone.
 
 ## Components
 

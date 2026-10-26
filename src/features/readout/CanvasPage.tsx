@@ -4,7 +4,15 @@ import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
-import { answerLabel, buildReadout, type Readout } from '../../lib/readout/report.ts';
+import {
+  answerLabel,
+  buildReadout,
+  canvasFields,
+  summarizeText,
+  type Readout,
+} from '../../lib/readout/report.ts';
+import { downloadBlob } from '../../lib/readout/files.ts';
+import { canvasPowerPoint, PresentationError } from '../../lib/readout/powerpoint.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import styles from './Readout.module.css';
@@ -12,6 +20,7 @@ import styles from './Readout.module.css';
 function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: string }) {
   const copy = content.site.readout;
   const [error, setError] = useState(false);
+  const [exporting, setExporting] = useState(false);
   usePageTitle('canvas');
   return (
     <PageContainer>
@@ -34,24 +43,64 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
         >
           {copy.print}
         </button>
+        <button
+          type="button"
+          disabled={exporting}
+          onClick={() => {
+            setError(false);
+            setExporting(true);
+            void canvasPowerPoint(content, contentMeta.contentVersion, report)
+              .then((blob) => downloadBlob(`a365-canvas-${assessmentId ?? 'blank'}.pptx`, blob))
+              .catch((error: unknown) => {
+                if (!(
+                  error instanceof PresentationError ||
+                  error instanceof DOMException ||
+                  error instanceof TypeError
+                ))
+                  throw error;
+                setError(true);
+              })
+              .finally(() => setExporting(false));
+          }}
+        >
+          {exporting ? copy.exporting : copy.powerpoint}
+        </button>
       </div>
+      <p data-no-print>{copy.presentationNote}</p>
       {error && <p role="alert">{copy.exportError}</p>}
       <article className={`${styles.document} ${styles.canvas}`} data-print-document>
         <header>
+          {report?.logo && (
+            <img
+              className={styles.logo}
+              src={report.logo.data}
+              alt={report.logo.alt}
+              width={report.logo.width}
+              height={report.logo.height}
+            />
+          )}
           <p className={styles.draft}>{copy.draft}</p>
           <PageHeading>{copy.canvas}</PageHeading>
-          <p>{report ? `${report.name} — ${report.organizationName}` : copy.blankCanvas}</p>
-          <p>{copy.canvasNote}</p>
+          <p className={styles.canvasDetails}>
+            {report ? `${report.name} — ${report.organizationName}` : copy.blankCanvas}
+          </p>
+          <p className={styles.canvasPrintDetails}>
+            {report
+              ? summarizeText(`${report.name} — ${report.organizationName}`, 130)
+              : copy.blankCanvas}
+          </p>
+          <p className={styles.canvasDetails}>{copy.canvasNote}</p>
+          <p className={styles.canvasPrintDetails}>{copy.canvasPrintNote}</p>
           <p>
             {content.site.diagnostic.currentContent}: {contentMeta.contentVersion}
           </p>
         </header>
         <div className={styles.canvasGrid}>
-          {copy.canvasBoxes.map((box) => (
+          {canvasFields(content, report).map((box) => (
             <section className={styles.canvasBox} key={box.id}>
               <h2>{box.title}</h2>
               {report && box.questionIds.length > 0 && (
-                <dl>
+                <dl className={styles.canvasDetails}>
                   {box.questionIds.map((id) => (
                     <div key={id}>
                       <dt>{content.questions.find((q) => q.id === id)!.label}</dt>
@@ -61,13 +110,18 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
                 </dl>
               )}
               {report && box.id === 'risks' && (
-                <ul>
+                <ul className={styles.canvasDetails}>
                   {report.result.risks.map(({ risk }) => (
                     <li key={risk.id}>{risk.title}</li>
                   ))}
                 </ul>
               )}
-              <p className={styles.prompt}>{box.prompt}</p>
+              {report && (
+                <p className={styles.canvasPrintDetails}>{summarizeText(box.body, 100)}</p>
+              )}
+              <p className={report ? `${styles.prompt} ${styles.canvasDetails}` : styles.prompt}>
+                {box.prompt}
+              </p>
             </section>
           ))}
         </div>
@@ -84,14 +138,21 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
                   <div key={point.id}>
                     <h3>{point.layer}</h3>
                     {rows && rows.length > 0 ? (
-                      <ul>
+                      <ul className={styles.canvasDetails}>
                         {rows.map((r) => (
                           <li key={r.capability.id}>{r.capability.shortName}</li>
                         ))}
                       </ul>
                     ) : (
-                      <p>{content.site.mapping.unknownAnswer}</p>
+                      <p className={styles.canvasDetails}>{content.site.mapping.unknownAnswer}</p>
                     )}
+                    <p className={styles.canvasPrintDetails}>
+                      {summarizeText(
+                        rows?.map((r) => r.capability.shortName).join('; ') ||
+                          content.site.mapping.unknownAnswer,
+                        65,
+                      )}
+                    </p>
                   </div>
                 );
               })}

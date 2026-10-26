@@ -1,6 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import JSZip from 'jszip';
 import {
   CONTENT_FILES,
   ChangelogEntrySchema,
@@ -12,6 +14,14 @@ import { buildReadout } from '../src/lib/readout/report.ts';
 import { emptyWorkspace, type DiagnosticWorkspace } from '../src/lib/state/diagnostic-model.ts';
 import { MAX_IMPORT_BYTES, parseDiagnosticBundle } from '../src/lib/state/diagnostic-transfer.ts';
 import { z } from 'zod';
+import { colors } from '../src/theme/tokens.ts';
+
+declare global {
+  interface Window {
+    pptxPreview: typeof import('pptx-preview');
+    slideRenderer: ReturnType<(typeof import('pptx-preview'))['init']>;
+  }
+}
 
 const compiled = (key: string): unknown =>
   JSON.parse(readFileSync(`src/generated/${key}.json`, 'utf8'));
@@ -27,8 +37,19 @@ const copy = content.site.readout;
 const diagnostic = content.site.diagnostic;
 const storageKey = 'cpcompass:diagnostic';
 
-async function seed(page: Page, incompatible = false) {
+async function seed(page: Page, incompatible = false, dense = false) {
   const input = patternAnswers(content, 'process-agent', 'askhr');
+  if (dense) {
+    input.useCase.businessOutcome = 'A long fictional business outcome for the local layout check. '
+      .repeat(34)
+      .slice(0, 2000);
+    for (const question of content.questions.filter((q) => q.type === 'multi')) {
+      const answers = question.scope === 'org' ? input.org : input.useCase;
+      answers[question.id] = question.options
+        .filter((o) => !['none', 'unknown'].includes(o.value))
+        .map((o) => o.value);
+    }
+  }
   const data = emptyWorkspace();
   const now = new Date().toISOString();
   const entity = { createdAt: now, updatedAt: now, contentVersion: 'old-content' };
@@ -44,6 +65,11 @@ async function seed(page: Page, incompatible = false) {
     answers: {
       ...input.useCase,
       useCaseName: 'Fictional saved readout',
+      successMeasures: 'Reduce handling time from ten minutes to five; review after the pilot.',
+      accountableOwner: 'Fictional operations team',
+      preparedBy: 'Fictional preparer',
+      preparedOn: '2026-10-26',
+      engagementName: 'Fictional planning review',
       ...(incompatible ? { retiredQuestion: 'old answer' } : {}),
     },
     mode: 'full' as const,
@@ -80,6 +106,10 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     for (const line of report.summary)
       await expect(page.getByText(line, { exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    for (const [key, title] of Object.entries(copy.exhibits))
+      await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(
+        ['frontier', 'anatomy', 'risks', 'decisions', 'licensing', 'roadmap'].includes(key) ? 1 : 0,
+      );
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await page.getByRole('button', { name: copy.copySummary }).click();
     await expect(page.getByRole('status')).toContainText(copy.copied);
@@ -88,6 +118,8 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     expect(clipboard).toContain(content.site.disclaimer);
     const before = await saved(page);
     await page.getByRole('button', { name: content.site.ui.depth.technical, exact: true }).click();
+    for (const title of Object.values(copy.exhibits))
+      await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(1);
     await page
       .getByLabel(content.site.mapping.whatIfs, { exact: true })
       .selectOption(content.whatIfs[0]!.id);
@@ -101,6 +133,10 @@ test.describe('Phase 5 readouts and portable assessments', () => {
       const pdf = await page.pdf({ format });
       expect(pdf.subarray(0, 4).toString()).toBe('%PDF');
       expect(pdf.length).toBeGreaterThan(10000);
+      writeFileSync(test.info().outputPath(`technical-readout-${format}.pdf`), pdf);
+      await test
+        .info()
+        .attach(`technical-readout-${format}.pdf`, { body: pdf, contentType: 'application/pdf' });
     }
     await expect(page.getByRole('navigation', { name: content.site.ui.mainNavLabel })).toBeHidden();
   });
@@ -180,6 +216,189 @@ test.describe('Phase 5 readouts and portable assessments', () => {
       content.site.disclaimer,
     ])
       expect(text).toContain(expected);
+  });
+
+  test('local logos normalize, persist, export and remove without accepting SVG or oversized images', async ({
+    page,
+  }, testInfo) => {
+    const { assessment } = await seed(page);
+    await page.goto(`diagnostic/${assessment.id}/readout`);
+    const before = await saved(page);
+    await page.getByLabel(copy.branding.alt, { exact: true }).fill('Fictional logo');
+    for (const [name, mimeType, buffer, message] of [
+      ['logo.svg', 'image/svg+xml', Buffer.from('<svg/>'), copy.branding.errors.format],
+      ['big.png', 'image/png', Buffer.alloc(2 * 1024 * 1024 + 1), copy.branding.errors.size],
+      ['broken.png', 'image/png', Buffer.from('not a PNG'), copy.branding.errors.format],
+    ] as const) {
+      await page
+        .getByLabel(copy.branding.choose, { exact: true })
+        .setInputFiles({ name, mimeType, buffer });
+      await expect(page.getByRole('alert')).toContainText(message);
+      expect(await saved(page)).toBe(before);
+    }
+    const jpeg = await page.evaluate(() => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 1024;
+      canvas.height = 512;
+      return canvas.toDataURL('image/jpeg').split(',')[1]!;
+    });
+    await page.getByLabel(copy.branding.choose, { exact: true }).setInputFiles({
+      name: 'fictional.jpg',
+      mimeType: 'image/jpeg',
+      buffer: Buffer.from(jpeg, 'base64'),
+    });
+    await expect(page.getByRole('img', { name: 'Fictional logo', exact: true })).toBeVisible();
+    const data: DiagnosticWorkspace = JSON.parse((await saved(page))!);
+    expect(data.assessments[0]!.logo).toMatchObject({
+      width: 512,
+      height: 256,
+      alt: 'Fictional logo',
+    });
+    expect(data.assessments[0]!.logo!.data).toMatch(/^data:image\/png;base64,/);
+    await page.reload();
+    await expect(page.getByRole('img', { name: 'Fictional logo', exact: true })).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    const downloading = page.waitForEvent('download');
+    await page.getByRole('button', { name: copy.json, exact: true }).click();
+    const path = testInfo.outputPath('branded-assessment.json');
+    await (await downloading).saveAs(path);
+    const parsed = parseDiagnosticBundle(readFileSync(path, 'utf8'));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) throw new Error('Invalid branded export');
+    expect(parsed.bundle.workspace.assessments[0]!.logo).toEqual(data.assessments[0]!.logo);
+    await page.goto('diagnostic');
+    await page.getByRole('button', { name: diagnostic.duplicate, exact: true }).click();
+    const duplicated: DiagnosticWorkspace = JSON.parse((await saved(page))!);
+    const duplicate = duplicated.assessments.find((item) => item.id !== assessment.id);
+    if (!duplicate) throw new Error('Missing duplicated assessment');
+    expect(duplicate.logo).toEqual(data.assessments[0]!.logo);
+    await page.goto(`diagnostic/${duplicate.id}/readout`);
+    await page.getByLabel(copy.branding.alt, { exact: true }).fill('Duplicated logo');
+    const edited: DiagnosticWorkspace = JSON.parse((await saved(page))!);
+    expect(edited.assessments.find((item) => item.id === assessment.id)!.logo!.alt).toBe(
+      'Fictional logo',
+    );
+    await page.goto(`canvas/${assessment.id}`);
+    await expect(page.getByRole('img', { name: 'Fictional logo', exact: true })).toBeVisible();
+    await expect(page.getByText('Fictional operations team', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText(String(data.assessments[0]!.answers.successMeasures), { exact: true }),
+    ).toBeVisible();
+    await page.goto(`diagnostic/${assessment.id}/readout`);
+    await page.getByRole('button', { name: copy.branding.remove, exact: true }).click();
+    await expect(page.getByRole('img', { name: 'Fictional logo', exact: true })).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByRole('button', { name: copy.branding.remove, exact: true })).toHaveCount(
+      0,
+    );
+  });
+
+  test('PowerPoint downloads contain six readout slides or one populated/blank canvas slide, with local previews', async ({
+    page,
+    context,
+  }, testInfo) => {
+    test.setTimeout(90000);
+    const { assessment } = await seed(page, false, true);
+    const errors: string[] = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.goto(`diagnostic/${assessment.id}/readout`);
+    await page.getByLabel(copy.branding.alt, { exact: true }).fill('Fictional layout-check logo');
+    const image = await page.evaluate((colors) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 160;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('Missing canvas context');
+      context.fillStyle = colors.ink;
+      context.fillRect(0, 0, 400, 160);
+      context.fillStyle = colors.white;
+      context.font = '42px Segoe UI';
+      context.fillText('FICTIONAL', 40, 95);
+      return canvas.toDataURL('image/png').split(',')[1]!;
+    }, colors);
+    await page.getByLabel(copy.branding.choose, { exact: true }).setInputFiles({
+      name: 'fictional.png',
+      mimeType: 'image/png',
+      buffer: Buffer.from(image, 'base64'),
+    });
+    await expect(
+      page.getByRole('img', { name: 'Fictional layout-check logo', exact: true }),
+    ).toBeVisible();
+    for (const [route, count, name] of [
+      [`diagnostic/${assessment.id}/readout`, 6, 'readout'],
+      [`canvas/${assessment.id}`, 1, 'canvas'],
+      ['canvas/blank', 1, 'blank-canvas'],
+    ] as const) {
+      await page.goto(route);
+      const downloading = page.waitForEvent('download');
+      await page.getByRole('button', { name: copy.powerpoint, exact: true }).click();
+      const download = await downloading;
+      expect(download.suggestedFilename()).toMatch(/\.pptx$/);
+      const path = testInfo.outputPath(`${name}.pptx`);
+      await download.saveAs(path);
+      const bytes = readFileSync(path);
+      const zip = await JSZip.loadAsync(bytes);
+      expect(
+        Object.keys(zip.files).filter((file) => /^ppt\/slides\/slide\d+\.xml$/.test(file)),
+      ).toHaveLength(count);
+      expect(
+        Object.keys(zip.files).filter((file) =>
+          /^ppt\/notesSlides\/notesSlide\d+\.xml$/.test(file),
+        ),
+      ).toHaveLength(count);
+      await expect(page.getByRole('button', { name: copy.powerpoint, exact: true })).toBeEnabled();
+      if (name !== 'readout') {
+        await page.emulateMedia({ media: 'print' });
+        for (const format of ['A4', 'Letter'] as const) {
+          const pdf = await page.pdf({ format, landscape: true });
+          writeFileSync(testInfo.outputPath(`${name}-${format}.pdf`), pdf);
+          await testInfo.attach(`${name}-${format}.pdf`, {
+            body: pdf,
+            contentType: 'application/pdf',
+          });
+          expect([...pdf.toString('latin1').matchAll(/\/Type\s*\/Page\b/g)]).toHaveLength(1);
+        }
+        await page.emulateMedia({ media: 'screen' });
+      }
+      const preview = await context.newPage();
+      try {
+        await preview.setViewportSize({ width: 1100, height: 750 });
+        await preview.setContent(
+          '<style>.pptx-preview-wrapper > [class^="pptx-preview-wrapper-"] { visibility: hidden; }</style><main id="slide-preview" style="width:960px;height:540px"></main>',
+        );
+        await preview.addScriptTag({
+          path: resolve('node_modules/pptx-preview/dist/pptx-preview.umd.js'),
+        });
+        await preview.evaluate(
+          async ({ base64, count }) => {
+            const node = document.getElementById('slide-preview');
+            if (!node) throw new Error('Missing preview container');
+            const renderer = window.pptxPreview.init(node, {
+              width: 960,
+              height: 540,
+              mode: 'slide',
+            });
+            window.slideRenderer = renderer;
+            const buffer = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0)).buffer;
+            await renderer.preview(buffer);
+            if (renderer.slideCount !== count)
+              throw new Error(
+                `Unexpected rendered slide count: ${renderer.slideCount}, expected ${count}; themes=${renderer.pptx.themes.length}, layouts=${renderer.pptx.slideLayouts.length}, masters=${renderer.pptx.slideMaster.length}`,
+              );
+          },
+          { base64: bytes.toString('base64'), count },
+        );
+        for (let i = 0; i < count; i++) {
+          await preview.evaluate((index) => window.slideRenderer.renderSingleSlide(index), i);
+          await preview
+            .locator('#slide-preview')
+            .screenshot({ path: testInfo.outputPath(`${name}-slide-${i + 1}.png`) });
+        }
+      } finally {
+        await preview.close();
+      }
+    }
+    expect(errors).toEqual([]);
   });
 
   test('filled and blank canvases are accessible, fit mobile and print one blank page on both paper sizes', async ({

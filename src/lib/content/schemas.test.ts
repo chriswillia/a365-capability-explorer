@@ -33,11 +33,23 @@ const capability = (overrides: Record<string, unknown> = {}) => ({
 describe('explorer and brief copy schemas', () => {
   it('requires complete readout copy, three takeaways and known canvas question ids', () => {
     expect(ReadoutCopySchema.safeParse(content.site.readout).success).toBe(true);
+    expect(ReadoutCopySchema.safeParse({ ...content.site.readout, exhibits: {} }).success).toBe(
+      false,
+    );
+    expect(ReadoutCopySchema.safeParse({ ...content.site.readout, branding: {} }).success).toBe(
+      false,
+    );
     expect(ReadoutCopySchema.safeParse({ ...content.site.readout, importErrors: {} }).success).toBe(
       false,
     );
     expect(
       ReadoutCopySchema.safeParse({ ...content.site.readout, takeaways: ['Only one'] }).success,
+    ).toBe(false);
+    expect(
+      ReadoutCopySchema.safeParse({
+        ...content.site.readout,
+        canvasBoxes: content.site.readout.canvasBoxes.slice(0, 9),
+      }).success,
     ).toBe(false);
     for (const box of content.site.readout.canvasBoxes)
       for (const id of box.questionIds)

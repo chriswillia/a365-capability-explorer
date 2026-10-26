@@ -71,6 +71,7 @@ export function computeReadoutMetrics(result: AssessmentResult) {
     agent: result.agentDecisions.length,
     unresolved: result.readiness.checks.filter((check) => check.status !== 'ready').length,
     unanswered: result.openQuestions.length,
+    readinessPercent: result.readiness.percent,
   };
 }
 

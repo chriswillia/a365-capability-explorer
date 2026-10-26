@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { content } from '../content/index.ts';
 import { evaluateWhatIfs, patternAnswers } from '../engine/evaluate.ts';
 import type { Assessment, Organization } from '../state/diagnostic-model.ts';
-import { answerLabel, buildReadout, readoutMarkdown } from './report.ts';
+import {
+  answerLabel,
+  buildReadout,
+  canvasFields,
+  readoutMarkdown,
+  summarizeText,
+} from './report.ts';
+import { renderTemplate } from '../content/template.ts';
 
 function entities() {
   const input = patternAnswers(content, 'process-agent', 'askhr');
@@ -30,6 +37,24 @@ function entities() {
 }
 
 describe('saved assessment readouts', () => {
+  it('preserves full canvas text and marks bounded Unicode-safe print summaries', () => {
+    const { organization, assessment } = entities();
+    assessment.answers.businessOutcome = 'A detailed outcome. '.repeat(100);
+    assessment.answers.successMeasures = 'Baseline, target and review date';
+    assessment.answers.accountableOwner = 'Fictional team';
+    const report = buildReadout(content, organization, assessment, 'current');
+    const boxes = canvasFields(content, report);
+    expect(boxes).toHaveLength(10);
+    expect(boxes.find((box) => box.id === 'outcome')!.body).toContain(
+      String(assessment.answers.businessOutcome),
+    );
+    expect(boxes.find((box) => box.id === 'success')!.body).toContain('Baseline, target');
+    expect(boxes.find((box) => box.id === 'ownership')!.body).toContain('Fictional team');
+    expect(summarizeText('abcdef', 4)).toBe('abc…');
+    expect(summarizeText('a😀bc', 3)).toBe('a😀…');
+    expect(summarizeText('  first\nsecond  ', 100)).toBe('first second');
+    expect(() => summarizeText('text', 0)).toThrow(RangeError);
+  });
   it('recomputes with current content, counts actual results and never certifies unknown licensing', () => {
     const { organization, assessment } = entities();
     const before = structuredClone({ organization, assessment });
@@ -44,6 +69,7 @@ describe('saved assessment readouts', () => {
       report.result.inScope.filter((r) => r.capability.setup !== 'agent').length,
     );
     expect(report.result.licensing.eligibility).toBe('unknown');
+    expect(report.metrics.readinessPercent).toBe(report.result.readiness.percent);
     expect({ organization, assessment }).toEqual(before);
   });
   it('preserves unknown answers and exports evidence, version, roadmap and the disclaimer', () => {
@@ -71,6 +97,27 @@ describe('saved assessment readouts', () => {
     expect(markdown).not.toContain('<img');
     expect(markdown).not.toContain('![x](');
     expect(markdown).toContain('&lt;img');
+  });
+  it('exports all eleven numbered exhibits exactly once, with appendix and discovery', () => {
+    const { organization, assessment } = entities();
+    const report = buildReadout(content, organization, assessment, 'current');
+    const markdown = readoutMarkdown(content, report);
+    const titles = Object.values(content.site.readout.exhibits);
+    for (let i = 0; i < titles.length; i++) {
+      const heading = renderTemplate(content.site.ui.exhibit.eyebrow, {
+        number: i + 1,
+        label: titles[i]!,
+      });
+      expect(markdown.split(heading)).toHaveLength(2);
+    }
+    for (const required of [
+      content.site.readout.appendix,
+      content.site.readout.eligibility,
+      content.site.readout.methodologyNote,
+      content.site.readout.discovery,
+      ...report.result.unknownRuleIds,
+    ])
+      expect(markdown).toContain(required);
   });
   it('compares what-if deltas without changing saved answers', () => {
     const { organization, assessment } = entities();

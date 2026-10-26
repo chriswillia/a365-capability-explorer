@@ -512,6 +512,7 @@ const Template = Text; // may contain {placeholders}; validate.ts checks them ag
 const RouteCopy = z.strictObject({ title: Text, description: Text });
 
 export const ReadoutCopySchema = z.strictObject({
+  tableLabel: Template,
   open: Text,
   title: Template,
   draft: Text,
@@ -532,6 +533,39 @@ export const ReadoutCopySchema = z.strictObject({
   details: Text,
   edit: Text,
   print: Text,
+  powerpoint: Text,
+  exporting: Text,
+  presentationNote: Text,
+  notesDetail: Text,
+  appendix: Text,
+  discovery: Text,
+  eligibility: Text,
+  verifyNext: Text,
+  riskControls: Text,
+  foundations: Text,
+  anatomyNote: Text,
+  methodologyNote: Text,
+  exhibits: z.strictObject({
+    frontier: Text,
+    anatomy: Text,
+    risks: Text,
+    capabilities: Text,
+    decisions: Text,
+    readiness: Text,
+    operatingModel: Text,
+    integration: Text,
+    licensing: Text,
+    roadmap: Text,
+    whatIfs: Text,
+  }),
+  branding: z.strictObject({
+    title: Text,
+    choose: Text,
+    alt: Text,
+    remove: Text,
+    note: Text,
+    errors: z.strictObject({ size: Text, format: Text, dimensions: Text, read: Text }),
+  }),
   markdown: Text,
   json: Text,
   copySummary: Text,
@@ -551,6 +585,7 @@ export const ReadoutCopySchema = z.strictObject({
   canvas: Text,
   blankCanvas: Text,
   canvasNote: Text,
+  canvasPrintNote: Text,
   answers: Text,
   sources: Text,
   canvasBoxes: z
@@ -564,7 +599,7 @@ export const ReadoutCopySchema = z.strictObject({
         prompt: Text,
       }),
     )
-    .min(1),
+    .length(10),
 });
 
 export const SiteSchema = z.strictObject({

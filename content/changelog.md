@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-26 · Readout exhibits, PowerPoint and local co-branding
+
+affects: [all]
+
+Added eleven numbered readout exhibits with Executive/Technical depth, configured-check readiness percentages, scope-aware anatomy, grouped platform and agent decisions, complete technical evidence and a discovery appendix. Added six-slide editable readout PowerPoint exports and one-slide populated or blank canvases, with complete speaker notes and explicit summary notices. Optional local raster logos are normalized and preserved through saved assessments and copy-only JSON transfer. Added workshop success-measure and accountable-owner inputs, explicit one-page canvas print summaries with complete answers retained in the readout/Markdown, and running readout print footers. Product statements, recommendation semantics, licensing assumptions and source availability flags are unchanged. Editorial guidance remains draft pending SME review.
+
 ## 2026-10-26 · Saved readouts and portable assessments
 
 affects: [all]
