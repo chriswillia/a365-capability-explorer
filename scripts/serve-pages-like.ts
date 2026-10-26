@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
  * - the site is served under its base path ("/" or "/<repo>/");
  * - a path with no file answers with 404.html and HTTP status 404;
  * - a directory without a trailing slash redirects to the slash form.
- * Usage: tsx scripts/serve-pages-like.ts --dir dist-repo --base /control-plane-compass/ --port 4174
+ * Usage: tsx scripts/serve-pages-like.ts --dir dist-repo --base /a365-capability-explorer/ --port 4174
  */
 const { values } = parseArgs({
   options: {

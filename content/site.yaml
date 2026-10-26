@@ -8,7 +8,7 @@ description: "Map any agent use case to Microsoft Agent 365. See what it offers 
 
 # While false, every page carries a noindex tag. Set to true at launch (Phase 7).
 indexable: false
-repoUrl: "https://github.com/chriswillia/control-plane-compass"
+repoUrl: "https://github.com/chriswillia/a365-capability-explorer"
 # TODO(verify): add a contact address to turn on the mailto fallback for "Suggest a correction".
 feedbackEmail:
 

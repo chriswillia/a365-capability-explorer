@@ -252,7 +252,7 @@ test.describe('capabilities page', () => {
       page.getByRole('link', { name: site.capabilities.brief.correction, exact: true }),
     ).toHaveAttribute(
       'href',
-      /github\.com\/chriswillia\/control-plane-compass\/issues\/new\?title=/,
+      /github\.com\/chriswillia\/a365-capability-explorer\/issues\/new\?title=/,
     );
   });
 

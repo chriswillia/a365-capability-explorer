@@ -93,7 +93,7 @@ The legacy prefix is retained after the rename so existing preferences and asses
 
 The [build brief](A365-Navigator-Build-Brief.md) is kept as written. Where the build differs:
 
-1. **Renamed** from "Agent 365 Navigator" through "Control Plane Compass" to **A365 Capability Explorer**. Read the old names in the brief as the current name. The repository URL, Pages base path and storage prefix are unchanged for compatibility.
+1. **Renamed** from "Agent 365 Navigator" through "Control Plane Compass" to **A365 Capability Explorer**. Read the old names in the brief as the current name. The repository and Pages base path now use `a365-capability-explorer`; the storage prefix is unchanged to preserve locally saved assessments and preferences.
 2. **Hosting:** a public project site from a personal account. The brief's private pilot was not used: a private Pages site needs GitHub Enterprise Cloud. The site carries `noindex` until launch.
 3. **Toolchain pins:** TypeScript 6.0 (typescript-eslint supports up to 6.0.x) and ESLint 9.39 (`eslint-plugin-jsx-a11y` does not support ESLint 10). Revisit when those plugins catch up. Dependabot is told to skip those updates, and major updates of `@types/node`, which follows the Node version in `.nvmrc`.
 4. **`js-yaml` is a dev dependency.** It runs at build time only, so the browser receives compiled JSON.

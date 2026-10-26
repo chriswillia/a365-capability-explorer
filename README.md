@@ -2,7 +2,7 @@
 
 **Map any agent use case to Microsoft Agent 365.**
 
-Live site: <https://chriswillia.github.io/control-plane-compass/>
+Live site: <https://chriswillia.github.io/a365-capability-explorer/>
 
 > Independent project, not an official Microsoft site. Microsoft product names are trademarks of the Microsoft group of companies.
 
@@ -12,7 +12,7 @@ A365 Capability Explorer helps people who design, build and govern AI agents ans
 
 Preview. Includes the Phase 2 explorer, briefs, persona paths and Learn hub; Phase 3's rule engine, patterns, generated Pattern × Capability matrix, risk lens and methodology; and Phase 4's personalized diagnostic, reusable organization profiles and locally saved assessments. All editorial content and golden scenarios remain pending SME review; unverified licensing answers are explicitly withheld. Formal readouts and exports follow in Phase 5. The site asks search engines not to index it until launch. Changes appear on the live site only after a successful deployment from `main`.
 
-Previously named Control Plane Compass. The repository and GitHub Pages path remain `control-plane-compass`; existing links and browser-storage keys are retained.
+Previously named Control Plane Compass. The repository and GitHub Pages path now use `a365-capability-explorer`. Update bookmarks to the live URL above; browser-storage keys are unchanged.
 
 ## How to use
 
