@@ -83,3 +83,27 @@ table {
     scroll-behavior: auto !important;
   }
 }
+
+@media screen {
+  body[data-presentation-mode] header[data-no-print],
+  body[data-presentation-mode] footer,
+  body[data-presentation-mode] [data-presentation-hide] {
+    display: none;
+  }
+
+  body[data-presentation-mode] [data-presentation-document] {
+    font-size: var(--text-20);
+  }
+
+  body[data-presentation-mode] [data-presentation-document] h1 {
+    font-size: var(--text-56);
+  }
+
+  body[data-presentation-mode] [data-presentation-document] h2 {
+    font-size: var(--text-32);
+  }
+
+  body[data-presentation-mode] [data-presentation-document] h3 {
+    font-size: var(--text-24);
+  }
+}

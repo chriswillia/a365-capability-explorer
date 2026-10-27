@@ -1,0 +1,127 @@
+.page {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.page section {
+  min-width: 0;
+}
+
+.page p,
+.page ul,
+.page dl {
+  margin-block: var(--space-3);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.page button,
+.page select {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  font: inherit;
+}
+
+.selection {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-control-border);
+}
+
+.chart {
+  display: block;
+  max-width: 100%;
+  width: 48rem;
+  height: auto;
+  overflow: visible;
+}
+
+.chart text {
+  fill: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: var(--text-14);
+}
+
+.plot {
+  fill: var(--color-white);
+  stroke: var(--color-control-border);
+}
+
+.divider {
+  fill: none;
+  stroke: var(--color-control-border);
+  stroke-dasharray: 4 4;
+}
+
+.bubble,
+.unknownBubble {
+  fill: var(--color-ink);
+  stroke: var(--color-white);
+  stroke-width: 2;
+}
+
+.unknownBubble {
+  stroke: var(--color-ink);
+  fill: var(--color-white);
+  stroke-dasharray: 3 2;
+}
+
+.chart .bubbleLabel {
+  fill: var(--color-white);
+  font-weight: 700;
+}
+
+.chart .unknownBubble + .bubbleLabel {
+  fill: var(--color-ink);
+}
+
+.level {
+  display: inline-block;
+  padding: var(--space-1);
+  border: 1px solid var(--color-control-border);
+}
+
+.essential {
+  color: var(--color-white);
+  background: var(--color-ink);
+}
+
+.recommended {
+  color: var(--color-white);
+  background: var(--color-blue);
+}
+
+.consider {
+  color: var(--color-slate);
+  background: var(--color-white);
+}
+
+@media print {
+  .page [role='region'] {
+    overflow: visible;
+  }
+
+  .page table {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+    overflow-wrap: anywhere;
+  }
+
+  .page section,
+  .page table {
+    break-inside: auto;
+  }
+
+  .chart {
+    max-height: 100mm;
+  }
+}

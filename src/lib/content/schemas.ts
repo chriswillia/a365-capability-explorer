@@ -511,6 +511,89 @@ export const LearnSchema = z.strictObject({
 const Template = Text; // may contain {placeholders}; validate.ts checks them against TEMPLATE_KEYS
 const RouteCopy = z.strictObject({ title: Text, description: Text });
 
+export const PortfolioCopySchema = z.strictObject({
+  organization: Text,
+  select: Text,
+  selectAll: Text,
+  clear: Text,
+  empty: Text,
+  selectionEmpty: Text,
+  note: Text,
+  current: Text,
+  incompatible: Text,
+  excluded: Text,
+  selected: Text,
+  evaluated: Text,
+  foundationsCount: Text,
+  gapsCount: Text,
+  chart: Text,
+  chartDescription: Text,
+  chartNote: Text,
+  bubbleNote: Text,
+  unplotted: Text,
+  quadrant: Text,
+  quadrants: z.strictObject({
+    accelerate: Text,
+    govern: Text,
+    experiment: Text,
+    reconsider: Text,
+  }),
+  valueCutoff: z.int().min(2).max(5),
+  intensityCutoff: z.int().min(1).max(99),
+  table: Text,
+  matrix: Text,
+  matrixNote: Text,
+  foundations: Text,
+  foundationsNote: Text,
+  benefits: Template,
+  agentFollowup: Text,
+  readiness: Text,
+  readinessNote: Text,
+  affected: Text,
+  licensing: Text,
+  licensingNote: Text,
+  uniqueCapabilities: Text,
+  export: Text,
+  index: Text,
+});
+
+export const WorkshopSchema = z.strictObject({
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  title: Text,
+  introduction: Text,
+  preparationTitle: Text,
+  preparation: uniqueList(Text),
+  agendaTitle: Text,
+  duration: Template,
+  minutes: Template,
+  agenda: z
+    .array(
+      z.strictObject({
+        id: Id,
+        title: Text,
+        minutes: z.int().positive(),
+        instructions: uniqueList(Text),
+        output: Text,
+      }),
+    )
+    .min(1),
+  outputLabel: Text,
+  followupTitle: Text,
+  followup: uniqueList(Text),
+  patternsTitle: Text,
+  capabilitiesTitle: Text,
+  cardNote: Text,
+  front: Text,
+  back: Text,
+  scope: Text,
+  noRules: Text,
+  printGuide: Text,
+  printPatterns: Text,
+  printCapabilities: Text,
+  printError: Text,
+  guide: Text,
+});
+
 export const ReadoutCopySchema = z.strictObject({
   tableLabel: Template,
   open: Text,
@@ -571,6 +654,7 @@ export const ReadoutCopySchema = z.strictObject({
   copySummary: Text,
   copied: Text,
   exportError: Text,
+  exportTooLarge: Text,
   sharingNote: Text,
   backup: Text,
   import: Text,
@@ -874,6 +958,8 @@ export const SiteSchema = z.strictObject({
     renameTitle: Text,
   }),
   readout: ReadoutCopySchema,
+  portfolio: PortfolioCopySchema,
+  presentation: z.strictObject({ enter: Text, exit: Text, note: Text }),
   mapping: z.strictObject({
     intro: Text,
     neutralNote: Text,
@@ -1005,6 +1091,7 @@ export const CONTENT_FILES = {
   frontierMappings: { file: 'frontier-phases.yaml', schema: z.array(FrontierMappingSchema).min(1) },
   whatIfs: { file: 'what-ifs.yaml', schema: z.array(WhatIfSchema).min(1) },
   mappingConfig: { file: 'mapping.yaml', schema: MappingConfigSchema },
+  workshop: { file: 'workshop.yaml', schema: WorkshopSchema },
   site: { file: 'site.yaml', schema: SiteSchema },
 } as const;
 
@@ -1034,6 +1121,7 @@ export type IntegrationPath = z.infer<typeof IntegrationPathSchema>;
 export type FrontierMapping = z.infer<typeof FrontierMappingSchema>;
 export type WhatIf = z.infer<typeof WhatIfSchema>;
 export type MappingConfig = z.infer<typeof MappingConfigSchema>;
+export type Workshop = z.infer<typeof WorkshopSchema>;
 
 export interface Content {
   sources: Source[];
@@ -1059,6 +1147,7 @@ export interface Content {
   frontierMappings: FrontierMapping[];
   whatIfs: WhatIf[];
   mappingConfig: MappingConfig;
+  workshop: Workshop;
   site: Site;
   changelog: ChangelogEntry[];
 }

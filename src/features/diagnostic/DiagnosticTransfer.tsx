@@ -13,11 +13,11 @@ import {
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import styles from './Diagnostic.module.css';
 
-export function DiagnosticTransfer() {
+export function DiagnosticTransfer({ assessmentIds }: { assessmentIds?: readonly string[] }) {
   const store = useDiagnostics();
   const copy = content.site.readout;
   const [pending, setPending] = useState<DiagnosticBundle | null>(null);
-  const [error, setError] = useState<ImportFailure | 'export' | null>(null);
+  const [error, setError] = useState<ImportFailure | 'export' | 'export-size' | null>(null);
   const [reading, setReading] = useState(false);
   const [imported, setImported] = useState(false);
 
@@ -50,12 +50,22 @@ export function DiagnosticTransfer() {
       <div className={styles.controls}>
         <button
           type="button"
+          disabled={assessmentIds !== undefined && assessmentIds.length === 0}
           onClick={() => {
             setError(null);
             try {
+              const raw = JSON.stringify(
+                diagnosticBundle(store.data, contentMeta.contentVersion, assessmentIds),
+                null,
+                2,
+              );
+              if (new TextEncoder().encode(raw).byteLength > MAX_IMPORT_BYTES) {
+                setError('export-size');
+                return;
+              }
               downloadText(
-                'a365-workspace.json',
-                JSON.stringify(diagnosticBundle(store.data, contentMeta.contentVersion), null, 2),
+                assessmentIds === undefined ? 'a365-workspace.json' : 'a365-portfolio.json',
+                raw,
                 'application/json',
               );
             } catch (error) {
@@ -64,7 +74,7 @@ export function DiagnosticTransfer() {
             }
           }}
         >
-          {copy.backup}
+          {assessmentIds === undefined ? copy.backup : content.site.portfolio.export}
         </button>
         <div>
           <label htmlFor="diagnostic-import">{copy.import}</label>
@@ -83,7 +93,13 @@ export function DiagnosticTransfer() {
         </div>
       </div>
       {error && (
-        <p role="alert">{error === 'export' ? copy.exportError : copy.importErrors[error]}</p>
+        <p role="alert">
+          {error === 'export'
+            ? copy.exportError
+            : error === 'export-size'
+              ? copy.exportTooLarge
+              : copy.importErrors[error]}
+        </p>
       )}
       {pending && (
         <div className={styles.card}>

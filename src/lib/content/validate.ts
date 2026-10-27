@@ -200,21 +200,28 @@ export function validateContent(
     'site.yaml readout.canvasBoxes id',
     content.site.readout.canvasBoxes.map((b) => b.id),
   );
+  duplicates(
+    'workshop.yaml agenda id',
+    content.workshop.agenda.map((item) => item.id),
+  );
   for (const box of content.site.readout.canvasBoxes)
     for (const id of box.questionIds)
       if (!content.questions.some((q) => q.id === id))
         errors.push(`site.yaml readout.canvasBoxes › ${box.id}: unknown question "${id}"`);
 
   // Template placeholders must be values the app computes; stray braces are typos.
-  for (const [path, text] of stringLeaves(content.site, '')) {
+  for (const [path, text] of [
+    ...stringLeaves(content.site, 'site.yaml'),
+    ...stringLeaves(content.workshop, 'workshop.yaml'),
+  ]) {
     for (const match of text.matchAll(PLACEHOLDER)) {
       const key = match[1] as string;
       if (!TEMPLATE_KEYS.includes(key)) {
-        errors.push(`site.yaml › ${path}: unknown placeholder {${key}}`);
+        errors.push(`${path}: unknown placeholder {${key}}`);
       }
     }
     if (/[{}]/.test(text.replace(PLACEHOLDER, ''))) {
-      errors.push(`site.yaml › ${path}: unbalanced or malformed { } in "${text}"`);
+      errors.push(`${path}: unbalanced or malformed { } in "${text}"`);
     }
   }
   duplicates(

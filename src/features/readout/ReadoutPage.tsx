@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { KpiStrip } from '../../components/KpiStrip.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PresentationControls } from '../../components/PresentationControls.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { formatNumber } from '../../lib/content/template.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
@@ -70,7 +71,8 @@ function Readout({
   };
   return (
     <PageContainer>
-      <div className={styles.actions} data-no-print>
+      <PresentationControls />
+      <div className={styles.actions} data-no-print data-presentation-hide>
         <Link to={`/diagnostic/${assessment.id}`}>{copy.edit}</Link>
         <Link to={`/canvas/${assessment.id}`}>{copy.canvas}</Link>
         <button type="button" onClick={() => void perform(() => window.print())}>
@@ -153,7 +155,9 @@ function Readout({
       </div>
       <p data-no-print>{copy.sharingNote}</p>
       <p data-no-print>{copy.presentationNote}</p>
-      <BrandingEditor assessment={assessment} />
+      <div data-presentation-hide>
+        <BrandingEditor assessment={assessment} />
+      </div>
       {message && (
         <p role={message === 'error' ? 'alert' : 'status'}>
           {message === 'error' ? copy.exportError : copy.copied}
@@ -164,7 +168,7 @@ function Readout({
           content: ${JSON.stringify(`${copy.draft} · ${result.contentVersion}`)} "\\A" ${JSON.stringify(content.site.disclaimer)};
         }
       }`}</style>
-      <article className={styles.document} data-print-document>
+      <article className={styles.document} data-print-document data-presentation-document>
         <header className={styles.cover}>
           {report.logo && (
             <img

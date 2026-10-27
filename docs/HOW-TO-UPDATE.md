@@ -41,6 +41,12 @@ You do not need to be a developer. Capabilities, sources and all interface copy 
 - **Every claim needs a source** that exists in `sources.yaml`.
 - Use "Essential", "Recommended" and "Consider" for recommendation levels. Never "Required".
 
+## Portfolio and workshop content
+
+`site.yaml` holds portfolio labels, quadrant labels and draft planning cutoffs (`valueCutoff` and `intensityCutoff`). These are discussion aids, not Microsoft recommendations, a financial valuation or a risk score. Keep the chart disclosure synchronized with the configured values; numeric values are inserted through templates. Relative value uses the existing `businessValue` scale. Expected-user options remain bands, not precise headcounts or license quantities.
+
+`workshop.yaml` holds the editorial facilitator guide. Minutes are positive integers and agenda ids are unique; the duration headline is computed from the agenda. Keep `reviewStatus: draft` until reviewed. Printable cards derive summaries and scope conditions from capabilities, patterns and rules. Do not copy their mappings into workshop content. Recheck paired-card printing on A4 and Letter after lengthening summaries or rule conditions.
+
 ## Add a capability
 
 1. Copy an existing entry in `capabilities.yaml`. Give it a new kebab-case `id` that never changes once published.

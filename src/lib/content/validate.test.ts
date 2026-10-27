@@ -7,6 +7,14 @@ const clone = (): Content => structuredClone(content);
 const NOW = new Date('2026-10-25T00:00:00Z');
 
 describe('validateContent', () => {
+  it('validates workshop agenda ids and template placeholders', () => {
+    const data = clone();
+    data.workshop.agenda.push(structuredClone(data.workshop.agenda[0]!));
+    data.workshop.duration = '{missingWorkshopMetric} minutes';
+    const errors = validateContent(data, { now: NOW }).errors.join('\n');
+    expect(errors).toContain('workshop.yaml agenda id: duplicate');
+    expect(errors).toContain('unknown placeholder {missingWorkshopMetric}');
+  });
   it('validates canvas ids and question references', () => {
     const data = clone();
     data.site.readout.canvasBoxes[0]!.questionIds = ['missing-question'];

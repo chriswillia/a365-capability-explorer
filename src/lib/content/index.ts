@@ -24,6 +24,7 @@ import integrationPaths from '../../generated/integrationPaths.json';
 import frontierMappings from '../../generated/frontierMappings.json';
 import whatIfs from '../../generated/whatIfs.json';
 import mappingConfig from '../../generated/mappingConfig.json';
+import workshop from '../../generated/workshop.json';
 import { computeMetrics, templateValues } from './metrics.ts';
 import type { ConsoleId, Content, ContentMeta, ControlPointId, PillarId } from './schemas.ts';
 
@@ -57,6 +58,7 @@ export const content = {
   frontierMappings,
   whatIfs,
   mappingConfig,
+  workshop,
 } as unknown as Content;
 
 export const contentMeta = meta as ContentMeta;

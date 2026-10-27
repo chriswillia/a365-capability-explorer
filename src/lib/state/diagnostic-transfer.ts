@@ -31,14 +31,18 @@ export function parseDiagnosticBundle(raw: string): ImportResult {
 export function diagnosticBundle(
   workspace: DiagnosticWorkspace,
   contentVersion: string,
-  assessmentId?: string,
+  assessmentId?: string | readonly string[],
 ): DiagnosticBundle {
   const data = structuredClone(workspace);
   if (assessmentId !== undefined) {
-    const assessment = data.assessments.find((a) => a.id === assessmentId);
-    if (!assessment) throw new Error('Cannot export an assessment that does not exist');
-    data.assessments = [assessment];
-    data.organizations = data.organizations.filter((o) => o.id === assessment.organizationId);
+    const ids = typeof assessmentId === 'string' ? [assessmentId] : assessmentId;
+    const selected = new Set(ids);
+    data.assessments = data.assessments.filter((a) => selected.has(a.id));
+    if (selected.size !== ids.length) throw new Error('Cannot export duplicate assessments');
+    if (data.assessments.length !== ids.length)
+      throw new Error('Cannot export an assessment that does not exist');
+    const organizations = new Set(data.assessments.map((a) => a.organizationId));
+    data.organizations = data.organizations.filter((o) => organizations.has(o.id));
   }
   return DiagnosticBundleSchema.parse({
     format: 'a365-capability-explorer',

@@ -3,6 +3,8 @@ import {
   CapabilitySchema,
   ConditionSchema,
   ReadoutCopySchema,
+  PortfolioCopySchema,
+  WorkshopSchema,
   SiteSchema,
   SourceSchema,
   countWords,
@@ -31,6 +33,29 @@ const capability = (overrides: Record<string, unknown> = {}) => ({
 });
 
 describe('explorer and brief copy schemas', () => {
+  it('requires complete portfolio copy and meaningful planning thresholds', () => {
+    expect(PortfolioCopySchema.safeParse(content.site.portfolio).success).toBe(true);
+    for (const change of [
+      { quadrants: {} },
+      { valueCutoff: 0 },
+      { intensityCutoff: 100 },
+      { matrix: '' },
+    ])
+      expect(PortfolioCopySchema.safeParse({ ...content.site.portfolio, ...change }).success).toBe(
+        false,
+      );
+  });
+  it('requires a timed workshop agenda with instructions and explicit outputs', () => {
+    expect(WorkshopSchema.safeParse(content.workshop).success).toBe(true);
+    for (const change of [{ agenda: [] }, { reviewStatus: 'approved' }, { preparation: [] }])
+      expect(WorkshopSchema.safeParse({ ...content.workshop, ...change }).success).toBe(false);
+    expect(
+      WorkshopSchema.safeParse({
+        ...content.workshop,
+        agenda: [{ ...content.workshop.agenda[0], minutes: 0 }],
+      }).success,
+    ).toBe(false);
+  });
   it('requires complete readout copy, three takeaways and known canvas question ids', () => {
     expect(ReadoutCopySchema.safeParse(content.site.readout).success).toBe(true);
     expect(ReadoutCopySchema.safeParse({ ...content.site.readout, exhibits: {} }).success).toBe(

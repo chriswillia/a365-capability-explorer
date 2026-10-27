@@ -1,0 +1,141 @@
+.page {
+  display: grid;
+  gap: var(--space-6);
+  overflow-wrap: anywhere;
+}
+
+.page section {
+  min-width: 0;
+  scroll-margin-top: var(--space-4);
+}
+
+.page p,
+.page ul,
+.page dl,
+.page h3,
+.page h4 {
+  margin-block: var(--space-3);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.page button {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  font: inherit;
+}
+
+.agenda {
+  display: grid;
+  gap: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.cards {
+  display: grid;
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}
+
+.card {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border: 1px solid var(--color-control-border);
+  background: var(--color-white);
+}
+
+.card > div {
+  min-width: 0;
+  padding: var(--space-4);
+}
+
+.card > div + div {
+  border-left: 1px dashed var(--color-control-border);
+}
+
+.stamp {
+  color: var(--color-slate);
+  font-size: var(--text-12);
+}
+
+@media (max-width: 40rem) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .card > div + div {
+    border-left: none;
+    border-top: 1px dashed var(--color-control-border);
+  }
+}
+
+@page workshop {
+  margin: 12mm;
+}
+
+@media print {
+  .page {
+    page: workshop;
+    display: block;
+    font-size: var(--text-12);
+    line-height: 1.3;
+  }
+
+  .page h1 {
+    font-size: var(--text-24);
+  }
+
+  .page h2 {
+    font-size: var(--text-20);
+    break-after: avoid;
+  }
+
+  .page h3,
+  .page h4 {
+    font-size: var(--text-14);
+    break-after: avoid;
+  }
+
+  .page section {
+    break-inside: auto;
+  }
+
+  .cards {
+    display: block;
+  }
+
+  .card {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    break-inside: avoid;
+    margin-block: var(--space-4);
+  }
+
+  .card > div {
+    padding: var(--space-3);
+  }
+
+  .card > div + div {
+    border-top: none;
+    border-left: 1px dashed var(--color-control-border);
+  }
+
+  .card p,
+  .card ul,
+  .card dl {
+    margin-block: var(--space-2);
+  }
+
+  [data-workshop-print='guide'] [data-workshop-part]:not([data-workshop-part='guide']),
+  [data-workshop-print='patterns'] [data-workshop-part]:not([data-workshop-part='patterns']),
+  [data-workshop-print='capabilities']
+    [data-workshop-part]:not([data-workshop-part='capabilities']) {
+    display: none;
+  }
+}

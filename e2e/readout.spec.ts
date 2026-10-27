@@ -3,17 +3,11 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import JSZip from 'jszip';
-import {
-  CONTENT_FILES,
-  ChangelogEntrySchema,
-  type Content,
-  type ContentMeta,
-} from '../src/lib/content/schemas.ts';
+import { content, contentMeta } from './content.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
 import { buildReadout } from '../src/lib/readout/report.ts';
 import { emptyWorkspace, type DiagnosticWorkspace } from '../src/lib/state/diagnostic-model.ts';
 import { MAX_IMPORT_BYTES, parseDiagnosticBundle } from '../src/lib/state/diagnostic-transfer.ts';
-import { z } from 'zod';
 import { colors } from '../src/theme/tokens.ts';
 
 declare global {
@@ -22,16 +16,6 @@ declare global {
     slideRenderer: ReturnType<(typeof import('pptx-preview'))['init']>;
   }
 }
-
-const compiled = (key: string): unknown =>
-  JSON.parse(readFileSync(`src/generated/${key}.json`, 'utf8'));
-const content = {
-  ...Object.fromEntries(
-    Object.entries(CONTENT_FILES).map(([key, { schema }]) => [key, schema.parse(compiled(key))]),
-  ),
-  changelog: z.array(ChangelogEntrySchema).parse(compiled('changelog')),
-} as Content;
-const contentMeta = compiled('meta') as ContentMeta;
 
 const copy = content.site.readout;
 const diagnostic = content.site.diagnostic;

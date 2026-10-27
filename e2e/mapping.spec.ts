@@ -1,43 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
-import { readFileSync } from 'node:fs';
-import type { Content, ContentMeta } from '../src/lib/content/schemas.ts';
+import { content, contentMeta } from './content.ts';
 import {
   evaluateAssessment,
   evaluatePatterns,
   patternAnswers,
 } from '../src/lib/engine/evaluate.ts';
 
-const read = <T>(name: string): T =>
-  JSON.parse(readFileSync(`src/generated/${name}.json`, 'utf8')) as T;
-const content: Content = {
-  sources: read('sources'),
-  pillars: read('pillars'),
-  consoles: read('consoles'),
-  controlPoints: read('controlPoints'),
-  lifecycle: read('lifecycle'),
-  capabilities: read('capabilities'),
-  personas: read('personas'),
-  learn: read('learn'),
-  buildingBlocks: read('buildingBlocks'),
-  glossary: read('glossary'),
-  faq: read('faq'),
-  site: read('site'),
-  changelog: read('changelog'),
-  questions: read('questions'),
-  diagnostic: read('diagnostic'),
-  rules: read('rules'),
-  advisories: read('advisories'),
-  patterns: read('patterns'),
-  risks: read('risks'),
-  samples: read('samples'),
-  goldenScenarios: read('goldenScenarios'),
-  integrationPaths: read('integrationPaths'),
-  frontierMappings: read('frontierMappings'),
-  whatIfs: read('whatIfs'),
-  mappingConfig: read('mappingConfig'),
-};
-const contentMeta = read<ContentMeta>('meta');
 const { site } = content;
 const copy = site.mapping;
 

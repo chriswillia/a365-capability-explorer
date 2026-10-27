@@ -364,7 +364,56 @@ diagnostic:
   savedLocally: Local only
   renameTitle: Rename local assessment
 
+presentation:
+  enter: Enter presentation mode
+  exit: Exit presentation mode
+  note: "Presentation mode increases type size and hides editing controls. Press Escape or use Exit presentation mode to leave. This view does not change saved answers."
+portfolio:
+  organization: Portfolio organization
+  select: Select use cases
+  selectAll: Select all use cases
+  clear: Clear selection
+  empty: "No saved use cases for this organization. Create an assessment in Diagnostic to start a portfolio."
+  selectionEmpty: Select at least one use case to compare.
+  note: "A local planning comparison, not a financial valuation, risk score or deployment approval. Each portfolio uses one saved organization profile; shared foundations are never combined across organizations."
+  current: "Results are recomputed with the current content version. Saved answers and their original versions are unchanged."
+  incompatible: Incompatible answers — open the assessment to review
+  excluded: Incompatible assessments are excluded from calculations, but remain available for selected JSON export.
+  selected: Selected use cases
+  evaluated: Compatible use cases evaluated
+  foundationsCount: Shared platform foundations
+  gapsCount: Use-case checks with gaps
+  chart: Control intensity and business value
+  chartDescription: "Numbered bubbles compare compatible use cases. The accessible comparison table below gives every value, including unknowns."
+  chartNote: "Draft planning cutoffs: business value at least {count} is higher; control intensity at least {n}% is higher. Higher value/lower intensity: Accelerate. Higher value/higher intensity: Govern to scale. Lower value/lower intensity: Experiment. Lower value/higher intensity: Reconsider. These labels support discussion, not automatic investment decisions."
+  bubbleNote: "Bubble area increases by the selected expected-user band, not an exact headcount. Equal bands have equal areas; unknown user ranges have dashed outlines. User populations may overlap and are never added together."
+  unplotted: "Not plotted — relative business value is unknown"
+  quadrant: Planning quadrant
+  quadrants:
+    accelerate: Accelerate
+    govern: Govern to scale
+    experiment: Experiment
+    reconsider: Reconsider
+  valueCutoff: 3
+  intensityCutoff: 50
+  table: Use-case comparison and chart alternative
+  matrix: Capability × use case heatmap
+  matrixNote: "Cells retain each use case's recommendation level. A dash means not currently in scope, not a statement that the control is unnecessary."
+  foundations: Shared platform foundations
+  foundationsNote: "Potential reuse within the selected organization, not proof of tenant-wide coverage. Confirm platform configuration, scope and ownership; capabilities with per-agent decisions still need agent-level follow-up."
+  benefits: "Enable once, potentially benefits {count} selected use cases"
+  agentFollowup: Agent-level decisions remain
+  readiness: Aggregated configured readiness checks
+  readinessNote: "The same configured check is grouped across use cases, with gap and unknown counts kept separate. Checks with no configured coverage do not become ready. Results are not a readiness certification."
+  affected: Use cases with a gap or unknown result
+  licensing: Aggregated licensing basis
+  licensingNote: "Capability counts are deduplicated across selected use cases, not license quantities. Access-model bases remain per use case; eligibility stays unknown. Do not sum user bands: users may overlap. Verify cloud availability, source differences and licensing with the official sources and your account team."
+  uniqueCapabilities: Unique in-scope capabilities
+  export: Download selected portfolio JSON
+  index: Chart number
+
 readout:
+  exportTooLarge: "This JSON selection exceeds the 5 MiB import limit. Export fewer assessments so the file can be imported again."
   open: Open readout
   tableLabel: "{label} — table"
   title: "Control-plane readout: {label}"
@@ -603,4 +652,4 @@ privacy:
       why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. JSON backups, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. Portfolio views reuse those assessments; portfolio selection and presentation mode are temporary and add no stored preference. JSON backups and selected portfolio bundles, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

@@ -419,15 +419,21 @@ export function ReadoutExhibits({
         <>
           <ExhibitFrame {...frame('whatIfs', 11)}>
             <p>{copy.whatIfNote}</p>
-            <label htmlFor="readout-what-if">{mapping.whatIfs}</label>
-            <select id="readout-what-if" value={whatIf} onChange={(e) => setWhatIf(e.target.value)}>
-              <option value="">{copy.baseline}</option>
-              {deltas.map((d) => (
-                <option key={d.whatIf.id} value={d.whatIf.id}>
-                  {d.whatIf.title}
-                </option>
-              ))}
-            </select>
+            <div data-presentation-hide>
+              <label htmlFor="readout-what-if">{mapping.whatIfs}</label>
+              <select
+                id="readout-what-if"
+                value={whatIf}
+                onChange={(e) => setWhatIf(e.target.value)}
+              >
+                <option value="">{copy.baseline}</option>
+                {deltas.map((d) => (
+                  <option key={d.whatIf.id} value={d.whatIf.id}>
+                    {d.whatIf.title}
+                  </option>
+                ))}
+              </select>
+            </div>
             {delta && (
               <div role="status">
                 <h3>{delta.whatIf.title}</h3>

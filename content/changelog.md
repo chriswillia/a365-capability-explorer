@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-26 · Organization portfolios and workshop kit
+
+affects: [all]
+
+Added local, organization-scoped portfolio comparisons with a labeled business-value/control-intensity chart and table alternative, capability heatmap, reusable platform foundations, grouped configured readiness checks and deduplicated licensing capability counts. User bands remain illustrative, unknowns remain unknown, and incompatible assessments are visibly excluded from calculations without discarding their answers. Selected portfolios export and import through the existing copy-only JSON workflow. Added a draft timed facilitator guide, paired printable pattern and capability cards derived from existing content and rule conditions, and non-persisting presentation mode for portfolios, workshops, readouts and canvases. Product statements, source availability flags and recommendation engine semantics are unchanged. Editorial content and planning cutoffs remain draft guidance pending SME review.
+
 ## 2026-10-26 · Readout exhibits, PowerPoint and local co-branding
 
 affects: [all]

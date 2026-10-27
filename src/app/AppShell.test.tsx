@@ -84,11 +84,11 @@ describe('layout shell', () => {
   });
 
   it('shows a coming-soon page, with its own copy, for a section still in development', async () => {
-    renderApp('/portfolio');
+    renderApp('/whats-new');
     expect(
-      await screen.findByRole('heading', { level: 1, name: site.routes.portfolio.title }),
+      await screen.findByRole('heading', { level: 1, name: site.routes.whatsNew.title }),
     ).toBeInTheDocument();
-    expect(screen.getByText(site.routes.portfolio.description)).toBeInTheDocument();
+    expect(screen.getByText(site.routes.whatsNew.description)).toBeInTheDocument();
     expect(screen.getByText(site.ui.comingSoon.status)).toBeInTheDocument();
   });
 });

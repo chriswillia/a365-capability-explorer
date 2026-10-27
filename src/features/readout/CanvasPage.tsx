@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PresentationControls } from '../../components/PresentationControls.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
 import {
@@ -24,7 +25,8 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
   usePageTitle('canvas');
   return (
     <PageContainer>
-      <div className={styles.actions} data-no-print>
+      <PresentationControls />
+      <div className={styles.actions} data-no-print data-presentation-hide>
         <Link to={assessmentId ? `/diagnostic/${assessmentId}/readout` : '/diagnostic'}>
           {assessmentId ? copy.open : content.site.diagnostic.back}
         </Link>
@@ -68,7 +70,11 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
       </div>
       <p data-no-print>{copy.presentationNote}</p>
       {error && <p role="alert">{copy.exportError}</p>}
-      <article className={`${styles.document} ${styles.canvas}`} data-print-document>
+      <article
+        className={`${styles.document} ${styles.canvas}`}
+        data-print-document
+        data-presentation-document
+      >
         <header>
           {report?.logo && (
             <img

@@ -108,6 +108,8 @@ test.describe('hosting behavior (GitHub Pages)', () => {
       `capabilities/${capabilities[0]!.id}`,
       'learn',
       'privacy',
+      'portfolio',
+      'workshop',
       'patterns',
       'patterns/ai-teammate',
       'methodology',
@@ -136,6 +138,8 @@ test.describe('hosting behavior (GitHub Pages)', () => {
       'capabilities?lens=pattern&group=local-agent&view=matrix',
       'methodology',
       'learn',
+      'portfolio',
+      'workshop',
     ]) {
       await page.goto(path);
       await page.waitForLoadState('networkidle');

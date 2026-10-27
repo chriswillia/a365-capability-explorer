@@ -20,6 +20,7 @@ import {
 } from './schemas.ts';
 import type { TemplateValues } from './template.ts';
 import type { AssessmentResult } from '../engine/evaluate.ts';
+import type { Portfolio } from '../portfolio/portfolio.ts';
 
 export interface MetricsInput {
   capabilities: Capability[];
@@ -74,6 +75,31 @@ export function computeReadoutMetrics(result: AssessmentResult) {
     readinessPercent: result.readiness.percent,
   };
 }
+
+export function computePortfolioMetrics(portfolio: Portfolio) {
+  const checks = portfolio.cases.flatMap((item) => item.result.readiness.checks);
+  const ready = checks.filter((check) => check.status === 'ready').length;
+  return {
+    selected: portfolio.assessments.length,
+    evaluated: portfolio.cases.length,
+    blocked: portfolio.blocked.length,
+    sharedFoundations: portfolio.foundations.length,
+    gaps: checks.filter((check) => check.status === 'gap').length,
+    unknown: checks.filter((check) => check.status === 'unknown').length,
+    readinessPercent: checks.length === 0 ? null : Math.round((100 * ready) / checks.length),
+    uniqueCapabilities: portfolio.capabilities.length,
+    foundational: portfolio.capabilities.filter(
+      ({ capability }) => capability.source.includedWithBasePlans,
+    ).length,
+    premium: portfolio.capabilities.filter(
+      ({ capability }) => !capability.source.includedWithBasePlans,
+    ).length,
+    unplotted: portfolio.cases.filter((item) => item.value === null).length,
+  };
+}
+
+export const computeWorkshopMinutes = (agenda: { minutes: number }[]) =>
+  agenda.reduce((sum, item) => sum + item.minutes, 0);
 
 /** Every number shown in a headline, KPI or action title comes from here, never from typed copy. */
 export function computeMetrics(input: MetricsInput): Metrics {

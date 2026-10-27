@@ -1,0 +1,73 @@
+reviewStatus: draft
+title: Facilitate an agent control-planning workshop
+introduction: "Use this discussion guide to turn an agent idea into a draft control plan. The agenda is facilitation advice, not an approved architecture or licensing determination. Use fictional or approved information when sharing materials."
+preparationTitle: Prepare the conversation
+preparation:
+  - Invite the business owner, agent builder, platform administrator and relevant security, data and licensing reviewers.
+  - Choose an organization profile and a small set of use cases. Ask owners to bring intended outcomes, user ranges and success measures.
+  - Print a blank canvas for each use case and the pattern and capability cards. Cards are paired front/back on the same sheet; cut and fold them, rather than relying on duplex printer alignment.
+  - Review draft labels, source differences and unknown answers before presenting. Nothing in this workshop certifies readiness or grants access.
+agendaTitle: Run the workshop
+duration: "{count}-minute suggested agenda"
+minutes: "{count} minutes"
+agenda:
+  - id: frame
+    title: Agree the outcome and boundaries
+    minutes: 10
+    instructions:
+      - Name the business outcome, accountable owner, participants and decision to be made.
+      - Agree what will not be decided today and how unknowns will be recorded.
+    output: A shared purpose and named decision owner.
+  - id: describe
+    title: Describe the use case
+    minutes: 15
+    instructions:
+      - Choose an illustrative pattern card, then correct its assumptions for this use case.
+      - Fill the canvas with users, data, actions, identity, tools, success measures and ownership.
+    output: A draft canvas with assumptions and open questions.
+  - id: sort
+    title: Sort controls by relevance
+    minutes: 20
+    instructions:
+      - Sort capability cards into in scope, needs investigation and not currently in scope.
+      - Read the scope conditions and source evidence; record why each uncertain card needs follow-up.
+    output: A proposed control set and a list of evidence to verify.
+  - id: assess
+    title: Test the assumptions
+    minutes: 20
+    instructions:
+      - Enter the agreed answers in Diagnostic and inspect the readout, readiness checks and access-model basis.
+      - Compare the generated recommendations with the card sort. Discuss differences rather than treating the engine as approval.
+    output: A saved assessment and an explicit gap and unknown list.
+  - id: compare
+    title: Identify reusable foundations
+    minutes: 15
+    instructions:
+      - Compare selected use cases for the same organization in Portfolio.
+      - Review shared platform foundations, per-agent decisions and the draft business-value/intensity quadrants.
+    output: A candidate platform backlog and separate agent decisions.
+  - id: close
+    title: Assign follow-up and agree next steps
+    minutes: 10
+    instructions:
+      - Assign an owner and review date to each gap, unknown and licensing question.
+      - Export the readout and canvas, review them for sensitive information, and agree the next decision point.
+    output: A Now/Next/Later plan with named follow-up owners.
+outputLabel: Discussion output
+followupTitle: After the session
+followup:
+  - Keep a local JSON backup of the selected portfolio and review exports before sharing.
+  - Ask the relevant subject-matter experts to check draft recommendations and unresolved source differences.
+  - Revisit the diagnostic when assumptions change; keep licensing eligibility and unknown answers explicit.
+patternsTitle: Printable pattern cards
+capabilitiesTitle: Printable capability card-sort kit
+cardNote: "Editorial content is draft pending SME review. Pattern cards describe illustrative starters, not facts about your organization. Capability card backs use the existing summaries and rule conditions; links lead to the full evidence and official sources."
+front: Front
+back: Back
+scope: When this capability is in scope
+noRules: No configured scope conditions — verify with a subject-matter expert.
+printGuide: Print facilitator guide / save PDF
+printPatterns: Print pattern cards / save PDF
+printCapabilities: Print capability cards / save PDF
+printError: Printing could not start. Try your browser's print command.
+guide: Facilitator guide
