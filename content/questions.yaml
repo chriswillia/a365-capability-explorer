@@ -375,10 +375,10 @@
   ifUnknown: Confirm publication approval, audience restrictions and reporting needs.
 - id: orgName
   scope: org
-  label: Organization or engagement name
+  label: Customer or engagement name
   type: text
   maxLength: 120
-  ifUnknown: Give this local organization profile a recognizable name.
+  ifUnknown: Give this customer profile a recognizable name.
 - id: industry
   scope: org
   label: Industry or sector

@@ -8,6 +8,14 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-26 · Seller guidance: requirement areas first, a faster assessment and a customer conversation guide
+
+affects: [all]
+
+Reorganized the site around the three requirement areas a seller discusses with a customer: Security, Governance and Observability. The explorer now opens grouped by requirement area, with area chips that show counts, filters for product area, licensing, GCC and setup, plain-language search shortcuts and a sticky comparison bar. Home numbers and persona cards link to the capabilities they count; per-row draft markers are replaced by one computed draft summary, and the markers remain on briefs, readouts and prints. Renamed navigation and labels (Assess, Compare use cases, scenario, customer, product area) without changing any address, and moved the methodology page to the footer as "How recommendations work".
+
+Added a customer conversation guide built from the catalog (questions, owner teams and licensing and availability flags for each requirement area) and a printable requirements checklist in the workshop kit. The assessment now starts from a customer name, opens a quick scan at the use case, asks each question in plain language with the requirement areas it informs, and marks answers that came from a starting scenario as assumed until the seller confirms or edits them. Readouts, canvases and the PowerPoint deck lead with the requirement areas, add the teams to involve and the open questions, number their exhibits without gaps and show assumed answers as such. Added a header shortcut to the customer being worked on, and a built page for each main address so a shared link to it answers with HTTP 200 and a page title. Product statements, source availability flags, licensing assumptions and recommendation rules are unchanged; all new editorial text is draft guidance pending SME review.
+
 ## 2026-10-26 · Organization portfolios and workshop kit
 
 affects: [all]

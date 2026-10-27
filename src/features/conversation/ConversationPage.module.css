@@ -1,0 +1,104 @@
+.intro {
+  max-width: 44rem;
+  font-size: var(--text-20);
+  line-height: var(--line-height-snug);
+}
+
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-block: var(--space-8);
+}
+
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: step;
+}
+
+.step {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+  counter-increment: step;
+}
+
+.step h3::before {
+  content: counter(step) '. ';
+}
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.requirement {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  overflow-wrap: anywhere;
+  padding: var(--space-6);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.capabilities,
+.questions {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.badges {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-left: var(--space-2);
+  vertical-align: middle;
+}
+
+/* A long badge such as the licensing note must wrap on narrow screens instead of widening the page. */
+.badges > span {
+  max-width: 100%;
+  white-space: normal;
+}
+
+@media (max-width: 30rem) {
+  .requirement {
+    padding: var(--space-4);
+  }
+
+  .capabilities,
+  .questions {
+    padding-left: var(--space-4);
+  }
+}
+
+.source {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

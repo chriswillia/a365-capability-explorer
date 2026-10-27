@@ -1,7 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Locator, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import type { Capability, Site, Learn, Persona } from '../src/lib/content/schemas.ts';
+import type { Capability, Site, Learn, Persona, PillarDef } from '../src/lib/content/schemas.ts';
+import { PAGE_ROUTES } from '../src/app/route-table.ts';
+import { renderTemplate } from '../src/lib/content/template.ts';
+import { pageTitle } from '../src/lib/content/titles.ts';
 
 /*
  * Reads the same compiled content the app was built from, so expectations follow the content rather than
@@ -13,8 +16,17 @@ const site = read<Site>('site');
 const capabilities = read<Capability[]>('capabilities');
 const learn = read<Learn>('learn');
 const personas = read<Persona[]>('personas');
+const pillars = read<PillarDef[]>('pillars');
 
 const DEPTH_KEY = 'cpcompass:depth';
+
+// The page's own text without the glossary tooltips that the first mention of a term carries.
+const proseOf = (locator: Locator) =>
+  locator.evaluate((node) => {
+    const copy = node.cloneNode(true) as HTMLElement;
+    copy.querySelectorAll('[role="tooltip"]').forEach((tooltip) => tooltip.remove());
+    return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
+  });
 
 async function setDepth(page: Page, depth: 'executive' | 'technical') {
   const label = depth === 'executive' ? site.ui.depth.executive : site.ui.depth.technical;
@@ -86,10 +98,38 @@ test.describe('hosting behavior (GitHub Pages)', () => {
   });
 
   test('an unknown address shows the in-app not-found page', async ({ page }) => {
-    await page.goto('no/such/page');
+    const response = await page.goto('no/such/page');
+    expect(response?.status()).toBe(404);
     await expect(
       page.getByRole('heading', { level: 1, name: site.routes.notFound.title }),
     ).toBeVisible();
+  });
+
+  test('every page with a fixed address answers with HTTP 200, no redirect and its own title', async ({
+    request,
+    baseURL,
+  }) => {
+    const escape = (text: string) =>
+      text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    for (const { path, key } of PAGE_ROUTES) {
+      const response = await request.get(new URL(path, baseURL).href, { maxRedirects: 0 });
+      expect(response.status(), path).toBe(200);
+      expect(await response.text(), path).toContain(
+        `<title>${escape(pageTitle(site, site.routes[key].title))}</title>`,
+      );
+    }
+  });
+
+  test('a link to a page addressed by an id still loads the app', async ({ page }) => {
+    const c = capabilities[0]!;
+    await page.goto(`capabilities/${c.id}`);
+    await expect(page.getByRole('heading', { level: 1, name: c.shortName })).toBeVisible();
+    await page.goto('patterns/ai-teammate');
+    await expect(page.getByRole('heading', { level: 1, name: 'AI teammate' })).toBeVisible();
   });
 
   test('every script, style, font and image loads from the same base path', async ({ page }) => {
@@ -157,6 +197,13 @@ test.describe('hosting behavior (GitHub Pages)', () => {
 });
 
 test.describe('Understand and Learn', () => {
+  const titleOf = (href: string) => {
+    const path = href.split(/[?#]/)[0];
+    if (path === '/learn') return site.routes.learn.title;
+    if (path === '/capabilities') return site.routes.capabilities.title;
+    if (path === '/conversation') return site.routes.conversation.title;
+    throw new Error(`No page title is known for ${href}`);
+  };
   test('persona starts reach available sections under either base path', async ({
     page,
     baseURL,
@@ -167,33 +214,42 @@ test.describe('Understand and Learn', () => {
       const expected = new URL(persona.href.slice(1), baseURL);
       await expect(page).toHaveURL(expected.href);
       await expect(
-        page.getByRole('heading', {
-          level: 1,
-          name: persona.href.startsWith('/learn')
-            ? site.routes.learn.title
-            : site.routes.capabilities.title,
-        }),
+        page.getByRole('heading', { level: 1, name: titleOf(persona.href) }),
       ).toBeVisible();
       if (expected.hash) {
         await expect(page.locator(expected.hash)).toBeInViewport();
       }
     }
   });
-  test('walkthrough advances with the keyboard and retains its table alternative', async ({
+  test('the concept table lists every concept and shows technical detail on request', async ({
     page,
   }) => {
     await page.goto('learn');
-    await expect(
-      page.getByRole('table', { name: site.learn.flowTable }).getByRole('row'),
-    ).toHaveCount(learn.flow.length + 1);
-    const next = page.getByRole('button', { name: site.learn.next });
-    await next.focus();
-    await page.keyboard.press('Enter');
-    await expect(page.getByRole('status')).toContainText(`2`);
-    await expect(page.getByRole('heading', { name: learn.flow[1]!.title }).first()).toBeVisible();
-    await expect(page.getByRole('button', { name: site.learn.previous })).toBeEnabled();
+    const table = page.getByRole('table', { name: site.learn.flowTable });
+    await expect(table.getByRole('row')).toHaveCount(learn.flow.length + 1);
+    await expect(page.getByRole('button', { name: /^(next|previous)\b/i })).toHaveCount(0);
+    const row = table
+      .getByRole('row')
+      .filter({ has: page.getByRole('heading', { name: learn.flow[1]!.title }) });
+    expect(await proseOf(row)).not.toContain(learn.flow[1]!.technical!);
     await setDepth(page, 'technical');
-    await expect(page.getByText(learn.flow[1]!.technical!, { exact: true })).toBeVisible();
+    expect(await proseOf(row)).toContain(learn.flow[1]!.technical!);
+  });
+  test('the sections of Learn follow the order of a customer conversation', async ({ page }) => {
+    await page.goto('learn');
+    await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
+      site.learn.sections.positioning,
+      site.learn.sections.myths,
+      site.learn.sections.concepts,
+      site.learn.sections.integration,
+      site.learn.sections.buildingBlocks,
+      site.learn.sections.glossary,
+    ]);
+    await expect(
+      page
+        .getByRole('main')
+        .getByRole('link', { name: site.routes.conversation.title, exact: true }),
+    ).toHaveAttribute('href', /conversation$/);
   });
   test('glossary links expose keyboard tooltips and survive refresh at the definition', async ({
     page,
@@ -225,6 +281,68 @@ test.describe('Understand and Learn', () => {
 });
 
 test.describe('capabilities page', () => {
+  test('requirement-area chips show faceted counts, filter the list and keep the URL', async ({
+    page,
+  }) => {
+    const copy = site.capabilities.explorer;
+    const nameOf = (pillar: PillarDef) =>
+      renderTemplate(site.capabilities.pillarName, {
+        requirement: pillar.requirement,
+        label: pillar.label,
+      });
+    await page.goto('capabilities');
+    for (const pillar of pillars) {
+      const count = capabilities.filter((c) => c.pillar === pillar.id).length;
+      await expect(
+        page.getByRole('button', {
+          name: renderTemplate(copy.pillarChip, { label: nameOf(pillar), count }),
+          exact: true,
+        }),
+      ).toBeVisible();
+    }
+    const pillar = pillars[0]!;
+    const expected = capabilities.filter((c) => c.pillar === pillar.id);
+    // The selected chip adds a check mark to its name, so the state is read from aria-pressed.
+    const chips = page.getByRole('group', { name: copy.pillarFilter });
+    const chip = chips.getByRole('button', {
+      name: renderTemplate(copy.pillarChip, { label: nameOf(pillar), count: expected.length }),
+    });
+    await chip.click();
+    const selected = chips.getByRole('button', { pressed: true });
+    await expect(selected).toHaveCount(1);
+    await expect(selected).toContainText(nameOf(pillar));
+    await expect(page).toHaveURL(new RegExp(`pillar=${pillar.id}`));
+    await expect(page.getByRole('rowheader')).toHaveCount(expected.length);
+    await page.reload();
+    await expect(selected).toContainText(nameOf(pillar));
+    await expect(page.getByRole('rowheader')).toHaveCount(expected.length);
+    await page.getByRole('button', { name: copy.reset, exact: true }).click();
+    await expect(page.getByRole('rowheader')).toHaveCount(capabilities.length);
+    await expect(page).not.toHaveURL(/pillar=/);
+  });
+
+  test('every headline number on the home page opens the capabilities it counts', async ({
+    page,
+  }) => {
+    const expected: Record<string, number> = {
+      capabilityCount: capabilities.length,
+      foundationalCount: capabilities.filter((c) => c.source.includedWithBasePlans).length,
+      premiumCount: capabilities.filter((c) => !c.source.includedWithBasePlans).length,
+      gccCount: capabilities.filter((c) => c.source.gccAvailable).length,
+      platformCount: capabilities.filter((c) => c.setup === 'platform').length,
+      agentDecisionCount: capabilities.filter((c) => c.setup !== 'platform').length,
+    };
+    const linked = site.overview.kpis.filter((kpi) => kpi.href !== undefined);
+    expect(linked.length).toBeGreaterThan(0);
+    for (const kpi of linked) {
+      await page.goto('./');
+      await page.getByRole('link', { name: kpi.label, exact: true }).click();
+      await expect(
+        page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
+      ).toBeVisible();
+      await expect(page.getByRole('rowheader'), kpi.id).toHaveCount(expected[kpi.valueKey]!);
+    }
+  });
   test('keeps lenses, views and comparison in the URL through refresh and history', async ({
     page,
   }) => {
@@ -269,7 +387,7 @@ test.describe('capabilities page', () => {
     ).toBe(true);
     await page.getByLabel(site.capabilities.explorer.view, { exact: true }).selectOption('matrix');
     await expect(
-      page.getByRole('region', { name: site.capabilities.scrollRegionLabel }),
+      page.getByRole('region', { name: site.capabilities.scrollRegionLabel }).first(),
     ).toBeVisible();
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
@@ -311,7 +429,7 @@ test.describe('keyboard and focus', () => {
 
   test('the capabilities table scroll region can be reached by keyboard', async ({ page }) => {
     await page.goto('capabilities');
-    const region = page.getByRole('region', { name: /scrollable/i });
+    const region = page.getByRole('region', { name: /scrollable/i }).first();
     await region.focus();
     await expect(region).toBeFocused();
   });
@@ -325,6 +443,10 @@ test.describe('accessibility (axe, WCAG 2.2 AA)', () => {
     'capabilities?view=matrix',
     `capabilities?compare=${capabilities[0]!.id}&compare=${capabilities[1]!.id}`,
     `capabilities/${capabilities[0]!.id}`,
+    `capabilities?pillar=${pillars[0]!.id}&licensing=premium`,
+    'capabilities?by=console',
+    'capabilities?q=SIEM',
+    'conversation',
     'privacy',
     'learn',
     'patterns',

@@ -2,6 +2,7 @@ import type { RouteObject } from 'react-router';
 import { Component as OverviewPage } from '../features/overview/OverviewPage.tsx';
 import type { RouteKey } from '../lib/content/schemas.ts';
 import { AppShell } from './AppShell.tsx';
+import { Loading } from './Loading.tsx';
 
 /** A route whose page is still in development. The handle names its copy in content/site.yaml. */
 const soon = (path: string, routeKey: RouteKey): RouteObject => ({
@@ -15,6 +16,7 @@ export const routes: RouteObject[] = [
   {
     path: '/',
     Component: AppShell,
+    HydrateFallback: Loading,
     children: [
       { index: true, handle: { routeKey: 'overview' satisfies RouteKey }, Component: OverviewPage },
       {
@@ -81,6 +83,11 @@ export const routes: RouteObject[] = [
         path: 'workshop',
         handle: { routeKey: 'workshop' satisfies RouteKey },
         lazy: () => import('../features/workshop/WorkshopPage.tsx'),
+      },
+      {
+        path: 'conversation',
+        handle: { routeKey: 'conversation' satisfies RouteKey },
+        lazy: () => import('../features/conversation/ConversationPage.tsx'),
       },
       {
         path: 'methodology',

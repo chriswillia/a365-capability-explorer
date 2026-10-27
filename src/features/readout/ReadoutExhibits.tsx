@@ -3,17 +3,22 @@ import { Link } from 'react-router';
 import { DataTable } from '../../components/DataTable.tsx';
 import { ExhibitFrame } from '../../components/ExhibitFrame.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
+import { PillarSummary } from '../../components/PillarSummary.tsx';
 import { content } from '../../lib/content/index.ts';
 import { licensingTier } from '../../lib/content/derive.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { describeCondition } from '../../lib/engine/conditions.ts';
 import { evaluateWhatIfs } from '../../lib/engine/evaluate.ts';
-import { answerLabel, type Readout } from '../../lib/readout/report.ts';
+import { peopleRows, questionPillars } from '../../lib/engine/pillars.ts';
+import { exhibitId, exhibitPlan, type ExhibitKey } from '../../lib/readout/plan.ts';
+import { answerLabel, answerText, type Readout } from '../../lib/readout/report.ts';
 import type { Assessment, Organization } from '../../lib/state/diagnostic-model.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { Evidence } from '../mapping/Evidence.tsx';
 import { CapabilityLinks } from '../mapping/MappingReport.tsx';
 import styles from './Readout.module.css';
+
+const informs = questionPillars(content);
 
 export function ReadoutExhibits({
   report,
@@ -29,6 +34,7 @@ export function ReadoutExhibits({
   const copy = content.site.readout;
   const mapping = content.site.mapping;
   const { result } = report;
+  const plan = exhibitPlan(technical);
   const tableLabel = (label: string) => renderTemplate(copy.tableLabel, { label });
   const [whatIf, setWhatIf] = useState('');
   const deltas = technical
@@ -39,8 +45,9 @@ export function ReadoutExhibits({
       )
     : [];
   const delta = deltas.find((item) => item.whatIf.id === whatIf);
-  const frame = (key: keyof typeof copy.exhibits, number: number) => ({
-    number,
+  const frame = (key: ExhibitKey) => ({
+    number: plan.indexOf(key) + 1,
+    id: exhibitId(key),
     label: copy.exhibits[key],
     title: copy.exhibits[key],
     sourceIds: [
@@ -81,18 +88,11 @@ export function ReadoutExhibits({
     );
   return (
     <>
-      <ExhibitFrame {...frame('frontier', 1)}>
-        <p>{mapping.frontierNote}</p>
-        {result.frontier.length === 0 && <p>{mapping.unknownAnswer}</p>}
-        {result.frontier.map((item) => (
-          <div key={item.id}>
-            <h3>{content.learn.frontier.find((phase) => phase.id === item.phaseId)!.title}</h3>
-            <p>{item.rationale}</p>
-            <Evidence {...item} />
-          </div>
-        ))}
+      <ExhibitFrame {...frame('pillars')}>
+        <p>{mapping.pillarsNote}</p>
+        <PillarSummary rows={report.pillars} headingLevel={3} />
       </ExhibitFrame>
-      <ExhibitFrame {...frame('anatomy', 2)}>
+      <ExhibitFrame {...frame('anatomy')}>
         <p>{copy.anatomyNote}</p>
         <div className={styles.anatomyDiagram} aria-hidden="true">
           {result.anatomy.map(({ point, capabilities }) => (
@@ -146,7 +146,7 @@ export function ReadoutExhibits({
           ]}
         />
       </ExhibitFrame>
-      <ExhibitFrame {...frame('risks', 3)}>
+      <ExhibitFrame {...frame('risks')}>
         <p>{mapping.riskNote}</p>
         {risks(result.risks)}
         {result.potentialRisks.length > 0 && (
@@ -157,7 +157,7 @@ export function ReadoutExhibits({
         )}
       </ExhibitFrame>
       {technical && (
-        <ExhibitFrame {...frame('capabilities', 4)}>
+        <ExhibitFrame {...frame('capabilities')}>
           <DataTable
             caption={copy.exhibits.capabilities}
             hideCaption
@@ -222,17 +222,19 @@ export function ReadoutExhibits({
                       reviewStatus={r.capability.reviewStatus}
                     />
                     {r.capability.sourceNotes?.map((note) => (
-                      <p key={note.sourceId}>
-                        {note.differs && (
-                          <strong>{content.site.capabilities.sourcesDifferNote} </strong>
-                        )}
-                        {note.note}
+                      <div key={note.sourceId}>
+                        <p>
+                          {note.differs && (
+                            <strong>{content.site.capabilities.sourcesDifferNote} </strong>
+                          )}
+                          {note.note}
+                        </p>
                         <Evidence
                           sourceIds={[note.sourceId]}
                           evidence="stated"
                           reviewStatus={r.capability.reviewStatus}
                         />
-                      </p>
+                      </div>
                     ))}
                   </>
                 ),
@@ -241,7 +243,7 @@ export function ReadoutExhibits({
           />
         </ExhibitFrame>
       )}
-      <ExhibitFrame {...frame('decisions', 5)}>
+      <ExhibitFrame {...frame('decisions')}>
         <p>{copy.setupNote}</p>
         <div className={styles.roadmap}>
           <div>
@@ -271,9 +273,33 @@ export function ReadoutExhibits({
           </div>
         </div>
       </ExhibitFrame>
+      <ExhibitFrame {...frame('people')}>
+        <p>{copy.peopleNote}</p>
+        <DataTable
+          caption={copy.exhibits.people}
+          hideCaption
+          scrollLabel={tableLabel(copy.exhibits.people)}
+          rows={peopleRows(content, result.inScope)}
+          rowKey={(r) => r.team}
+          columns={[
+            {
+              key: 'team',
+              header: copy.peopleColumns.team,
+              rowHeader: true,
+              render: (r) => r.team,
+            },
+            { key: 'areas', header: copy.peopleColumns.areas, render: (r) => r.areas.join(', ') },
+            {
+              key: 'capabilities',
+              header: copy.peopleColumns.capabilities,
+              render: (r) => <CapabilityLinks ids={r.capabilities.map((c) => c.id)} />,
+            },
+          ]}
+        />
+      </ExhibitFrame>
       {technical && (
         <>
-          <ExhibitFrame {...frame('readiness', 6)}>
+          <ExhibitFrame {...frame('readiness')}>
             <p>{mapping.readinessNote}</p>
             <p>
               {mapping.readinessPercent}:{' '}
@@ -301,7 +327,7 @@ export function ReadoutExhibits({
             <p>{mapping.noChecks}</p>
             <CapabilityLinks ids={result.readiness.uncheckedCapabilities} />
           </ExhibitFrame>
-          <ExhibitFrame {...frame('operatingModel', 7)}>
+          <ExhibitFrame {...frame('operatingModel')}>
             <DataTable
               caption={mapping.operatingModel}
               hideCaption
@@ -329,7 +355,7 @@ export function ReadoutExhibits({
               ]}
             />
           </ExhibitFrame>
-          <ExhibitFrame {...frame('integration', 8)}>
+          <ExhibitFrame {...frame('integration')}>
             {result.integrationPaths.length === 0 && <p>{mapping.unknownAnswer}</p>}
             {result.integrationPaths.map((path) => (
               <div key={path.id}>
@@ -346,7 +372,7 @@ export function ReadoutExhibits({
           </ExhibitFrame>
         </>
       )}
-      <ExhibitFrame {...frame('licensing', 9)} sourceIds={result.licensing.sourceIds}>
+      <ExhibitFrame {...frame('licensing')} sourceIds={result.licensing.sourceIds}>
         <p>
           {mapping.expectedUsers}: {result.licensing.expectedUsersLabel ?? mapping.unknownAnswer}
         </p>
@@ -388,7 +414,34 @@ export function ReadoutExhibits({
           </>
         )}
       </ExhibitFrame>
-      <ExhibitFrame {...frame('roadmap', 10)}>
+      <ExhibitFrame {...frame('openQuestions')}>
+        <p>{copy.openQuestionsNote}</p>
+        {result.openQuestions.length === 0 ? (
+          <p>{copy.empty}</p>
+        ) : (
+          <ul>
+            {result.openQuestions.map((q) => (
+              <li key={q.id}>
+                <strong>{q.label}</strong> — {q.guidance}
+                {content.pillars.some((p) => informs.get(q.id)?.has(p.id)) && (
+                  <span className={styles.informs}>
+                    {' '}
+                    (
+                    {renderTemplate(mapping.informs, {
+                      label: content.pillars
+                        .filter((p) => informs.get(q.id)?.has(p.id))
+                        .map((p) => p.requirement)
+                        .join(', '),
+                    })}
+                    )
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+        )}
+      </ExhibitFrame>
+      <ExhibitFrame {...frame('roadmap')}>
         <p>{copy.roadmapNote}</p>
         <div className={styles.roadmap}>
           {([1, 2, 3] as const).map((wave) => {
@@ -415,9 +468,20 @@ export function ReadoutExhibits({
           })}
         </div>
       </ExhibitFrame>
+      <ExhibitFrame {...frame('frontier')}>
+        <p>{mapping.frontierNote}</p>
+        {result.frontier.length === 0 && <p>{mapping.unknownAnswer}</p>}
+        {result.frontier.map((item) => (
+          <div key={item.id}>
+            <h3>{content.learn.frontier.find((phase) => phase.id === item.phaseId)!.title}</h3>
+            <p>{item.rationale}</p>
+            <Evidence {...item} />
+          </div>
+        ))}
+      </ExhibitFrame>
       {technical && (
         <>
-          <ExhibitFrame {...frame('whatIfs', 11)}>
+          <ExhibitFrame {...frame('whatIfs')}>
             <p>{copy.whatIfNote}</p>
             <div data-presentation-hide>
               <label htmlFor="readout-what-if">{mapping.whatIfs}</label>
@@ -455,7 +519,7 @@ export function ReadoutExhibits({
               </div>
             )}
           </ExhibitFrame>
-          <section>
+          <section id="readout-appendix">
             <h2>{copy.appendix}</h2>
             <h3>{mapping.notInScope}</h3>
             <ul>
@@ -479,14 +543,6 @@ export function ReadoutExhibits({
                       ))}
                     </ul>
                   )}
-                </li>
-              ))}
-            </ul>
-            <h3>{mapping.openQuestions}</h3>
-            <ul>
-              {result.openQuestions.map((q) => (
-                <li key={q.id}>
-                  <strong>{q.label}</strong> — {q.guidance}
                 </li>
               ))}
             </ul>
@@ -537,7 +593,7 @@ export function ReadoutExhibits({
               {content.questions.map((q) => (
                 <div key={q.id}>
                   <dt>{q.label}</dt>
-                  <dd>{answerLabel(content, report.answers, q.id)}</dd>
+                  <dd>{answerText(content, report, q.id)}</dd>
                 </div>
               ))}
             </dl>

@@ -3,6 +3,16 @@
   font-size: var(--text-20);
 }
 
+.engine > summary {
+  cursor: pointer;
+  font-size: var(--text-20);
+  font-weight: 700;
+}
+
+.engine[open] > summary {
+  margin-bottom: var(--space-4);
+}
+
 .note {
   max-width: 60rem;
   color: var(--color-slate);

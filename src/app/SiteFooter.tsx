@@ -30,6 +30,9 @@ export function SiteFooter() {
           </div>
           <ul className={`${styles.list} ${styles.links}`}>
             <li>
+              <Link to="/methodology">{site.ui.nav.methodology}</Link>
+            </li>
+            <li>
               <Link to="/privacy">{footer.privacy}</Link>
             </li>
             <li>
@@ -37,6 +40,11 @@ export function SiteFooter() {
                 {footer.reportIssue}
               </ExternalLink>
             </li>
+            {site.feedbackEmail !== null && (
+              <li>
+                <a href={`mailto:${site.feedbackEmail}`}>{footer.emailFeedback}</a>
+              </li>
+            )}
             <li>
               <ExternalLink href={site.repoUrl}>{footer.sourceCode}</ExternalLink>
             </li>

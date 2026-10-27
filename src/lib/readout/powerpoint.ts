@@ -1,6 +1,8 @@
 import type PptxGenJS from 'pptxgenjs';
 import type { Content } from '../content/schemas.ts';
 import { colors, typography } from '../../theme/tokens.ts';
+import { renderTemplate } from '../content/template.ts';
+import { pillarLabel } from '../engine/pillars.ts';
 import {
   answerLabel,
   canvasFields,
@@ -170,7 +172,7 @@ export async function normalizePresentationPackage(input: Blob): Promise<Blob> {
     if (!part) throw new PresentationError();
     if (zip.file(part)) continue;
     if (
-      !/^ppt\/slideMasters\/slideMaster[2-6]\.xml$/.test(part) ||
+      !/^ppt\/slideMasters\/slideMaster(?:[2-9]|[1-9]\d+)\.xml$/.test(part) ||
       override.getAttribute('ContentType') !==
         'application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml'
     )
@@ -283,6 +285,67 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       panel(pptx, slide, 0.5 + i * 4.15, 4.75, 3.98, 1.35);
       text(slide, label!, 0.7 + i * 4.15, 4.95, 3.58, 0.3, 14, slate, true);
       text(slide, compact(value!, 62), 0.7 + i * 4.15, 5.35, 3.58, 0.6, 18);
+    });
+
+    slide = frame(mapping.pillars);
+    report.pillars.forEach((row, i) => {
+      const x = 0.5 + i * 4.15;
+      panel(pptx, slide, x, 1.55, 3.98, 4.75);
+      text(
+        slide,
+        compact(pillarLabel(data, row.pillar), 40),
+        x + 0.2,
+        1.72,
+        3.58,
+        0.7,
+        20,
+        ink,
+        true,
+      );
+      text(
+        slide,
+        renderTemplate(mapping.pillarCount, { count: row.items.length, total: row.catalogTotal }),
+        x + 0.2,
+        2.45,
+        3.58,
+        0.3,
+        14,
+        slate,
+        true,
+      );
+      if (row.items.length === 0) {
+        text(slide, mapping.pillarNone, x + 0.2, 2.9, 3.58, 0.9, 14);
+        return;
+      }
+      text(
+        slide,
+        (['essential', 'recommended', 'consider'] as const)
+          .map((level) => `${mapping.levels[level]} ${row.levels[level]}`)
+          .join(' · '),
+        x + 0.2,
+        2.8,
+        3.58,
+        0.3,
+        12,
+      );
+      row.items.slice(0, 7).forEach(({ capability }, index) => {
+        text(slide, compact(capability.shortName, 38), x + 0.2, 3.2 + index * 0.31, 3.58, 0.26, 13);
+      });
+      if (row.items.length > 7)
+        text(slide, `+${row.items.length - 7}`, x + 0.2, 3.2 + 7 * 0.31, 3.58, 0.26, 12, slate);
+      text(
+        slide,
+        compact(
+          renderTemplate(mapping.pillarFlags, { premium: row.premium, notInGcc: row.notInGcc }),
+          90,
+        ),
+        x + 0.2,
+        5.65,
+        3.58,
+        0.55,
+        11,
+        slate,
+      );
     });
 
     slide = frame(copy.summary);
@@ -440,6 +503,20 @@ export async function canvasPowerPoint(
       0.3,
       14,
     );
+    if (report)
+      text(
+        slide,
+        compact(
+          report.pillars.map((row) => `${row.pillar.requirement}: ${row.items.length}`).join(' · '),
+          120,
+        ),
+        0.5,
+        1.58,
+        12.3,
+        0.2,
+        11,
+        slate,
+      );
     fields.forEach((field, i) => {
       const x = 0.5 + (i % 5) * 2.49;
       const y = 1.8 + Math.floor(i / 5) * 1.57;

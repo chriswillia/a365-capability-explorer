@@ -7,7 +7,8 @@ import { parseArgs } from 'node:util';
  * A small static server that behaves like GitHub Pages, for end-to-end tests:
  * - the site is served under its base path ("/" or "/<repo>/");
  * - a path with no file answers with 404.html and HTTP status 404;
- * - a directory without a trailing slash redirects to the slash form.
+ * - /page is served from page.html with HTTP 200 and no redirect (but /page/ is not), the way Pages does;
+ * - a directory without a trailing slash redirects to the slash form, keeping the query string.
  * Usage: tsx scripts/serve-pages-like.ts --dir dist-repo --base /a365-capability-explorer/ --port 4174
  */
 const { values } = parseArgs({
@@ -55,10 +56,12 @@ function notFound(res: import('node:http').ServerResponse): void {
 }
 
 createServer((req, res) => {
-  const pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://localhost').pathname);
+  const url = new URL(req.url ?? '/', 'http://localhost');
+  const pathname = decodeURIComponent(url.pathname);
 
+  // Like Pages, a redirect to the slash form keeps the query string.
   if (base !== '/' && pathname === base.slice(0, -1)) {
-    res.writeHead(301, { Location: base });
+    res.writeHead(301, { Location: `${base}${url.search}` });
     res.end();
     return;
   }
@@ -75,7 +78,7 @@ createServer((req, res) => {
 
   if (existsSync(target) && statSync(target).isDirectory()) {
     if (!pathname.endsWith('/')) {
-      res.writeHead(301, { Location: `${pathname}/` });
+      res.writeHead(301, { Location: `${pathname}/${url.search}` });
       res.end();
       return;
     }
@@ -86,6 +89,12 @@ createServer((req, res) => {
   }
   if (existsSync(target)) {
     send(res, 200, readFileSync(target), types[extname(target)] ?? 'application/octet-stream');
+    return;
+  }
+  // /learn is served from learn.html with no redirect, but /learn/ is not.
+  const page = `${target}.html`;
+  if (!pathname.endsWith('/') && existsSync(page)) {
+    send(res, 200, readFileSync(page), types['.html'] as string);
     return;
   }
   notFound(res);

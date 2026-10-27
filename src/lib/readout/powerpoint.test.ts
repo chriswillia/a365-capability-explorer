@@ -4,7 +4,9 @@ import JSZip from 'jszip';
 import { JSDOM } from 'jsdom';
 import { posix } from 'node:path';
 import { content } from '../content/index.ts';
+import { renderTemplate } from '../content/template.ts';
 import { patternAnswers } from '../engine/evaluate.ts';
+import { pillarLabel } from '../engine/pillars.ts';
 import { buildReadout } from './report.ts';
 import { canvasPowerPoint, normalizePresentationPackage, readoutPowerPoint } from './powerpoint.ts';
 import type { Assessment, Organization } from '../state/diagnostic-model.ts';
@@ -139,20 +141,21 @@ describe('editable local PowerPoint exports', () => {
     }
   });
   it.each([false, true])(
-    'makes exactly six readout slides with full notes, no remote assets and a logo (dense=%s)',
+    'makes exactly seven readout slides with full notes, no remote assets and a logo (dense=%s)',
     async (dense) => {
       const report = readout(dense);
       const before = structuredClone(report);
-      const result = await packageContents(await readoutPowerPoint(content, report), 6);
+      const result = await packageContents(await readoutPowerPoint(content, report), 7);
       const titles = [
         content.site.productName,
+        content.site.mapping.pillars,
         content.site.readout.summary,
         content.site.readout.anatomy,
         content.site.readout.riskControls,
         content.site.readout.roadmap,
         content.site.readout.exhibits.licensing,
       ];
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < titles.length; i++) {
         expect(result.slides[i]).toContain(titles[i]);
         expect(result.slides[i]).toContain('test-version');
         expect(result.slides[i]).toContain(content.site.disclaimer);
@@ -169,6 +172,24 @@ describe('editable local PowerPoint exports', () => {
     },
   );
 
+  it('puts one panel per requirement area on the second slide, with the in-scope counts', async () => {
+    const report = readout();
+    const result = await packageContents(await readoutPowerPoint(content, report), 7);
+    expect(report.pillars.length).toBe(content.pillars.length);
+    for (const row of report.pillars) {
+      expect(result.slides[1]).toContain(pillarLabel(content, row.pillar));
+      expect(result.slides[1]).toContain(
+        renderTemplate(content.site.mapping.pillarCount, {
+          count: row.items.length,
+          total: row.catalogTotal,
+        }),
+      );
+    }
+    expect(report.pillars.reduce((sum, row) => sum + row.items.length, 0)).toBe(
+      report.result.inScope.length,
+    );
+  });
+
   it.each([false, true])(
     'makes exactly one eleven-box canvas slide (populated=%s)',
     async (populated) => {
@@ -182,9 +203,15 @@ describe('editable local PowerPoint exports', () => {
       expect(result.slides[0]).toContain(content.site.mapping.inScope);
       expect(result.slides[0]).toContain(content.site.disclaimer);
       if (report) {
+        expect(result.slides[0]).toContain(
+          report.pillars.map((row) => `${row.pillar.requirement}: ${row.items.length}`).join(' · '),
+        );
         expect(result.notes[0]).toContain('Fictional operations team');
         expect(result.notes[0]).toContain(String(report.answers.businessOutcome));
         expect(result.notes[0]).toContain(String(report.answers.successMeasures));
+      } else {
+        for (const pillar of content.pillars)
+          expect(result.slides[0]).not.toContain(`${pillar.requirement}: `);
       }
     },
   );

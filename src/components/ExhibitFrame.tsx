@@ -13,6 +13,7 @@ export function ExhibitFrame({
   number,
   label,
   title,
+  id,
   sourceIds = [],
   sourceNote,
   children,
@@ -20,6 +21,8 @@ export function ExhibitFrame({
   number: number;
   label: string;
   title: string;
+  /** Lets a contents list link to this exhibit. */
+  id?: string;
   sourceIds?: string[];
   sourceNote?: string;
   children: ReactNode;
@@ -32,7 +35,7 @@ export function ExhibitFrame({
   });
 
   return (
-    <section className={styles.exhibit} aria-labelledby={headingId}>
+    <section id={id} className={styles.exhibit} aria-labelledby={headingId}>
       <p className={styles.eyebrow}>{renderTemplate(exhibit.eyebrow, { number, label })}</p>
       <h2 id={headingId} className={styles.title}>
         {title}

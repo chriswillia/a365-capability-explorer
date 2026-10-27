@@ -1,4 +1,5 @@
-import { Link } from 'react-router';
+import { useEffect } from 'react';
+import { Link, useLocation } from 'react-router';
 import { DataTable } from '../../components/DataTable.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
@@ -10,23 +11,41 @@ import { Evidence } from './Evidence.tsx';
 import { RuleExplanation } from './RuleExplanation.tsx';
 import styles from './Mapping.module.css';
 
+/** A link to a rule or risk can point inside a closed section, so open the sections around its target. */
+function useOpenTarget() {
+  const { hash } = useLocation();
+  useEffect(() => {
+    const target = hash === '' ? null : document.getElementById(decodeURIComponent(hash.slice(1)));
+    if (target === null) return;
+    for (let node = target.closest('details'); node !== null;)
+      node = ((node.open = true), node.parentElement?.closest('details') ?? null);
+    target.scrollIntoView();
+  }, [hash]);
+}
+
 export function Component() {
   usePageTitle('methodology');
+  useOpenTarget();
   const copy = content.site.mapping;
   return (
     <PageContainer>
       <PageHeading>{content.site.routes.methodology.title}</PageHeading>
       <p className={styles.intro}>{copy.methodology}</p>
-      <section>
-        <h2>{copy.assumptions}</h2>
-        <ul>
-          {copy.methodologyNotes.map((note) => (
-            <li key={note}>{note}</li>
+      <section aria-labelledby="methodology-quick">
+        <h2 id="methodology-quick">{copy.quickTitle}</h2>
+        <dl>
+          {copy.quick.map((item) => (
+            <div key={item.question}>
+              <dt>
+                <strong>{item.question}</strong>
+              </dt>
+              <dd>{item.answer}</dd>
+            </div>
           ))}
-        </ul>
+        </dl>
       </section>
-      <section>
-        <h2>{copy.inScope}</h2>
+      <section aria-labelledby="methodology-levels">
+        <h2 id="methodology-levels">{copy.levelsTitle}</h2>
         <dl>
           {Object.entries(copy.levels).map(([level, label]) => (
             <div key={level}>
@@ -67,68 +86,79 @@ export function Component() {
           ))}
         </ul>
       </section>
-      <section>
-        <h2>{copy.rules}</h2>
-        {content.rules.map((rule) => (
-          <article key={rule.id} id={`rule-${rule.id}`}>
-            <h3>
-              <code>{rule.id}</code>
-            </h3>
-            <RuleExplanation rule={rule} />
-          </article>
-        ))}
-      </section>
-      <section>
-        <h2>{copy.golden}</h2>
-        <DataTable
-          caption={copy.golden}
-          hideCaption
-          scrollLabel={copy.golden}
-          rows={content.goldenScenarios}
-          rowKey={(s) => s.id}
-          columns={[
-            {
-              key: 'scenario',
-              header: content.site.routes.pattern.title,
-              rowHeader: true,
-              render: (s) => {
-                const sample = content.samples.find((sample) => sample.id === s.sampleId);
-                const pattern = content.patterns.find((p) => p.id === s.patternId)!;
-                return (
-                  <Link
-                    className={styles.cellLink}
-                    to={`/patterns/${s.patternId}${sample ? `?sample=${sample.id}` : ''}`}
-                  >
-                    {sample?.title ?? pattern.title}
-                  </Link>
-                );
+      <details id="engine" className={styles.engine}>
+        <summary>{copy.engineTitle}</summary>
+        <section>
+          <h2>{copy.assumptions}</h2>
+          <ul>
+            {copy.methodologyNotes.map((note) => (
+              <li key={note}>{note}</li>
+            ))}
+          </ul>
+        </section>
+        <section>
+          <h2>{copy.rules}</h2>
+          {content.rules.map((rule) => (
+            <article key={rule.id} id={`rule-${rule.id}`}>
+              <h3>
+                <code>{rule.id}</code>
+              </h3>
+              <RuleExplanation rule={rule} />
+            </article>
+          ))}
+        </section>
+        <section>
+          <h2>{copy.golden}</h2>
+          <DataTable
+            caption={copy.golden}
+            hideCaption
+            scrollLabel={copy.golden}
+            rows={content.goldenScenarios}
+            rowKey={(s) => s.id}
+            columns={[
+              {
+                key: 'scenario',
+                header: content.site.routes.pattern.title,
+                rowHeader: true,
+                render: (s) => {
+                  const sample = content.samples.find((sample) => sample.id === s.sampleId);
+                  const pattern = content.patterns.find((p) => p.id === s.patternId)!;
+                  return (
+                    <Link
+                      className={styles.cellLink}
+                      to={`/patterns/${s.patternId}${sample ? `?sample=${sample.id}` : ''}`}
+                    >
+                      {sample?.title ?? pattern.title}
+                    </Link>
+                  );
+                },
               },
-            },
-            {
-              key: 'include',
-              header: copy.levels.essential,
-              render: (s) =>
-                s.mustInclude
-                  .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
-                  .join(', '),
-            },
-            {
-              key: 'exclude',
-              header: copy.notInScope,
-              render: (s) =>
-                s.mustNotInclude
-                  .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
-                  .join(', '),
-            },
-            {
-              key: 'review',
-              header: copy.golden,
-              render: (s) =>
-                s.reviewedBy === null ? copy.pendingReview : `${s.reviewedBy} · ${s.reviewedOn}`,
-            },
-          ]}
-        />
-      </section>
+              {
+                key: 'include',
+                header: copy.levels.essential,
+                render: (s) =>
+                  s.mustInclude
+                    .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
+                    .join(', '),
+              },
+              {
+                key: 'exclude',
+                header: copy.notInScope,
+                render: (s) =>
+                  s.mustNotInclude
+                    .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
+                    .join(', '),
+              },
+              {
+                key: 'review',
+                header: copy.golden,
+                render: (s) =>
+                  s.reviewedBy === null ? copy.pendingReview : `${s.reviewedBy} · ${s.reviewedOn}`,
+              },
+            ]}
+          />
+        </section>
+      </details>
       <section>
         <h2>{copy.hostingSources}</h2>
         <ul className={styles.links}>

@@ -32,6 +32,8 @@ export function Component() {
     label: kpi.label,
     value: formatNumber(metrics[kpi.valueKey]),
     note: kpi.noteTemplate === undefined ? undefined : renderTemplate(kpi.noteTemplate, values),
+    href: kpi.href,
+    noteHref: kpi.noteHref,
   }));
 
   // "Most" is only said when it is true of the data.
@@ -82,6 +84,9 @@ export function Component() {
         <ButtonLink to="/capabilities" variant="onDark">
           {overview.ctaExplore}
         </ButtonLink>
+        <ButtonLink to="/conversation" variant="onDarkOutline">
+          {overview.ctaConversation}
+        </ButtonLink>
       </HeroBand>
 
       <div className={styles.page}>
@@ -94,11 +99,9 @@ export function Component() {
                 <h3>{persona.label}</h3>
                 <p>{persona.need}</p>
                 <Link to={persona.href}>{persona.startLabel}</Link>
-                <Badge tone={persona.reviewStatus === 'draft' ? 'draft' : 'outline'}>
-                  {persona.reviewStatus === 'draft'
-                    ? site.ui.badges.draft
-                    : site.ui.badges.reviewed}
-                </Badge>
+                {persona.reviewStatus === 'reviewed' && (
+                  <Badge tone="outline">{site.ui.badges.reviewed}</Badge>
+                )}
               </li>
             ))}
           </ul>
@@ -134,7 +137,12 @@ export function Component() {
           <ul className={styles.pillars}>
             {byOrder(content.pillars).map((pillar) => (
               <li key={pillar.id} className={styles.pillar}>
-                <h3 className={styles.pillarName}>{pillar.label}</h3>
+                <h3 className={styles.pillarName}>
+                  <Link to={`/capabilities?pillar=${pillar.id}`}>{pillar.label}</Link>
+                </h3>
+                <p className={styles.requirement}>
+                  {renderTemplate(pillars.requirementLabel, { requirement: pillar.requirement })}
+                </p>
                 <p className={styles.pillarCount}>
                   {renderTemplate(pillars.countLabel, { count: metrics.byPillar[pillar.id] })}
                 </p>

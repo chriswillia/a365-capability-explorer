@@ -25,8 +25,17 @@ import frontierMappings from '../../generated/frontierMappings.json';
 import whatIfs from '../../generated/whatIfs.json';
 import mappingConfig from '../../generated/mappingConfig.json';
 import workshop from '../../generated/workshop.json';
+import conversation from '../../generated/conversation.json';
 import { computeMetrics, templateValues } from './metrics.ts';
-import type { ConsoleId, Content, ContentMeta, ControlPointId, PillarId } from './schemas.ts';
+import type {
+  ConsoleId,
+  Content,
+  ContentMeta,
+  ControlPointId,
+  PillarDef,
+  PillarId,
+} from './schemas.ts';
+import { renderTemplate } from './template.ts';
 
 /*
  * The only place the app reads compiled content. scripts/build-content.ts validates every file against the
@@ -59,6 +68,7 @@ export const content = {
   whatIfs,
   mappingConfig,
   workshop,
+  conversation,
 } as unknown as Content;
 
 export const contentMeta = meta as ContentMeta;
@@ -79,6 +89,13 @@ export const sourceById = (id: string) => sourcesById.get(id);
 
 const pillarsById = new Map(content.pillars.map((pillar) => [pillar.id, pillar]));
 export const pillarById = (id: PillarId) => pillarsById.get(id);
+
+/** The customer-facing name of a pillar, for example "Security (Secure)". */
+export const pillarName = (pillar: PillarDef): string =>
+  renderTemplate(content.site.capabilities.pillarName, {
+    requirement: pillar.requirement,
+    label: pillar.label,
+  });
 
 const consolesById = new Map(content.consoles.map((console_) => [console_.id, console_]));
 export const consoleById = (id: ConsoleId) => consolesById.get(id);

@@ -9,7 +9,7 @@ export function ButtonLink({
   children,
 }: {
   to: string;
-  variant?: 'primary' | 'onDark';
+  variant?: 'primary' | 'onDark' | 'onDarkOutline';
   children: ReactNode;
 }) {
   return (

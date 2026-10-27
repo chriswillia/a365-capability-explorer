@@ -1,3 +1,17 @@
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-paper);
+  border-block: 1px solid var(--color-hairline);
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
@@ -7,6 +21,8 @@
 }
 
 .actions button,
+.toolbar button,
+.moreItems button,
 .branding button {
   padding: var(--space-2) var(--space-3);
   color: var(--color-ink);
@@ -14,6 +30,64 @@
   border: 1px solid var(--color-control-border);
   font: inherit;
   cursor: pointer;
+}
+
+.more > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.more[open] > summary {
+  margin-bottom: var(--space-3);
+}
+
+.moreItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+.contents summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.contents ol {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-6);
+  font-size: var(--text-14);
+}
+
+.appendixLink {
+  list-style: none;
+}
+
+@media (min-width: 64rem) {
+  .layout {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .contents {
+    position: sticky;
+    top: 5.5rem;
+    max-height: calc(100vh - 7rem);
+    overflow: auto;
+  }
+}
+
+@media print {
+  .layout {
+    display: block;
+  }
 }
 
 .document {
@@ -64,6 +138,11 @@
 .outOfScope,
 .outOfScope a {
   color: var(--color-slate);
+}
+
+.informs {
+  color: var(--color-slate);
+  font-size: var(--text-14);
 }
 
 @page readout {
@@ -130,7 +209,8 @@
 }
 
 .canvasGrid,
-.canvasControls {
+.canvasControls,
+.canvasPillars {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   gap: var(--space-3);
@@ -142,11 +222,13 @@
   font-size: var(--text-20);
 }
 
-.canvasControls h3 {
+.canvasControls h3,
+.canvasPillars h3 {
   font-size: var(--text-14);
 }
 
-.canvasControls ul {
+.canvasControls ul,
+.canvasPillars ul {
   padding-left: var(--space-4);
 }
 
@@ -157,6 +239,11 @@
 
 .canvasPrintDetails {
   display: none;
+}
+
+/* The requirement areas are the point of the canvas, so on screen they take a full row. */
+.canvasWide {
+  grid-column: 1 / -1;
 }
 
 @page canvas {
@@ -226,12 +313,26 @@
   }
 
   .canvasGrid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-2);
+  }
+
+  /* Ten boxes and this one make twelve cells: three full rows of four. */
+  .canvasWide {
+    grid-column: span 2;
+  }
+
+  .canvasWide .canvasPillars {
+    margin-block: 0;
   }
 
   .canvasControls {
     grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .canvasPillars {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-2);
   }
 
@@ -240,10 +341,15 @@
     break-inside: avoid;
   }
 
-  .canvasBox h2,
-  .canvasControls h3 {
+  .canvasBox h2 {
     margin-block: var(--space-1);
     font-size: var(--text-14);
+  }
+
+  .canvasControls h3,
+  .canvasPillars h3 {
+    margin-block: var(--space-1);
+    font-size: var(--text-12);
   }
 
   .canvas .prompt {

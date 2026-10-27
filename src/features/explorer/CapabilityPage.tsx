@@ -4,7 +4,14 @@ import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { createGlossaryAnnotator } from '../../lib/content/annotateGlossary.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
-import { consoleById, content, controlPointById, sourceById } from '../../lib/content/index.ts';
+import {
+  consoleById,
+  content,
+  controlPointById,
+  pillarById,
+  pillarName,
+  sourceById,
+} from '../../lib/content/index.ts';
 import { licensingTier, sourcesDiffer } from '../../lib/content/derive.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
@@ -31,12 +38,21 @@ function Brief({ capability: c }: { capability: Capability }) {
   const annotate = createGlossaryAnnotator();
   const correction = new URL(`${site.repoUrl}/issues/new`);
   correction.searchParams.set('title', `Correction: ${c.shortName}`);
+  const pillar = pillarById(c.pillar);
 
   return (
     <PageContainer>
       <Link to="/capabilities">{copy.back}</Link>
       <PageHeading>{c.shortName}</PageHeading>
       <div className={styles.badges}>
+        <Badge tone="outline">{pillar === undefined ? '' : pillarName(pillar)}</Badge>
+        <Badge tone="outline">{consoleById(c.source.console)?.displayName ?? ''}</Badge>
+        <Badge tone={licensingTier(c) === 'foundational' ? 'outline' : 'info'}>
+          {licensingTier(c) === 'foundational' ? badges.foundational : badges.premium}
+        </Badge>
+        <Badge tone="neutral">
+          {c.source.gccAvailable ? badges.gccAvailable : badges.gccUnavailable}
+        </Badge>
         <Badge tone="draft">{c.reviewStatus === 'draft' ? badges.draft : badges.reviewed}</Badge>
         {c.status === 'preview' && <Badge tone="neutral">{badges.preview}</Badge>}
         {c.status === 'frontier-preview' && <Badge tone="neutral">{badges.frontierPreview}</Badge>}
@@ -212,6 +228,15 @@ function Brief({ capability: c }: { capability: Capability }) {
       )}
       <p className={styles.note}>{copy.assessmentPending}</p>
       <ExternalLink href={correction.href}>{copy.correction}</ExternalLink>
+      {site.feedbackEmail !== null && (
+        <p>
+          <a
+            href={`mailto:${site.feedbackEmail}?subject=${encodeURIComponent(`Correction: ${c.shortName}`)}`}
+          >
+            {site.ui.footer.emailFeedback}
+          </a>
+        </p>
+      )}
     </PageContainer>
   );
 }

@@ -5,6 +5,7 @@ import { afterEach, beforeEach } from 'vitest';
 beforeEach(() => {
   // jsdom does not implement scrolling.
   window.scrollTo = () => {};
+  Element.prototype.scrollIntoView = () => {};
 });
 
 afterEach(() => {

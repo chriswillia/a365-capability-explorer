@@ -92,10 +92,13 @@ export function validateMapping(
     if (!assigned.includes(q.id)) errors.push(`diagnostic: missing section for "${q.id}"`);
     if (!content.diagnostic.consultantNotes[q.id])
       errors.push(`diagnostic: missing consultant note for "${q.id}"`);
+    if (!content.diagnostic.askPrompts[q.id])
+      errors.push(`diagnostic: missing ask-the-customer prompt for "${q.id}"`);
   }
   for (const id of [
     ...content.diagnostic.quickQuestionIds,
     ...Object.keys(content.diagnostic.consultantNotes),
+    ...Object.keys(content.diagnostic.askPrompts),
   ])
     reference(
       'diagnostic',

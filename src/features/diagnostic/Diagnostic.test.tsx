@@ -5,8 +5,10 @@ import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { routes } from '../../app/routes.tsx';
-import { content, contentMeta } from '../../lib/content/index.ts';
+import { content, contentMeta, pillarName } from '../../lib/content/index.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluateAssessment } from '../../lib/engine/evaluate.ts';
+import { pillarRows, questionPillars } from '../../lib/engine/pillars.ts';
 import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
 import { emptyWorkspace } from '../../lib/state/diagnostic-model.ts';
 import {
@@ -19,6 +21,7 @@ import { fluentTheme } from '../../theme/fluentTheme.ts';
 import './DiagnosticHome.tsx';
 import './DiagnosticLayout.tsx';
 import './DiagnosticWizard.tsx';
+import { diagnosticSections } from './questions.ts';
 
 // Fluent's focus trapping needs real layout; browser tests cover the actual dialog.
 vi.mock('./ConfirmDialog.tsx', async () => {
@@ -48,6 +51,8 @@ vi.mock('./ConfirmDialog.tsx', async () => {
 
 const copy = content.site.diagnostic;
 const questionLabel = (id: string) => content.questions.find((q) => q.id === id)!.label;
+const questionCount = (mode: 'quick' | 'full') =>
+  diagnosticSections(content, mode, {}).reduce((sum, section) => sum + section.questions.length, 0);
 async function dialogAction(name: string) {
   const dialog = await screen.findByRole('alertdialog');
   return within(dialog).getByRole('button', { name });
@@ -89,7 +94,7 @@ function seed() {
 afterEach(() => vi.restoreAllMocks());
 
 describe('local diagnostic', () => {
-  it('creates a profile first and seeds a pattern without leaking neutral organization answers', async () => {
+  it('starts from the customer name, seeds a scenario and does not leak neutral organization answers', async () => {
     const user = userEvent.setup();
     const { router } = renderPage('/diagnostic?pattern=ai-teammate');
     await screen.findByRole('heading', { level: 1, name: content.site.routes.diagnostic.title });
@@ -98,7 +103,6 @@ describe('local diagnostic', () => {
       screen.getByRole('textbox', { name: copy.newOrganization }),
       'Fictional organization',
     );
-    await user.click(screen.getByRole('button', { name: copy.createOrganization }));
     await user.selectOptions(
       screen.getByRole('combobox', { name: questionLabel('cloudEnvironment') }),
       'gcc',
@@ -112,6 +116,7 @@ describe('local diagnostic', () => {
     });
     expect(saved.assessments[0]!.answers.accessModel).toBe('own-teammate');
     expect(saved.assessments[0]!.organizationId).toBe(saved.organizations[0]!.id);
+    expect(saved.assessments[0]!.sectionId).toBe('profile');
     expect(router.state.location.pathname).toBe(`/diagnostic/${saved.assessments[0]!.id}`);
     expect(router.state.location.search).toBe('');
     const rail = screen.getByRole('navigation', { name: copy.sectionRail });
@@ -121,9 +126,135 @@ describe('local diagnostic', () => {
       { org: saved.organizations[0]!.answers, useCase: saved.assessments[0]!.answers },
       contentMeta.contentVersion,
     );
+    expect(expected.inScope.length).toBeGreaterThan(0);
+    expect(screen.getByText(copy.reviewNote)).toBeInTheDocument();
+    const rows = pillarRows(content, expected.inScope);
+    for (const row of rows) {
+      const card = screen
+        .getByRole('heading', { level: 3, name: pillarName(row.pillar) })
+        .closest('li')!;
+      expect(card).toHaveTextContent(
+        renderTemplate(content.site.mapping.pillarCount, {
+          count: row.items.length,
+          total: row.catalogTotal,
+        }),
+      );
+    }
+    expect(rows.reduce((total, row) => total + row.items.length, 0)).toBe(expected.inScope.length);
+    const reads = screen.getAllByRole('link', { name: content.site.readout.open });
+    expect(reads.length).toBeGreaterThan(0);
+    for (const link of reads)
+      expect(link).toHaveAttribute('href', `/diagnostic/${saved.assessments[0]!.id}/readout`);
     expect(
-      within(screen.getByRole('table', { name: content.site.mapping.inScope })).getAllByRole('row'),
-    ).toHaveLength(expected.inScope.length + 1);
+      screen.queryByRole('table', { name: content.site.mapping.inScope }),
+    ).not.toBeInTheDocument();
+  });
+  it('starts a quick scan for an existing customer at the use case without creating another customer', async () => {
+    const user = userEvent.setup();
+    const data = seed();
+    saveDiagnostics(loadDiagnostics(), data);
+    renderPage();
+    const startSection = within(await screen.findByRole('region', { name: copy.startHeading }));
+    expect(startSection.getByRole('combobox', { name: copy.selectOrganization })).toHaveValue(
+      data.organizations[0]!.id,
+    );
+    expect(
+      startSection.queryByRole('textbox', { name: copy.newOrganization }),
+    ).not.toBeInTheDocument();
+    await user.click(startSection.getByRole('button', { name: copy.start }));
+    await screen.findByRole('textbox', { name: questionLabel('useCaseName') });
+    const saved = loadDiagnostics().data;
+    expect(saved.organizations).toHaveLength(1);
+    expect(saved.assessments).toHaveLength(2);
+    const started = saved.assessments.find((a) => a.id !== data.assessments[0]!.id)!;
+    expect(started.organizationId).toBe(data.organizations[0]!.id);
+    expect(started.sectionId).toBe('profile');
+    expect(started.assumedQuestionIds).toBeUndefined();
+  });
+  it('shows what each mode asks before starting', async () => {
+    const user = userEvent.setup();
+    renderPage();
+    const mode = await screen.findByRole('combobox', { name: copy.mode });
+    const options = within(mode).getAllByRole('option');
+    expect(options.map((o) => o.textContent)).toEqual([
+      renderTemplate(copy.modeOptions.quick, { count: questionCount('quick') }),
+      renderTemplate(copy.modeOptions.full, { count: questionCount('full') }),
+    ]);
+    expect(questionCount('quick')).toBeLessThan(questionCount('full'));
+    expect(screen.getByText(copy.quickNote)).toBeInTheDocument();
+    await user.selectOptions(mode, 'full');
+    expect(screen.getByText(copy.fullNote)).toBeInTheDocument();
+  });
+  it('marks scenario answers as assumed until the seller confirms or changes them', async () => {
+    const user = userEvent.setup();
+    renderPage('/diagnostic?pattern=ai-teammate');
+    await user.type(
+      await screen.findByRole('textbox', { name: copy.newOrganization }),
+      'Fictional organization',
+    );
+    await user.click(screen.getByRole('button', { name: copy.start }));
+    await screen.findByRole('heading', { level: 1, name: 'AI teammate' });
+    const assumedIds = () => loadDiagnostics().data.assessments[0]!.assumedQuestionIds ?? [];
+    const assumedInScan = () =>
+      assumedIds().filter((id) => content.diagnostic.quickQuestionIds.includes(id)).length;
+    const statusText = () =>
+      screen.getByText(renderTemplate(copy.assumedStatus, { assumed: assumedInScan() }), {
+        exact: false,
+      });
+    expect(assumedIds()).toEqual(expect.arrayContaining(['stage', 'buildPlatform', 'accessModel']));
+    expect(assumedIds()).not.toContain('useCaseName');
+    expect(assumedInScan()).toBeGreaterThan(2);
+    expect(statusText()).toBeInTheDocument();
+    expect(screen.getByText(copy.assumedBadge)).toBeInTheDocument();
+
+    const confirm = `${copy.confirmAnswer} — ${questionLabel('stage')}`;
+    await user.click(screen.getByRole('button', { name: confirm }));
+    expect(assumedIds()).not.toContain('stage');
+    expect(assumedIds()).toContain('buildPlatform');
+    expect(screen.queryByRole('button', { name: confirm })).not.toBeInTheDocument();
+    expect(loadDiagnostics().data.assessments[0]!.answers.stage).toBe('pilot');
+    expect(statusText()).toBeInTheDocument();
+
+    await user.click(
+      within(screen.getByRole('navigation', { name: copy.sectionRail })).getByRole('button', {
+        name: 'Build and run',
+      }),
+    );
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: questionLabel('buildPlatform') }),
+      'copilot-studio',
+    );
+    expect(assumedIds()).not.toContain('buildPlatform');
+    expect(assumedIds()).toContain('channels');
+    expect(loadDiagnostics().data.assessments[0]!.answers.buildPlatform).toBe('copilot-studio');
+    expect(statusText()).toBeInTheDocument();
+  });
+  it('asks each question in plain language and names the requirement areas it informs', async () => {
+    const user = userEvent.setup();
+    const data = seed();
+    saveDiagnostics(loadDiagnostics(), data);
+    renderPage(`/diagnostic/${data.assessments[0]!.id}`);
+    await screen.findByRole('textbox', { name: questionLabel('useCaseName') });
+    await user.click(
+      within(screen.getByRole('navigation', { name: copy.sectionRail })).getByRole('button', {
+        name: 'Identity and autonomy',
+      }),
+    );
+    const field = within(screen.getByRole('group', { name: questionLabel('accessModel') }));
+    expect(
+      field.getByText(content.diagnostic.askPrompts.accessModel!, { exact: false }),
+    ).toBeInTheDocument();
+    const pillars = content.pillars
+      .filter((p) => questionPillars(content).get('accessModel')?.has(p.id) === true)
+      .sort((a, b) => a.order - b.order);
+    expect(pillars.length).toBeGreaterThan(0);
+    expect(
+      field.getByText(
+        renderTemplate(content.site.mapping.informs, {
+          label: pillars.map((p) => p.requirement).join(', '),
+        }),
+      ),
+    ).toBeInTheDocument();
   });
   it('preserves full-only inputs across mode switches and resumes the saved section after remount', async () => {
     const user = userEvent.setup();
@@ -164,8 +295,9 @@ describe('local diagnostic', () => {
     const user = userEvent.setup();
     saveDiagnostics(loadDiagnostics(), seed());
     renderPage();
-    await screen.findByRole('button', { name: copy.duplicate });
+    await user.click(await screen.findByText(copy.manageCustomers));
     expect(screen.getByRole('button', { name: copy.deleteOrganization })).toBeDisabled();
+    await user.click(screen.getByText(copy.more));
     await user.click(screen.getByRole('button', { name: copy.duplicate }));
     expect(loadDiagnostics().data.assessments).toHaveLength(2);
     const duplicateHeading = screen.getByRole('heading', {
@@ -173,6 +305,7 @@ describe('local diagnostic', () => {
       name: 'Fictional use case — copy',
     });
     const card = within(duplicateHeading.closest('li')!);
+    await user.click(card.getByText(copy.more));
     await user.click(card.getByRole('button', { name: copy.rename }));
     const name = screen.getByRole('textbox', { name: copy.assessmentName });
     await user.clear(name);
@@ -183,6 +316,7 @@ describe('local diagnostic', () => {
         (a) => a.answers.useCaseName === 'Renamed assessment',
       ),
     ).toBe(true);
+    await user.click(card.getByText(copy.more));
     await user.click(card.getByRole('button', { name: copy.delete }));
     await user.click(await dialogAction(copy.cancel));
     expect(loadDiagnostics().data.assessments).toHaveLength(2);
@@ -217,7 +351,7 @@ describe('local diagnostic', () => {
     });
     renderPage();
     await screen.findByText(copy.storageInvalid);
-    expect(screen.queryByRole('button', { name: copy.createOrganization })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: copy.start })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: copy.reset }));
     await user.click(await dialogAction(copy.confirm));
     expect(screen.getByText(copy.storageInvalid)).toBeInTheDocument();
@@ -232,6 +366,7 @@ describe('local diagnostic', () => {
       throw new DOMException('full', 'QuotaExceededError');
     });
     const { router } = renderPage();
+    await user.click(await screen.findByText(copy.manageCustomers));
     await screen.findByRole('textbox', { name: questionLabel('orgName') });
     await user.type(screen.getByRole('textbox', { name: questionLabel('orgName') }), ' draft');
     expect(screen.getByRole('alert')).toHaveTextContent(copy.storageQuota);

@@ -5,7 +5,14 @@ import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
-import { content, contentMeta, sourceById } from '../../lib/content/index.ts';
+import {
+  consoleById,
+  content,
+  contentMeta,
+  pillarName,
+  sourceById,
+} from '../../lib/content/index.ts';
+import { licensingTier } from '../../lib/content/derive.ts';
 import { computeWorkshopMinutes } from '../../lib/content/metrics.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { describeCondition } from '../../lib/engine/conditions.ts';
@@ -13,7 +20,7 @@ import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { Evidence } from '../mapping/Evidence.tsx';
 import styles from './Workshop.module.css';
 
-type PrintTarget = 'all' | 'guide' | 'patterns' | 'capabilities';
+type PrintTarget = 'all' | 'guide' | 'checklist' | 'patterns' | 'capabilities';
 
 export function Component() {
   usePageTitle('workshop');
@@ -60,12 +67,17 @@ export function Component() {
         {stamp}
         <div className={styles.actions} data-presentation-hide data-no-print>
           <a href="#workshop-guide">{copy.guide}</a>
+          <a href="#checklist">{copy.checklistTitle}</a>
           <a href="#pattern-cards">{copy.patternsTitle}</a>
           <a href="#capability-cards">{copy.capabilitiesTitle}</a>
           <Link to="/canvas/blank">{content.site.readout.blankCanvas}</Link>
+          <Link to="/conversation">{content.site.routes.conversation.title}</Link>
           <Link to="/portfolio">{content.site.routes.portfolio.title}</Link>
           <button type="button" onClick={() => print('guide')}>
             {copy.printGuide}
+          </button>
+          <button type="button" onClick={() => print('checklist')}>
+            {copy.printChecklist}
           </button>
           <button type="button" onClick={() => print('patterns')}>
             {copy.printPatterns}
@@ -107,6 +119,64 @@ export function Component() {
               <li key={text}>{text}</li>
             ))}
           </ul>
+        </section>
+        <section id="checklist" data-workshop-part="checklist">
+          <h2>{copy.checklistTitle}</h2>
+          <p>{copy.checklistNote}</p>
+          {[...content.pillars]
+            .sort((a, b) => a.order - b.order)
+            .map((pillar) => {
+              const capabilities = content.capabilities.filter((c) => c.pillar === pillar.id);
+              return (
+                <div key={pillar.id} className={styles.checklistGroup}>
+                  <h3>
+                    {renderTemplate(copy.checklistPillar, {
+                      label: pillarName(pillar),
+                      count: capabilities.length,
+                    })}
+                  </h3>
+                  <table className={styles.checklist}>
+                    <caption className="visually-hidden">{pillarName(pillar)}</caption>
+                    <thead>
+                      <tr>
+                        <th scope="col">{copy.checklistColumns.discuss}</th>
+                        <th scope="col">{copy.checklistColumns.capability}</th>
+                        <th scope="col">{copy.checklistColumns.productArea}</th>
+                        <th scope="col">{copy.checklistColumns.availability}</th>
+                        <th scope="col">{copy.checklistColumns.requirement}</th>
+                        <th scope="col">{copy.checklistColumns.owner}</th>
+                        <th scope="col">{copy.checklistColumns.priority}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {capabilities.map((capability) => (
+                        <tr key={capability.id}>
+                          <td className={styles.box}>
+                            <span aria-hidden="true">☐</span>
+                            <span className="visually-hidden">{capability.shortName}</span>
+                          </td>
+                          <th scope="row">{capability.shortName}</th>
+                          <td>{consoleById(capability.source.console)?.displayName}</td>
+                          <td>
+                            {licensingTier(capability) === 'foundational'
+                              ? content.site.ui.badges.foundational
+                              : content.site.ui.badges.premium}
+                            {' · '}
+                            {capability.source.gccAvailable
+                              ? content.site.ui.badges.gccAvailable
+                              : content.site.ui.badges.gccUnavailable}
+                          </td>
+                          <td className={styles.writeIn} />
+                          <td className={styles.writeIn} />
+                          <td className={styles.writeIn} />
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })}
+          {stamp}
         </section>
         <section id="pattern-cards" data-workshop-part="patterns">
           <h2>{copy.patternsTitle}</h2>

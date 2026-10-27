@@ -1,13 +1,17 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
-import { content, contentMeta } from '../../lib/content/index.ts';
+import { PillarSummary } from '../../components/PillarSummary.tsx';
+import { content, contentMeta, pillarName } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import type { Answers, Question } from '../../lib/content/schemas.ts';
 import { answerErrors, knownAnswer } from '../../lib/engine/answers.ts';
 import { evaluateAssessment, type AssessmentResult } from '../../lib/engine/evaluate.ts';
+import { pillarCoverage, pillarRows } from '../../lib/engine/pillars.ts';
+import { standingAssumptions } from '../../lib/state/assumptions.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import {
   displayName,
@@ -15,13 +19,21 @@ import {
   type Organization,
 } from '../../lib/state/diagnostic-model.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
-import { MappingReport } from '../mapping/MappingReport.tsx';
 import { QuestionInput } from './QuestionInput.tsx';
 import { compatibleAnswers, diagnosticSections } from './questions.ts';
 import styles from './Diagnostic.module.css';
 
-function Anatomy({ result }: { result: AssessmentResult }) {
+type AnatomyView = 'pillar' | 'layer';
+
+function Requirements({
+  result,
+  coverage,
+}: {
+  result: AssessmentResult;
+  coverage: ReturnType<typeof pillarCoverage>;
+}) {
   const copy = content.site.mapping;
+  const [by, setBy] = useState<AnatomyView>('pillar');
   type Layer = AssessmentResult['anatomy'][number];
   const columns: Column<Layer>[] = [
     {
@@ -51,35 +63,70 @@ function Anatomy({ result }: { result: AssessmentResult }) {
     <aside className={styles.blueprint} aria-labelledby="emerging-title">
       <h2 id="emerging-title">{content.site.diagnostic.emerging}</h2>
       <p>{content.site.diagnostic.emergingNote}</p>
-      <ol className={styles.layerList}>
-        {result.anatomy.map(({ point, capabilities }) => (
-          <li key={point.id}>
-            <strong>{point.layer}</strong>
-            {capabilities.length === 0 ? (
-              <p>{copy.unknownAnswer}</p>
-            ) : (
-              <ul>
-                {capabilities.map(({ capability, level }) => (
-                  <li key={capability.id}>
-                    <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link> —{' '}
-                    {copy.levels[level]}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </li>
+      <fieldset className={styles.segmented}>
+        <legend>{copy.anatomyBy}</legend>
+        {(['pillar', 'layer'] as const).map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={by === option}
+            onClick={() => setBy(option)}
+          >
+            {copy.anatomyByOptions[option]}
+          </button>
         ))}
-      </ol>
-      <details>
-        <summary>{copy.anatomy}</summary>
-        <DataTable
-          caption={content.site.diagnostic.emerging}
-          columns={columns}
-          rows={result.anatomy}
-          rowKey={(row) => row.point.id}
-          scrollLabel={content.site.diagnostic.emerging}
-        />
-      </details>
+      </fieldset>
+      {by === 'pillar' ? (
+        <PillarSummary rows={pillarRows(content, result.inScope)} headingLevel={3} />
+      ) : (
+        <>
+          <ol className={styles.layerList}>
+            {result.anatomy.map(({ point, capabilities }) => (
+              <li key={point.id}>
+                <strong>{point.layer}</strong>
+                {capabilities.length === 0 ? (
+                  <p>{copy.unknownAnswer}</p>
+                ) : (
+                  <ul>
+                    {capabilities.map(({ capability, level }) => (
+                      <li key={capability.id}>
+                        <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link> —{' '}
+                        {copy.levels[level]}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ol>
+          <details>
+            <summary>{copy.anatomy}</summary>
+            <DataTable
+              caption={content.site.diagnostic.emerging}
+              columns={columns}
+              rows={result.anatomy}
+              rowKey={(row) => row.point.id}
+              scrollLabel={content.site.diagnostic.emerging}
+            />
+          </details>
+        </>
+      )}
+      <section aria-labelledby="coverage-title">
+        <h3 id="coverage-title">{copy.coverage}</h3>
+        <ul className={styles.coverage}>
+          {coverage.map((row) => (
+            <li key={row.pillar.id}>
+              {renderTemplate(copy.coverageRow, {
+                label: pillarName(row.pillar),
+                answered: row.answered,
+                total: row.total,
+              })}
+              {row.assumed > 0 &&
+                ` · ${renderTemplate(copy.coverageAssumed, { assumed: row.assumed })}`}
+            </li>
+          ))}
+        </ul>
+      </section>
     </aside>
   );
 }
@@ -127,12 +174,27 @@ function Wizard({
         )
       : null;
   const visibleQuestions = sections.flatMap((s) => s.questions);
+  const assumed = new Set(standingAssumptions(assessment));
+  const answered = visibleQuestions.filter((q) => knownAnswer(answers[q.id]));
+  const assumedCount = answered.filter((q) => assumed.has(q.id)).length;
+  const coverage = pillarCoverage(
+    content,
+    answers,
+    new Set(visibleQuestions.map((q) => q.id)),
+    assumed,
+  );
   const setSection = (id: string) =>
     store.change((draft) => {
       const a = draft.assessments.find((a) => a.id === assessment.id)!;
       a.sectionId = id;
       a.updatedAt = new Date().toISOString();
     });
+  const dropAssumption = (draft: { assessments: Assessment[] }, id: string) => {
+    const a = draft.assessments.find((a) => a.id === assessment.id)!;
+    const remaining = (a.assumedQuestionIds ?? []).filter((item) => item !== id);
+    if (remaining.length > 0) a.assumedQuestionIds = remaining;
+    else delete a.assumedQuestionIds;
+  };
   const updateAnswer = (question: Question, value: Answers[string]) =>
     store.change((draft) => {
       const entity =
@@ -142,7 +204,20 @@ function Wizard({
       entity.answers[question.id] = value;
       entity.updatedAt = new Date().toISOString();
       entity.contentVersion = contentMeta.contentVersion;
+      if (question.scope === 'useCase') dropAssumption(draft, question.id);
     });
+  const confirmAnswer = (question: Question) =>
+    store.change((draft) => {
+      dropAssumption(draft, question.id);
+      draft.assessments.find((a) => a.id === assessment.id)!.updatedAt = new Date().toISOString();
+    });
+  const status = [
+    renderTemplate(copy.answeredStatus, {
+      answered: answered.length,
+      total: visibleQuestions.length,
+    }),
+    ...(assumedCount > 0 ? [renderTemplate(copy.assumedStatus, { assumed: assumedCount })] : []),
+  ].join(' · ');
   return (
     <PageContainer>
       <Link to="/diagnostic">{copy.back}</Link>
@@ -153,7 +228,7 @@ function Wizard({
         {displayName(organization.answers, 'orgName', copy.untitledOrganization)} ·{' '}
         {copy.savedLocally}
       </p>
-      <div className={styles.controls}>
+      <div className={styles.toolbar}>
         <div>
           <label htmlFor="wizard-mode">{copy.mode}</label>
           <select
@@ -173,16 +248,21 @@ function Wizard({
             <option value="full">{copy.modes.full}</option>
           </select>
         </div>
+        <p className={styles.status} role="status">
+          {status} · {store.dirty || store.error ? copy.unsaved : copy.saved} ·{' '}
+          {copy.currentContent}: <code>{contentMeta.contentVersion}</code>
+        </p>
+        <span className={styles.spacer} />
+        {result && (
+          <>
+            <Link to={`/canvas/${assessment.id}`}>{content.site.readout.canvas}</Link>
+            <ButtonLink to={`/diagnostic/${assessment.id}/readout`}>
+              {content.site.readout.open}
+            </ButtonLink>
+          </>
+        )}
       </div>
-      <p>{assessment.mode === 'quick' ? copy.quickNote : copy.fullNote}</p>
-      <p>
-        {copy.knownAnswers}: {visibleQuestions.filter((q) => knownAnswer(answers[q.id])).length} /{' '}
-        {visibleQuestions.length}
-      </p>
-      <p role="status">{store.dirty || store.error ? copy.unsaved : copy.saved}</p>
-      <p className={styles.note}>
-        {copy.currentContent}: <code>{contentMeta.contentVersion}</code>
-      </p>
+      <p className={styles.note}>{assessment.mode === 'quick' ? copy.quickNote : copy.fullNote}</p>
       {(assessment.contentVersion !== contentMeta.contentVersion ||
         organization.contentVersion !== contentMeta.contentVersion) && (
         <p role="note">{copy.oldContent}</p>
@@ -209,7 +289,7 @@ function Wizard({
           </div>
         </div>
       )}
-      <div className={styles.layout}>
+      <div className={styles.layout} data-review={section === undefined ? '' : undefined}>
         <nav className={styles.rail} aria-label={copy.sectionRail}>
           <ol>
             {sections.map((s) => (
@@ -251,22 +331,36 @@ function Wizard({
                   question={question}
                   answer={answers[question.id]}
                   onChange={(value) => updateAnswer(question, value)}
+                  assumed={question.scope === 'useCase' && assumed.has(question.id)}
+                  onConfirm={() => confirmAnswer(question)}
                 />
               ))}
             </>
           ) : (
-            <>
-              <h3>{copy.preview}</h3>
-              <p>{copy.previewNote}</p>
-              {result && (
-                <p>
-                  <Link to={`/diagnostic/${assessment.id}/readout`}>
-                    {content.site.readout.open}
-                  </Link>
-                </p>
+            <div className={styles.reviewSummary}>
+              <p>{copy.reviewNote}</p>
+              {result ? (
+                <>
+                  <PillarSummary rows={pillarRows(content, result.inScope)} />
+                  <p>
+                    {renderTemplate(content.site.readout.takeaways[2], {
+                      count: result.openQuestions.length,
+                    })}
+                  </p>
+                  {assumedCount > 0 && (
+                    <p>{renderTemplate(copy.assumedStatus, { assumed: assumedCount })}</p>
+                  )}
+                  <div className={styles.actions}>
+                    <ButtonLink to={`/diagnostic/${assessment.id}/readout`}>
+                      {content.site.readout.open}
+                    </ButtonLink>
+                    <Link to={`/canvas/${assessment.id}`}>{content.site.readout.canvas}</Link>
+                  </div>
+                </>
+              ) : (
+                <p>{copy.noPreview}</p>
               )}
-              {result ? <MappingReport result={result} /> : <p>{copy.noPreview}</p>}
-            </>
+            </div>
           )}
           <div className={styles.actions}>
             {sectionIndex > 0 && (
@@ -284,14 +378,15 @@ function Wizard({
             )}
           </div>
         </section>
-        {result ? (
-          <Anatomy result={result} />
-        ) : (
-          <aside>
-            <h2>{copy.emerging}</h2>
-            <p>{copy.noPreview}</p>
-          </aside>
-        )}
+        {section &&
+          (result ? (
+            <Requirements result={result} coverage={coverage} />
+          ) : (
+            <aside>
+              <h2>{copy.emerging}</h2>
+              <p>{copy.noPreview}</p>
+            </aside>
+          ))}
       </div>
     </PageContainer>
   );

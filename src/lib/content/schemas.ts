@@ -65,7 +65,21 @@ export const METRIC_NUMBER_KEYS = [
 ] as const;
 export const METRIC_TEXT_KEYS = ['largestPillarLabel', 'lastVerified', 'contentVersion'] as const;
 // Placeholders filled in by a component rather than by metrics (for example an exhibit number).
-export const LOCAL_TEMPLATE_KEYS = ['number', 'label', 'count', 'n'] as const;
+export const LOCAL_TEMPLATE_KEYS = [
+  'number',
+  'label',
+  'count',
+  'n',
+  'requirement',
+  'organization',
+  'total',
+  'draft',
+  'premium',
+  'notInGcc',
+  'answered',
+  'assumed',
+  'customer',
+] as const;
 export const TEMPLATE_KEYS: readonly string[] = [
   ...METRIC_NUMBER_KEYS,
   ...METRIC_TEXT_KEYS,
@@ -206,6 +220,8 @@ export const DiagnosticSchema = z.strictObject({
     .min(1),
   quickQuestionIds: uniqueList(QuestionId),
   consultantNotes: z.record(QuestionId, Text),
+  // Conversational wording for each question, so a seller can ask it aloud. Editorial; it changes no rule.
+  askPrompts: z.record(QuestionId, Text),
   visibility: z.array(z.strictObject({ questionId: QuestionId, when: ConditionSchema })),
 });
 const EditorialEvidence = {
@@ -346,6 +362,8 @@ export const PillarSchema = z.strictObject({
   id: z.enum(PILLARS),
   order: z.int().positive(),
   label: Text,
+  // The customer-facing requirement area this pillar answers (for example "Security"). Editorial.
+  requirement: Text,
   definition: maxWords(25),
   sourceId: Id,
   reviewStatus: z.enum(REVIEW_STATUSES),
@@ -441,6 +459,7 @@ export const ROUTE_KEYS = [
   'canvas',
   'portfolio',
   'workshop',
+  'conversation',
   'methodology',
   'whatsNew',
   'contentHealth',
@@ -494,10 +513,10 @@ export const PersonaSchema = z.strictObject({
   startLabel: Text,
   href: Text.refine(
     (value) =>
-      /^\/(?:learn(?:#[a-z0-9-]+)?|capabilities(?:\?lens=(?:pillar|console|layer|lifecycle))?)$/.test(
+      /^\/(?:learn(?:#[a-z0-9-]+)?|conversation|capabilities(?:\?[a-z]+=[A-Za-z0-9._%+-]+(?:&[a-z]+=[A-Za-z0-9._%+-]+)*)?)$/.test(
         value,
       ),
-    'must target an available learning or explorer route',
+    'must target an available learning, conversation or explorer route',
   ),
   reviewStatus: z.enum(REVIEW_STATUSES),
 });
@@ -510,6 +529,27 @@ export const LearnSchema = z.strictObject({
 
 const Template = Text; // may contain {placeholders}; validate.ts checks them against TEMPLATE_KEYS
 const RouteCopy = z.strictObject({ title: Text, description: Text });
+
+// A filter the Capabilities explorer can apply. Group ids are checked against the content in validate.ts.
+export const EXPLORER_LENSES = ['layer', 'lifecycle', 'risk', 'pattern'] as const;
+export const ExplorerFilterSchema = z
+  .strictObject({
+    pillar: z.enum(PILLARS).optional(),
+    console: z.enum(CONSOLES).optional(),
+    licensing: z.enum(['base', 'premium']).optional(),
+    gcc: z.enum(['available', 'unavailable']).optional(),
+    setup: z.enum(['platform', 'agent']).optional(),
+    lens: z.enum(EXPLORER_LENSES).optional(),
+    group: Id.optional(),
+  })
+  .refine(
+    (filter) =>
+      Object.values(filter).filter((value) => value !== undefined).length ===
+        (filter.lens === undefined ? 1 : 2) &&
+      (filter.lens === undefined) === (filter.group === undefined),
+    'use exactly one filter, or a lens together with its group',
+  );
+export type ExplorerFilter = z.infer<typeof ExplorerFilterSchema>;
 
 export const PortfolioCopySchema = z.strictObject({
   organization: Text,
@@ -590,8 +630,56 @@ export const WorkshopSchema = z.strictObject({
   printGuide: Text,
   printPatterns: Text,
   printCapabilities: Text,
+  printChecklist: Text,
   printError: Text,
   guide: Text,
+  checklistTitle: Text,
+  checklistNote: Text,
+  checklistPillar: Template,
+  checklistColumns: z.strictObject({
+    discuss: Text,
+    capability: Text,
+    productArea: Text,
+    availability: Text,
+    requirement: Text,
+    owner: Text,
+    priority: Text,
+  }),
+});
+
+const ConversationLink = Text.regex(
+  /^\/(?:diagnostic|workshop|learn|capabilities|patterns|portfolio)(?:#[a-z0-9-]+)?$/,
+  'must target a page of this site',
+);
+export const ConversationSchema = z.strictObject({
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  introduction: Text,
+  stepsTitle: Text,
+  steps: z
+    .array(
+      z.strictObject({
+        id: Id,
+        title: Text,
+        instruction: Text,
+        action: z.strictObject({ label: Text, to: ConversationLink }).optional(),
+      }),
+    )
+    .min(1),
+  requirementsTitle: Text,
+  requirementsIntro: Text,
+  jumpLabel: Text,
+  coversLabel: Text,
+  capabilitiesLabel: Text,
+  questionsLabel: Template,
+  peopleLabel: Text,
+  flagsLabel: Text,
+  flagsTemplate: Template,
+  browse: Template,
+  assumptionsTitle: Text,
+  assumptionsNote: Template,
+  assumptionsLink: Text,
+  nextTitle: Text,
+  next: z.array(z.strictObject({ label: Text, to: ConversationLink })).min(1),
 });
 
 export const ReadoutCopySchema = z.strictObject({
@@ -615,6 +703,15 @@ export const ReadoutCopySchema = z.strictObject({
   anatomy: Text,
   details: Text,
   edit: Text,
+  moreShare: Text,
+  addLogo: Text,
+  editDetails: Text,
+  contents: Text,
+  assumedMark: Text,
+  assumedTakeaway: Template,
+  peopleNote: Text,
+  peopleColumns: z.strictObject({ team: Text, areas: Text, capabilities: Text }),
+  openQuestionsNote: Text,
   print: Text,
   powerpoint: Text,
   exporting: Text,
@@ -629,15 +726,18 @@ export const ReadoutCopySchema = z.strictObject({
   anatomyNote: Text,
   methodologyNote: Text,
   exhibits: z.strictObject({
+    pillars: Text,
     frontier: Text,
     anatomy: Text,
     risks: Text,
     capabilities: Text,
     decisions: Text,
+    people: Text,
     readiness: Text,
     operatingModel: Text,
     integration: Text,
     licensing: Text,
+    openQuestions: Text,
     roadmap: Text,
     whatIfs: Text,
   }),
@@ -701,7 +801,13 @@ export const SiteSchema = z.strictObject({
     previewBanner: Text,
     mainNavLabel: Text,
     homeLinkLabel: Text,
-    depth: z.strictObject({ groupLabel: Text, executive: Text, technical: Text }),
+    depth: z.strictObject({
+      groupLabel: Text,
+      label: Text,
+      hint: Text,
+      executive: Text,
+      technical: Text,
+    }),
     nav: z.strictObject({
       overview: Text,
       capabilities: Text,
@@ -715,9 +821,21 @@ export const SiteSchema = z.strictObject({
     footer: z.strictObject({
       privacy: Text,
       reportIssue: Text,
+      emailFeedback: Text,
       sourceCode: Text,
       officialSources: Text,
       contentVersion: Text,
+    }),
+    loading: Text,
+    customer: z.strictObject({
+      label: Text,
+      useCases: Text,
+      empty: Text,
+      edit: Text,
+      readout: Text,
+      canvas: Text,
+      compare: Text,
+      switch: Text,
     }),
     comingSoon: z.strictObject({ status: Text, back: Text }),
     notFound: z.strictObject({ body: Text, back: Text }),
@@ -740,6 +858,7 @@ export const SiteSchema = z.strictObject({
     heroEyebrow: Text,
     heroLede: Text,
     ctaExplore: Text,
+    ctaConversation: Text,
     technicalHint: Text,
     personasHeading: Text,
     personasNote: Text,
@@ -753,7 +872,10 @@ export const SiteSchema = z.strictObject({
           id: Id,
           valueKey: z.enum(METRIC_NUMBER_KEYS),
           label: Text,
+          // Where the tile leads: an explorer URL that shows exactly what the number counts.
+          href: Text.regex(/^\/capabilities(?:\?.+)?$/),
           noteTemplate: Template.optional(),
+          noteHref: Text.regex(/^\/capabilities(?:\?.+)?$/).optional(),
         }),
       )
       .min(1),
@@ -763,6 +885,7 @@ export const SiteSchema = z.strictObject({
         label: Text,
         titleTemplate: Template,
         countLabel: Template,
+        requirementLabel: Template,
         sourceNote: Template,
       }),
       consoles: z.strictObject({
@@ -797,22 +920,46 @@ export const SiteSchema = z.strictObject({
       layer: Text,
       setup: Text,
       licensing: Text,
+      availability: Text,
       gcc: Text,
       wave: Text,
     }),
     waveLabel: Template,
+    pillarName: Template,
     officialWording: Text,
     dependencyPrefix: Text,
     sourcesDifferNote: Text,
+    shortcuts: z
+      .array(
+        z.strictObject({
+          id: Id,
+          terms: uniqueList(Text),
+          filter: ExplorerFilterSchema,
+        }),
+      )
+      .min(1),
     explorer: z.strictObject({
       search: Text,
+      pillarFilter: Text,
+      allPillars: Text,
+      pillarChip: Template,
+      productArea: Text,
+      licensing: Text,
+      gcc: Text,
+      setup: Text,
+      anyOption: Text,
+      licensingOptions: z.strictObject({ base: Text, premium: Text }),
+      gccOptions: z.strictObject({ available: Text, unavailable: Text }),
+      setupOptions: z.strictObject({ platform: Text, agent: Text }),
+      groupBy: Text,
+      groupByOptions: z.strictObject({ pillar: Text, console: Text, none: Text }),
+      more: Text,
       lens: Text,
+      noLens: Text,
       group: Text,
       all: Text,
       view: Text,
       lenses: z.strictObject({
-        pillar: Text,
-        console: Text,
         layer: Text,
         lifecycle: Text,
         risk: Text,
@@ -820,11 +967,18 @@ export const SiteSchema = z.strictObject({
       }),
       views: z.strictObject({ table: Text, cards: Text, matrix: Text }),
       results: Template,
+      groupCount: Template,
+      draftSummary: Template,
       empty: Text,
+      emptyGuidance: Text,
+      shortcutIntro: Text,
+      shortcutLabel: Template,
       reset: Text,
       compare: Text,
       comparison: Text,
       comparisonHint: Template,
+      compareBar: Template,
+      showComparison: Text,
       clearComparison: Text,
       invalidLink: Text,
       applies: Text,
@@ -871,9 +1025,6 @@ export const SiteSchema = z.strictObject({
     flowNote: Text,
     flowTable: Text,
     flowColumns: z.strictObject({ step: Text, concept: Text, capabilities: Text }),
-    previous: Text,
-    next: Text,
-    progress: Template,
     buildingBlocksNote: Text,
     mythLabel: Text,
     factLabel: Text,
@@ -885,7 +1036,8 @@ export const SiteSchema = z.strictObject({
     organization: Text,
     newOrganization: Text,
     organizationName: Text,
-    createOrganization: Text,
+    newCustomerOption: Text,
+    manageCustomers: Text,
     organizationSaved: Text,
     sharedOrganization: Text,
     selectOrganization: Text,
@@ -893,11 +1045,14 @@ export const SiteSchema = z.strictObject({
     organizationInUse: Text,
     noOrganization: Text,
     start: Text,
+    startHeading: Text,
+    startPrivacy: Text,
     startBlank: Text,
     starter: Text,
     blank: Text,
     mode: Text,
     modes: z.strictObject({ quick: Text, full: Text }),
+    modeOptions: z.strictObject({ quick: Template, full: Template }),
     quickNote: Text,
     fullNote: Text,
     unknown: Text,
@@ -909,6 +1064,14 @@ export const SiteSchema = z.strictObject({
     assessments: Text,
     empty: Text,
     resume: Text,
+    more: Text,
+    backup: Text,
+    answeredStatus: Template,
+    assumedStatus: Template,
+    assumedBadge: Text,
+    confirmAnswer: Text,
+    askLabel: Text,
+    reviewNote: Text,
     duplicate: Text,
     rename: Text,
     delete: Text,
@@ -950,7 +1113,6 @@ export const SiteSchema = z.strictObject({
     previewNote: Text,
     review: Text,
     noPreview: Text,
-    knownAnswers: Text,
     notFound: Text,
     updated: Text,
     startFromPattern: Text,
@@ -965,6 +1127,7 @@ export const SiteSchema = z.strictObject({
     neutralNote: Text,
     matrix: Text,
     patternCount: Text,
+    draftSummary: Template,
     levels: z.strictObject({ essential: Text, recommended: Text, consider: Text }),
     levelDescriptions: z.strictObject({ essential: Text, recommended: Text, consider: Text }),
     condition: z.strictObject({
@@ -995,6 +1158,18 @@ export const SiteSchema = z.strictObject({
     readinessPercent: Text,
     noChecks: Text,
     anatomy: Text,
+    pillars: Text,
+    pillarsNote: Text,
+    pillarCount: Template,
+    pillarFlags: Template,
+    pillarOwners: Text,
+    pillarNone: Text,
+    anatomyBy: Text,
+    anatomyByOptions: z.strictObject({ pillar: Text, layer: Text }),
+    coverage: Text,
+    coverageRow: Template,
+    coverageAssumed: Template,
+    informs: Template,
     operatingModel: Text,
     agentDecisions: Text,
     risks: Text,
@@ -1018,6 +1193,10 @@ export const SiteSchema = z.strictObject({
     advisories: Text,
     openQuestions: Text,
     methodology: Text,
+    quickTitle: Text,
+    quick: z.array(z.strictObject({ question: Text, answer: Text })).min(1),
+    levelsTitle: Text,
+    engineTitle: Text,
     rules: Text,
     assumptions: Text,
     pendingDiagnostic: Text,
@@ -1092,6 +1271,7 @@ export const CONTENT_FILES = {
   whatIfs: { file: 'what-ifs.yaml', schema: z.array(WhatIfSchema).min(1) },
   mappingConfig: { file: 'mapping.yaml', schema: MappingConfigSchema },
   workshop: { file: 'workshop.yaml', schema: WorkshopSchema },
+  conversation: { file: 'conversation.yaml', schema: ConversationSchema },
   site: { file: 'site.yaml', schema: SiteSchema },
 } as const;
 
@@ -1122,6 +1302,7 @@ export type FrontierMapping = z.infer<typeof FrontierMappingSchema>;
 export type WhatIf = z.infer<typeof WhatIfSchema>;
 export type MappingConfig = z.infer<typeof MappingConfigSchema>;
 export type Workshop = z.infer<typeof WorkshopSchema>;
+export type Conversation = z.infer<typeof ConversationSchema>;
 
 export interface Content {
   sources: Source[];
@@ -1148,6 +1329,7 @@ export interface Content {
   whatIfs: WhatIf[];
   mappingConfig: MappingConfig;
   workshop: Workshop;
+  conversation: Conversation;
   site: Site;
   changelog: ChangelogEntry[];
 }

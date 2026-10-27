@@ -23,23 +23,36 @@ ui:
   homeLinkLabel: "A365 Capability Explorer, home"
   depth:
     groupLabel: Detail level
+    label: "Detail level"
+    hint: "Executive shows outcomes in plain language. Technical adds product areas, configuration and evidence."
     executive: Executive
     technical: Technical
   nav:
-    overview: Overview
+    overview: Home
     capabilities: Capabilities
-    patterns: Patterns
+    patterns: Scenarios
     learn: Learn
-    diagnostic: Diagnostic
-    portfolio: Portfolio
+    diagnostic: Assess
+    portfolio: Compare
     workshop: Workshop
-    methodology: Methodology
+    methodology: "How recommendations work"
+  loading: "Loading…"
+  customer:
+    label: Customer
+    useCases: "Use cases"
+    empty: "No use cases yet."
+    edit: Edit
+    readout: Readout
+    canvas: Canvas
+    compare: "Compare use cases"
+    switch: "Switch customer or start an assessment"
   footer:
     privacy: Privacy
-    reportIssue: Report an issue or suggest a correction
-    sourceCode: Source code
-    officialSources: Official sources
-    contentVersion: Content version
+    reportIssue: "Report an issue or suggest a correction"
+    emailFeedback: "Email feedback"
+    sourceCode: "Source code"
+    officialSources: "Official sources"
+    contentVersion: "Content version"
   comingSoon:
     status: "This section is in development."
     back: "Back to the overview"
@@ -66,64 +79,68 @@ ui:
 
 routes:
   overview:
-    title: Overview
+    title: Home
     description: "What Agent 365 offers today, computed from the service description."
   capabilities:
     title: Capabilities
-    description: "Every capability in the Microsoft Agent 365 service description, with the layer it acts on and who configures it."
+    description: "Every capability in the Microsoft Agent 365 service description, grouped by security, governance and observability, with the product area that configures it."
   capability:
     title: Capability brief
     description: "A one-page brief for each capability: the official wording, what it does, where it acts, who owns it and when it applies."
   patterns:
-    title: Patterns
-    description: "Common types of agent, and the capabilities that typically apply to each."
+    title: "Agent scenarios"
+    description: "Common types of agent, and the security, governance and observability capabilities that typically apply to each."
   pattern:
-    title: Pattern brief
+    title: "Scenario brief"
     description: "One type of agent: what it is, the platforms it typically runs on, and the capabilities and risks that apply."
   learn:
     title: Learn
-    description: "Agent 365 in five minutes: how a request flows, the building blocks, a glossary, and myths versus facts."
+    description: "Agent 365 in plain language: where it fits, myths versus facts, how a request flows, the building blocks and a glossary."
   diagnostic:
-    title: Diagnostic
-    description: "Describe your organization and an agent use case to see which capabilities apply, and why."
+    title: "Assess a use case"
+    description: "Describe your customer and an agent use case to see which capabilities apply across security, governance and observability, and why."
   assessment:
     title: Assessment
-    description: "Answer the questions for one agent use case and watch the agent anatomy fill in."
+    description: "Answer the questions for one agent use case and watch the requirements fill in."
   readout:
     title: Readout
-    description: "A board-ready readout of the assessment, in Executive and Technical views."
+    description: "A customer-ready readout of the assessment, in Executive and Technical views."
   canvas:
-    title: Use case canvas
+    title: "Use case canvas"
     description: "A one-page canvas that summarizes one agent use case and its Agent 365 controls."
   portfolio:
-    title: Portfolio
-    description: "Compare several use cases: control intensity against business value, shared foundations and readiness gaps."
+    title: "Compare use cases"
+    description: "Compare several use cases for one customer: control intensity against business value, shared foundations and readiness gaps."
   workshop:
-    title: Workshop kit
-    description: "A facilitator guide, printable pattern and capability cards, and a blank canvas for a 90-minute session."
+    title: "Workshop kit"
+    description: "A facilitator guide, printable scenario and capability cards, a requirements checklist and a blank canvas for a 90-minute session."
+  conversation:
+    title: "Customer conversation guide"
+    description: "Run a customer conversation across security, governance and observability: the questions to ask, who to involve and what to flag."
   methodology:
-    title: Methodology
+    title: "How recommendations work"
     description: "How recommendations are made: levels, evidence tags, the rules, the sources and the disclaimers."
   whatsNew:
     title: "What's new"
-    description: "Content changes, and the patterns each change affects."
+    description: "Content changes, and the scenarios each change affects."
   contentHealth:
-    title: Content health
+    title: "Content health"
     description: "Content that is stale, still in draft, or where sources differ."
   privacy:
     title: Privacy
     description: "What this site stores, where it stores it, and what GitHub Pages logs."
   notFound:
-    title: Page not found
+    title: "Page not found"
     description: "The page you asked for does not exist."
 
 overview:
   heroEyebrow: "Built for the Frontier Firm"
-  heroLede: "See what Agent 365 offers today, which capabilities apply to your agent, and what to set up first."
+  heroLede: "See what Agent 365 offers today, which capabilities apply to your customer's agent across security, governance and observability, and what to set up first."
   ctaExplore: "Explore the capabilities"
-  technicalHint: "Switch to Technical for the console and layer detail."
+  ctaConversation: "Start a customer conversation"
+  technicalHint: "Switch to Technical for the product area and layer detail."
   personasHeading: "Start with your role"
-  personasNote: "Suggested starting paths are editorial and pending SME review. Explore illustrative patterns or create a local diagnostic assessment and discussion readout."
+  personasNote: "Suggested starting paths are editorial and pending SME review. Explore illustrative scenarios or create a local assessment and discussion readout."
   questionsHeading: "Questions to guide the conversation"
   questions:
     - "What does Agent 365 offer today?"
@@ -138,38 +155,46 @@ overview:
     - id: capabilities
       valueKey: capabilityCount
       label: "Capabilities in the service description"
+      href: "/capabilities"
     - id: foundational
       valueKey: foundationalCount
       label: "Included with Microsoft 365 base plans"
+      href: "/capabilities?licensing=base"
     - id: premium
       valueKey: premiumCount
       label: "Require Microsoft 365 E7/G7 or Agent 365"
+      href: "/capabilities?licensing=premium"
     - id: gcc
       valueKey: gccCount
       label: "Available in GCC"
+      href: "/capabilities?gcc=available"
       noteTemplate: "{notInGccCount} are not available in GCC."
+      noteHref: "/capabilities?gcc=unavailable"
     - id: platform
       valueKey: platformCount
       label: "Set up once, platform-wide"
+      href: "/capabilities?setup=platform"
     - id: per-agent
       valueKey: agentDecisionCount
       label: "Involve a decision for each agent"
+      href: "/capabilities?setup=agent"
   exhibits:
     glance:
       label: "Service description at a glance"
       titleTemplate: "{premiumCount} of {capabilityCount} capabilities require Microsoft 365 E7/G7 or Agent 365; {foundationalCount} come with base plans."
-      sourceNote: "Capability data verified {lastVerified}."
+      sourceNote: "Capability data verified {lastVerified}. Select a number to see the capabilities it counts."
     pillars:
-      label: "Observe, govern, secure"
+      label: "Security, governance and observability"
       titleTemplate: "The largest pillar holds {largestPillarCount} of {capabilityCount} capabilities: {largestPillarLabel}."
       countLabel: "Capabilities: {count}"
-      sourceNote: "Definitions are paraphrased. The grouping is editorial and pending SME review."
+      requirementLabel: "{requirement} requirements"
+      sourceNote: "Definitions are paraphrased. The grouping is editorial and pending SME review. Select a pillar to browse its capabilities."
     consoles:
       label: "Where each capability is configured"
-      titleTemplate: "Configuration spans {consoleCount} consoles, each with its own owner team."
-      sourceNote: "Management Console column. Owner teams are editorial and pending SME review."
+      titleTemplate: "Configuration spans {consoleCount} product areas, each with its own owner team."
+      sourceNote: "Management Console column of the service description. Owner teams are editorial and pending SME review."
       columns:
-        console: Console
+        console: "Product area"
         ownerTeam: "Owner team"
         capabilities: Capabilities
         gcc: "In GCC"
@@ -186,46 +211,103 @@ overview:
     platformDetail: "{platformCount} of {capabilityCount} capabilities are set up once on the platform; {agentDecisionCount} involve a decision for each agent."
 
 capabilities:
-  intro: "Explore the catalog by pillar, console, layer, lifecycle, risk or pattern. Search the questions you need to answer, compare capabilities, or open a brief."
+  intro: "Browse the service description by security, governance and observability. Filter by product area, licensing or GCC availability, search the questions customers ask, compare capabilities, or open a brief."
   draftNote: "Summaries are drafts pending subject-matter-expert review. The official wording and the availability columns come from the service description."
   tableCaption: "{capabilityCount} capabilities in the Microsoft Agent 365 service description"
   scrollRegionLabel: "Capabilities table, scrollable"
   columns:
     capability: Capability
-    pillar: Pillar
-    console: Console
+    pillar: "Requirement area"
+    console: "Product area"
     layer: "Where it acts"
     setup: Setup
     licensing: Licensing
+    availability: "Licensing and availability"
     gcc: GCC
     wave: Wave
   waveLabel: "Wave {n}"
+  pillarName: "{requirement} ({label})"
   officialWording: "Official wording"
   dependencyPrefix: "Depends on"
   sourcesDifferNote: "Sources differ, verify: the licensing FAQ classifies this capability differently from the service description. Open the capability brief to see both sources."
+  # Search shortcuts are navigation aids, not product claims. A matching word offers a filter beside the text results.
+  shortcuts:
+    - id: security
+      terms: [security, secure, protect, protection]
+      filter: { pillar: secure }
+    - id: governance
+      terms: [governance, govern, policy, policies, approve]
+      filter: { pillar: govern }
+    - id: observability
+      terms: [observability, observe, monitoring, monitor, visibility]
+      filter: { pillar: observe }
+    - id: oversight-layer
+      terms: [logging, logs, log, siem, audit, auditing]
+      filter: { lens: layer, group: oversight }
+    - id: premium
+      terms: [e7, g7, license, licence, licensing, add-on, addon]
+      filter: { licensing: premium }
+    - id: base
+      terms: [license, licence, licensing, included, base plan, base plans]
+      filter: { licensing: base }
+    - id: gcc-available
+      terms: [gcc, government, sovereign, dod]
+      filter: { gcc: available }
+    - id: gcc-unavailable
+      terms: [gcc, government, sovereign, dod]
+      filter: { gcc: unavailable }
   explorer:
     search: "Search capabilities, questions and synonyms"
-    lens: Lens
-    group: "Filter within this lens"
+    pillarFilter: "Requirement area"
+    allPillars: All
+    pillarChip: "{label} ({count})"
+    productArea: "Product area"
+    licensing: Licensing
+    gcc: GCC
+    setup: Setup
+    anyOption: Any
+    licensingOptions:
+      base: "Included with base plans"
+      premium: "Requires Microsoft 365 E7/G7 or Agent 365"
+    gccOptions:
+      available: "Available in GCC"
+      unavailable: "Not available in GCC"
+    setupOptions:
+      platform: "Set up once, platform-wide"
+      agent: "Needs a decision for each agent"
+    groupBy: "Group by"
+    groupByOptions:
+      pillar: "Requirement area"
+      console: "Product area"
+      none: "No grouping"
+    more: "More ways to explore"
+    lens: "Explore by"
+    noLens: "No lens"
+    group: "Show only"
     all: "All groups"
     view: View
     lenses:
-      pillar: Pillar
-      console: Console
-      layer: Layer
-      lifecycle: Lifecycle
-      risk: Risk
-      pattern: Pattern
+      layer: "Layer (where it acts)"
+      lifecycle: "Lifecycle (when)"
+      risk: "Risk (why)"
+      pattern: "Scenario (which use cases)"
     views:
       table: Table
       cards: Cards
       matrix: Matrix
     results: "{count} of {capabilityCount} capabilities"
+    groupCount: "Capabilities: {count}"
+    draftSummary: "{draft} of {total} capability summaries are drafts pending SME review. Review status and evidence appear on each capability brief."
     empty: "No capabilities match. Try a different search or clear the filters."
+    emptyGuidance: "The catalog lists only what the service description names. A capability missing here is not a statement that something is unsupported; check the official documentation and your Microsoft account team."
+    shortcutIntro: "Browse instead:"
+    shortcutLabel: "{label} ({count})"
     reset: "Clear filters"
     compare: Compare
     comparison: "Capability comparison"
     comparisonHint: "Select up to {n} capabilities. Selected capabilities remain here when you change filters."
+    compareBar: "{count} selected for comparison"
+    showComparison: "Show comparison"
     clearComparison: "Clear comparison"
     invalidLink: "Some explorer settings in this link are invalid. Only valid settings are shown; choose new settings below."
     applies: Applies
@@ -241,7 +323,7 @@ capabilities:
     setup: Setup
     availability: "Licensing and availability"
     questions: "Questions it answers"
-    discovery: "Questions to take to your team"
+    discovery: "Questions to ask the customer"
     dependencies: Dependencies
     prerequisites: "Conditional readiness checks"
     conditionalNote: "These gaps apply only when their assessment conditions match; they are not universal prerequisites."
@@ -249,14 +331,14 @@ capabilities:
     docs: "Official documentation"
     verified: "Service description last verified"
     correction: "Suggest a correction"
-    assessmentPending: "Rules and typical patterns below explain planning relevance. Open the diagnostic for a personalized local assessment; this catalog brief is not an assessment."
+    assessmentPending: "Rules and typical scenarios below explain planning relevance. Start an assessment for a personalized local result; this catalog brief is not an assessment."
     evidence:
       stated: Stated
       inferred: Inferred
       judgment: "Advisor judgment"
 
 learn:
-  intro: "Understand the control plane before choosing controls. Follow a conceptual request, explore integration paths, and check terminology and common assumptions."
+  intro: "Start with where Agent 365 fits and the assumptions customers bring, then follow a conceptual request, explore integration paths, and check terminology."
   contents: "On this page"
   draftNote: "Editorial explanations and capability associations are drafts pending SME review. Evidence labels describe the source basis, not approval."
   pending: "Answer pending verification. Read the official source; do not treat the question's premise as a confirmed fact."
@@ -269,15 +351,12 @@ learn:
     glossary: Glossary
     myths: "Myths and facts"
     positioning: "Where Agent 365 fits"
-  flowNote: "This is a conceptual guide, not a guaranteed runtime sequence or a promise that controls are enabled. Coverage depends on the platform, integration, licensing and configuration. Use the table for the complete reading order."
+  flowNote: "This is a conceptual guide, not a guaranteed runtime sequence or a promise that controls are enabled. Coverage depends on the platform, integration, licensing and configuration. Read the steps in order."
   flowTable: "Conceptual request flow and related capabilities"
   flowColumns:
     step: Step
     concept: Concept
     capabilities: "Related capabilities"
-  previous: "Previous concept"
-  next: "Next concept"
-  progress: "Concept {n} of {count}"
   buildingBlocksNote: "Related concepts, not additional rows in the service-description catalog. These do not increase the capability count."
   mythLabel: "Assumption to check"
   factLabel: "Source-backed answer"
@@ -287,48 +366,61 @@ learn:
     judgment: "Advisor judgment"
 
 diagnostic:
-  intro: "Build a local planning assessment from a blank form, an illustrative pattern or a sample. Set the organization context first; linked use cases reuse it."
+  intro: "Describe the agent your customer has in mind, then see which Agent 365 capabilities apply across security, governance and observability. Start from a scenario if it helps, and confirm each assumption with the customer."
   privacy: "Answers and optional names stay in this browser profile. They are not sent to a server or placed in links. Other people using this browser profile can access them. Download a JSON backup before clearing site data. Exported files contain your answers; share them only with intended recipients."
-  organization: Organization profile
-  newOrganization: New organization or engagement
-  organizationName: Organization or engagement name
-  createOrganization: Create local organization
-  organizationSaved: Local organization profile
-  sharedOrganization: "These organization answers are shared by all assessments linked to this profile. Changes update their current mappings too."
-  selectOrganization: Select a saved organization
-  deleteOrganization: Delete organization
-  organizationInUse: "Delete linked assessments before deleting this organization profile."
-  noOrganization: "Create an organization profile before starting an assessment."
-  start: Start local assessment
-  startBlank: Start blank
-  starter: Starting point
-  blank: Blank assessment
-  mode: Diagnostic mode
-  modes: { quick: Quick scan, full: Full diagnostic }
-  quickNote: "A short scan of platform, channels, access, autonomy, data and tools. Questions outside this scan remain unknown unless seeded or answered in Full diagnostic."
-  fullNote: "All applicable questions, including reusable organization context and optional readout details."
+  organization: "Customer profile"
+  newOrganization: "Customer or engagement name"
+  organizationName: "Customer or engagement name"
+  newCustomerOption: "New customer or engagement…"
+  manageCustomers: "Manage customers"
+  organizationSaved: "Customer profile"
+  sharedOrganization: "These customer answers are shared by all assessments linked to this profile. Changes update their current mappings too."
+  selectOrganization: "Customer or engagement"
+  deleteOrganization: "Delete customer"
+  organizationInUse: "Delete linked assessments before deleting this customer."
+  noOrganization: "No customers saved yet. Name one when you start an assessment."
+  start: "Start assessment"
+  startHeading: "Start a new assessment"
+  startPrivacy: "Saved on this device only. Nothing is uploaded."
+  startBlank: "Start blank"
+  starter: "Starting point"
+  blank: "Blank assessment"
+  mode: "Question set"
+  modes: { quick: "Quick scan", full: "Full discovery" }
+  modeOptions:
+    { quick: "Quick scan · {count} questions", full: "Full discovery · {count} questions" }
+  quickNote: "A short scan of platform, channels, access, autonomy, data and tools. Questions outside the scan stay unknown unless the starting scenario answers them; switch to Full discovery to ask them."
+  fullNote: "Every applicable question, including reusable customer context and optional readout details."
   unknown: Not sure yet
   why: Why we ask
   next: Next section
   previous: Previous section
-  sectionRail: Diagnostic sections
+  sectionRail: "Assessment sections"
   progress: "Section {n} of {count}"
-  assessments: Saved local assessments
-  empty: "No assessments saved in this browser profile yet."
+  assessments: "Your saved assessments"
+  empty: "No saved assessments yet. Start one above."
   resume: Resume
+  more: "More actions"
+  backup: "Backup and restore"
+  answeredStatus: "{answered} of {total} answered"
+  assumedStatus: "{assumed} assumed from the starting scenario"
+  assumedBadge: "Assumed from the starting scenario — confirm with the customer"
+  confirmAnswer: "Confirm answer"
+  askLabel: "Ask the customer"
+  reviewNote: "Review what applies in each requirement area, then open the readout to share, print or export it."
   duplicate: Duplicate
   rename: Rename
   delete: Delete
   assessmentName: Assessment name
   untitledAssessment: Untitled assessment
-  untitledOrganization: Unnamed organization
+  untitledOrganization: "Unnamed customer"
   duplicateName: "{label} — copy"
   cancel: Cancel
   confirm: Confirm
   deleteTitle: Delete local data?
   deleteBody: "Permanently delete {label} from this browser profile? This cannot be undone."
   resetTitle: Reset diagnostic storage?
-  resetBody: "Remove all local organization profiles and assessments. Copy recovery data first if needed. Other site preferences are not removed."
+  resetBody: "Remove all local customer profiles and assessments. Copy recovery data first if needed. Other site preferences are not removed."
   save: Save name
   saved: Saved on this device
   unsaved: "Changes are in memory only — not safely saved."
@@ -348,19 +440,18 @@ diagnostic:
   clearIncompatible: Clear incompatible answers
   oldContent: "Saved with an older content version. The preview uses today's content; changing an answer saves the current version. Version-to-version deltas arrive in Phase 7."
   currentContent: Current content version
-  invalidStarter: "The pattern or sample in this link is invalid. Choose a valid starting point below; no assessment has been created."
-  allAssessments: All organizations
-  back: Back to local assessments
-  emerging: Emerging control-plane anatomy
-  emergingNote: "Updates from your current answers. A textual table lists all layers and in-scope controls; this is not evidence that any control is deployed."
-  preview: Current planning preview
+  invalidStarter: "The scenario or sample in this link is invalid. Choose a valid starting point below; no assessment has been created."
+  allAssessments: "All customers"
+  back: "Back to assessments"
+  emerging: "Requirements taking shape"
+  emergingNote: "Updates from your current answers. This lists the capabilities that apply, by requirement area or layer; it is not evidence that any control is deployed."
+  preview: "Current planning preview"
   previewNote: "A live rule-engine preview. Open the readout for numbered exhibits, a discussion canvas and local exports, including PowerPoint."
-  review: Review current mapping
+  review: "Review and share"
   noPreview: "Correct incompatible answers to resume the live planning preview."
-  knownAnswers: Known answers in this view
   notFound: "This assessment is not saved in this browser profile. It may have been deleted or created on another device."
   updated: Last updated
-  startFromPattern: Customize in the diagnostic
+  startFromPattern: "Start an assessment from this scenario"
   savedLocally: Local only
   renameTitle: Rename local assessment
 
@@ -369,13 +460,13 @@ presentation:
   exit: Exit presentation mode
   note: "Presentation mode increases type size and hides editing controls. Press Escape or use Exit presentation mode to leave. This view does not change saved answers."
 portfolio:
-  organization: Portfolio organization
+  organization: Customer
   select: Select use cases
   selectAll: Select all use cases
   clear: Clear selection
-  empty: "No saved use cases for this organization. Create an assessment in Diagnostic to start a portfolio."
+  empty: "No saved use cases for this customer. Assess a use case to start a comparison."
   selectionEmpty: Select at least one use case to compare.
-  note: "A local planning comparison, not a financial valuation, risk score or deployment approval. Each portfolio uses one saved organization profile; shared foundations are never combined across organizations."
+  note: "A local planning comparison, not a financial valuation, risk score or deployment approval. Each comparison uses one saved customer profile; shared foundations are never combined across customers."
   current: "Results are recomputed with the current content version. Saved answers and their original versions are unchanged."
   incompatible: Incompatible answers — open the assessment to review
   excluded: Incompatible assessments are excluded from calculations, but remain available for selected JSON export.
@@ -400,7 +491,7 @@ portfolio:
   matrix: Capability × use case heatmap
   matrixNote: "Cells retain each use case's recommendation level. A dash means not currently in scope, not a statement that the control is unnecessary."
   foundations: Shared platform foundations
-  foundationsNote: "Potential reuse within the selected organization, not proof of tenant-wide coverage. Confirm platform configuration, scope and ownership; capabilities with per-agent decisions still need agent-level follow-up."
+  foundationsNote: "Potential reuse within the selected customer, not proof of tenant-wide coverage. Confirm platform configuration, scope and ownership; capabilities with per-agent decisions still need agent-level follow-up."
   benefits: "Enable once, potentially benefits {count} selected use cases"
   agentFollowup: Agent-level decisions remain
   readiness: Aggregated configured readiness checks
@@ -416,7 +507,7 @@ readout:
   exportTooLarge: "This JSON selection exceeds the 5 MiB import limit. Export fewer assessments so the file can be imported again."
   open: Open readout
   tableLabel: "{label} — table"
-  title: "Control-plane readout: {label}"
+  title: "Agent 365 readout — {organization}: {label}"
   draft: Draft for discussion
   current: "Recomputed from the assessment answers with the current content. Recommendations remain draft; this is not deployment certification or a licensing determination."
   preparedFor: Prepared for
@@ -437,6 +528,16 @@ readout:
   anatomy: Control-plane anatomy
   details: Mapping details and evidence
   edit: Edit this assessment
+  moreShare: "More ways to share"
+  addLogo: "Add your logo (optional)"
+  editDetails: "Edit engagement details"
+  contents: Contents
+  assumedMark: "assumed, not yet confirmed"
+  assumedTakeaway: "{count} answers come from the starting scenario and have not been confirmed with the customer."
+  peopleNote: "The teams that own the in-scope capabilities, and the product areas they configure them in. Bring them into the conversation early."
+  peopleColumns:
+    { team: "Owner team", areas: "Product areas", capabilities: "In-scope capabilities" }
+  openQuestionsNote: "Answers still unknown. Each one can change this mapping; confirm it with the customer or record it as a follow-up."
   print: Print / save PDF
   powerpoint: Download PowerPoint
   exporting: Preparing PowerPoint…
@@ -449,17 +550,20 @@ readout:
   riskControls: Risks → controls
   foundations: Platform foundations and agent decisions
   anatomyNote: "Each layer shows in-scope controls and muted, explicitly labeled out-of-scope options. Placement is an editorial planning aid, not a technical deployment diagram."
-  methodologyNote: "The same deterministic rules generate patterns, diagnostics and exports. Unknown answers remain unknown; only matching rules create recommendations. Editorial associations remain draft. Consult the linked methodology and source documents before implementation."
+  methodologyNote: "The same deterministic rules generate scenarios, assessments and exports. Unknown answers remain unknown; only matching rules create recommendations. Editorial associations remain draft. Consult the linked methodology and source documents before implementation."
   exhibits:
-    frontier: Frontier Firm placement
+    pillars: "Security, governance and observability"
+    frontier: "Where this fits in the Frontier Firm journey"
     anatomy: Control-plane anatomy
     risks: Risks → controls
     capabilities: Technical capability table
     decisions: Platform foundations and agent decisions
+    people: "Who to involve"
     readiness: Configured readiness checks
     operatingModel: Owner team × lifecycle operating model
     integration: Integration path and builder checklist
     licensing: Licensing and access-model implications
+    openQuestions: "Open questions to confirm"
     roadmap: Discussion roadmap
     whatIfs: What-if comparisons
   branding:
@@ -478,7 +582,7 @@ readout:
   copySummary: Copy executive summary
   copied: Executive summary copied
   exportError: "The export could not be completed. Check browser download or clipboard permissions and try again."
-  sharingNote: "Downloads and copied text contain organization details and answers. Review before sharing. Nothing is uploaded; exported files are not encrypted by this app."
+  sharingNote: "Downloads and copied text contain customer details and answers. Review before sharing. Nothing is uploaded; exported files are not encrypted by this app."
   backup: Download workspace JSON backup
   import: Import JSON backup
   importNote: "Choose an A365 Capability Explorer JSON export, up to 5 MiB. Review before importing. Every organization and assessment is added as a new copy; nothing is replaced or merged by name. Older answers are preserved for explicit correction."
@@ -542,10 +646,11 @@ readout:
       prompt: Name the accountable owner and sponsor during the workshop.
 
 mapping:
-  intro: "Use illustrative agent patterns to explore how capabilities fit together. Every recommendation is generated by the same rules, not a hand-maintained matrix."
-  neutralNote: "Pattern results use a neutral commercial organization: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. Canonical answers are examples, not facts about your organization."
-  matrix: "Generated Pattern × Capability matrix"
+  intro: "Use illustrative agent scenarios to explore how security, governance and observability capabilities fit together. Every recommendation is generated by the same rules, not a hand-maintained matrix."
+  neutralNote: "Scenario results use a neutral commercial customer: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. Canonical answers are examples, not facts about your customer."
+  matrix: "Generated Scenario × Capability matrix"
   patternCount: "In-scope capabilities"
+  draftSummary: "{draft} of {total} scenario summaries are drafts pending SME review. Evidence and sources appear on each scenario page."
   levels: { essential: Essential, recommended: Recommended, consider: Consider }
   levelDescriptions:
     essential: "Prioritize in this planning scenario; not an official product or licensing mandate."
@@ -579,6 +684,18 @@ mapping:
   readinessPercent: "Configured checks ready"
   noChecks: "No configured checks; readiness is unknown."
   anatomy: "Control-plane anatomy"
+  pillars: "Security, governance and observability"
+  pillarsNote: "In-scope capabilities grouped by the requirement area they address. Counts are planning results from the current answers, not evidence that a control is deployed."
+  pillarCount: "{count} in scope of {total}"
+  pillarFlags: "{premium} require Microsoft 365 E7/G7 or Agent 365; {notInGcc} not available in GCC"
+  pillarOwners: "Who to involve"
+  pillarNone: "Nothing in scope yet. Answer more questions to see which capabilities apply."
+  anatomyBy: "View by"
+  anatomyByOptions: { pillar: "Requirement area", layer: Layer }
+  coverage: "Questions answered by requirement area"
+  coverageRow: "{label}: {answered} of {total} answered"
+  coverageAssumed: "{assumed} assumed"
+  informs: "Informs {label}"
   operatingModel: "Owner team × lifecycle operating model"
   agentDecisions: "Decisions for this agent"
   risks: "Triggered risk themes"
@@ -602,6 +719,20 @@ mapping:
   advisories: "Advisories and verification"
   openQuestions: "Open questions"
   methodology: "How the mapping works"
+  quickTitle: "Before you rely on a recommendation"
+  quick:
+    - question: "Does Essential mean required?"
+      answer: "No. Essential, Recommended and Consider are planning priorities for a discussion. They are not product requirements or licensing mandates, and they are separate from the service description's licensing column."
+    - question: "What does not currently in scope mean?"
+      answer: "No rule matched the current answers. It does not mean the capability is unnecessary; each capability shows what would bring it into scope."
+    - question: "What do Stated, Inferred and Advisor judgment mean?"
+      answer: "Stated: a source says it directly. Inferred: it follows from a source's description. Advisor judgment: an editorial choice that needs subject-matter-expert review."
+    - question: "How are unknown answers treated?"
+      answer: "Unknown stays unknown. Only matching rules create recommendations, and the open questions show which unknowns could change the result."
+    - question: "Is this a licensing determination?"
+      answer: "No. License eligibility stays unknown in every readout. Confirm it with the service description, the Microsoft Product Terms and your Microsoft account team."
+  levelsTitle: "What the recommendation levels mean"
+  engineTitle: "Engine rules and conditions (for reviewers)"
   rules: "Rule catalog"
   assumptions: "Condition and merge semantics"
   methodologyNotes:
@@ -610,17 +741,17 @@ mapping:
     - "Each condition renders question and option labels. Organization rules use organization inputs; use-case rules may also consult organization context. Reason origins follow the rule scope."
     - "The highest recommendation level wins, but every matching rule, reason, evidence label, source and origin is retained. The earliest explicit wave override wins; otherwise the capability's default wave applies. Results sort by pillar order, level, then capability short name."
     - "Not currently in scope does not mean unnecessary. Its matching conditions remain visible as becomes-relevant explanations. Unknown risk applicability and unresolved inputs are reported separately."
-    - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; advisor judgment identifies an editorial choice. Recommendation levels, canonical patterns, risk associations and operating-model groupings are planning advice, not official mandates."
-    - "The matrix is generated from canonical pattern answers and the displayed neutral organization. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a pattern alone."
-    - "Golden scenarios assert Essential inclusions and complete exclusions for each pattern and sample. Automated agreement is not SME approval: unsigned scenarios produce build warnings until a reviewer and date are recorded."
-  pendingDiagnostic: "These are read-only planning results. Customize a pattern in the local diagnostic to create a saved readout and canvas."
-  startAssessment: "Open the local diagnostic"
-  back: "Back to patterns"
-  typicalPatterns: "Typical patterns"
+    - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; advisor judgment identifies an editorial choice. Recommendation levels, canonical scenarios, risk associations and operating-model groupings are planning advice, not official mandates."
+    - "The matrix is generated from canonical scenario answers and the displayed neutral customer. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a scenario alone."
+    - "Golden scenarios assert Essential inclusions and complete exclusions for each scenario and sample. Automated agreement is not SME approval: unsigned scenarios produce build warnings until a reviewer and date are recorded."
+  pendingDiagnostic: "These are read-only planning results. Start an assessment from a scenario to customize it and create a saved readout and canvas."
+  startAssessment: "Assess a use case"
+  back: "Back to scenarios"
+  typicalPatterns: "Typical scenarios"
   whenInScope: "When this capability is in scope"
   why: "Reason and evidence"
   samples: "Illustrative sample use cases"
-  sampleNote: "Fictional discussion starters, not claims about deployed customer solutions. Sample results reuse their pattern plus the visible answer overrides."
+  sampleNote: "Fictional discussion starters, not claims about deployed customer solutions. Sample results reuse their scenario plus the visible answer overrides."
   golden: "Golden scenarios and review status"
   pendingReview: "Unsigned — pending SME review"
   whatIfs: "Illustrative what-if changes"
@@ -644,9 +775,9 @@ privacy:
     - what: "Your detail level choice (Executive or Technical)"
       where: "Local storage, key cpcompass:depth"
       why: "So the site remembers your choice on your next visit"
-    - what: "Organization profiles, assessment answers, optional names, optional normalized PNG logos and their descriptions, diagnostic mode and current section"
+    - what: "Customer profiles, assessment answers, which answers came from a starting scenario and are not yet confirmed, optional names, optional normalized PNG logos and their descriptions, diagnostic mode and current section"
       where: "Local storage, key cpcompass:diagnostic"
-      why: "Autosave and resume local assessments. Nothing is uploaded. Delete individual assessments or unused organizations from the diagnostic."
+      why: "Autosave and resume local assessments, and let the header link back to the customer you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page."
     - what: "Navigation scroll positions managed by React Router"
       where: "Session storage, key react-router-scroll-positions"
       why: "Restore scroll position during navigation. This is not assessment answer storage."

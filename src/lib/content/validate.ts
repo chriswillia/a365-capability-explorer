@@ -213,6 +213,7 @@ export function validateContent(
   for (const [path, text] of [
     ...stringLeaves(content.site, 'site.yaml'),
     ...stringLeaves(content.workshop, 'workshop.yaml'),
+    ...stringLeaves(content.conversation, 'conversation.yaml'),
   ]) {
     for (const match of text.matchAll(PLACEHOLDER)) {
       const key = match[1] as string;
@@ -228,6 +229,23 @@ export function validateContent(
     'site.yaml overview.kpis id',
     content.site.overview.kpis.map((k) => k.id),
   );
+  duplicates(
+    'site.yaml capabilities.shortcuts id',
+    content.site.capabilities.shortcuts.map((s) => s.id),
+  );
+  const lensGroupIds: Record<string, string[]> = {
+    layer: content.controlPoints.map((p) => p.id),
+    lifecycle: content.lifecycle.map((s) => s.id),
+    risk: content.risks.map((r) => r.id),
+    pattern: content.patterns.map((p) => p.id),
+  };
+  for (const shortcut of content.site.capabilities.shortcuts) {
+    const { lens, group } = shortcut.filter;
+    if (lens !== undefined && group !== undefined && !lensGroupIds[lens]?.includes(group))
+      errors.push(
+        `site.yaml capabilities.shortcuts › ${shortcut.id}: unknown ${lens} group "${group}"`,
+      );
+  }
 
   // Changelog. "all" is reserved for entries that touch the whole catalog.
   if (content.changelog.length === 0) errors.push('changelog.md: needs at least one entry');

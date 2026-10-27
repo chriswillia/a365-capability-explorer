@@ -1,12 +1,14 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { describe, expect, it } from 'vitest';
 import { routes } from '../../app/routes.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluateAssessment, evaluatePatterns, patternAnswers } from '../../lib/engine/evaluate.ts';
+import { pillarRows } from '../../lib/engine/pillars.ts';
 import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
 
@@ -25,25 +27,51 @@ function renderPage(path: string) {
 }
 
 describe('Phase 3 mapping views', () => {
-  it('generates exactly one matrix row per capability and one column per canonical pattern', async () => {
+  it('generates exactly one matrix row per capability, grouped by requirement area, and one column per canonical pattern', async () => {
     renderPage('/patterns');
     await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
     expect(screen.getByText(copy.neutralNote)).toBeInTheDocument();
     const table = screen.getByRole('table', { name: copy.matrix });
     const rows = within(table).getAllByRole('row');
     expect(rows).toHaveLength(content.capabilities.length + 1);
-    expect(within(rows[0]!).getAllByRole('columnheader')).toHaveLength(content.patterns.length + 1);
+    expect(within(rows[0]!).getAllByRole('columnheader')).toHaveLength(content.patterns.length + 2);
     const patterns = evaluatePatterns(content, contentMeta.contentVersion);
-    for (const [i, capability] of content.capabilities.entries()) {
-      const cells = within(rows[i + 1]!).getAllByRole('cell');
+    const pillarOrder = (id: string) => content.pillars.find((p) => p.id === id)!.order;
+    const ordered = [...content.capabilities].sort(
+      (a, b) => pillarOrder(a.pillar) - pillarOrder(b.pillar),
+    );
+    for (const [i, capability] of ordered.entries()) {
+      const row = within(rows[i + 1]!);
+      expect(row.getByRole('rowheader')).toHaveTextContent(capability.shortName);
+      const cells = row.getAllByRole('cell');
+      expect(cells[0]).toHaveTextContent(
+        content.pillars.find((p) => p.id === capability.pillar)!.requirement,
+      );
       for (const [j, { result }] of patterns.entries()) {
         const match = result.inScope.find((r) => r.capability.id === capability.id);
-        expect(cells[j]).toHaveTextContent(
+        expect(cells[j + 1]).toHaveTextContent(
           match ? copy.levels[match.level] : site.capabilities.explorer.notApplicable,
         );
       }
     }
     expect(screen.queryByText(site.ui.comingSoon.status)).not.toBeInTheDocument();
+  });
+  it('summarises how many scenarios are drafts once and shows each scenario by requirement area', async () => {
+    renderPage('/patterns');
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    const draft = content.patterns.filter((p) => p.reviewStatus === 'draft').length;
+    expect(
+      screen.getByText(
+        renderTemplate(copy.draftSummary, { draft, total: content.patterns.length }),
+      ),
+    ).toBeInTheDocument();
+    expect(screen.queryAllByText(site.ui.badges.draft)).toHaveLength(0);
+    const patterns = evaluatePatterns(content, contentMeta.contentVersion);
+    for (const { pattern, result } of patterns) {
+      const card = screen.getByRole('heading', { level: 2, name: pattern.title }).closest('li')!;
+      for (const row of pillarRows(content, result.inScope))
+        expect(card).toHaveTextContent(`${row.pillar.requirement}: ${row.items.length}`);
+    }
   });
   it('shows generated recommendations, labeled assumptions, explicit unknown readiness and licensing', async () => {
     renderPage('/patterns/ai-teammate');
@@ -102,6 +130,35 @@ describe('Phase 3 mapping views', () => {
     expect(
       await screen.findByRole('heading', { level: 1, name: site.routes.notFound.title }),
     ).toBeInTheDocument();
+  });
+  it('opens the section around a rule that another page links to, and leaves it closed otherwise', async () => {
+    const router = renderPage('/methodology');
+    await screen.findByRole('heading', { level: 1, name: site.routes.methodology.title });
+    expect(document.getElementById('engine')).not.toHaveAttribute('open');
+    await act(async () => {
+      await router.navigate('/methodology#rule-pro-code');
+    });
+    expect(document.getElementById('engine')).toHaveAttribute('open');
+    expect(document.getElementById('rule-pro-code')).not.toBeNull();
+  });
+  it('answers the common questions first and keeps the rules behind one section', async () => {
+    renderPage('/methodology');
+    await screen.findByRole('heading', { level: 1, name: site.routes.methodology.title });
+    const main = within(screen.getByRole('main'));
+    for (const item of copy.quick) {
+      expect(main.getByText(item.question)).toBeInTheDocument();
+      expect(main.getByText(item.answer)).toBeInTheDocument();
+    }
+    for (const label of Object.values(copy.levels))
+      expect(
+        within(main.getByRole('region', { name: copy.levelsTitle })).getByText(label, {
+          selector: 'strong',
+        }),
+      ).toBeInTheDocument();
+    const engine = document.getElementById('engine')!;
+    expect(within(engine).getByText(copy.engineTitle, { selector: 'summary' })).toBeInTheDocument();
+    for (const rule of content.rules)
+      expect(engine.contains(document.getElementById(`rule-${rule.id}`))).toBe(true);
   });
   it('makes every rule and risk inspectable and reports SME review separately from automated tests', async () => {
     renderPage('/methodology');

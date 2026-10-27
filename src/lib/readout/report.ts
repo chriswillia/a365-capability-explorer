@@ -4,7 +4,9 @@ import { renderTemplate } from '../content/template.ts';
 import { knownAnswer } from '../engine/answers.ts';
 import { evaluateAssessment, evaluateWhatIfs } from '../engine/evaluate.ts';
 import { describeCondition } from '../engine/conditions.ts';
+import { pillarLabel, peopleRows, pillarRows, questionPillars } from '../engine/pillars.ts';
 import { licensingTier } from '../content/derive.ts';
+import { standingAssumptions } from '../state/assumptions.ts';
 import { displayName, type Assessment, type Organization } from '../state/diagnostic-model.ts';
 
 export function answerLabel(data: Content, answers: Answers, id: string): string {
@@ -15,6 +17,16 @@ export function answerLabel(data: Content, answers: Answers, id: string): string
   return (Array.isArray(value) ? value : [value])
     .map((v) => question.options.find((o) => o.value === v)?.label ?? v)
     .join(', ');
+}
+
+/** The answer as a reader should see it: an answer the customer has not confirmed says so. */
+export function answerText(
+  data: Content,
+  report: Pick<Readout, 'answers' | 'assumed'>,
+  id: string,
+) {
+  const label = answerLabel(data, report.answers, id);
+  return report.assumed.includes(id) ? `${label} (${data.site.readout.assumedMark})` : label;
 }
 
 export function buildReadout(
@@ -30,25 +42,32 @@ export function buildReadout(
   );
   const metrics = computeReadoutMetrics(result);
   const counts = [metrics.capabilityCount, metrics.unresolved, metrics.unanswered];
-  const summary = data.site.readout.takeaways.map((text, i) =>
-    renderTemplate(text, { count: counts[i]! }),
-  );
+  const assumed = standingAssumptions(assessment);
+  const summary = [
+    ...data.site.readout.takeaways.map((text, i) => renderTemplate(text, { count: counts[i]! })),
+    ...(assumed.length > 0
+      ? [renderTemplate(data.site.readout.assumedTakeaway, { count: assumed.length })]
+      : []),
+  ];
   const name = displayName(
     assessment.answers,
     'useCaseName',
     data.site.diagnostic.untitledAssessment,
   );
+  const organizationName = displayName(
+    organization.answers,
+    'orgName',
+    data.site.diagnostic.untitledOrganization,
+  );
   return {
     name,
-    title: renderTemplate(data.site.readout.title, { label: name }),
-    organizationName: displayName(
-      organization.answers,
-      'orgName',
-      data.site.diagnostic.untitledOrganization,
-    ),
+    title: renderTemplate(data.site.readout.title, { label: name, organization: organizationName }),
+    organizationName,
     answers: { ...organization.answers, ...assessment.answers },
+    assumed,
     result,
     metrics,
+    pillars: pillarRows(data, result.inScope),
     summary,
     logo: assessment.logo,
   };
@@ -67,7 +86,7 @@ export function canvasFields(data: Content, report?: Readout) {
     const answers = report
       ? box.questionIds.map(
           (id) =>
-            `${data.questions.find((q) => q.id === id)!.label}: ${answerLabel(data, report.answers, id)}`,
+            `${data.questions.find((q) => q.id === id)!.label}: ${answerText(data, report, id)}`,
         )
       : [];
     if (report && box.id === 'risks')
@@ -76,7 +95,7 @@ export function canvasFields(data: Content, report?: Readout) {
   });
 }
 
-const markdownText = (text: string) =>
+export const markdownText = (text: string) =>
   text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -118,11 +137,12 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     reviewStatus: string;
   }) =>
     `${text(data.site.learn.evidence[item.evidence])}; ${text(item.reviewStatus)}; ${item.sourceIds.join(', ')}`;
-  const heading = (number: number, key: keyof typeof copy.exhibits) =>
+  const heading = (key: keyof typeof copy.exhibits) =>
     lines.push(
       '',
-      `## ${text(renderTemplate(data.site.ui.exhibit.eyebrow, { number, label: copy.exhibits[key] }))}`,
+      `## ${text(renderTemplate(data.site.ui.exhibit.eyebrow, { number: (exhibitNumber += 1), label: copy.exhibits[key] }))}`,
     );
+  let exhibitNumber = 0;
   lines.push(
     '',
     ...(['essential', 'recommended', 'consider'] as const).map(
@@ -135,21 +155,37 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     `${text(mapping.readinessPercent)}: ${readout.metrics.readinessPercent === null ? text(mapping.unknownAnswer) : `${readout.metrics.readinessPercent}%`}`,
     '',
   );
-  heading(1, 'frontier');
-  lines.push(text(mapping.frontierNote));
-  for (const item of result.frontier)
+  heading('pillars');
+  lines.push(text(mapping.pillarsNote));
+  for (const row of readout.pillars) {
     lines.push(
-      `- ${text(data.learn.frontier.find((p) => p.id === item.phaseId)!.title)}: ${text(item.rationale)} (${evidence(item)})`,
+      `### ${text(pillarLabel(data, row.pillar))}`,
+      `${text(renderTemplate(mapping.pillarCount, { count: row.items.length, total: row.catalogTotal }))}; ${text(
+        (['essential', 'recommended', 'consider'] as const)
+          .map((level) => `${mapping.levels[level]} ${row.levels[level]}`)
+          .join(', '),
+      )}`,
+      ...(row.items.length === 0
+        ? [text(mapping.pillarNone)]
+        : [
+            text(
+              renderTemplate(mapping.pillarFlags, { premium: row.premium, notInGcc: row.notInGcc }),
+            ),
+            ...row.items.map(
+              ({ capability, level, ownerTeam }) =>
+                `- ${text(capability.shortName)} — ${text(mapping.levels[level])}; ${text(ownerTeam)}`,
+            ),
+          ]),
     );
-  if (result.frontier.length === 0) lines.push(text(mapping.unknownAnswer));
-  heading(2, 'anatomy');
+  }
+  heading('anatomy');
   lines.push(text(copy.anatomyNote));
   for (const { point, capabilities } of result.anatomy)
     lines.push(
       `- ${text(point.layer)} — ${text(mapping.inScope)}: ${names(capabilities.map((r) => r.capability.id))}`,
       `  - ${text(mapping.notInScope)}: ${names(result.notInScope.filter((r) => r.capability.controlPoints.includes(point.id)).map((r) => r.capability.id))}`,
     );
-  heading(3, 'risks');
+  heading('risks');
   lines.push(text(mapping.riskNote));
   for (const [label, rows] of [
     [mapping.risks, result.risks],
@@ -165,7 +201,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
       );
     if (rows.length === 0) lines.push(text(mapping.noRisks));
   }
-  heading(4, 'capabilities');
+  heading('capabilities');
   for (const row of result.inScope) {
     lines.push('', `### ${text(row.capability.shortName)} — ${text(mapping.levels[row.level])}`);
     for (const reason of row.reasons)
@@ -182,7 +218,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
         `- ${note.differs ? text(data.site.capabilities.sourcesDifferNote) : ''} ${text(note.note)} (${note.sourceId})`,
       );
   }
-  heading(5, 'decisions');
+  heading('decisions');
   lines.push(
     text(copy.setupNote),
     `${text(copy.platform)}: ${names(result.inScope.filter((r) => r.capability.setup !== 'agent').map((r) => r.capability.id))}`,
@@ -190,14 +226,20 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     `${text(data.questions.find((q) => q.id === 'accountableOwner')!.label)}: ${text(answerLabel(data, readout.answers, 'accountableOwner'))}`,
     `${text(data.questions.find((q) => q.id === 'sponsor')!.label)}: ${text(answerLabel(data, readout.answers, 'sponsor'))}`,
   );
-  heading(6, 'readiness');
+  heading('people');
+  lines.push(text(copy.peopleNote));
+  for (const { team, areas, capabilities } of peopleRows(data, result.inScope))
+    lines.push(
+      `- ${text(team)} — ${text(areas.join(', '))}: ${names(capabilities.map((c) => c.id))}`,
+    );
+  heading('readiness');
   lines.push(text(mapping.readinessNote));
   for (const check of result.readiness.checks)
     lines.push(
       `- ${text(mapping.readinessStatuses[check.status])}: ${text(check.gap)}; ${condition(check.when)}; ${check.capabilityId ? names([check.capabilityId]) : ''}; ${check.sourceId ?? ''}; ${text(data.site.learn.evidence[check.evidence])}`,
     );
   lines.push(text(mapping.noChecks), names(result.readiness.uncheckedCapabilities));
-  heading(7, 'operatingModel');
+  heading('operatingModel');
   for (const row of result.operatingModel) {
     lines.push(`### ${text(row.ownerTeam)}`);
     for (const stage of row.stages)
@@ -205,7 +247,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
         `- ${text(stage.stage.label)}: ${names(stage.capabilities.map((c) => c.capability.id))}`,
       );
   }
-  heading(8, 'integration');
+  heading('integration');
   for (const path of result.integrationPaths)
     lines.push(
       `### ${text(path.title)}`,
@@ -214,7 +256,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
       evidence(path),
     );
   if (result.integrationPaths.length === 0) lines.push(text(mapping.unknownAnswer));
-  heading(9, 'licensing');
+  heading('licensing');
   lines.push(
     text(copy.eligibility),
     `${text(mapping.expectedUsers)}: ${text(result.licensing.expectedUsersLabel ?? mapping.unknownAnswer)}`,
@@ -223,7 +265,19 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     `${text(mapping.gcc)}: ${names(result.gccGaps.map((r) => r.capability.id))}`,
   );
   if (result.sovereignVerification) lines.push(text(mapping.sovereign));
-  heading(10, 'roadmap');
+  heading('openQuestions');
+  lines.push(text(copy.openQuestionsNote));
+  const informs = questionPillars(data);
+  for (const q of result.openQuestions) {
+    const affects = data.pillars
+      .filter((p) => informs.get(q.id)?.has(p.id))
+      .map((p) => p.requirement);
+    lines.push(
+      `- ${text(q.label)}${affects.length > 0 ? ` (${text(renderTemplate(mapping.informs, { label: affects.join(', ') }))})` : ''}: ${text(q.guidance)}`,
+    );
+  }
+  lines.push(...result.unknownRuleIds.map((id) => `- ${text(mapping.unknownAnswer)}: ${id}`));
+  heading('roadmap');
   lines.push(text(copy.roadmapNote));
   for (const wave of [1, 2, 3] as const)
     lines.push(
@@ -235,7 +289,14 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
             `- ${text(r.capability.shortName)}: ${text(mapping.levels[r.level])}; ${text(r.ownerTeam)}`,
         ),
     );
-  heading(11, 'whatIfs');
+  heading('frontier');
+  lines.push(text(mapping.frontierNote));
+  for (const item of result.frontier)
+    lines.push(
+      `- ${text(data.learn.frontier.find((p) => p.id === item.phaseId)!.title)}: ${text(item.rationale)} (${evidence(item)})`,
+    );
+  if (result.frontier.length === 0) lines.push(text(mapping.unknownAnswer));
+  heading('whatIfs');
   lines.push(text(copy.whatIfNote));
   const org = Object.fromEntries(
     data.questions
@@ -262,12 +323,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     lines.push(
       `- ${text(capability.shortName)} — ${text(mapping.becomesRelevant)}: ${becomesRelevantIf.map((r) => `${condition(r.when)} (${r.ruleId})`).join('; ') || text(mapping.noRule)}`,
     );
-  lines.push(
-    `### ${text(mapping.openQuestions)}`,
-    ...result.openQuestions.map((q) => `- ${text(q.label)}: ${text(q.guidance)}`),
-    ...result.unknownRuleIds.map((id) => `- ${text(mapping.unknownAnswer)}: ${id}`),
-    `### ${text(copy.discovery)}`,
-  );
+  lines.push(`### ${text(copy.discovery)}`);
   for (const row of result.inScope)
     lines.push(
       ...(row.capability.discoveryQuestions ?? []).map(
@@ -285,9 +341,7 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
     `### ${text(copy.answers)}`,
   );
   for (const question of data.questions)
-    lines.push(
-      `- ${text(question.label)}: ${text(answerLabel(data, readout.answers, question.id))}`,
-    );
+    lines.push(`- ${text(question.label)}: ${text(answerText(data, readout, question.id))}`);
   lines.push('', `## ${text(copy.sources)}`);
   lines.push(text(copy.methodologyNote), text(copy.verifyNext));
   for (const source of data.sources)

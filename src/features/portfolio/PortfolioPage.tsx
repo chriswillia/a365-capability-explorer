@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
+import { Link, useSearchParams } from 'react-router';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { KpiStrip } from '../../components/KpiStrip.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
-import { content, contentMeta } from '../../lib/content/index.ts';
+import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import { computePortfolioMetrics } from '../../lib/content/metrics.ts';
 import { formatNumber, renderTemplate } from '../../lib/content/template.ts';
 import { answerLabel } from '../../lib/readout/report.ts';
@@ -28,7 +28,7 @@ const copy = content.site.portfolio;
 const mapping = content.site.mapping;
 const nameColumn: Column<PortfolioCase> = {
   key: 'name',
-  header: content.site.diagnostic.assessments,
+  header: content.questions.find((q) => q.id === 'useCaseName')!.label,
   rowHeader: true,
   render: (item) => <Link to={`/diagnostic/${item.assessment.id}/readout`}>{item.name}</Link>,
 };
@@ -145,10 +145,19 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
               caption={copy.matrix}
               hideCaption
               scrollLabel={renderTemplate(content.site.readout.tableLabel, { label: copy.matrix })}
-              rows={portfolio.capabilities}
+              rows={[...portfolio.capabilities].sort(
+                (a, b) =>
+                  pillarById(a.capability.pillar)!.order - pillarById(b.capability.pillar)!.order,
+              )}
               rowKey={({ capability }) => capability.id}
               columns={[
                 capabilityColumn,
+                {
+                  key: 'pillar',
+                  header: content.site.capabilities.columns.pillar,
+                  nowrap: true,
+                  render: ({ capability }) => pillarById(capability.pillar)?.requirement,
+                },
                 ...cases.map((item): Column<PortfolioCapability> => ({
                   key: item.assessment.id,
                   header: item.name,
@@ -362,7 +371,8 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
 export function Component() {
   usePageTitle('portfolio');
   const store = useDiagnostics();
-  const [organizationId, setOrganizationId] = useState('');
+  const [params] = useSearchParams();
+  const [organizationId, setOrganizationId] = useState(() => params.get('customer') ?? '');
   const [excluded, setExcluded] = useState<Set<string>>(new Set());
   const organization =
     store.data.organizations.find((item) => item.id === organizationId) ??

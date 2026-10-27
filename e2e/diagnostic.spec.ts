@@ -1,25 +1,39 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import type { Question, Site } from '../src/lib/content/schemas.ts';
+import type { PillarDef, Question, Site } from '../src/lib/content/schemas.ts';
+import { renderTemplate } from '../src/lib/content/template.ts';
 
 const site = JSON.parse(readFileSync('src/generated/site.json', 'utf8')) as Site;
 const questions = JSON.parse(readFileSync('src/generated/questions.json', 'utf8')) as Question[];
+const pillars = JSON.parse(readFileSync('src/generated/pillars.json', 'utf8')) as PillarDef[];
 const copy = site.diagnostic;
 const label = (id: string) => questions.find((q) => q.id === id)!.label;
+const pillarName = (pillar: PillarDef) =>
+  renderTemplate(site.capabilities.pillarName, {
+    requirement: pillar.requirement,
+    label: pillar.label,
+  });
 const key = 'cpcompass:diagnostic';
 
+// A new customer needs only a name; the cloud is asked in the same form and a quick scan opens at the use case.
 async function start(page: Page) {
   await page.goto('diagnostic');
   await page
     .getByRole('textbox', { name: copy.newOrganization })
     .fill('Fictional browser organization');
-  await page.getByRole('button', { name: copy.createOrganization }).click();
   await page
     .getByRole('combobox', { name: label('cloudEnvironment'), exact: true })
     .selectOption('gcc');
   await page.getByRole('button', { name: copy.start, exact: true }).click();
   await expect(page).toHaveURL(/diagnostic\/[0-9a-f-]{36}$/);
+}
+
+// Less common actions on a saved assessment sit behind "More actions"; open every menu that is closed.
+async function openMenus(page: Page) {
+  await page.locator('summary', { hasText: copy.more }).first().waitFor();
+  const closed = page.locator('details:not([open]) > summary', { hasText: copy.more });
+  while ((await closed.count()) > 0) await closed.first().click();
 }
 
 test.describe('Phase 4 diagnostic', () => {
@@ -78,9 +92,16 @@ test.describe('Phase 4 diagnostic', () => {
       tools.getByRole('checkbox', { name: computer.label, exact: true }),
     ).not.toBeChecked();
     await rail.getByRole('button', { name: copy.review, exact: true }).click();
+    for (const pillar of pillars)
+      await expect(
+        page.getByRole('heading', { level: 3, name: pillarName(pillar), exact: true }),
+      ).toBeVisible();
     await expect(
-      page.getByRole('table', { name: site.mapping.inScope, exact: true }),
+      page.getByRole('link', { name: site.readout.open, exact: true }).last(),
     ).toBeVisible();
+    await expect(page.getByRole('table', { name: site.mapping.inScope, exact: true })).toHaveCount(
+      0,
+    );
     expect(page.url()).toMatch(/diagnostic\/[0-9a-f-]{36}$/);
     expect(requests.every((url) => new URL(url).origin === new URL(baseURL!).origin)).toBe(true);
     expect(requests.some((url) => /Fictional|Preserve/.test(decodeURIComponent(url)))).toBe(false);
@@ -94,14 +115,15 @@ test.describe('Phase 4 diagnostic', () => {
     await page
       .getByRole('textbox', { name: copy.newOrganization })
       .fill('Fictional sample organization');
-    await page.getByRole('button', { name: copy.createOrganization }).click();
     await page
       .getByRole('combobox', { name: label('cloudEnvironment'), exact: true })
       .selectOption('gcc');
     await page.getByRole('button', { name: copy.start, exact: true }).click();
     await expect(page).toHaveURL(/diagnostic\/[0-9a-f-]{36}$/);
     await page.getByRole('link', { name: copy.back, exact: true }).click();
+    await openMenus(page);
     await page.getByRole('button', { name: copy.duplicate, exact: true }).click();
+    await openMenus(page);
     await expect(page.getByRole('button', { name: copy.rename, exact: true })).toHaveCount(2);
     await page.getByRole('button', { name: copy.rename, exact: true }).first().click();
     await page
@@ -111,6 +133,7 @@ test.describe('Phase 4 diagnostic', () => {
     const card = page.getByRole('listitem').filter({
       has: page.getByRole('heading', { name: 'Renamed local assessment', exact: true }),
     });
+    await openMenus(page);
     await card.getByRole('button', { name: copy.delete, exact: true }).click();
     const dialog = page.getByRole('alertdialog');
     await expect(dialog).toBeVisible();
@@ -189,7 +212,12 @@ test.describe('Phase 4 diagnostic', () => {
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       await start(page);
       await page.getByRole('combobox', { name: copy.mode, exact: true }).selectOption('full');
+      await page
+        .getByRole('navigation', { name: copy.sectionRail })
+        .getByRole('button', { name: 'Customer profile', exact: true })
+        .click();
       await page.locator('#question-orgName summary').click();
+      await page.getByRole('button', { name: site.mapping.anatomyByOptions.layer }).click();
       await page.locator('aside').getByText(site.mapping.anatomy, { exact: true }).first().click();
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       await page
@@ -204,15 +232,15 @@ test.describe('Phase 4 diagnostic', () => {
   }) => {
     await page.setViewportSize({ width: 320, height: 740 });
     await start(page);
+    await page
+      .getByRole('textbox', { name: label('useCaseName'), exact: true })
+      .fill('Fictional mobile assessment');
     const next = page.getByRole('button', { name: copy.next, exact: true });
     await next.focus();
     await page.keyboard.press('Enter');
     await expect(
-      page.getByRole('heading', { level: 2, name: 'Use case profile', exact: true }),
+      page.getByRole('heading', { level: 2, name: 'Build and run', exact: true }),
     ).toBeFocused();
-    await page
-      .getByRole('textbox', { name: label('useCaseName'), exact: true })
-      .fill('Fictional mobile assessment');
     await page
       .getByRole('navigation', { name: copy.sectionRail })
       .getByRole('button', { name: copy.review, exact: true })
@@ -226,7 +254,7 @@ test.describe('Phase 4 diagnostic', () => {
     await page.addInitScript((storageKey) => localStorage.setItem(storageKey, '{broken'), key);
     await page.goto('diagnostic');
     await expect(page.getByText(copy.storageInvalid, { exact: true })).toBeVisible();
-    await expect(page.getByRole('button', { name: copy.createOrganization })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: copy.start, exact: true })).toHaveCount(0);
     await page.getByText(copy.recovery, { exact: true }).click();
     await expect(page.getByRole('textbox', { name: copy.recovery })).toHaveValue('{broken');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -237,7 +265,59 @@ test.describe('Phase 4 diagnostic', () => {
     );
     await page.getByRole('button', { name: copy.reset, exact: true }).click();
     await page.getByRole('alertdialog').getByRole('button', { name: copy.confirm }).click();
-    await expect(page.getByRole('button', { name: copy.createOrganization })).toBeVisible();
+    await expect(page.getByRole('button', { name: copy.start, exact: true })).toBeVisible();
     expect(await page.evaluate((storageKey) => localStorage.getItem(storageKey), key)).toBeNull();
+  });
+});
+
+test.describe('seller flow', () => {
+  test('a scenario start marks its answers as assumed until the seller confirms them', async ({
+    page,
+  }) => {
+    await page.goto('diagnostic?pattern=process-agent');
+    await page
+      .getByRole('textbox', { name: copy.newOrganization })
+      .fill('Fictional assumed customer');
+    await page.getByRole('button', { name: copy.start, exact: true }).click();
+    await expect(page).toHaveURL(/diagnostic\/[0-9a-f-]{36}$/);
+    await expect(page.getByText(copy.assumedBadge).first()).toBeVisible();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+
+    const confirm = page.getByRole('button', {
+      name: `${copy.confirmAnswer} — ${label('stage')}`,
+      exact: true,
+    });
+    await confirm.click();
+    await expect(confirm).toHaveCount(0);
+    const saved = await page.evaluate(
+      (storageKey) => JSON.parse(localStorage.getItem(storageKey)!),
+      key,
+    );
+    const assumed: string[] = saved.assessments[0].assumedQuestionIds;
+    expect(assumed).not.toContain('stage');
+    expect(assumed.length).toBeGreaterThan(3);
+
+    await page.getByRole('link', { name: site.readout.open, exact: true }).first().click();
+    await expect(
+      page.getByText(renderTemplate(site.readout.assumedTakeaway, { count: assumed.length })),
+    ).toBeVisible();
+  });
+
+  test('the header keeps the customer in reach and opens their comparison', async ({ page }) => {
+    await start(page);
+    const chip = page.locator('summary', { hasText: `${site.ui.customer.label}:` });
+    const menu = page.locator('details').filter({ has: chip });
+    await expect(chip).toContainText('Fictional browser organization');
+    await chip.click();
+    await expect(menu).toHaveAttribute('open', '');
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.getByRole('link', { name: site.ui.customer.compare, exact: true }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.portfolio.title }),
+    ).toBeVisible();
+    await expect(page.getByRole('combobox', { name: site.portfolio.organization })).toContainText(
+      'Fictional browser organization',
+    );
+    await expect(menu).not.toHaveAttribute('open', '');
   });
 });

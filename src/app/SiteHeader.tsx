@@ -1,18 +1,21 @@
+import { lazy, Suspense } from 'react';
 import { Link, NavLink } from 'react-router';
 import { ViewDepthToggle } from '../components/ViewDepthToggle.tsx';
 import { content } from '../lib/content/index.ts';
 import type { Site } from '../lib/content/schemas.ts';
 import styles from './SiteHeader.module.css';
 
+// The customer shortcut reads local storage, so it loads after the first paint instead of with the landing page.
+const CurrentCustomer = lazy(() => import('./CurrentCustomer.tsx'));
+
 const NAV: { key: keyof Site['ui']['nav']; to: string; end?: boolean }[] = [
   { key: 'overview', to: '/', end: true },
+  { key: 'learn', to: '/learn' },
   { key: 'capabilities', to: '/capabilities' },
   { key: 'patterns', to: '/patterns' },
-  { key: 'learn', to: '/learn' },
   { key: 'diagnostic', to: '/diagnostic' },
   { key: 'portfolio', to: '/portfolio' },
   { key: 'workshop', to: '/workshop' },
-  { key: 'methodology', to: '/methodology' },
 ];
 
 export function SiteHeader() {
@@ -32,23 +35,28 @@ export function SiteHeader() {
         </Link>
         <ViewDepthToggle />
       </div>
-      <nav aria-label={ui.mainNavLabel} className={styles.nav}>
-        <ul>
-          {NAV.map((item) => (
-            <li key={item.key}>
-              <NavLink
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  isActive ? `${styles.link} ${styles.active}` : styles.link
-                }
-              >
-                {ui.nav[item.key]}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      <div className={styles.bar}>
+        <nav aria-label={ui.mainNavLabel} className={styles.nav}>
+          <ul>
+            {NAV.map((item) => (
+              <li key={item.key}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    isActive ? `${styles.link} ${styles.active}` : styles.link
+                  }
+                >
+                  {ui.nav[item.key]}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <Suspense fallback={null}>
+          <CurrentCustomer />
+        </Suspense>
+      </div>
     </header>
   );
 }

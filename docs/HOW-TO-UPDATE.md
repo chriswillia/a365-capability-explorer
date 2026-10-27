@@ -12,25 +12,26 @@ You do not need to be a developer. Capabilities, sources and all interface copy 
 
 ## What the files are
 
-| File                                                                     | Holds                                                                                               |
-| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| `capabilities.yaml`                                                      | The 26 capabilities: verbatim service-description text, availability, and editorial drafts          |
-| `sources.yaml`                                                           | Every source, with its URL and when it was last verified                                            |
-| `site.yaml`                                                              | All interface copy, page titles and the footer disclaimer                                           |
-| `personas.yaml`                                                          | Role-based starting paths to available explorer lenses and Learn sections                           |
-| `learn.yaml`                                                             | Conceptual flow, integration paths, product positioning and Frontier Firm phases                    |
-| `building-blocks.yaml`                                                   | Related concepts; these do not add service-description capabilities                                 |
-| `glossary.yaml`                                                          | Terms, aliases, definitions and source evidence                                                     |
-| `faq.yaml`                                                               | Assumptions to check and verified answers; unknown answers stay empty                               |
-| `questions.yaml`                                                         | Typed rule inputs, option labels and open-question guidance                                         |
-| `rules.yaml`, `advisories.yaml`                                          | Conditions, recommendation levels, reasons, evidence and verification advice                        |
-| `patterns.yaml`, `risks.yaml`                                            | Canonical pattern answers and editorial risk-to-capability associations                             |
-| `samples.yaml`, `golden-scenarios.yaml`                                  | Illustrative overrides, authored expectations and nullable SME signoff                              |
-| `integration-paths.yaml`, `frontier-phases.yaml`                         | Conditional builder checklists and editorial access-model associations                              |
-| `mapping.yaml`, `what-ifs.yaml`                                          | Neutral organization, configured global checks, unknown licensing basis and answer-change scenarios |
-| `pillars.yaml`, `consoles.yaml`, `control-points.yaml`, `lifecycle.yaml` | The labels and groupings that capabilities refer to                                                 |
-| `changelog.md`                                                           | What changed, and which capabilities each change touches                                            |
-| `source-snapshot.json`                                                   | The service description's feature table as published. Do not edit by hand                           |
+| File                                                                     | Holds                                                                                                   |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `capabilities.yaml`                                                      | The 26 capabilities: verbatim service-description text, availability, and editorial drafts              |
+| `sources.yaml`                                                           | Every source, with its URL and when it was last verified                                                |
+| `site.yaml`                                                              | All interface copy, page titles and the footer disclaimer                                               |
+| `personas.yaml`                                                          | Role-based starting paths to available explorer lenses and Learn sections                               |
+| `learn.yaml`                                                             | Conceptual flow, integration paths, product positioning and Frontier Firm phases                        |
+| `building-blocks.yaml`                                                   | Related concepts; these do not add service-description capabilities                                     |
+| `glossary.yaml`                                                          | Terms, aliases, definitions and source evidence                                                         |
+| `faq.yaml`                                                               | Assumptions to check and verified answers; unknown answers stay empty                                   |
+| `questions.yaml`                                                         | Typed rule inputs, option labels and open-question guidance                                             |
+| `rules.yaml`, `advisories.yaml`                                          | Conditions, recommendation levels, reasons, evidence and verification advice                            |
+| `patterns.yaml`, `risks.yaml`                                            | Canonical pattern answers and editorial risk-to-capability associations                                 |
+| `samples.yaml`, `golden-scenarios.yaml`                                  | Illustrative overrides, authored expectations and nullable SME signoff                                  |
+| `integration-paths.yaml`, `frontier-phases.yaml`                         | Conditional builder checklists and editorial access-model associations                                  |
+| `mapping.yaml`, `what-ifs.yaml`                                          | Neutral organization, configured global checks, unknown licensing basis and answer-change scenarios     |
+| `pillars.yaml`, `consoles.yaml`, `control-points.yaml`, `lifecycle.yaml` | The labels and groupings that capabilities refer to; each pillar's `requirement` names it for customers |
+| `conversation.yaml`                                                      | Facilitation advice for the customer conversation guide. It states no product facts                     |
+| `changelog.md`                                                           | What changed, and which capabilities each change touches                                                |
+| `source-snapshot.json`                                                   | The service description's feature table as published. Do not edit by hand                               |
 
 ## Rules of thumb
 
@@ -45,7 +46,15 @@ You do not need to be a developer. Capabilities, sources and all interface copy 
 
 `site.yaml` holds portfolio labels, quadrant labels and draft planning cutoffs (`valueCutoff` and `intensityCutoff`). These are discussion aids, not Microsoft recommendations, a financial valuation or a risk score. Keep the chart disclosure synchronized with the configured values; numeric values are inserted through templates. Relative value uses the existing `businessValue` scale. Expected-user options remain bands, not precise headcounts or license quantities.
 
-`workshop.yaml` holds the editorial facilitator guide. Minutes are positive integers and agenda ids are unique; the duration headline is computed from the agenda. Keep `reviewStatus: draft` until reviewed. Printable cards derive summaries and scope conditions from capabilities, patterns and rules. Do not copy their mappings into workshop content. Recheck paired-card printing on A4 and Letter after lengthening summaries or rule conditions.
+`workshop.yaml` holds the editorial facilitator guide and the labels of the printable requirements checklist. Minutes are positive integers and agenda ids are unique; the duration headline is computed from the agenda. Keep `reviewStatus: draft` until reviewed. The checklist rows and the printable cards derive from capabilities, patterns and rules. Do not copy their mappings into workshop content. Recheck paired-card printing, and that the checklist prints one requirement area per page, on A4 and Letter after lengthening summaries or rule conditions.
+
+## Seller guidance content
+
+`conversation.yaml` holds only editorial advice for the customer conversation guide: the steps, section labels and the note about unverified myth-and-fact answers. The capabilities, discovery questions, owner teams and licensing and availability counts on that page are computed from `capabilities.yaml` and `consoles.yaml`, so fix a question or an owner at its source rather than on the page. Links in `conversation.yaml` must target a page of this site. Keep `reviewStatus: draft` until reviewed, and do not present the steps as an approved sales process.
+
+Each pillar's `requirement` in `pillars.yaml` (Security, Governance, Observability) is the name customers hear; the short `label` is shown beside it. The workshop checklist, the readout's requirement-area exhibit and the canvas strip all group by it.
+
+The site says "scenario" (the `patterns.yaml` entries), "customer" (the organization profile), "product area" (the `consoles.yaml` entries), "Assess" and "Compare use cases" in copy; keep to those words in `site.yaml`. Ids, file names and route paths keep their old names. `feedbackEmail` in `site.yaml` stays empty until the owner supplies a monitored address; do not invent one.
 
 ## Add a capability
 
@@ -71,15 +80,15 @@ Add a golden scenario for every pattern and sample: `mustInclude` means **Essent
 
 ## Diagnostic questions
 
-Update the question schema and its tests first when adding a question kind or field. Choices and scales use string-valued options; text, long-text and date fields have explicit maximum lengths and no option list. Dates use real `YYYY-MM-DD` values. Every question needs exactly one correctly scoped section and a consultant note in `diagnostic.yaml`. Quick-scan ids must exist. Visibility conditions use the same validated three-valued condition language as rules.
+Update the question schema and its tests first when adding a question kind or field. Choices and scales use string-valued options; text, long-text and date fields have explicit maximum lengths and no option list. Dates use real `YYYY-MM-DD` values. Every question needs exactly one correctly scoped section, a consultant note and an `askPrompts` entry in `diagnostic.yaml`. The ask prompt is the question as a seller would put it to a customer, in plain words; the build fails when one is missing. Which requirement areas a question informs is derived from the rules and readiness checks, so do not write it by hand. Quick-scan ids must exist. Visibility conditions use the same validated three-valued condition language as rules.
 
-Question ids and option values are persisted data: avoid renaming them casually. Older incompatible answers are preserved on load, block live previews, and can be corrected or explicitly cleared; they are never silently coerced. Organization-profile edits affect all linked assessments. Quick/Full switching changes the questions shown, not the answers saved. Pattern customization seeds only use-case answers, retaining the selected organization.
+Question ids and option values are persisted data: avoid renaming them casually. Older incompatible answers are preserved on load, block live previews, and can be corrected or explicitly cleared; they are never silently coerced. Customer-profile edits affect all linked assessments. Quick/Full switching changes the questions shown, not the answers saved. Scenario customization seeds only use-case answers, retaining the selected customer, and marks those answers as assumed until the seller confirms or changes them.
 
 All diagnostic and readout copy is in `site.yaml`. Readout takeaways use computed `{count}` values; canvas boxes reference question ids and are checked for duplicate ids and unknown questions. Empty question lists deliberately leave a workshop discussion box, not an invented answer. Document storage keys, deletion behavior and export privacy on Privacy.
 
 Run schema, reference, storage, wizard, transfer, report and browser tests when changing these behaviors. JSON backups use a strict versioned envelope; never silently accept a new format or overwrite local entities during import. Imports create new ids and remap relationships while retaining original answers for explicit compatibility checks. Update round-trip, invalid-file, download and A4/Letter print checks when changing exports.
 
-Readout exhibit labels, notices, PowerPoint copy and logo-validation messages are schema-validated site data. Keep the eleven exhibit numbers stable and preserve Executive/Technical gating. Markdown and speaker notes carry the full technical detail; any visual PowerPoint shortening must remain explicitly disclosed. Check exactly six readout slides and one canvas slide, no external asset relationships, complete speaker notes and local rendering when changing presentation layouts. Safe logos are optional assessment data in workspace v1; do not add defaults to legacy records, accept URLs/SVG, bypass normalization or write outside the storage adapter.
+Readout exhibit labels, notices, PowerPoint copy and logo-validation messages are schema-validated site data. Keep the exhibit order in `src/lib/readout/plan.ts` and the titles in `site.yaml` in step, and preserve Executive/Technical gating: numbers are positions in that view's plan, so a new exhibit renumbers the ones after it everywhere at once. Markdown and speaker notes carry the full technical detail; any visual PowerPoint shortening must remain explicitly disclosed. Check exactly seven readout slides and one canvas slide, no external asset relationships, complete speaker notes and local rendering when changing presentation layouts. Safe logos are optional assessment data in workspace v1; do not add defaults to legacy records, accept URLs/SVG, bypass normalization or write outside the storage adapter. The same holds for `assumedQuestionIds`, which is optional, display-only and never written for assessments that did not start from a scenario.
 
 ## When CI fails
 
@@ -87,7 +96,7 @@ Readout exhibit labels, notices, PowerPoint copy and logo-validation messages ar
 
 Learning items need a `sourceId`, `evidence`, `reviewStatus` and `lastVerified`. Keep text draft until SME approval. Use `summary:` or `fact:` with no value, `lastVerified:` with no value, and a `# TODO(verify)` comment when the source is not verified. The UI displays a pending-verification notice. Do not fill a missing fact from memory or copy the unverified build brief's claims.
 
-`capabilityIds` must reference catalog ids; related building blocks never increase catalog metrics. Technical guidance needs `technicalSourceId`. Glossary terms and aliases must be unique ignoring case. Persona links must point to an available Learn anchor or explorer lens, not a future assessment. The content build checks all of these references and warns about stale or unverified learning items.
+`capabilityIds` must reference catalog ids; related building blocks never increase catalog metrics. Technical guidance needs `technicalSourceId`. Glossary terms and aliases must be unique ignoring case. Persona links must point to a page of this site: a Learn anchor, the explorer or the customer conversation guide, not a future assessment. The content build checks all of these references and warns about stale or unverified learning items.
 
 | The message says                   | What to do                                                                   |
 | ---------------------------------- | ---------------------------------------------------------------------------- |

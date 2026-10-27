@@ -24,7 +24,8 @@ test.describe('Phase 3 mapping', () => {
         const match = result.inScope.find((r) => r.capability.id === capability.id);
         return match ? copy.levels[match.level] : site.capabilities.explorer.notApplicable;
       });
-      await expect(row.getByRole('cell')).toHaveText(expected);
+      const requirement = content.pillars.find((p) => p.id === capability.pillar)!.requirement;
+      await expect(row.getByRole('cell')).toHaveText([requirement, ...expected]);
     }
     await expect(page.getByText(copy.neutralNote)).toBeVisible();
   });

@@ -3,18 +3,23 @@ import { Badge } from '../../components/Badge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
-import { content, contentMeta } from '../../lib/content/index.ts';
+import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import type { Capability } from '../../lib/content/schemas.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
+import { pillarRows } from '../../lib/engine/pillars.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
-import { Evidence } from './Evidence.tsx';
 import styles from './Mapping.module.css';
 
 const patterns = evaluatePatterns(content, contentMeta.contentVersion);
+const orderedCapabilities = [...content.capabilities].sort(
+  (a, b) => pillarById(a.pillar)!.order - pillarById(b.pillar)!.order,
+);
 
 export function Component() {
   usePageTitle('patterns');
   const copy = content.site.mapping;
+  const draftCount = patterns.filter(({ pattern }) => pattern.reviewStatus === 'draft').length;
   const columns: Column<Capability>[] = [
     {
       key: 'capability',
@@ -25,6 +30,12 @@ export function Component() {
           {c.shortName}
         </Link>
       ),
+    },
+    {
+      key: 'pillar',
+      header: content.site.capabilities.columns.pillar,
+      nowrap: true,
+      render: (c) => pillarById(c.pillar)?.requirement,
     },
     ...patterns.map(({ pattern, result }) => ({
       key: pattern.id,
@@ -52,6 +63,11 @@ export function Component() {
       <PageHeading>{content.site.routes.patterns.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
       <p className={styles.note}>{copy.neutralNote}</p>
+      {draftCount > 0 && (
+        <p className={styles.note}>
+          {renderTemplate(copy.draftSummary, { draft: draftCount, total: patterns.length })}
+        </p>
+      )}
       <Link to="/methodology">{copy.methodology}</Link>
       <ul className={styles.cards}>
         {patterns.map(({ pattern, result }) => (
@@ -63,7 +79,14 @@ export function Component() {
             <p>
               {copy.patternCount}: {result.inScope.length}
             </p>
-            <Evidence {...pattern} />
+            <p className={styles.note}>
+              {pillarRows(content, result.inScope)
+                .map((row) => `${row.pillar.requirement}: ${row.items.length}`)
+                .join(' · ')}
+            </p>
+            {pattern.reviewStatus === 'reviewed' && (
+              <Badge tone="outline">{content.site.ui.badges.reviewed}</Badge>
+            )}
           </li>
         ))}
       </ul>
@@ -80,7 +103,7 @@ export function Component() {
           caption={copy.matrix}
           hideCaption
           columns={columns}
-          rows={content.capabilities}
+          rows={orderedCapabilities}
           rowKey={(c) => c.id}
           scrollLabel={copy.matrix}
         />

@@ -3,10 +3,11 @@ import { Link, useParams } from 'react-router';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
-import { content, contentMeta } from '../../lib/content/index.ts';
+import { content, contentMeta, pillarName } from '../../lib/content/index.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
+import { pillarRows } from '../../lib/engine/pillars.ts';
 import {
-  answerLabel,
+  answerText,
   buildReadout,
   canvasFields,
   summarizeText,
@@ -110,7 +111,7 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
                   {box.questionIds.map((id) => (
                     <div key={id}>
                       <dt>{content.questions.find((q) => q.id === id)!.label}</dt>
-                      <dd>{answerLabel(content, report.answers, id)}</dd>
+                      <dd>{answerText(content, report, id)}</dd>
                     </div>
                   ))}
                 </dl>
@@ -130,6 +131,36 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
               </p>
             </section>
           ))}
+          <section className={`${styles.canvasBox} ${styles.canvasWide}`}>
+            <h2>{content.site.mapping.pillars}</h2>
+            <div className={styles.canvasPillars}>
+              {(report?.pillars ?? pillarRows(content, [])).map((row) => (
+                <div key={row.pillar.id}>
+                  <h3>{pillarName(row.pillar)}</h3>
+                  {row.items.length > 0 ? (
+                    <>
+                      <ul className={styles.canvasDetails}>
+                        {row.items.map(({ capability, level }) => (
+                          <li key={capability.id}>
+                            {capability.shortName} — {content.site.mapping.levels[level]}
+                          </li>
+                        ))}
+                      </ul>
+                      <p className={styles.canvasPrintDetails}>
+                        {summarizeText(row.items.map((r) => r.capability.shortName).join('; '), 60)}
+                      </p>
+                    </>
+                  ) : (
+                    <p>
+                      {report
+                        ? content.site.mapping.pillarNone
+                        : content.site.mapping.unknownAnswer}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
         <section className={styles.canvasBox}>
           <h2>{content.site.mapping.inScope}</h2>

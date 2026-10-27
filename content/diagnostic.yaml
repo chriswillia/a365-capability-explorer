@@ -1,8 +1,8 @@
 # Editorial questionnaire organization. These notes do not assert product eligibility.
 sections:
   - id: organization
-    title: Organization profile
-    description: "Reusable context for this organization or engagement. Edits apply to every linked assessment."
+    title: Customer profile
+    description: "Reusable context for this customer or engagement. Edits apply to every linked assessment."
     scope: org
     questionIds:
       [
@@ -86,7 +86,7 @@ visibility:
   - questionId: codeStack
     when: { q: buildPlatform, in: [pro-code-microsoft, pro-code-third-party] }
 consultantNotes:
-  orgName: "A recognizable local label keeps different organizations or engagements separate."
+  orgName: "A recognizable local label keeps different customers or engagements separate."
   industry: "Industry supplies conversation context, not an automatic regulatory determination."
   cloudEnvironment: "The GCC column must not be extrapolated to other sovereign clouds."
   basePlan: "A subscription name helps frame licensing verification; it does not certify eligibility."
@@ -134,3 +134,53 @@ consultantNotes:
   preparedOn: "An optional date can distinguish planning sessions without changing the rules."
   successMeasures: "A baseline, target and review date make the outcome testable. This workshop input does not change recommendation rules."
   accountableOwner: "Name the person or team accountable for the agent without entering unnecessary personal details. This is separate from whether a sponsor exists."
+# Conversational wording for each question, so a seller can ask it aloud. Editorial; it changes no rule.
+askPrompts:
+  orgName: "What should we call this customer or engagement?"
+  industry: "What industry or sector is the customer in?"
+  cloudEnvironment: "Which Microsoft cloud does the tenant run in: commercial, GCC, GCC High or DoD, or another sovereign cloud?"
+  basePlan: "Which Microsoft 365 plan do your users have today?"
+  securitySuites: "Do you already have the Microsoft Defender and Purview suites?"
+  agent365Status: "Have any Agent 365 licenses been bought or assigned yet, and to how many people?"
+  frontierProgram: "Is your tenant enrolled in the Frontier preview program?"
+  labelsProgram: "How far has your sensitivity labeling program reached?"
+  entraP1: "Do your users have Microsoft Entra ID P1 or higher?"
+  defenderEndpoint: "How many of your devices are onboarded to Microsoft Defender for Endpoint?"
+  intuneWindows: "How many of your Windows devices are managed with Intune?"
+  socPlatform: "Which platform and team will investigate incidents that involve agents?"
+  agentEstate: "How many agents do you have today, or expect to have across the organization?"
+  orgGovernance: "Which organization-wide governance priorities matter most: ownerless agents, a policy baseline, CMDB integration or executive reporting?"
+  securityOps: "Which security operations programs will own agent oversight: SOC monitoring, threat hunting, posture management or insider risk?"
+  shadowAI: "Are you concerned about unsanctioned agents running on employee devices?"
+  useCaseName: "What do you call this agent or use case?"
+  businessOutcome: "What outcome should this agent deliver, and how will you know it worked?"
+  businessFunction: "Which business function owns that outcome?"
+  stage: "Is this agent an idea, a prototype, a pilot, in production or scaling?"
+  audience: "Who will use the agent: employees, frontline workers, partners or customers?"
+  expectedUsers: "Roughly how many people will use it?"
+  businessValue: "On a scale of 1 to 5, how valuable is this use case compared with your other agents?"
+  successMeasures: "What will you measure, from what baseline, to what target, and when will you review it?"
+  buildPlatform: "What is the agent built on: Agent Builder, Copilot Studio, Microsoft Foundry, your own code, a SaaS or partner platform, or a local agent?"
+  publisherType: "Who publishes the agent: Microsoft, a partner, your organization or an individual creator?"
+  codeStack: "Which framework or language does your team build the agent with?"
+  hosting: "Where will the agent run: which cloud or runtime?"
+  channels: "Where will people or systems interact with the agent: Copilot, Teams, Outlook, apps, the web or in the background?"
+  accessModel: "Whose identity and permissions does the agent use: the user's, its own, or both?"
+  autonomy: "Does the agent only suggest, need approval before it acts, or act on its own?"
+  actions: "What can the agent do: read, create content, update records, run transactions, change configuration or communicate externally?"
+  triggers: "What starts the agent: a user prompt, an event, a schedule or another agent?"
+  sponsor: "Is there a named sponsor accountable for this agent?"
+  accountableOwner: "Who is the accountable owner for this agent?"
+  managedDevices: "Will people use the agent from managed devices, unmanaged devices or both?"
+  dataSources: "Which knowledge sources and data can the agent reach?"
+  dataSensitivity: "What is the most sensitive data the agent can reach?"
+  regulatedData: "Does the agent touch personal, payment card, health, financial reporting, employee or trade-secret data?"
+  generatesContent: "Does the agent create content that needs retention or lifecycle controls?"
+  obligations: "Which obligations apply: legal hold, records retention, regulatory audit or AI regulation?"
+  tools: "Which tools can the agent call: Microsoft or third-party MCP servers, connectors and APIs, code execution, web browsing or computer use?"
+  agentToAgent: "Does the agent call or coordinate other agents?"
+  networkEgress: "Does the agent reach out to destinations on the network or the internet?"
+  agentGovernance: "For this agent, do you need approval before publishing, a restricted audience or executive reporting?"
+  engagementName: "What is the name of this engagement?"
+  preparedBy: "Who is preparing this assessment?"
+  preparedOn: "What date should the readout carry?"

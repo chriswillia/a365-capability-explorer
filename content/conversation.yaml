@@ -1,0 +1,51 @@
+# Editorial facilitation advice for a customer conversation. It states no product facts: the capabilities,
+# questions, owner teams and availability flags on the page are computed from capabilities.yaml.
+reviewStatus: draft
+introduction: "Use this guide to run a customer conversation about an agent. Work through security, governance and observability in turn, record what the customer confirms, and leave a readout and a checklist. The advice is draft facilitation guidance, not an approved sales process or a licensing determination."
+stepsTitle: "Run the conversation in five steps"
+steps:
+  - id: frame
+    title: "Frame the outcome"
+    instruction: "Start with what the agent should achieve and who is accountable for it. Treat Agent 365 requirements as the way to make that outcome safe, governed and observable, rather than as a product list."
+  - id: describe
+    title: "Describe the agent"
+    instruction: "Capture the users, data, actions and tools. Start from the closest scenario, then correct its assumptions with the customer; answers you did not hear from the customer stay marked as assumed."
+    action:
+      label: "Start an assessment"
+      to: "/diagnostic"
+  - id: walk
+    title: "Walk through each requirement area"
+    instruction: "Discuss security, governance and observability in turn using the sections below: what the customer needs, which capabilities apply, who configures them and what to flag."
+  - id: confirm
+    title: "Confirm assumptions and unknowns"
+    instruction: "Mark each answer the customer confirmed. Record unknowns as follow-ups instead of guessing, and check licensing, GCC and other sovereign cloud availability with your account team."
+    action:
+      label: "Review assumptions to check"
+      to: "/learn#myths"
+  - id: leave
+    title: "Leave a readout and a checklist"
+    instruction: "Review the readout and the requirements checklist for sensitive information before sharing. Agree an owner and a date for each gap, unknown and licensing question."
+    action:
+      label: "Open the workshop kit and checklist"
+      to: "/workshop#checklist"
+requirementsTitle: "Security, governance and observability"
+requirementsIntro: "Each area is built from the catalog, so it updates when the service description changes. Questions come from each capability's discovery questions; owner teams come from the catalog's product areas."
+jumpLabel: "Jump to a requirement area"
+coversLabel: "What this area covers"
+capabilitiesLabel: "Capabilities to discuss"
+questionsLabel: "Questions to ask the customer ({count})"
+peopleLabel: "Who to involve"
+flagsLabel: "Licensing and availability flags"
+flagsTemplate: "{premium} of {total} require Microsoft 365 E7/G7 or Agent 365; {notInGcc} are not available in GCC. Confirm licensing and availability against the official sources."
+browse: "Browse {label} capabilities"
+assumptionsTitle: "Assumptions to check before you answer"
+assumptionsNote: "{count} of {total} myth-and-fact answers still need verification against their source. Read the official source before you answer a licensing question; do not repeat a premise you have not confirmed."
+assumptionsLink: "Open myths and facts"
+nextTitle: "After the conversation"
+next:
+  - label: "Start an assessment"
+    to: "/diagnostic"
+  - label: "Compare use cases for one customer"
+    to: "/portfolio"
+  - label: "Print the requirements checklist"
+    to: "/workshop#checklist"

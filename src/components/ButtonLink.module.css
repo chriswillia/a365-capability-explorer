@@ -37,3 +37,18 @@
 .onDark:focus-visible {
   outline-color: var(--color-focus-ring-on-dark);
 }
+
+.onDarkOutline {
+  background: transparent;
+  border: 2px solid var(--color-white);
+  color: var(--color-white);
+}
+
+.onDarkOutline:hover {
+  background: var(--color-white);
+  color: var(--color-ink);
+}
+
+.onDarkOutline:focus-visible {
+  outline-color: var(--color-focus-ring-on-dark);
+}

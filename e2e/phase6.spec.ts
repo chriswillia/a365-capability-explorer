@@ -104,12 +104,13 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
       const row = matrix.getByRole('row').filter({
         has: page.getByRole('rowheader', { name: capability.capability.shortName, exact: true }),
       });
-      await expect(row.getByRole('cell')).toHaveText(
-        expected.cases.map((item) => {
+      await expect(row.getByRole('cell')).toHaveText([
+        content.pillars.find((pillar) => pillar.id === capability.capability.pillar)!.requirement,
+        ...expected.cases.map((item) => {
           const level = portfolioLevel(capability, item.assessment.id);
           return level === null ? '—' : mapping.levels[level];
         }),
-      );
+      ]);
     }
     await expect(page.getByRole('table', { name: copy.table, exact: true })).toContainText(
       copy.unplotted,
@@ -204,6 +205,8 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
   test('presentation mode enlarges type, hides edits, exits with Escape and cleans up on navigation', async ({
     page,
   }) => {
+    // Five pages, each with a full axe run, so this is long by design.
+    test.setTimeout(90000);
     const data = await seed(page);
     for (const path of [
       'portfolio',
@@ -252,6 +255,7 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
   test('workshop exposes the full timed guide and paired printable card sets on A4 and Letter', async ({
     page,
   }) => {
+    test.setTimeout(90000);
     await page.goto('workshop');
     await expect(
       page.getByText(
@@ -270,6 +274,7 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
     });
     for (const [target, button] of [
       ['guide', workshop.printGuide],
+      ['checklist', workshop.printChecklist],
       ['patterns', workshop.printPatterns],
       ['capabilities', workshop.printCapabilities],
     ] as const) {
@@ -278,7 +283,9 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
         await page.getByRole('button', { name: button, exact: true }).click();
         await page.emulateMedia({ media: 'print' });
         await expect(page.locator(`[data-workshop-part="${target}"]`)).toBeVisible();
-        for (const other of ['guide', 'patterns', 'capabilities'].filter((item) => item !== target))
+        for (const other of ['guide', 'checklist', 'patterns', 'capabilities'].filter(
+          (item) => item !== target,
+        ))
           await expect(page.locator(`[data-workshop-part="${other}"]`)).toBeHidden();
         const pdf = await page.pdf({ format });
         expect(pdf.subarray(0, 4).toString()).toBe('%PDF');

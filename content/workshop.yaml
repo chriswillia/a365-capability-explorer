@@ -4,8 +4,8 @@ introduction: "Use this discussion guide to turn an agent idea into a draft cont
 preparationTitle: Prepare the conversation
 preparation:
   - Invite the business owner, agent builder, platform administrator and relevant security, data and licensing reviewers.
-  - Choose an organization profile and a small set of use cases. Ask owners to bring intended outcomes, user ranges and success measures.
-  - Print a blank canvas for each use case and the pattern and capability cards. Cards are paired front/back on the same sheet; cut and fold them, rather than relying on duplex printer alignment.
+  - Choose a customer profile and a small set of use cases. Ask owners to bring intended outcomes, user ranges and success measures.
+  - Print a blank canvas for each use case, the scenario and capability cards, and the requirements checklist. Cards are paired front/back on the same sheet; cut and fold them, rather than relying on duplex printer alignment.
   - Review draft labels, source differences and unknown answers before presenting. Nothing in this workshop certifies readiness or grants access.
 agendaTitle: Run the workshop
 duration: "{count}-minute suggested agenda"
@@ -22,7 +22,7 @@ agenda:
     title: Describe the use case
     minutes: 15
     instructions:
-      - Choose an illustrative pattern card, then correct its assumptions for this use case.
+      - Choose an illustrative scenario card, then correct its assumptions for this use case.
       - Fill the canvas with users, data, actions, identity, tools, success measures and ownership.
     output: A draft canvas with assumptions and open questions.
   - id: sort
@@ -43,7 +43,7 @@ agenda:
     title: Identify reusable foundations
     minutes: 15
     instructions:
-      - Compare selected use cases for the same organization in Portfolio.
+      - Compare selected use cases for the same customer in Compare use cases.
       - Review shared platform foundations, per-agent decisions and the draft business-value/intensity quadrants.
     output: A candidate platform backlog and separate agent decisions.
   - id: close
@@ -58,16 +58,28 @@ followupTitle: After the session
 followup:
   - Keep a local JSON backup of the selected portfolio and review exports before sharing.
   - Ask the relevant subject-matter experts to check draft recommendations and unresolved source differences.
-  - Revisit the diagnostic when assumptions change; keep licensing eligibility and unknown answers explicit.
-patternsTitle: Printable pattern cards
+  - Revisit the assessment when assumptions change; keep licensing eligibility and unknown answers explicit.
+patternsTitle: "Printable scenario cards"
 capabilitiesTitle: Printable capability card-sort kit
-cardNote: "Editorial content is draft pending SME review. Pattern cards describe illustrative starters, not facts about your organization. Capability card backs use the existing summaries and rule conditions; links lead to the full evidence and official sources."
+cardNote: "Editorial content is draft pending SME review. Scenario cards describe illustrative starters, not facts about your customer. Capability card backs use the existing summaries and rule conditions; links lead to the full evidence and official sources."
 front: Front
 back: Back
 scope: When this capability is in scope
 noRules: No configured scope conditions — verify with a subject-matter expert.
 printGuide: Print facilitator guide / save PDF
-printPatterns: Print pattern cards / save PDF
+printPatterns: "Print scenario cards / save PDF"
 printCapabilities: Print capability cards / save PDF
+printChecklist: "Print requirements checklist / save PDF"
 printError: Printing could not start. Try your browser's print command.
 guide: Facilitator guide
+checklistTitle: "Security, governance and observability requirements checklist"
+checklistNote: "A leave-behind for a customer conversation, built from the catalog. Tick what to discuss, write the customer's requirement and agree an owner and priority. Availability comes from the service description; confirm licensing with your account team."
+checklistPillar: "{label}: {count} capabilities"
+checklistColumns:
+  discuss: Discuss
+  capability: Capability
+  productArea: "Product area"
+  availability: "Licensing and availability"
+  requirement: "Customer requirement"
+  owner: Owner
+  priority: Priority

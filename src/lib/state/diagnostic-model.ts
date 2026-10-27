@@ -17,6 +17,8 @@ export const AssessmentSchema = z.strictObject({
   sectionId: z.string().min(1),
   patternId: z.string().nullable(),
   sampleId: z.string().nullable(),
+  // Questions whose answer came from the starting scenario and has not yet been confirmed with the customer.
+  assumedQuestionIds: z.array(z.string().min(1)).optional(),
   logo: LogoSchema.optional(),
 });
 export const DiagnosticWorkspaceSchema = z

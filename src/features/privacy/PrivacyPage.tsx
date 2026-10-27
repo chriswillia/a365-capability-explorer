@@ -3,6 +3,7 @@ import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { content } from '../../lib/content/index.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import styles from './PrivacyPage.module.css';
 
@@ -31,6 +32,7 @@ export function Component() {
         <DataTable
           caption={privacy.storedHeading}
           hideCaption
+          scrollLabel={renderTemplate(site.readout.tableLabel, { label: privacy.storedHeading })}
           columns={columns}
           rows={privacy.stored}
           rowKey={(row) => row.what}

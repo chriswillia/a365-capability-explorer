@@ -1,31 +1,31 @@
-# Suggested starting paths are editorial, not product claims.
+# Suggested starting paths are editorial, not product claims. Order is the order shown on the home page.
+- id: seller-partner
+  label: "Microsoft seller or partner"
+  need: "Run a customer conversation: map the agent to security, governance and observability requirements, with sourced answers and explicit verification gaps."
+  startLabel: "Open the customer conversation guide"
+  href: "/conversation"
+  reviewStatus: draft
 - id: executive
   label: "Executive or business leader"
   need: "Understand the value, boundaries and investment questions before discussing controls."
   startLabel: "See where Agent 365 fits"
   href: "/learn#positioning"
   reviewStatus: draft
+- id: administrator
+  label: "Security or compliance administrator"
+  need: "Find the product area, central configuration and per-agent decisions behind each control."
+  startLabel: "Browse by product area"
+  href: "/capabilities?by=console"
+  reviewStatus: draft
 - id: architect
   label: Architect
   need: "See where controls act across identity, tools, data, devices and oversight."
-  startLabel: "Explore the layer lens"
-  href: "/capabilities?lens=layer"
+  startLabel: "Explore the layer matrix"
+  href: "/capabilities?lens=layer&view=matrix"
   reviewStatus: draft
 - id: builder
   label: "Agent builder or developer"
   need: "Choose an integration path and distinguish registration, SDK integration and telemetry."
   startLabel: "Review integration paths"
   href: "/learn#integration"
-  reviewStatus: draft
-- id: administrator
-  label: "Security or compliance administrator"
-  need: "Find the console, central configuration and per-agent decisions behind each control."
-  startLabel: "Explore the console lens"
-  href: "/capabilities?lens=console"
-  reviewStatus: draft
-- id: seller-partner
-  label: "Microsoft seller or partner"
-  need: "Start a planning conversation with sourced answers and explicit verification gaps."
-  startLabel: "Review myths and facts"
-  href: "/learn#myths"
   reviewStatus: draft

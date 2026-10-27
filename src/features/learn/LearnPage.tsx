@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Link } from 'react-router';
 import { DataTable } from '../../components/DataTable.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
@@ -8,7 +7,6 @@ import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { content, sourceById } from '../../lib/content/index.ts';
 import type { LearningItem } from '../../lib/content/schemas.ts';
-import { renderTemplate } from '../../lib/content/template.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import styles from './LearnPage.module.css';
@@ -29,49 +27,55 @@ function CapabilityLinks({ ids }: { ids: string[] }) {
 export function Component() {
   usePageTitle('learn');
   const { depth } = useDepth();
-  const [step, setStep] = useState(0);
   const { site, learn } = content;
   const copy = site.learn;
   const annotate = createGlossaryAnnotator();
-  const current = learn.flow[step]!;
   const anchors = [
+    ['positioning', copy.sections.positioning],
+    ['myths', copy.sections.myths],
     ['concepts', copy.sections.concepts],
     ['integration', copy.sections.integration],
     ['building-blocks', copy.sections.buildingBlocks],
     ['glossary', copy.sections.glossary],
-    ['myths', copy.sections.myths],
-    ['positioning', copy.sections.positioning],
   ] as const;
-  const renderItem = (item: LearningItem) => {
+  const renderTechnical = (item: LearningItem) => {
     const technicalSource = item.technicalSourceId ? sourceById(item.technicalSourceId) : undefined;
     return (
-      <article key={item.id} className={styles.card}>
-        <h3>{item.title}</h3>
-        <p>{item.summary === null ? copy.pending : annotate(item.summary)}</p>
-        {depth === 'technical' && item.summary !== null && item.technical && (
-          <div>
-            <p>{annotate(item.technical)}</p>
-            {technicalSource && (
-              <ExternalLink href={technicalSource.url}>{technicalSource.title}</ExternalLink>
-            )}
-          </div>
-        )}
-        {item.capabilityIds.length > 0 && (
-          <>
-            <h4>{copy.related}</h4>
-            <CapabilityLinks ids={item.capabilityIds} />
-          </>
-        )}
-        <LearningEvidence item={item} />
-      </article>
+      depth === 'technical' &&
+      item.summary !== null &&
+      item.technical && (
+        <div>
+          <p>{annotate(item.technical)}</p>
+          {technicalSource && (
+            <ExternalLink href={technicalSource.url}>{technicalSource.title}</ExternalLink>
+          )}
+        </div>
+      )
     );
   };
+  const renderItem = (item: LearningItem) => (
+    <article key={item.id} className={styles.card}>
+      <h3>{item.title}</h3>
+      <p>{item.summary === null ? copy.pending : annotate(item.summary)}</p>
+      {renderTechnical(item)}
+      {item.capabilityIds.length > 0 && (
+        <>
+          <h4>{copy.related}</h4>
+          <CapabilityLinks ids={item.capabilityIds} />
+        </>
+      )}
+      <LearningEvidence item={item} />
+    </article>
+  );
 
   return (
     <PageContainer>
       <PageHeading>{site.routes.learn.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
       <p>{copy.draftNote}</p>
+      <p>
+        <Link to="/conversation">{site.routes.conversation.title}</Link>
+      </p>
       <nav aria-label={copy.contents} className={styles.contents}>
         {anchors.map(([id, label]) => (
           <a key={id} href={`#${id}`}>
@@ -79,27 +83,27 @@ export function Component() {
           </a>
         ))}
       </nav>
+      <section id="positioning" className={styles.section}>
+        <h2>{copy.sections.positioning}</h2>
+        <div className={styles.grid}>{learn.positioning.map(renderItem)}</div>
+      </section>
+      <section id="myths" className={styles.section}>
+        <h2>{copy.sections.myths}</h2>
+        <div className={styles.grid}>
+          {content.faq.map((item) => (
+            <article key={item.id} className={styles.card}>
+              <p>{copy.mythLabel}</p>
+              <h3>{item.myth}</h3>
+              <h4>{copy.factLabel}</h4>
+              <p>{item.fact === null ? copy.pending : annotate(item.fact)}</p>
+              <LearningEvidence item={item} />
+            </article>
+          ))}
+        </div>
+      </section>
       <section id="concepts" className={styles.section}>
         <h2>{copy.sections.concepts}</h2>
         <p>{copy.flowNote}</p>
-        <div className={styles.controls}>
-          <button type="button" disabled={step === 0} onClick={() => setStep(step - 1)}>
-            {copy.previous}
-          </button>
-          <p role="status">
-            {renderTemplate(copy.progress, { n: step + 1, count: learn.flow.length })}
-          </p>
-          <button
-            type="button"
-            disabled={step === learn.flow.length - 1}
-            onClick={() => setStep(step + 1)}
-          >
-            {copy.next}
-          </button>
-        </div>
-        <div aria-live="polite" aria-atomic="true">
-          {renderItem(current)}
-        </div>
         <DataTable
           caption={copy.flowTable}
           scrollLabel={copy.flowTable}
@@ -118,7 +122,8 @@ export function Component() {
               render: (item) => (
                 <>
                   <h3>{item.title}</h3>
-                  <p>{item.summary}</p>
+                  <p>{item.summary === null ? copy.pending : annotate(item.summary)}</p>
+                  {renderTechnical(item)}
                   <LearningEvidence item={item} />
                 </>
               ),
@@ -153,24 +158,6 @@ export function Component() {
             </div>
           ))}
         </dl>
-      </section>
-      <section id="myths" className={styles.section}>
-        <h2>{copy.sections.myths}</h2>
-        <div className={styles.grid}>
-          {content.faq.map((item) => (
-            <article key={item.id} className={styles.card}>
-              <p>{copy.mythLabel}</p>
-              <h3>{item.myth}</h3>
-              <h4>{copy.factLabel}</h4>
-              <p>{item.fact === null ? copy.pending : annotate(item.fact)}</p>
-              <LearningEvidence item={item} />
-            </article>
-          ))}
-        </div>
-      </section>
-      <section id="positioning" className={styles.section}>
-        <h2>{copy.sections.positioning}</h2>
-        <div className={styles.grid}>{learn.positioning.map(renderItem)}</div>
       </section>
     </PageContainer>
   );

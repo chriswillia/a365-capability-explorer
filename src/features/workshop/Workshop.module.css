@@ -65,6 +65,45 @@
   font-size: var(--text-12);
 }
 
+.checklistGroup {
+  margin-block: var(--space-6);
+  overflow-x: auto;
+}
+
+.checklist {
+  width: 100%;
+  min-width: 52rem;
+  border-collapse: collapse;
+  font-size: var(--text-14);
+}
+
+.checklist th,
+.checklist td {
+  padding: var(--space-2);
+  text-align: left;
+  vertical-align: top;
+  border: 1px solid var(--color-control-border);
+}
+
+.checklist thead th {
+  background: var(--color-tint);
+}
+
+.checklist tbody th {
+  font-weight: 600;
+}
+
+.box {
+  width: 4.5rem;
+  font-size: var(--text-20);
+  text-align: center;
+}
+
+.writeIn {
+  min-width: 8rem;
+  height: 2.6rem;
+}
+
 @media (max-width: 40rem) {
   .card {
     grid-template-columns: minmax(0, 1fr);
@@ -132,7 +171,29 @@
     margin-block: var(--space-2);
   }
 
+  .checklistGroup {
+    overflow: visible;
+  }
+
+  .checklistGroup + .checklistGroup {
+    break-before: page;
+  }
+
+  .checklist {
+    min-width: 0;
+    font-size: var(--text-12);
+  }
+
+  .checklist tr {
+    break-inside: avoid;
+  }
+
+  .writeIn {
+    height: 2.2rem;
+  }
+
   [data-workshop-print='guide'] [data-workshop-part]:not([data-workshop-part='guide']),
+  [data-workshop-print='checklist'] [data-workshop-part]:not([data-workshop-part='checklist']),
   [data-workshop-print='patterns'] [data-workshop-part]:not([data-workshop-part='patterns']),
   [data-workshop-print='capabilities']
     [data-workshop-part]:not([data-workshop-part='capabilities']) {

@@ -1,9 +1,12 @@
 import { Link, useParams, useSearchParams } from 'react-router';
+import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PillarSummary } from '../../components/PillarSummary.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Pattern, Sample } from '../../lib/content/schemas.ts';
 import { evaluateAssessment, evaluateWhatIfs, patternAnswers } from '../../lib/engine/evaluate.ts';
+import { pillarRows } from '../../lib/engine/pillars.ts';
 import { knownAnswer } from '../../lib/engine/answers.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
@@ -33,13 +36,17 @@ function Brief({ pattern, sample }: { pattern: Pattern; sample?: Sample }) {
       <p className={styles.intro}>{sample?.summary ?? pattern.summary}</p>
       <p>{pattern.narrative}</p>
       <Evidence {...(sample ?? pattern)} />
-      <Link
-        className={styles.cellLink}
-        to={`/diagnostic?pattern=${pattern.id}${sample ? `&sample=${sample.id}` : ''}`}
-      >
-        {content.site.diagnostic.startFromPattern}
-      </Link>
+      <p>
+        <ButtonLink to={`/diagnostic?pattern=${pattern.id}${sample ? `&sample=${sample.id}` : ''}`}>
+          {content.site.diagnostic.startFromPattern}
+        </ButtonLink>
+      </p>
       <p className={styles.note}>{copy.neutralNote}</p>
+      <section aria-labelledby="pillar-summary-title">
+        <h2 id="pillar-summary-title">{copy.pillars}</h2>
+        <p className={styles.note}>{copy.pillarsNote}</p>
+        <PillarSummary rows={pillarRows(content, result.inScope)} detailed={false} />
+      </section>
       <details>
         <summary>{copy.answers}</summary>
         <dl className={styles.answers}>

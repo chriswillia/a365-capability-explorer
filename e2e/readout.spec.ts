@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import JSZip from 'jszip';
 import { content, contentMeta } from './content.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
+import { exhibitPlan, type ExhibitKey } from '../src/lib/readout/plan.ts';
 import { buildReadout } from '../src/lib/readout/report.ts';
 import { emptyWorkspace, type DiagnosticWorkspace } from '../src/lib/state/diagnostic-model.ts';
 import { MAX_IMPORT_BYTES, parseDiagnosticBundle } from '../src/lib/state/diagnostic-transfer.ts';
@@ -74,11 +75,19 @@ async function seed(page: Page, incompatible = false, dense = false) {
 
 const saved = (page: Page) => page.evaluate((key) => localStorage.getItem(key), storageKey);
 
+// Sharing options, the logo editor and backup sit behind closed sections; open one before using what is inside.
+async function open(page: Page, summary: string) {
+  const label = page.locator('summary', { hasText: summary }).first();
+  await label.waitFor();
+  if ((await label.locator('..').getAttribute('open')) === null) await label.click();
+}
+
 test.describe('Phase 5 readouts and portable assessments', () => {
   test('readout resumes, recomputes current results, copies summary and compares without saving', async ({
     page,
     context,
   }) => {
+    test.setTimeout(90000);
     const { organization, assessment } = await seed(page);
     const report = buildReadout(content, organization, assessment, contentMeta.contentVersion);
     await page.goto('diagnostic');
@@ -90,11 +99,17 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     for (const line of report.summary)
       await expect(page.getByText(line, { exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    const executive = exhibitPlan(false);
     for (const [key, title] of Object.entries(copy.exhibits))
       await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(
-        ['frontier', 'anatomy', 'risks', 'decisions', 'licensing', 'roadmap'].includes(key) ? 1 : 0,
+        executive.includes(key as ExhibitKey) ? 1 : 0,
       );
+    const contents = page.getByRole('navigation', { name: copy.contents });
+    await expect(contents.getByRole('link')).toHaveCount(executive.length);
+    await contents.getByRole('link', { name: copy.exhibits.licensing, exact: true }).click();
+    await expect(page).toHaveURL(/#exhibit-licensing$/);
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+    await open(page, copy.moreShare);
     await page.getByRole('button', { name: copy.copySummary }).click();
     await expect(page.getByRole('status')).toContainText(copy.copied);
     const clipboard = await page.evaluate(() => navigator.clipboard.readText());
@@ -130,6 +145,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
   }, testInfo) => {
     const { assessment } = await seed(page);
     await page.goto(`diagnostic/${assessment.id}/readout`);
+    await open(page, copy.moreShare);
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: copy.json, exact: true }).click();
     const download = await downloadPromise;
@@ -142,6 +158,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     expect(parsed.bundle.workspace.assessments).toHaveLength(1);
     expect(parsed.bundle.workspace.organizations).toHaveLength(1);
     await page.goto('diagnostic');
+    await open(page, diagnostic.backup);
     const before = await saved(page);
     await expect(page.locator('#diagnostic-import')).toHaveAccessibleName(copy.import);
     await page.locator('#diagnostic-import').setInputFiles(path);
@@ -167,6 +184,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
   }) => {
     await seed(page);
     await page.goto('diagnostic');
+    await open(page, diagnostic.backup);
     const before = await saved(page);
     for (const [buffer, message] of [
       [Buffer.from('{broken'), copy.importErrors.json],
@@ -187,6 +205,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
   }, testInfo) => {
     const { assessment } = await seed(page);
     await page.goto(`diagnostic/${assessment.id}/readout`);
+    await open(page, copy.moreShare);
     const downloadPromise = page.waitForEvent('download');
     await page.getByRole('button', { name: copy.markdown }).click();
     const path = testInfo.outputPath('readout.md');
@@ -207,6 +226,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
   }, testInfo) => {
     const { assessment } = await seed(page);
     await page.goto(`diagnostic/${assessment.id}/readout`);
+    await open(page, copy.addLogo);
     const before = await saved(page);
     await page.getByLabel(copy.branding.alt, { exact: true }).fill('Fictional logo');
     for (const [name, mimeType, buffer, message] of [
@@ -243,6 +263,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     await expect(page.getByRole('img', { name: 'Fictional logo', exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     const downloading = page.waitForEvent('download');
+    await open(page, copy.moreShare);
     await page.getByRole('button', { name: copy.json, exact: true }).click();
     const path = testInfo.outputPath('branded-assessment.json');
     await (await downloading).saveAs(path);
@@ -251,12 +272,14 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     if (!parsed.ok) throw new Error('Invalid branded export');
     expect(parsed.bundle.workspace.assessments[0]!.logo).toEqual(data.assessments[0]!.logo);
     await page.goto('diagnostic');
+    await open(page, diagnostic.more);
     await page.getByRole('button', { name: diagnostic.duplicate, exact: true }).click();
     const duplicated: DiagnosticWorkspace = JSON.parse((await saved(page))!);
     const duplicate = duplicated.assessments.find((item) => item.id !== assessment.id);
     if (!duplicate) throw new Error('Missing duplicated assessment');
     expect(duplicate.logo).toEqual(data.assessments[0]!.logo);
     await page.goto(`diagnostic/${duplicate.id}/readout`);
+    await open(page, copy.addLogo);
     await page.getByLabel(copy.branding.alt, { exact: true }).fill('Duplicated logo');
     const edited: DiagnosticWorkspace = JSON.parse((await saved(page))!);
     expect(edited.assessments.find((item) => item.id === assessment.id)!.logo!.alt).toBe(
@@ -277,7 +300,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     );
   });
 
-  test('PowerPoint downloads contain six readout slides or one populated/blank canvas slide, with local previews', async ({
+  test('PowerPoint downloads contain seven readout slides or one populated/blank canvas slide, with local previews', async ({
     page,
     context,
   }, testInfo) => {
@@ -286,6 +309,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     await page.goto(`diagnostic/${assessment.id}/readout`);
+    await open(page, copy.addLogo);
     await page.getByLabel(copy.branding.alt, { exact: true }).fill('Fictional layout-check logo');
     const image = await page.evaluate((colors) => {
       const canvas = document.createElement('canvas');
@@ -309,7 +333,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
       page.getByRole('img', { name: 'Fictional layout-check logo', exact: true }),
     ).toBeVisible();
     for (const [route, count, name] of [
-      [`diagnostic/${assessment.id}/readout`, 6, 'readout'],
+      [`diagnostic/${assessment.id}/readout`, 7, 'readout'],
       [`canvas/${assessment.id}`, 1, 'canvas'],
       ['canvas/blank', 1, 'blank-canvas'],
     ] as const) {

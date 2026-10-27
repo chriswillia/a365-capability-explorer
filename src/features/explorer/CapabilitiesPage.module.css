@@ -44,17 +44,9 @@
 }
 
 .controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: end;
+  display: grid;
   gap: var(--space-4);
   margin-block: var(--space-6);
-}
-
-.controls > div {
-  display: grid;
-  gap: var(--space-2);
-  flex: 1 1 12rem;
 }
 
 .controls input,
@@ -73,12 +65,140 @@
   border-radius: var(--radius-md);
 }
 
+.controls button {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.controls button:disabled {
+  color: var(--color-slate);
+  cursor: not-allowed;
+}
+
+.search,
+.filters > div {
+  display: grid;
+  align-content: end;
+  gap: var(--space-2);
+}
+
+.search {
+  max-width: 40rem;
+}
+
+.shortcuts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  font-size: var(--text-14);
+}
+
+.shortcuts ul,
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.chips {
+  min-width: 0;
+  border: 0;
+}
+
+.chips legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+  font-size: var(--text-14);
+  font-weight: 600;
+}
+
+.chips button[aria-pressed='true'] {
+  background: var(--color-ink);
+  color: var(--color-on-dark);
+  border-color: var(--color-ink);
+  font-weight: 600;
+}
+
+.chips button[aria-pressed='true']::before {
+  content: '✓ ';
+}
+
+.filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: var(--space-4);
+}
+
+.more > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.more[open] > summary {
+  margin-bottom: var(--space-3);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-3);
+  margin-block: var(--space-8);
+}
+
 .compare {
   position: relative;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   margin-block: var(--space-3);
+}
+
+.compareBar {
+  position: sticky;
+  bottom: var(--space-4);
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  margin-top: var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  color: var(--color-on-dark);
+  background: var(--color-ink);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-overlay);
+}
+
+.compareBar a {
+  color: var(--color-on-dark);
+  font-weight: 600;
+}
+
+.compareBar button {
+  padding: var(--space-1) var(--space-3);
+  color: var(--color-on-dark);
+  background: transparent;
+  border: 1px solid var(--color-on-dark);
+  border-radius: var(--radius-md);
+  font: inherit;
+  cursor: pointer;
+}
+
+.compareBar :focus-visible {
+  outline-color: var(--color-focus-ring-on-dark);
+}
+
+@media print {
+  .compareBar {
+    display: none;
+  }
 }
 
 .cards {
