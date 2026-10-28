@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { AnchoredDetails } from '../../components/AnchoredDetails.tsx';
 import { Badge } from '../../components/Badge.tsx';
 import { content, pillarName } from '../../lib/content/index.ts';
 import { requirementGuides } from '../../lib/content/conversation.ts';
@@ -41,76 +42,70 @@ export function ConversationGuide() {
       </ol>
       <h3 id="conversation-requirements">{copy.requirementsTitle}</h3>
       <p>{copy.requirementsIntro}</p>
-      <nav aria-label={copy.jumpLabel}>
-        <ul className={styles.jump}>
-          {guides.map(({ pillar }) => (
-            <li key={pillar.id}>
-              <a href={`#requirement-${pillar.id}`}>{pillarName(pillar)}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
       {guides.map((guide) => (
-        <section
+        <AnchoredDetails
           key={guide.pillar.id}
           id={`requirement-${guide.pillar.id}`}
-          aria-labelledby={`requirement-${guide.pillar.id}-title`}
-          data-no-print
-          className={styles.requirement}
+          summary={renderTemplate(copy.areaSummary, {
+            label: pillarName(guide.pillar),
+            count: guide.capabilities.length,
+            n: guide.questions.length,
+          })}
         >
-          <h4 id={`requirement-${guide.pillar.id}-title`}>{pillarName(guide.pillar)}</h4>
-          <p>
-            <strong>{copy.coversLabel}:</strong> {guide.pillar.definition}
-          </p>
-          <h5>{copy.capabilitiesLabel}</h5>
-          <ul className={styles.capabilities}>
-            {guide.capabilities.map((capability) => (
-              <li key={capability.id}>
-                <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
-                {capability.executiveValue !== undefined && (
-                  <span> — {capability.executiveValue}</span>
-                )}
-                <span className={styles.badges}>
-                  <Badge tone={licensingTier(capability) === 'foundational' ? 'outline' : 'info'}>
-                    {licensingTier(capability) === 'foundational'
-                      ? badges.foundational
-                      : badges.premium}
-                  </Badge>
-                  <Badge tone="neutral">
-                    {capability.source.gccAvailable ? badges.gccAvailable : badges.gccUnavailable}
-                  </Badge>
-                </span>
-              </li>
-            ))}
-          </ul>
-          <h5>{renderTemplate(copy.questionsLabel, { count: guide.questions.length })}</h5>
-          <ul className={styles.questions}>
-            {guide.questions.map(({ capability, question }) => (
-              <li key={`${capability.id}-${question}`}>
-                {question} <span className={styles.source}>({capability.shortName})</span>
-              </li>
-            ))}
-          </ul>
-          <h5>{copy.peopleLabel}</h5>
-          <ul>
-            {guide.people.map(({ team, productAreas }) => (
-              <li key={team}>
-                {team} — {productAreas.join(', ')}
-              </li>
-            ))}
-          </ul>
-          <h5>{copy.flagsLabel}</h5>
-          <p>
-            {renderTemplate(copy.flagsTemplate, {
-              premium: guide.premium,
-              total: guide.total,
-              notInGcc: guide.notInGcc,
-            })}
-          </p>
-          <Link to={`/capabilities?pillar=${guide.pillar.id}`}>
-            {renderTemplate(copy.browse, { label: pillarName(guide.pillar) })}
-          </Link>
-        </section>
+          <div className={styles.requirement}>
+            <p>
+              <strong>{copy.coversLabel}:</strong> {guide.pillar.definition}
+            </p>
+            <h4>{copy.capabilitiesLabel}</h4>
+            <ul className={styles.capabilities}>
+              {guide.capabilities.map((capability) => (
+                <li key={capability.id}>
+                  <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
+                  {capability.executiveValue !== undefined && (
+                    <span> — {capability.executiveValue}</span>
+                  )}
+                  <span className={styles.badges}>
+                    <Badge tone={licensingTier(capability) === 'foundational' ? 'outline' : 'info'}>
+                      {licensingTier(capability) === 'foundational'
+                        ? badges.foundational
+                        : badges.premium}
+                    </Badge>
+                    <Badge tone="neutral">
+                      {capability.source.gccAvailable ? badges.gccAvailable : badges.gccUnavailable}
+                    </Badge>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <h4>{renderTemplate(copy.questionsLabel, { count: guide.questions.length })}</h4>
+            <ul className={styles.questions}>
+              {guide.questions.map(({ capability, question }) => (
+                <li key={`${capability.id}-${question}`}>
+                  {question} <span className={styles.source}>({capability.shortName})</span>
+                </li>
+              ))}
+            </ul>
+            <h4>{copy.peopleLabel}</h4>
+            <ul>
+              {guide.people.map(({ team, productAreas }) => (
+                <li key={team}>
+                  {team} — {productAreas.join(', ')}
+                </li>
+              ))}
+            </ul>
+            <h4>{copy.flagsLabel}</h4>
+            <p>
+              {renderTemplate(copy.flagsTemplate, {
+                premium: guide.premium,
+                total: guide.total,
+                notInGcc: guide.notInGcc,
+              })}
+            </p>
+            <Link to={`/capabilities?pillar=${guide.pillar.id}`}>
+              {renderTemplate(copy.browse, { label: pillarName(guide.pillar) })}
+            </Link>
+          </div>
+        </AnchoredDetails>
       ))}
       <h3 id="conversation-assumptions">{copy.assumptionsTitle}</h3>
       <p>

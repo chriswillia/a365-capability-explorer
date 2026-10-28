@@ -34,7 +34,7 @@ steps:
       to: "/workshop#checklist"
 requirementsTitle: "Security, governance and observability"
 requirementsIntro: "Each area is built from the catalog, so it updates when the service description changes. Questions come from each capability's discovery questions; owner teams come from where each capability is configured."
-jumpLabel: "Jump to a requirement area"
+areaSummary: "{label}: {count} {count?capability|capabilities}, {n} {n?question|questions} to ask"
 coversLabel: "What this area covers"
 capabilitiesLabel: "Capabilities to discuss"
 questionsLabel: "Questions to ask the customer ({count})"

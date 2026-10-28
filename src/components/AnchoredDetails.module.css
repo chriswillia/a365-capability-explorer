@@ -1,0 +1,22 @@
+.panel {
+  margin: var(--space-3) 0;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-white);
+}
+
+.panel > summary {
+  padding: var(--space-3) 0;
+  cursor: pointer;
+  font-weight: 600;
+  line-height: var(--line-height-snug);
+}
+
+.panel[open] > summary {
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-hairline);
+}
+
+.panel[open] {
+  padding-bottom: var(--space-4);
+}

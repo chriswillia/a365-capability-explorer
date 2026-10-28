@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { content, contentMeta } from './content.ts';
 import { chooseDepth } from './view.ts';
 import {
@@ -10,10 +10,14 @@ import {
 
 const { site } = content;
 const copy = site.mapping;
+const part = (page: Page, label: string) =>
+  page
+    .getByRole('navigation', { name: site.ui.views.label, exact: true })
+    .getByRole('link', { name: label, exact: true });
 
 test.describe('Phase 3 mapping', () => {
   test('matrix cells match the rule engine exactly under either base path', async ({ page }) => {
-    await page.goto('patterns');
+    await page.goto('patterns?view=compare');
     const table = page.getByRole('table', { name: copy.matrix });
     await expect(table.getByRole('row')).toHaveCount(content.capabilities.length + 1);
     const results = evaluatePatterns(content, contentMeta.contentVersion);
@@ -54,10 +58,15 @@ test.describe('Phase 3 mapping', () => {
     await expect(
       row.getByText('Registration provides catalog visibility; telemetry needs instrumentation.'),
     ).toBeVisible();
+    await part(page, copy.views.rollout).click();
     await expect(page.getByText(content.mappingConfig.licensingNote)).toBeVisible();
     await expect(page.getByText(copy.readinessNote)).toBeVisible();
+    await part(page, copy.views.controls).click();
     await chooseDepth(page, 'technical');
+    await part(page, copy.views.technical).click();
     await expect(page.getByRole('table', { name: copy.operatingModel })).toBeVisible();
+    await part(page, copy.views.controls).click();
+    await row.locator('summary').click();
     await expect(row.getByRole('link', { name: 'pro-code', exact: true })).toBeVisible();
     await row.getByRole('link', { name: 'pro-code', exact: true }).click();
     await expect(page).toHaveURL(/methodology#rule-pro-code$/);
@@ -137,20 +146,23 @@ test.describe('Phase 3 mapping', () => {
     await page.setViewportSize({ width: 390, height: 844 });
     for (const path of [
       'patterns',
+      'patterns?view=compare',
       'patterns/ai-teammate',
+      'patterns/ai-teammate?view=risks',
+      'patterns/ai-teammate?view=rollout',
       'patterns/local-agent',
       'methodology',
     ]) {
       await page.goto(path);
       await chooseDepth(page, 'technical');
-      if (path.startsWith('patterns/'))
+      if (path.startsWith('patterns/') && !path.includes('view='))
         await page.locator('summary').filter({ hasText: copy.answers }).click();
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
         path,
       ).toBe(true);
     }
-    await page.goto('patterns');
+    await page.goto('patterns?view=compare');
     const region = page.getByRole('region', { name: copy.matrix });
     await region.focus();
     await expect(region).toBeFocused();
@@ -167,6 +179,7 @@ test.describe('Phase 3 mapping', () => {
     await disclosure.focus();
     await page.keyboard.press('Enter');
     await expect(disclosure.locator('..')).toHaveAttribute('open', '');
+    await part(page, copy.views.rollout).click();
     const questions = page.locator('summary').filter({ hasText: copy.openQuestions });
     await questions.focus();
     await page.keyboard.press('Enter');

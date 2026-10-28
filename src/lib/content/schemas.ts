@@ -652,7 +652,8 @@ export const ConversationSchema = z.strictObject({
     .min(1),
   requirementsTitle: Text,
   requirementsIntro: Text,
-  jumpLabel: Text,
+  // The summary line of a requirement area that opens to its capabilities, questions and people.
+  areaSummary: Template,
   coversLabel: Text,
   capabilitiesLabel: Text,
   questionsLabel: Template,
@@ -707,7 +708,8 @@ export const ValueSchema = z.strictObject({
   reviewStatus: z.enum(REVIEW_STATUSES),
   intro: Text,
   notice: Text,
-  jumpLabel: Text,
+  // The four parts of the Pitch page, one on screen at a time.
+  views: z.strictObject({ say: Text, prepare: Text, run: Text, brief: Text }),
   audienceNote: Template,
   pitch: z.strictObject({
     heading: Text,
@@ -882,7 +884,8 @@ export const LicensingSchema = z.strictObject({
   reviewStatus: z.enum(REVIEW_STATUSES),
   intro: Text,
   notice: Text,
-  jumpLabel: Text,
+  // The five parts of the Licensing page, one on screen at a time.
+  views: z.strictObject({ who: Text, size: Text, plans: Text, needs: Text, specialist: Text }),
   needs: z.strictObject({
     required: Text,
     recommended: Text,
@@ -1091,6 +1094,8 @@ export const LicensingSchema = z.strictObject({
   requirementsPanel: z.strictObject({
     heading: Text,
     intro: Text,
+    // The summary line of a product area that opens to its capabilities and what each needs.
+    areaSummary: Template,
     kinds: z.strictObject({
       license: Text,
       role: Text,
@@ -1609,15 +1614,15 @@ export const DeploySchema = z.strictObject({
   reviewStatus: z.enum(REVIEW_STATUSES),
   intro: Text,
   notice: Text,
-  jumpLabel: Text,
   assessmentLabel: Text,
   noAssessment: Text,
   missing: Text,
   incompatible: Text,
   noAssessmentNote: Text,
   baseline: z.strictObject({
-    heading: Text,
     intro: Text,
+    // The label of the disclosure that holds a step's reason, place and owner.
+    moreLabel: Text,
     whyLabel: Text,
     doLabel: Text,
     proveLabel: Text,
@@ -1695,6 +1700,8 @@ export const SiteSchema = z.strictObject({
     library: z.strictObject({ exploreHeading: Text, packHeading: Text }),
     // The one menu that holds Selling as and Detail level, so the header stays one row.
     view: z.strictObject({ label: Text, summary: Template }),
+    // The parts of a long page, shown one at a time, and the links that step between them.
+    views: z.strictObject({ label: Text, pagerLabel: Text, previous: Text, next: Text }),
     // A page's notices sit behind this label, so the first screen shows the page and not the preamble.
     about: z.strictObject({ label: Text }),
     // A fictional customer with a few agents, loaded into this browser so a seller can try the tool.
@@ -2100,6 +2107,15 @@ export const SiteSchema = z.strictObject({
     intro: Text,
     neutralNote: Text,
     matrix: Text,
+    // The parts of the example agents pages, one on screen at a time.
+    views: z.strictObject({
+      cards: Text,
+      compare: Text,
+      controls: Text,
+      risks: Text,
+      rollout: Text,
+      technical: Text,
+    }),
     patternCount: Text,
     draftSummary: Template,
     levels: z.strictObject({ essential: Text, recommended: Text, consider: Text }),

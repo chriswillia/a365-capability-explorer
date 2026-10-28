@@ -8,6 +8,7 @@ import { PageIntro } from '../../components/PageIntro.tsx';
 import { SourceNote } from '../../components/SourceNote.tsx';
 import { SampleChip } from '../../components/SampleChip.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
+import { ViewPager, ViewPane, ViewSwitcher } from '../../components/ViewSwitcher.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
@@ -16,6 +17,7 @@ import type { GuardrailStatus } from '../../lib/engine/guardrails.ts';
 import { displayName } from '../../lib/state/diagnostic-model.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { useView, type PageView } from '../../lib/useView.ts';
 import styles from './DeployPage.module.css';
 
 const STATUS_TONE: Record<GuardrailStatus, BadgeTone> = {
@@ -23,6 +25,12 @@ const STATUS_TONE: Record<GuardrailStatus, BadgeTone> = {
   gap: 'amber',
   unknown: 'neutral',
 };
+
+// One view for each gate, in the order a go-live goes, then the plan that spreads them over 90 days.
+const VIEWS: PageView[] = [
+  ...content.guardrails.gates.map((gate) => ({ id: gate.id, label: gate.title, sections: [] })),
+  { id: 'plan', label: content.deploy.plan.heading, sections: ['plan', 'next'] },
+];
 
 function Step({ step }: { step: DeployStep }) {
   const copy = content.deploy.baseline;
@@ -37,10 +45,6 @@ function Step({ step }: { step: DeployStep }) {
       </p>
       <dl className={styles.facts}>
         <div>
-          <dt>{copy.whyLabel}</dt>
-          <dd>{item.why}</dd>
-        </div>
-        <div>
           <dt>{copy.doLabel}</dt>
           <dd>{item.action}</dd>
         </div>
@@ -48,40 +52,50 @@ function Step({ step }: { step: DeployStep }) {
           <dt>{copy.proveLabel}</dt>
           <dd className={styles.prove}>{item.proveIt}</dd>
         </div>
-        {step.consoles.length > 0 && (
-          <div>
-            <dt>{copy.whereLabel}</dt>
-            <dd>{step.consoles.map((console_) => console_.displayName).join(', ')}</dd>
-          </div>
-        )}
-        {step.ownerTeams.length > 0 && (
-          <div>
-            <dt>{copy.ownerLabel}</dt>
-            <dd>{step.ownerTeams.join(', ')}</dd>
-          </div>
-        )}
-        {step.capabilities.length > 0 && (
-          <div>
-            <dt>{guardrails.capabilitiesLabel}</dt>
-            <dd>
-              <ul className={styles.links}>
-                {step.capabilities.map((capability) => (
-                  <li key={capability.id}>
-                    <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
-                  </li>
-                ))}
-              </ul>
-            </dd>
-          </div>
-        )}
       </dl>
-      <SourceNote sourceIds={item.sourceIds} evidence={item.evidence} lastVerified={null} />
+      <details className={styles.more} data-print-open>
+        <summary>{copy.moreLabel}</summary>
+        <dl className={styles.facts}>
+          <div>
+            <dt>{copy.whyLabel}</dt>
+            <dd>{item.why}</dd>
+          </div>
+          {step.consoles.length > 0 && (
+            <div>
+              <dt>{copy.whereLabel}</dt>
+              <dd>{step.consoles.map((console_) => console_.displayName).join(', ')}</dd>
+            </div>
+          )}
+          {step.ownerTeams.length > 0 && (
+            <div>
+              <dt>{copy.ownerLabel}</dt>
+              <dd>{step.ownerTeams.join(', ')}</dd>
+            </div>
+          )}
+          {step.capabilities.length > 0 && (
+            <div>
+              <dt>{guardrails.capabilitiesLabel}</dt>
+              <dd>
+                <ul className={styles.links}>
+                  {step.capabilities.map((capability) => (
+                    <li key={capability.id}>
+                      <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </dd>
+            </div>
+          )}
+        </dl>
+        <SourceNote sourceIds={item.sourceIds} evidence={item.evidence} lastVerified={null} />
+      </details>
     </li>
   );
 }
 
 export function Component() {
   usePageTitle('deploy');
+  const part = useView(VIEWS);
   const store = useDiagnostics();
   const [params, setParams] = useSearchParams();
   const { site, deploy: copy, guardrails } = content;
@@ -155,12 +169,6 @@ export function Component() {
     },
   ];
 
-  const jump: [string, string][] = [
-    ['baseline', copy.baseline.heading],
-    ['plan', copy.plan.heading],
-    ['next', copy.next.heading],
-  ];
-
   return (
     <PageContainer>
       <PageHeading>{site.routes.deploy.title}</PageHeading>
@@ -173,25 +181,34 @@ export function Component() {
       >
         {copy.intro}
       </PageIntro>
-      <nav aria-label={copy.jumpLabel}>
-        <ul className={styles.jump}>
-          {jump.map(([id, text]) => (
-            <li key={id}>
-              <a href={`#${id}`}>{text}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
 
-      <div className={styles.field}>
+      <div className={styles.context}>
         <AssessmentPicker
           workspace={workspace}
           id="deploy-assessment"
           label={copy.assessmentLabel}
           none={copy.noAssessment}
           value={saved ? assessment.id : ''}
-          onChange={(id) => setParams(id === '' ? {} : { assessment: id }, { replace: true })}
+          onChange={(id) =>
+            setParams(
+              (previous) => {
+                const next = new URLSearchParams(previous);
+                if (id === '') next.delete('assessment');
+                else next.set('assessment', id);
+                return next;
+              },
+              { replace: true },
+            )
+          }
         />
+        {label === null ? (
+          <p className={styles.muted}>{copy.noAssessmentNote}</p>
+        ) : (
+          <p className={styles.muted}>
+            {label}: {renderTemplate(guardrails.summary, deploy.counts)}{' '}
+            {organization?.sample === true && <SampleChip />}
+          </p>
+        )}
       </div>
       {requestedId !== null && assessment === undefined && (
         <p role="alert" className={styles.missing}>
@@ -204,21 +221,14 @@ export function Component() {
           <Link to={`/diagnostic/${assessment.id}`}>{site.routes.diagnostic.title}</Link>
         </p>
       )}
-      {label === null && <p className={styles.muted}>{copy.noAssessmentNote}</p>}
+      <ViewSwitcher views={VIEWS} current={part} />
 
-      <section id="baseline" aria-labelledby="baseline-heading" className={styles.section}>
-        <h2 id="baseline-heading">{copy.baseline.heading}</h2>
-        <p>{copy.baseline.intro}</p>
-        {label !== null && (
-          <p className={styles.muted}>
-            {label}: {renderTemplate(guardrails.summary, deploy.counts)}{' '}
-            {organization?.sample === true && <SampleChip />}
-          </p>
-        )}
-        {deploy.gates.map(({ gate, steps }) => (
-          <div key={gate.id} className={styles.gate}>
-            <h3>{gate.title}</h3>
-            <p className={styles.muted}>{gate.summary}</p>
+      {deploy.gates.map(({ gate, steps }) => (
+        <ViewPane key={gate.id} view={part} id={gate.id}>
+          <section aria-labelledby={`${gate.id}-heading`} className={styles.section}>
+            <h2 id={`${gate.id}-heading`}>{gate.title}</h2>
+            <p>{gate.summary}</p>
+            <p className={styles.muted}>{copy.baseline.intro}</p>
             {steps.length === 0 ? (
               <p>{guardrails.empty}</p>
             ) : (
@@ -228,41 +238,45 @@ export function Component() {
                 ))}
               </ul>
             )}
-          </div>
-        ))}
-      </section>
+          </section>
+        </ViewPane>
+      ))}
 
-      <section id="plan" aria-labelledby="plan-heading" className={styles.section}>
-        <h2 id="plan-heading">{copy.plan.heading}</h2>
-        <p>{copy.plan.intro}</p>
-        <DataTable
-          caption={copy.plan.tableLabel}
-          hideCaption
-          scrollLabel={copy.plan.tableLabel}
-          columns={planColumns}
-          rows={deploy.periods}
-          rowKey={(row) => row.period.id}
-        />
-      </section>
+      <ViewPane view={part} id="plan">
+        <section id="plan" aria-labelledby="plan-heading" className={styles.section}>
+          <h2 id="plan-heading">{copy.plan.heading}</h2>
+          <p>{copy.plan.intro}</p>
+          <DataTable
+            caption={copy.plan.tableLabel}
+            hideCaption
+            scrollLabel={copy.plan.tableLabel}
+            columns={planColumns}
+            rows={deploy.periods}
+            rowKey={(row) => row.period.id}
+          />
+        </section>
 
-      <section id="next" aria-labelledby="next-heading" className={styles.section}>
-        <h2 id="next-heading">{copy.next.heading}</h2>
-        <ul className={styles.links}>
-          {copy.next.items.map((item) => (
-            <li key={item.to}>
-              <Link
-                to={
-                  saved
-                    ? `${item.to}${item.to === '/licensing' ? `?assessment=${assessment.id}` : ''}`
-                    : item.to
-                }
-              >
-                {item.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <section id="next" aria-labelledby="next-heading" className={styles.section}>
+          <h2 id="next-heading">{copy.next.heading}</h2>
+          <ul className={styles.links}>
+            {copy.next.items.map((item) => (
+              <li key={item.to}>
+                <Link
+                  to={
+                    saved
+                      ? `${item.to}${item.to === '/licensing' ? `?assessment=${assessment.id}` : ''}`
+                      : item.to
+                  }
+                >
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </ViewPane>
+
+      <ViewPager views={VIEWS} current={part} />
     </PageContainer>
   );
 }

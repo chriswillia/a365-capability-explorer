@@ -10,15 +10,6 @@
   font-size: var(--text-14);
 }
 
-.jump {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-6);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
 .section {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -159,12 +150,6 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: var(--space-6);
-}
-
-.area {
-  display: grid;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
 }
 
 .actions {

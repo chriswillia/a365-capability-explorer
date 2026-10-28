@@ -5,7 +5,11 @@
 reviewStatus: draft
 intro: "Explain why Agent 365 matters to a customer, whatever agent they are building: the problem every agent creates, what Agent 365 gives the customer, and how to say it to each buyer."
 notice: "Seller guidance, not Microsoft messaging. Facts name their Microsoft source. Pitches, angles and objection answers are editorial and stay draft until subject-matter-expert review."
-jumpLabel: "On this page"
+views:
+  say: "Say it"
+  prepare: Prepare
+  run: "Run the meeting"
+  brief: "Value brief"
 audienceNote: "Showing the {label} version. Change it in the View menu."
 pitch:
   heading: "Your 60-second pitch"

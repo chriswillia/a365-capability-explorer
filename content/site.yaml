@@ -49,6 +49,11 @@ ui:
   view:
     label: View
     summary: "{label}: {audience} · {depth}"
+  views:
+    label: "Parts of this page"
+    pagerLabel: "Previous and next part"
+    previous: Previous
+    next: Next
   about:
     label: "About this page"
   sample:
@@ -793,6 +798,13 @@ mapping:
   intro: "Pick an example agent to see the security, governance and observability controls Agent 365 recommends for it. The same rules generate every recommendation."
   neutralNote: "Results use a neutral commercial customer: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. The answers are examples, not facts about your customer."
   matrix: "Compare all example agents"
+  views:
+    cards: "Browse examples"
+    compare: "Compare controls"
+    controls: "Recommended controls"
+    risks: "Risks and mitigations"
+    rollout: "Rollout and licensing"
+    technical: "Technical detail"
   patternCount: "Controls in scope"
   draftSummary: "{draft} of {total} scenario summaries {draft?is|are} editorial and {draft?needs|need} SME review. Evidence and sources appear on each scenario page."
   levels: { essential: Essential, recommended: Recommended, consider: Consider }

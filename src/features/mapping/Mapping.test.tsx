@@ -17,6 +17,10 @@ import './PatternsPage.tsx';
 
 const { site } = content;
 const copy = site.mapping;
+const part = (name: string) =>
+  within(screen.getByRole('navigation', { name: site.ui.views.label })).getByRole('link', {
+    name,
+  });
 function renderPage(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
@@ -31,7 +35,7 @@ function renderPage(path: string) {
 
 describe('Phase 3 mapping views', () => {
   it('generates exactly one matrix row per capability, grouped by requirement area, and one column per canonical pattern', async () => {
-    renderPage('/patterns');
+    renderPage('/patterns?view=compare');
     await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
     expect(screen.getByText(copy.neutralNote)).toBeInTheDocument();
     const table = screen.getByRole('table', { name: copy.matrix });
@@ -58,6 +62,24 @@ describe('Phase 3 mapping views', () => {
       }
     }
     expect(screen.queryByText(site.ui.comingSoon.status)).not.toBeInTheDocument();
+  });
+  it('shows the example agents first and the comparison of all of them as the second part', async () => {
+    renderPage('/patterns');
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    const links = within(
+      screen.getByRole('navigation', { name: site.ui.views.label }),
+    ).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual([copy.views.cards, copy.views.compare]);
+    expect(links[0]).toHaveAttribute('aria-current', 'true');
+    expect(links[1]).toHaveAttribute('href', '/patterns?view=compare');
+    for (const pattern of content.patterns)
+      expect(screen.getByRole('heading', { level: 2, name: pattern.title })).toBeVisible();
+    expect(screen.queryByRole('table', { name: copy.matrix })).not.toBeInTheDocument();
+    await userEvent.click(part(copy.views.compare));
+    expect(screen.getByRole('table', { name: copy.matrix })).toBeVisible();
+    expect(
+      screen.queryByRole('heading', { level: 2, name: content.patterns[0]!.title }),
+    ).not.toBeInTheDocument();
   });
   it('shows how the agent acts on every scenario card and brief, including the mixed scenario', async () => {
     renderPage('/patterns');
@@ -106,9 +128,6 @@ describe('Phase 3 mapping views', () => {
     );
     const table = screen.getByRole('table', { name: copy.inScope });
     expect(within(table).getAllByRole('row')).toHaveLength(expected.inScope.length + 1);
-    expect(screen.getByText(copy.readinessNote)).toBeInTheDocument();
-    expect(screen.getByText(content.mappingConfig.licensingNote)).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'AI teammate preview gate' })).toBeInTheDocument();
     await userEvent.click(screen.getByText(copy.answers, { selector: 'summary' }));
     expect(
       screen.getByText('Own access with an agent user account (teammate)', { selector: 'dd' }),
@@ -125,13 +144,52 @@ describe('Phase 3 mapping views', () => {
     expect(within(observability).queryByText(site.learn.evidence.stated)).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
     expect(within(observability).getByText(site.learn.evidence.stated)).toBeVisible();
-    expect(screen.getByRole('table', { name: copy.operatingModel })).toBeInTheDocument();
-    expect(screen.getByRole('table', { name: copy.anatomy })).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: copy.whatIfs })).toBeInTheDocument();
     expect(within(observability).getByRole('link', { name: 'pro-code' })).toHaveAttribute(
       'href',
       '/methodology#rule-pro-code',
     );
+
+    await userEvent.click(part(copy.views.rollout));
+    expect(screen.getByText(copy.readinessNote)).toBeInTheDocument();
+    expect(screen.getByText(content.mappingConfig.licensingNote)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'AI teammate preview gate' })).toBeInTheDocument();
+
+    await userEvent.click(part(copy.views.technical));
+    expect(screen.getByRole('table', { name: copy.operatingModel })).toBeInTheDocument();
+    expect(screen.getByRole('table', { name: copy.anatomy })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: copy.whatIfs })).toBeInTheDocument();
+  });
+  it('opens an example on its recommended controls, with the other parts one link away', async () => {
+    renderPage('/patterns/ai-teammate');
+    await screen.findByRole('heading', { level: 1, name: 'AI teammate' });
+    const links = within(
+      screen.getByRole('navigation', { name: site.ui.views.label }),
+    ).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual([
+      copy.views.controls,
+      copy.views.risks,
+      copy.views.rollout,
+    ]);
+    expect(links[0]).toHaveAttribute('aria-current', 'true');
+    expect(screen.getByRole('table', { name: copy.inScope })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: copy.risks })).not.toBeInTheDocument();
+    await userEvent.click(part(copy.views.risks));
+    expect(screen.getByRole('heading', { level: 2, name: copy.risks })).toBeVisible();
+    expect(screen.queryByRole('table', { name: copy.inScope })).not.toBeInTheDocument();
+  });
+  it('offers the technical detail only in the Technical view', async () => {
+    renderPage('/patterns/ai-teammate?view=technical');
+    await screen.findByRole('heading', { level: 1, name: 'AI teammate' });
+    expect(screen.queryByRole('link', { name: copy.views.technical })).not.toBeInTheDocument();
+    expect(screen.getByRole('table', { name: copy.inScope })).toBeVisible();
+    await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    expect(screen.getByRole('link', { name: copy.views.technical })).toBeInTheDocument();
+  });
+  it('opens on the controls when a link in the comparison grid points at #in-scope', async () => {
+    const router = renderPage('/patterns/ai-teammate#in-scope');
+    await screen.findByRole('heading', { level: 1, name: 'AI teammate' });
+    expect(screen.getByRole('table', { name: copy.inScope })).toBeVisible();
+    expect(router.state.location.hash).toBe('#in-scope');
   });
   it('merges sample overrides visibly without creating an assessment or adding storage', async () => {
     const router = renderPage('/patterns/process-agent');

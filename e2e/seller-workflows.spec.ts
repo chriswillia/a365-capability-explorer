@@ -272,11 +272,14 @@ test.describe('deploy', () => {
       page.getByRole('heading', { level: 1, name: site.routes.deploy.title }),
     ).toBeVisible();
     await expect(page.getByLabel(deploy.assessmentLabel)).toHaveValue(assessment.id);
-    const baseline = page.getByRole('region', { name: deploy.baseline.heading });
-    for (const gate of content.guardrails.gates)
-      await expect(baseline.getByRole('heading', { name: gate.title })).toBeVisible();
-    await expect(baseline.getByText(deploy.baseline.proveLabel).first()).toBeVisible();
+    const views = page.getByRole('navigation', { name: site.ui.views.label, exact: true });
+    for (const gate of content.guardrails.gates) {
+      await views.getByRole('link', { name: gate.title }).click();
+      await expect(page.getByRole('heading', { level: 2, name: gate.title })).toBeVisible();
+      await expect(page.getByText(deploy.baseline.proveLabel).first()).toBeVisible();
+    }
 
+    await views.getByRole('link', { name: deploy.plan.heading }).click();
     const plan = page.getByRole('region', { name: deploy.plan.heading });
     const table = plan.getByRole('table');
     await expect(table.getByRole('row')).toHaveCount(deploy.plan.periods.length + 1);
@@ -443,6 +446,7 @@ test.describe('hosting', () => {
 test.describe('narrow screens', () => {
   for (const width of [320, 360, 390]) {
     test(`the workflow pages fit ${width}px without horizontal scrolling`, async ({ page }) => {
+      test.setTimeout(120_000);
       await page.setViewportSize({ width, height: 800 });
       const assessment = await seed(page, true);
       for (const path of [
@@ -452,8 +456,18 @@ test.describe('narrow screens', () => {
         `deploy?assessment=${assessment.id}`,
         `leave-behind/${assessment.id}`,
         'licensing#calculator',
+        'licensing?view=plans',
+        'licensing?view=needs',
+        'licensing?view=specialist',
         'pitch#entry',
         'pitch#questions',
+        'pitch?view=run',
+        'pitch?view=brief',
+        'deploy?view=production',
+        'deploy?view=plan',
+        'patterns?view=compare',
+        'patterns/ai-teammate?view=risks',
+        'patterns/ai-teammate?view=rollout',
         'fit#connected',
       ]) {
         await page.goto(path);

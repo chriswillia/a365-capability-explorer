@@ -23,15 +23,10 @@ export function CapabilityLinks({ ids }: { ids: string[] }) {
   );
 }
 
-export function MappingReport({
-  result,
-  showDiagnosticNote = true,
-  showAnatomy = true,
-}: {
-  result: AssessmentResult;
-  showDiagnosticNote?: boolean;
-  showAnatomy?: boolean;
-}) {
+export type MappingPart = 'controls' | 'risks' | 'rollout' | 'technical';
+
+/** One part of an example agent's report: the controls, the risks, the rollout, or the technical detail. */
+export function MappingReport({ result, part }: { result: AssessmentResult; part: MappingPart }) {
   const { depth } = useDepth();
   const technical = depth === 'technical';
   const copy = content.site.mapping;
@@ -110,177 +105,189 @@ export function MappingReport({
     );
   return (
     <div className={styles.report}>
-      <section id="in-scope">
-        <h2>{copy.inScope}</h2>
-        <DataTable
-          caption={copy.inScope}
-          hideCaption
-          columns={columns}
-          rows={result.inScope}
-          rowKey={(r) => r.capability.id}
-          scrollLabel={copy.inScope}
-        />
-      </section>
-      <details>
-        <summary>{copy.notInScope}</summary>
-        <ul>
-          {result.notInScope.map(({ capability, becomesRelevantIf }) => (
-            <li key={capability.id}>
-              <h3>
-                <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
-              </h3>
-              <p>{copy.becomesRelevant}</p>
-              {becomesRelevantIf.length === 0 ? (
-                <p>{copy.noRule}</p>
-              ) : (
-                <ul>
-                  {becomesRelevantIf.map((r) => (
-                    <li key={r.ruleId}>
-                      {describeCondition(r.when, content.questions, copy.condition)}
-                      {technical && (
-                        <>
-                          {' '}
-                          ·{' '}
-                          <Link className={styles.cellLink} to={`/methodology#rule-${r.ruleId}`}>
-                            <code>{r.ruleId}</code>
-                          </Link>
-                        </>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </li>
-          ))}
-        </ul>
-      </details>
-      <section>
-        <h2>{copy.risks}</h2>
-        <p className={styles.note}>{copy.riskNote}</p>
-        {riskList(result.risks)}
-        {result.potentialRisks.length > 0 && (
+      {part === 'controls' && (
+        <>
+          <section id="in-scope">
+            <h2>{copy.inScope}</h2>
+            <DataTable
+              caption={copy.inScope}
+              hideCaption
+              columns={columns}
+              rows={result.inScope}
+              rowKey={(r) => r.capability.id}
+              scrollLabel={copy.inScope}
+            />
+          </section>
           <details>
-            <summary>{copy.potentialRisks}</summary>
-            {riskList(result.potentialRisks)}
-          </details>
-        )}
-      </section>
-      <section>
-        <h2>{copy.integration}</h2>
-        {result.integrationPaths.length === 0 && <p>{copy.unknownAnswer}</p>}
-        {result.integrationPaths.map((path) => (
-          <article key={path.id}>
-            <h3>{path.title}</h3>
-            {path.status === 'verify' && <p>{copy.verify}</p>}
+            <summary>{copy.notInScope}</summary>
             <ul>
-              {path.checklist.map((item) => (
-                <li key={item}>{item}</li>
+              {result.notInScope.map(({ capability, becomesRelevantIf }) => (
+                <li key={capability.id}>
+                  <h3>
+                    <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
+                  </h3>
+                  <p>{copy.becomesRelevant}</p>
+                  {becomesRelevantIf.length === 0 ? (
+                    <p>{copy.noRule}</p>
+                  ) : (
+                    <ul>
+                      {becomesRelevantIf.map((r) => (
+                        <li key={r.ruleId}>
+                          {describeCondition(r.when, content.questions, copy.condition)}
+                          {technical && (
+                            <>
+                              {' '}
+                              ·{' '}
+                              <Link
+                                className={styles.cellLink}
+                                to={`/methodology#rule-${r.ruleId}`}
+                              >
+                                <code>{r.ruleId}</code>
+                              </Link>
+                            </>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
               ))}
             </ul>
-            <Evidence {...path} />
-          </article>
-        ))}
-      </section>
-      <section>
-        <h2>{copy.readiness}</h2>
-        <p className={styles.note}>{copy.readinessNote}</p>
-        <p>
-          {copy.readinessLabel}: {describeReadiness(countReadiness(result.readiness.checks), copy)}
-        </p>
-        <ul>
-          {result.readiness.checks.map((check) => (
-            <li key={check.id}>
-              <strong>{copy.readinessStatuses[check.status]}</strong> — {check.gap}
-              {check.capabilityId && <CapabilityLinks ids={[check.capabilityId]} />}
-              {technical && (
-                <p>{describeCondition(check.when, content.questions, copy.condition)}</p>
-              )}
-              {check.sourceId && (
-                <Evidence
-                  sourceIds={[check.sourceId]}
-                  evidence={check.evidence}
-                  reviewStatus="draft"
-                />
-              )}
-            </li>
-          ))}
-        </ul>
-        {result.readiness.uncheckedCapabilities.length > 0 && (
-          <details>
-            <summary>{copy.noChecks}</summary>
-            <CapabilityLinks ids={result.readiness.uncheckedCapabilities} />
           </details>
-        )}
-      </section>
-      <section>
-        <h2>{copy.licensing}</h2>
-        <p>
-          {copy.licensingCounts}: {result.licensing.foundational} / {result.licensing.premium}
-        </p>
-        <p>
-          {copy.expectedUsers}: {result.licensing.expectedUsersLabel ?? copy.unknownAnswer}
-        </p>
-        <p>{result.licensing.basis ?? copy.licenseBasisConfirm}</p>
-        <p>{result.licensing.note}</p>
-        <ul className={styles.links}>
-          {result.licensing.sourceIds.map((id) => {
-            const source = sourceById(id)!;
-            return (
-              <li key={id}>
-                <ExternalLink href={source.url}>{source.title}</ExternalLink>
-              </li>
-            );
-          })}
-        </ul>
-        {(result.gccGaps.length > 0 || result.sovereignVerification) && (
-          <>
-            <h3>{copy.gcc}</h3>
-            <CapabilityLinks ids={result.gccGaps.map((r) => r.capability.id)} />
-            {result.sovereignVerification && <p>{copy.sovereign}</p>}
-          </>
-        )}
-      </section>
-      <section>
-        <h2>{copy.frontier}</h2>
-        <p className={styles.note}>{copy.frontierNote}</p>
-        {result.frontier.length === 0 && <p>{copy.unknownAnswer}</p>}
-        {result.frontier.map((mapping) => (
-          <article key={mapping.id}>
-            <h3>{content.learn.frontier.find((p) => p.id === mapping.phaseId)!.title}</h3>
-            <p>{mapping.rationale}</p>
-            <Evidence {...mapping} />
-          </article>
-        ))}
-      </section>
-      {technical && (
-        <>
-          {showAnatomy && (
-            <section>
-              <h2>{copy.anatomy}</h2>
-              <DataTable
-                caption={copy.anatomy}
-                hideCaption
-                scrollLabel={copy.anatomy}
-                rows={result.anatomy}
-                rowKey={(r) => r.point.id}
-                columns={[
-                  {
-                    key: 'layer',
-                    header: content.site.capabilities.columns.layer,
-                    rowHeader: true,
-                    render: (r) => r.point.layer,
-                  },
-                  {
-                    key: 'capabilities',
-                    header: content.site.capabilities.columns.capability,
-                    render: (r) => (
-                      <CapabilityLinks ids={r.capabilities.map((c) => c.capability.id)} />
-                    ),
-                  },
-                ]}
-              />
-            </section>
+        </>
+      )}
+      {part === 'risks' && (
+        <section>
+          <h2>{copy.risks}</h2>
+          <p className={styles.note}>{copy.riskNote}</p>
+          {riskList(result.risks)}
+          {result.potentialRisks.length > 0 && (
+            <details>
+              <summary>{copy.potentialRisks}</summary>
+              {riskList(result.potentialRisks)}
+            </details>
           )}
+        </section>
+      )}
+      {part === 'rollout' && (
+        <>
+          <section>
+            <h2>{copy.integration}</h2>
+            {result.integrationPaths.length === 0 && <p>{copy.unknownAnswer}</p>}
+            {result.integrationPaths.map((path) => (
+              <article key={path.id}>
+                <h3>{path.title}</h3>
+                {path.status === 'verify' && <p>{copy.verify}</p>}
+                <ul>
+                  {path.checklist.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <Evidence {...path} />
+              </article>
+            ))}
+          </section>
+          <section>
+            <h2>{copy.readiness}</h2>
+            <p className={styles.note}>{copy.readinessNote}</p>
+            <p>
+              {copy.readinessLabel}:{' '}
+              {describeReadiness(countReadiness(result.readiness.checks), copy)}
+            </p>
+            <ul>
+              {result.readiness.checks.map((check) => (
+                <li key={check.id}>
+                  <strong>{copy.readinessStatuses[check.status]}</strong> — {check.gap}
+                  {check.capabilityId && <CapabilityLinks ids={[check.capabilityId]} />}
+                  {technical && (
+                    <p>{describeCondition(check.when, content.questions, copy.condition)}</p>
+                  )}
+                  {check.sourceId && (
+                    <Evidence
+                      sourceIds={[check.sourceId]}
+                      evidence={check.evidence}
+                      reviewStatus="draft"
+                    />
+                  )}
+                </li>
+              ))}
+            </ul>
+            {result.readiness.uncheckedCapabilities.length > 0 && (
+              <details>
+                <summary>{copy.noChecks}</summary>
+                <CapabilityLinks ids={result.readiness.uncheckedCapabilities} />
+              </details>
+            )}
+          </section>
+          <section>
+            <h2>{copy.licensing}</h2>
+            <p>
+              {copy.licensingCounts}: {result.licensing.foundational} / {result.licensing.premium}
+            </p>
+            <p>
+              {copy.expectedUsers}: {result.licensing.expectedUsersLabel ?? copy.unknownAnswer}
+            </p>
+            <p>{result.licensing.basis ?? copy.licenseBasisConfirm}</p>
+            <p>{result.licensing.note}</p>
+            <ul className={styles.links}>
+              {result.licensing.sourceIds.map((id) => {
+                const source = sourceById(id)!;
+                return (
+                  <li key={id}>
+                    <ExternalLink href={source.url}>{source.title}</ExternalLink>
+                  </li>
+                );
+              })}
+            </ul>
+            {(result.gccGaps.length > 0 || result.sovereignVerification) && (
+              <>
+                <h3>{copy.gcc}</h3>
+                <CapabilityLinks ids={result.gccGaps.map((r) => r.capability.id)} />
+                {result.sovereignVerification && <p>{copy.sovereign}</p>}
+              </>
+            )}
+          </section>
+          <section>
+            <h2>{copy.frontier}</h2>
+            <p className={styles.note}>{copy.frontierNote}</p>
+            {result.frontier.length === 0 && <p>{copy.unknownAnswer}</p>}
+            {result.frontier.map((mapping) => (
+              <article key={mapping.id}>
+                <h3>{content.learn.frontier.find((p) => p.id === mapping.phaseId)!.title}</h3>
+                <p>{mapping.rationale}</p>
+                <Evidence {...mapping} />
+              </article>
+            ))}
+          </section>
+        </>
+      )}
+      {part === 'technical' && (
+        <>
+          <section>
+            <h2>{copy.anatomy}</h2>
+            <DataTable
+              caption={copy.anatomy}
+              hideCaption
+              scrollLabel={copy.anatomy}
+              rows={result.anatomy}
+              rowKey={(r) => r.point.id}
+              columns={[
+                {
+                  key: 'layer',
+                  header: content.site.capabilities.columns.layer,
+                  rowHeader: true,
+                  render: (r) => r.point.layer,
+                },
+                {
+                  key: 'capabilities',
+                  header: content.site.capabilities.columns.capability,
+                  render: (r) => (
+                    <CapabilityLinks ids={r.capabilities.map((c) => c.capability.id)} />
+                  ),
+                },
+              ]}
+            />
+          </section>
           <section>
             <h2>{copy.operatingModel}</h2>
             <DataTable
@@ -340,27 +347,31 @@ export function MappingReport({
           </section>
         </>
       )}
-      <section>
-        <h2>{copy.advisories}</h2>
-        {result.advisories.map((a) => (
-          <article key={a.id}>
-            <h3>{a.title}</h3>
-            <p>{a.body}</p>
-            <Evidence {...a} />
-          </article>
-        ))}
-      </section>
-      <details>
-        <summary>{copy.openQuestions}</summary>
-        <ul>
-          {result.openQuestions.map((q) => (
-            <li key={q.id}>
-              <strong>{q.label}</strong> — {q.guidance}
-            </li>
-          ))}
-        </ul>
-      </details>
-      {showDiagnosticNote && <p className={styles.note}>{copy.pendingDiagnostic}</p>}
+      {part === 'rollout' && (
+        <>
+          <section>
+            <h2>{copy.advisories}</h2>
+            {result.advisories.map((a) => (
+              <article key={a.id}>
+                <h3>{a.title}</h3>
+                <p>{a.body}</p>
+                <Evidence {...a} />
+              </article>
+            ))}
+          </section>
+          <details>
+            <summary>{copy.openQuestions}</summary>
+            <ul>
+              {result.openQuestions.map((q) => (
+                <li key={q.id}>
+                  <strong>{q.label}</strong> — {q.guidance}
+                </li>
+              ))}
+            </ul>
+          </details>
+          <p className={styles.note}>{copy.pendingDiagnostic}</p>
+        </>
+      )}
     </div>
   );
 }

@@ -142,7 +142,7 @@ test.describe('seller playbook navigation', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
     ).toBeVisible();
-    await expect(page).toHaveURL(/pitch\?audience=security#conversation$/);
+    await expect(page).toHaveURL(/pitch\?audience=security&view=run#conversation$/);
     await expect(page.locator('#conversation')).toBeInViewport();
   });
 });
@@ -178,7 +178,7 @@ test.describe('value brief', () => {
   test('keeps its choice in the address, keeps the customer name out of it and prints alone', async ({
     page,
   }) => {
-    await page.goto('pitch');
+    await page.goto('pitch?view=brief');
     const boxes = page
       .getByRole('group', { name: content.value.brief.concernsLegend })
       .getByRole('checkbox');
@@ -236,7 +236,7 @@ test.describe('licensing and stack fit', () => {
     context,
   }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    await page.goto('licensing?access=own-background');
+    await page.goto('licensing?access=own-background&view=specialist');
     await page.getByLabel(content.value.brief.customerLabel).fill('Fictional Customer');
     await page.getByRole('button', { name: content.licensing.handoff.copy }).click();
     await expect(page.locator('#handoff').getByRole('status')).toContainText(

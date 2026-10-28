@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, matchRoutes } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -15,7 +15,7 @@ import '../value/ValuePage.tsx';
 
 const { site, conversation: copy } = content;
 
-async function renderPage(path = '/pitch') {
+async function renderPage(path = '/pitch#conversation') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
@@ -29,6 +29,8 @@ async function renderPage(path = '/pitch') {
 }
 
 const guide = () => within(screen.getByRole('region', { name: copy.title }));
+const area = (pillarId: string) =>
+  document.getElementById(`requirement-${pillarId}`) as HTMLDetailsElement;
 
 afterEach(() => window.localStorage.clear());
 
@@ -65,49 +67,64 @@ describe('customer conversation guide on the Pitch page', () => {
 
   it('covers each requirement area with its capabilities, questions, people and flags', async () => {
     await renderPage();
-    for (const area of requirementGuides(content)) {
-      const section = within(guide().getByRole('region', { name: pillarName(area.pillar) }));
-      expect(section.getByText(area.pillar.definition, { exact: false })).toBeInTheDocument();
-      for (const capability of area.capabilities)
+    for (const guideArea of requirementGuides(content)) {
+      const section = within(area(guideArea.pillar.id));
+      expect(section.getByText(guideArea.pillar.definition, { exact: false })).toBeInTheDocument();
+      for (const capability of guideArea.capabilities)
         expect(section.getByRole('link', { name: capability.shortName })).toHaveAttribute(
           'href',
           `/capabilities/${capability.id}`,
         );
       expect(
         section.getByRole('heading', {
-          level: 5,
-          name: renderTemplate(copy.questionsLabel, { count: area.questions.length }),
+          level: 4,
+          name: renderTemplate(copy.questionsLabel, { count: guideArea.questions.length }),
         }),
       ).toBeInTheDocument();
-      for (const { question } of area.questions)
+      for (const { question } of guideArea.questions)
         expect(section.getByText(question, { exact: false })).toBeInTheDocument();
-      for (const { team, productAreas } of area.people)
+      for (const { team, productAreas } of guideArea.people)
         expect(section.getByText(`${team} — ${productAreas.join(', ')}`)).toBeInTheDocument();
       expect(
         section.getByText(
           renderTemplate(copy.flagsTemplate, {
-            premium: area.premium,
-            total: area.total,
-            notInGcc: area.notInGcc,
+            premium: guideArea.premium,
+            total: guideArea.total,
+            notInGcc: guideArea.notInGcc,
           }),
         ),
       ).toBeInTheDocument();
       expect(
         section.getByRole('link', {
-          name: renderTemplate(copy.browse, { label: pillarName(area.pillar) }),
+          name: renderTemplate(copy.browse, { label: pillarName(guideArea.pillar) }),
         }),
-      ).toHaveAttribute('href', `/capabilities?pillar=${area.pillar.id}`);
+      ).toHaveAttribute('href', `/capabilities?pillar=${guideArea.pillar.id}`);
     }
   });
 
-  it('jumps to each requirement area from a labelled list', async () => {
+  it('keeps each requirement area closed, with a summary that counts what is inside', async () => {
     await renderPage();
-    const jump = within(screen.getByRole('navigation', { name: copy.jumpLabel }));
-    for (const { pillar } of requirementGuides(content)) {
-      const link = jump.getByRole('link', { name: pillarName(pillar) });
-      expect(link).toHaveAttribute('href', `#requirement-${pillar.id}`);
-      expect(document.getElementById(`requirement-${pillar.id}`)).not.toBeNull();
+    for (const { pillar, capabilities, questions } of requirementGuides(content)) {
+      const panel = area(pillar.id);
+      expect(panel).toBeInstanceOf(HTMLDetailsElement);
+      expect(panel.open).toBe(false);
+      expect(
+        within(panel).getByText(
+          renderTemplate(copy.areaSummary, {
+            label: pillarName(pillar),
+            count: capabilities.length,
+            n: questions.length,
+          }),
+        ),
+      ).toBeInTheDocument();
     }
+  });
+
+  it('opens the requirement area a link points at, and only that one', async () => {
+    await renderPage('/pitch#requirement-secure');
+    await waitFor(() => expect(area('secure').open).toBe(true));
+    for (const { pillar } of requirementGuides(content))
+      if (pillar.id !== 'secure') expect(area(pillar.id).open).toBe(false);
   });
 
   it('says how many myth-and-fact answers still need checking against their source, or that none do', async () => {
@@ -200,7 +217,7 @@ describe('the old conversation address', () => {
     );
     await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
     expect(router.state.location.pathname).toBe('/pitch');
-    expect(router.state.location.search).toBe('?audience=security');
+    expect(router.state.location.search).toBe('?audience=security&view=run');
     expect(router.state.location.hash).toBe('#requirement-secure');
   });
 });

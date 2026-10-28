@@ -92,6 +92,15 @@ When you change any of these files, add an entry to `changelog.md` with an `affe
 
 When you change any of these, add an entry to `changelog.md` with an `affects:` line.
 
+## Pages that show one part at a time
+
+Pitch, Licensing, Deploy and the example agents show one part of the page at a time, chosen by `?view=` in the address. Each page lists its parts in `VIEWS` in its page file (`ValuePage.tsx`, `LicensingPage.tsx`, `DeployPage.tsx`, `PatternsPage.tsx` and `PatternPage.tsx`). The labels are in YAML: `views` in `value.yaml` and `licensing.yaml`, `mapping.views` in `site.yaml`, and the gate titles in `guardrails.yaml`, which Deploy uses for its gate parts.
+
+- **A new section goes in a part.** Put it where a seller would look for it and add its id to that part's `sections`, or an id prefix to `prefixes` for ids made from data. A link such as `/licensing#plans` opens the part that holds `plans`, so every existing link keeps working. A section that is in no part is never shown.
+- **Link into a section with a `#hash`.** Links in the YAML (`to:`) can name a section but never `?view=`; the schema accepts only a hash.
+- **Keep a part to about five screens.** An end-to-end test measures every part at 1280 by 800 and fails past five. Split the part, or fold detail into a closed panel (`AnchoredDetails`, which a link can open, or a plain `<details>`), instead of letting it grow.
+- **Anything a seller types stays mounted.** Give a part that holds an input or a picker `keep` on its `ViewPane`, so leaving the part does not lose what was entered.
+
 ## Before you publish: the public-safety guard
 
 This repository and the site are public. Use only public Microsoft sources, such as Microsoft Learn, the Microsoft Product Terms, the Microsoft licensing FAQs, microsoft.com pages and official Microsoft blogs. Never commit internal Microsoft documents, decks, FAQs or roadmaps (or text copied from them), links to internal sites, customer names or deal data, pipeline or compensation information, or colleagues' names.

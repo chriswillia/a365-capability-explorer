@@ -4,7 +4,12 @@
 reviewStatus: draft
 intro: "Agent 365 is licensed per user, not per agent. Who needs a license depends on how the agent acts: for the user (delegated access) or as itself (own access). Microsoft's pages are silent in places, and this page says where."
 notice: "Planning guidance, not an official licensing determination. Confirm quantities, prerequisites and terms with your licensing specialist and the Microsoft Product Terms."
-jumpLabel: "On this page"
+views:
+  who: "Who needs a license"
+  size: "Size the licenses"
+  plans: "Ways to license"
+  needs: Prerequisites
+  specialist: "Take to a specialist"
 needs:
   required: "License required"
   recommended: "License recommended"
@@ -616,6 +621,7 @@ handoff:
 requirementsPanel:
   heading: "What each capability needs"
   intro: "For each capability, the license, role, service, enrollment or onboarding step that Microsoft's documentation states. Choose an assessment to see what is in place for that customer."
+  areaSummary: "{label}: {count} {count?capability|capabilities}"
   kinds:
     license: License
     role: "Admin role"

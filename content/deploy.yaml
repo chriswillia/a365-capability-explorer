@@ -5,15 +5,14 @@
 reviewStatus: draft
 intro: "Take an agent from pilot to production with the guardrails in place. Each step says why it matters, what to do and how to show it works. Choose a saved agent to see which steps are in place and which to confirm."
 notice: "Planning guidance, draft until subject-matter-expert review. The status reflects the customer's answers, not a check of their tenant."
-jumpLabel: "On this page"
 assessmentLabel: "Plan go-live for"
 noAssessment: "No agent selected"
 missing: "That agent is not saved in this browser."
 incompatible: "This agent was saved with answers that no longer match the questions. Open it in Full discovery to fix them."
 noAssessmentNote: "Showing every step. Choose a saved agent, or map one, to see which apply and which are in place."
 baseline:
-  heading: "Go-live baseline"
-  intro: "Three gates: before pilot, before production and as you scale. Work through them in order. Gaps come first, then what is still to confirm."
+  intro: "Gaps come first in each gate, then what is still to confirm."
+  moreLabel: "Why it matters, where and who"
   whyLabel: "Why it matters"
   doLabel: "What to do"
   proveLabel: "Prove it works"

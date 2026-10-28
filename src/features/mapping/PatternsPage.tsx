@@ -4,6 +4,7 @@ import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PageIntro } from '../../components/PageIntro.tsx';
+import { ViewPager, ViewPane, ViewSwitcher } from '../../components/ViewSwitcher.tsx';
 import { accessModelLabel } from '../../lib/content/access-fit.ts';
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import type { Capability } from '../../lib/content/schemas.ts';
@@ -12,6 +13,7 @@ import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
 import { pillarRows } from '../../lib/engine/pillars.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { useView, type PageView } from '../../lib/useView.ts';
 import styles from './Mapping.module.css';
 
 const patterns = evaluatePatterns(content, contentMeta.contentVersion);
@@ -19,9 +21,16 @@ const orderedCapabilities = [...content.capabilities].sort(
   (a, b) => pillarById(a.pillar)!.order - pillarById(b.pillar)!.order,
 );
 
+// The cards are the way in; the grid that compares every example is for the seller who wants the whole picture.
+const VIEWS: PageView[] = [
+  { id: 'cards', label: content.site.mapping.views.cards, sections: [] },
+  { id: 'compare', label: content.site.mapping.views.compare, sections: ['compare'] },
+];
+
 export function Component() {
   usePageTitle('patterns');
   const { depth } = useDepth();
+  const part = useView(VIEWS);
   const copy = content.site.mapping;
   const draftCount = patterns.filter(({ pattern }) => pattern.reviewStatus === 'draft').length;
   const columns: Column<Capability>[] = [
@@ -82,54 +91,60 @@ export function Component() {
       >
         {copy.intro}
       </PageIntro>
-      <ul className={styles.cards}>
-        {patterns.map(({ pattern, result }) => (
-          <li key={pattern.id} className={styles.card}>
-            <h2>
-              <Link to={`/patterns/${pattern.id}`}>{pattern.title}</Link>
-            </h2>
-            <p>{pattern.summary}</p>
-            {accessModelLabel(content, pattern.answers.accessModel) !== null && (
+      <ViewSwitcher views={VIEWS} current={part} />
+      <ViewPane view={part} id="cards">
+        <ul className={styles.cards}>
+          {patterns.map(({ pattern, result }) => (
+            <li key={pattern.id} className={styles.card}>
+              <h2>
+                <Link to={`/patterns/${pattern.id}`}>{pattern.title}</Link>
+              </h2>
+              <p>{pattern.summary}</p>
+              {accessModelLabel(content, pattern.answers.accessModel) !== null && (
+                <p>
+                  <Badge tone="outline">
+                    {accessModelLabel(content, pattern.answers.accessModel)}
+                  </Badge>
+                </p>
+              )}
               <p>
-                <Badge tone="outline">
-                  {accessModelLabel(content, pattern.answers.accessModel)}
-                </Badge>
+                {copy.patternCount}: {result.inScope.length}
               </p>
-            )}
-            <p>
-              {copy.patternCount}: {result.inScope.length}
-            </p>
-            <p className={styles.note}>
-              {pillarRows(content, result.inScope)
-                .map((row) => `${row.pillar.requirement}: ${row.items.length}`)
-                .join(' · ')}
-            </p>
-            {pattern.reviewStatus === 'reviewed' && (
-              <Badge tone="outline">{content.site.ui.badges.reviewed}</Badge>
-            )}
-          </li>
-        ))}
-      </ul>
-      <section className={styles.matrix}>
-        <h2>{copy.matrix}</h2>
-        <ul className={styles.legend}>
-          {Object.entries(copy.levels).map(([level, label]) => (
-            <li key={level}>
-              <strong>{label}</strong>
+              <p className={styles.note}>
+                {pillarRows(content, result.inScope)
+                  .map((row) => `${row.pillar.requirement}: ${row.items.length}`)
+                  .join(' · ')}
+              </p>
+              {pattern.reviewStatus === 'reviewed' && (
+                <Badge tone="outline">{content.site.ui.badges.reviewed}</Badge>
+              )}
             </li>
           ))}
         </ul>
-        <DataTable
-          caption={copy.matrix}
-          hideCaption
-          columns={columns}
-          rows={orderedCapabilities}
-          rowKey={(c) => c.id}
-          scrollLabel={copy.matrix}
-        />
-      </section>
+      </ViewPane>
+      <ViewPane view={part} id="compare">
+        <section id="compare" className={styles.matrix}>
+          <h2>{copy.matrix}</h2>
+          <ul className={styles.legend}>
+            {Object.entries(copy.levels).map(([level, label]) => (
+              <li key={level}>
+                <strong>{label}</strong>
+              </li>
+            ))}
+          </ul>
+          <DataTable
+            caption={copy.matrix}
+            hideCaption
+            columns={columns}
+            rows={orderedCapabilities}
+            rowKey={(c) => c.id}
+            scrollLabel={copy.matrix}
+          />
+        </section>
+      </ViewPane>
       <p className={styles.note}>{copy.pendingDiagnostic}</p>
       <Link to="/map">{copy.startAssessment}</Link>
+      <ViewPager views={VIEWS} current={part} />
     </PageContainer>
   );
 }

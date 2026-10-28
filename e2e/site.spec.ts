@@ -418,7 +418,7 @@ test.describe('capabilities page', () => {
     page,
   }) => {
     await page.setViewportSize({ width: 1024, height: 768 });
-    await page.goto('patterns');
+    await page.goto('patterns?view=compare');
     const matrix = page.getByRole('region', { name: site.mapping.matrix });
     await expect(matrix).toBeVisible();
     await expect(page.getByText(site.ui.scrollHint)).toBeVisible();

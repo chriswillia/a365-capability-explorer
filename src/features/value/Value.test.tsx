@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -33,6 +33,8 @@ const concerns = () =>
   within(screen.getByRole('group', { name: copy.brief.concernsLegend })).getAllByRole(
     'checkbox',
   ) as HTMLInputElement[];
+const param = (router: Awaited<ReturnType<typeof renderPage>>, key: string) =>
+  new URLSearchParams(router.state.location.search).get(key);
 
 afterEach(() => vi.restoreAllMocks());
 
@@ -111,7 +113,7 @@ describe('Pitch', () => {
   });
 
   it('gives AI and Security sellers a joint plan and a proof-of-value plan', async () => {
-    await renderPage();
+    await renderPage('/pitch?view=run');
     const team = within(document.getElementById('team')!);
     const table = team.getByRole('table');
     expect(within(table).getAllByRole('row')).toHaveLength(copy.jointPlan.rows.length + 1);
@@ -151,7 +153,7 @@ describe('Pitch: where to start', () => {
   const entry = () => within(document.getElementById('entry')!);
 
   it('offers a way in for each customer situation, with the licensing path and where it leads', async () => {
-    await renderPage();
+    await renderPage('/pitch?view=prepare');
     for (const item of copy.entryPoints.items) {
       const card = within(
         entry().getByRole('heading', { level: 3, name: item.situation }).closest('li')!,
@@ -192,7 +194,7 @@ describe('Pitch: questions to ask', () => {
 
   it('groups every capability question by area, and picks nothing at first', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage('/pitch?view=prepare');
     await openAll(user);
     const total = content.capabilities.reduce(
       (sum, c) => sum + (c.discoveryQuestions?.length ?? 0),
@@ -210,7 +212,7 @@ describe('Pitch: questions to ask', () => {
 
   it('lets the seller pick only as many as the limit, and frees one up when it is cleared', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage('/pitch?view=prepare');
     await openAll(user);
     const boxes = picker().getAllByRole('checkbox');
     for (const box of boxes.slice(0, copy.discovery.limit)) await user.click(box);
@@ -226,7 +228,7 @@ describe('Pitch: questions to ask', () => {
 
   it('copies the picks as an agenda, in the order picked, and clears them', async () => {
     const user = userEvent.setup();
-    await renderPage();
+    await renderPage('/pitch?view=prepare');
     await openAll(user);
     const boxes = picker().getAllByRole('checkbox');
     await user.click(boxes[3]!);
@@ -249,7 +251,7 @@ describe('Pitch: questions to ask', () => {
 
 describe('value brief', () => {
   it('starts from the outcomes that suit the chosen seller and shows the brief beside the choices', async () => {
-    await renderPage();
+    await renderPage('/pitch?view=brief');
     const expected = defaultConcerns(content, 'joint');
     const boxes = concerns();
     expect(boxes).toHaveLength(views.length);
@@ -264,20 +266,21 @@ describe('value brief', () => {
 
   it('keeps the choice in the address and an empty choice says so', async () => {
     const user = userEvent.setup();
-    const router = await renderPage();
+    const router = await renderPage('/pitch?view=brief');
     for (const box of concerns().filter((candidate) => candidate.checked)) await user.click(box);
-    expect(router.state.location.search).toBe('?concerns=none');
+    expect(param(router, 'concerns')).toBe('none');
+    expect(param(router, 'view')).toBe('brief');
     expect(screen.getByText(copy.brief.emptyNote)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: copy.brief.print })).toBeDisabled();
     expect(screen.getByRole('button', { name: copy.brief.copy })).toBeDisabled();
 
     await user.click(concerns()[1]!);
-    expect(router.state.location.search).toBe(`?concerns=${views[1]!.theme.id}`);
+    expect(param(router, 'concerns')).toBe(views[1]!.theme.id);
     expect(screen.getByRole('button', { name: copy.brief.copy })).toBeEnabled();
   });
 
   it('restores the choice from the address', async () => {
-    await renderPage(`/pitch?concerns=${views[2]!.theme.id}`);
+    await renderPage(`/pitch?view=brief&concerns=${views[2]!.theme.id}`);
     const checked = concerns().filter((box) => box.checked);
     expect(checked).toHaveLength(1);
     expect(checked[0]).toBe(concerns()[2]);
@@ -285,7 +288,7 @@ describe('value brief', () => {
 
   it('keeps the customer name out of the address and out of storage', async () => {
     const user = userEvent.setup();
-    const router = await renderPage();
+    const router = await renderPage('/pitch?view=brief');
     await user.type(screen.getByLabelText(copy.brief.customerLabel), 'Fictional Customer');
     expect(
       screen.getByRole('heading', {
@@ -301,7 +304,7 @@ describe('value brief', () => {
   it('copies the brief as text and prints only the brief', async () => {
     const user = userEvent.setup();
     const print = vi.spyOn(window, 'print').mockImplementation(() => {});
-    await renderPage();
+    await renderPage('/pitch?view=brief');
     await user.click(screen.getByRole('button', { name: copy.brief.copy }));
     const expected = briefText(
       content,
@@ -322,5 +325,81 @@ describe('value brief', () => {
     expect(printed).toHaveLength(1);
     for (const section of document.querySelectorAll('main section'))
       if (!section.contains(printed[0]!)) expect(section).toHaveAttribute('data-no-print');
+  });
+});
+
+describe('Pitch: one part at a time', () => {
+  const nav = () => within(screen.getByRole('navigation', { name: site.ui.views.label }));
+  const heading = (name: string) => screen.queryByRole('heading', { level: 2, name });
+
+  it('offers the four parts as links and shows the first', async () => {
+    await renderPage();
+    const links = nav().getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual([
+      copy.views.say,
+      copy.views.prepare,
+      copy.views.run,
+      copy.views.brief,
+    ]);
+    expect(links[0]).toHaveAttribute('aria-current', 'true');
+    expect(links[0]).toHaveAttribute('href', '/pitch');
+    expect(links[1]).toHaveAttribute('href', '/pitch?view=prepare');
+    expect(heading(copy.pitch.heading)).toBeInTheDocument();
+    expect(heading(copy.objections.heading)).not.toBeInTheDocument();
+    expect(heading(content.conversation.title)).not.toBeInTheDocument();
+  });
+
+  it('puts the conversation guide with the meeting, the pushback with the preparation', async () => {
+    await renderPage('/pitch?view=run');
+    expect(heading(content.conversation.title)).toBeInTheDocument();
+    expect(heading(copy.jointPlan.heading)).toBeInTheDocument();
+    expect(heading(copy.proofOfValue.heading)).toBeInTheDocument();
+    expect(heading(copy.objections.heading)).not.toBeInTheDocument();
+  });
+
+  it('opens the part that holds a section a link points at, and says so in the address', async () => {
+    const router = await renderPage('/pitch#pushback');
+    expect(
+      await screen.findByRole('heading', { level: 2, name: copy.objections.heading }),
+    ).toBeVisible();
+    await waitFor(() => expect(router.state.location.search).toBe('?view=prepare'));
+    expect(router.state.location.hash).toBe('#pushback');
+    expect(nav().getByRole('link', { name: copy.views.prepare })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+  });
+
+  it('still opens the guide from the address it had before the parts', async () => {
+    await renderPage('/pitch#conversation');
+    expect(await screen.findByRole('region', { name: content.conversation.title })).toBeVisible();
+    expect(heading(copy.pitch.heading)).not.toBeInTheDocument();
+  });
+
+  it('steps to the next part from the foot of a part, and back', async () => {
+    const user = userEvent.setup();
+    const router = await renderPage();
+    const pager = () => within(screen.getByRole('navigation', { name: site.ui.views.pagerLabel }));
+    expect(pager().queryByRole('link', { name: new RegExp(site.ui.views.previous) })).toBeNull();
+    await user.click(
+      pager().getByRole('link', { name: `${site.ui.views.next}: ${copy.views.prepare}` }),
+    );
+    expect(param(router, 'view')).toBe('prepare');
+    expect(heading(copy.objections.heading)).toBeInTheDocument();
+    await user.click(
+      pager().getByRole('link', { name: `${site.ui.views.previous}: ${copy.views.say}` }),
+    );
+    expect(param(router, 'view')).toBeNull();
+    expect(heading(copy.pitch.heading)).toBeInTheDocument();
+  });
+
+  it('keeps what a seller typed in the brief while they look at another part', async () => {
+    const user = userEvent.setup();
+    await renderPage('/pitch?view=brief');
+    await user.type(screen.getByLabelText(copy.brief.customerLabel), 'Fictional Customer');
+    await user.click(nav().getByRole('link', { name: copy.views.say }));
+    expect(screen.getByLabelText(copy.brief.customerLabel)).not.toBeVisible();
+    await user.click(nav().getByRole('link', { name: copy.views.brief }));
+    expect(screen.getByLabelText(copy.brief.customerLabel)).toHaveValue('Fictional Customer');
   });
 });

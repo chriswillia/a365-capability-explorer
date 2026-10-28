@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-28 · One part at a time: Pitch, Licensing, Deploy and the example agents
+
+affects: [all]
+
+Pitch, Licensing, Deploy and the example agents no longer run down one long page. Each shows one part at a time, with the parts as links under the opening sentence. Pitch has Say it, Prepare, Run the meeting and Value brief; Licensing has Who needs a license, Size the licenses, Ways to license, Prerequisites and Take to a specialist; Deploy has one part for each gate and one for the 30, 60 and 90 day plan; the example agents have Browse examples and Compare controls, and each example has Recommended controls, Risks and mitigations and Rollout and licensing, with Technical detail added in the Technical view. Every part is at most about four screens on a laptop, where Pitch had run to 19 and Licensing to 23. An example agent now opens on its recommended controls. The conversation guide's three requirement areas and the prerequisites' product areas are closed until opened, a Deploy step shows what to do and how to prove it with the reason, place, owner and sources behind one link, and the jump lists on those pages are gone. Every earlier link into a section, such as Licensing's calculator or the pushback answers, opens the part that holds it, and the license calculator, discovery picker and value brief keep what you typed while you look at another part. An example with no sample use cases no longer shows an empty heading. Product statements, sources, rules and recommendations are unchanged.
+
 ## 2026-10-28 · Lighter pages: a one-row header, example agents first, and sources one click away
 
 affects: [all]

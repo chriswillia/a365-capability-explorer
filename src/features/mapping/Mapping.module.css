@@ -3,6 +3,14 @@
   font-size: var(--text-20);
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  margin-block: var(--space-2) 0;
+}
+
 .engine > summary {
   cursor: pointer;
   font-size: var(--text-20);
