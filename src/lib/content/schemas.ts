@@ -1667,6 +1667,8 @@ export const SiteSchema = z.strictObject({
     mainNavLabel: Text,
     scrollHint: Text,
     homeLinkLabel: Text,
+    // The button that opens the header's links on a phone.
+    menuLabel: Text,
     depth: z.strictObject({
       groupLabel: Text,
       label: Text,
@@ -1691,6 +1693,10 @@ export const SiteSchema = z.strictObject({
       methodology: Text,
     }),
     library: z.strictObject({ exploreHeading: Text, packHeading: Text }),
+    // The one menu that holds Selling as and Detail level, so the header stays one row.
+    view: z.strictObject({ label: Text, summary: Template }),
+    // A page's notices sit behind this label, so the first screen shows the page and not the preamble.
+    about: z.strictObject({ label: Text }),
     // A fictional customer with a few agents, loaded into this browser so a seller can try the tool.
     sample: z.strictObject({
       customerName: Text,
@@ -1756,7 +1762,13 @@ export const SiteSchema = z.strictObject({
       accessUnsplit: Text,
     }),
     setup: z.strictObject({ platform: Text, agent: Text, both: Text }),
-    exhibit: z.strictObject({ eyebrow: Template, sourcePrefix: Text }),
+    exhibit: z.strictObject({
+      eyebrow: Template,
+      sourcePrefix: Text,
+      // The one-line toggle that opens a statement's sources: "2 sources · checked 2026-10-27".
+      sourcesSummary: Template,
+      sourcesSummaryUndated: Template,
+    }),
   }),
   routes: z.record(z.enum(ROUTE_KEYS), RouteCopy),
   overview: z.strictObject({
@@ -1764,6 +1776,8 @@ export const SiteSchema = z.strictObject({
     heroLede: Text,
     ctaPrimary: Text,
     ctaSecondary: Text,
+    // The example agents a seller can start from, ahead of the jobs.
+    examples: z.strictObject({ heading: Text, intro: Text, all: Text }),
     // The jobs a seller does before and after a customer call, one tile each.
     jobs: z.strictObject({
       heading: Text,

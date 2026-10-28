@@ -1,42 +1,18 @@
 .header {
+  position: relative;
   background: var(--color-white);
   border-bottom: 1px solid var(--color-hairline);
 }
 
-.top,
-.bar {
+/* One row on a wide screen: the brand, the links and, at the right, the customer and the View menu. */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--space-6);
   max-width: var(--layout-max-width);
   margin: 0 auto;
-  padding-right: var(--layout-gutter);
-  padding-left: var(--layout-gutter);
-}
-
-.top {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding-top: var(--space-3);
-  padding-bottom: var(--space-3);
-}
-
-/* The two view switches sit together at the right of the brand row. */
-.tools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: var(--space-2) var(--space-6);
-}
-
-/* The navigation on the left, and the customer being worked on at the right end of the same row. */
-.bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-1) var(--space-4);
+  padding: var(--space-2) var(--layout-gutter);
 }
 
 .brand {
@@ -77,7 +53,31 @@
   font-weight: 700;
 }
 
-/* Only the top-level list: the Library menu has lists of its own. */
+/* The button is for phones only. */
+.menuButton {
+  display: none;
+  margin-left: auto;
+  padding: var(--space-1) var(--space-3);
+  color: var(--color-ink);
+  font: inherit;
+  font-size: var(--text-14);
+  background: var(--color-tint);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+/* On a wide screen the links and the tools are items of the header row itself. */
+.links {
+  display: contents;
+}
+
+.nav {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Only the top-level list: the More menu has lists of its own. */
 .nav > ul {
   display: flex;
   flex-wrap: wrap;
@@ -85,6 +85,14 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin-left: auto;
 }
 
 .link {
@@ -108,28 +116,55 @@
   font-weight: 700;
 }
 
-@media (max-width: 40rem) {
-  .top,
-  .bar {
-    padding-right: var(--layout-gutter-narrow);
-    padding-left: var(--layout-gutter-narrow);
+/* Where the links no longer fit beside the brand, the tools stay with the brand and the links take their own row. */
+@media (max-width: 64rem) {
+  .end {
+    order: 2;
   }
 
-  .top {
-    gap: var(--space-2) var(--space-4);
-    padding-top: var(--space-2);
-    padding-bottom: var(--space-2);
+  .nav {
+    order: 3;
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 40rem) {
+  .row {
+    padding-right: var(--layout-gutter-narrow);
+    padding-left: var(--layout-gutter-narrow);
   }
 
   .name {
     font-size: var(--text-16);
   }
 
-  .nav > ul {
-    gap: 0 var(--space-3);
+  .menuButton {
+    display: inline-flex;
   }
 
-  .link {
-    padding: var(--space-1) 0;
+  .links {
+    display: none;
+    flex-basis: 100%;
+  }
+
+  .links.open {
+    display: grid;
+    gap: var(--space-3);
+    padding-bottom: var(--space-3);
+  }
+
+  .nav {
+    order: 0;
+    flex-basis: auto;
+  }
+
+  .end {
+    order: 0;
+    margin-left: 0;
+  }
+
+  .nav > ul {
+    flex-direction: column;
+    gap: 0;
   }
 }

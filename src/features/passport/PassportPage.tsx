@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 import { AssessmentPicker } from '../../components/AssessmentPicker.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Answers } from '../../lib/content/schemas.ts';
@@ -161,10 +162,15 @@ export function Component() {
   return (
     <PageContainer>
       <PageHeading>{site.routes.map.title}</PageHeading>
-      <p className={styles.intro}>{copy.intro}</p>
-      <p className={styles.notice}>
-        <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
-      </p>
+      <PageIntro
+        notice={
+          <p>
+            <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
+          </p>
+        }
+      >
+        {copy.intro}
+      </PageIntro>
 
       <section aria-labelledby="setup-heading" className={styles.section}>
         <h2 id="setup-heading">{copy.setup.heading}</h2>

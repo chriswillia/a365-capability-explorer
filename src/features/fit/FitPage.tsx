@@ -5,6 +5,7 @@ import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { SourceNote } from '../../components/SourceNote.tsx';
 import { content } from '../../lib/content/index.ts';
 import { platformFor, readList } from '../../lib/content/fit.ts';
@@ -164,10 +165,15 @@ export function Component() {
   return (
     <PageContainer>
       <PageHeading>{site.routes.fit.title}</PageHeading>
-      <p className={styles.intro}>{copy.intro}</p>
-      <p className={styles.notice}>
-        <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
-      </p>
+      <PageIntro
+        notice={
+          <p>
+            <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
+          </p>
+        }
+      >
+        {copy.intro}
+      </PageIntro>
       <nav aria-label={copy.jumpLabel}>
         <ul className={styles.jump}>
           {jump.map(([id, label]) => (

@@ -3,6 +3,7 @@ import { Badge, type BadgeTone } from '../../components/Badge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { SourceNote } from '../../components/SourceNote.tsx';
 import { licensingTier } from '../../lib/content/derive.ts';
 import { content, pillarName } from '../../lib/content/index.ts';
@@ -85,13 +86,18 @@ export function Component() {
     <PageContainer>
       <div data-no-print className={styles.top}>
         <PageHeading>{site.routes.pitch.title}</PageHeading>
-        <p className={styles.intro}>{copy.intro}</p>
-        <p className={styles.notice}>
-          {depth === 'technical' && copy.reviewStatus === 'draft' && (
-            <Badge tone="draft">{badges.draft}</Badge>
-          )}{' '}
-          {copy.notice}
-        </p>
+        <PageIntro
+          notice={
+            <p>
+              {depth === 'technical' && copy.reviewStatus === 'draft' && (
+                <Badge tone="draft">{badges.draft}</Badge>
+              )}{' '}
+              {copy.notice}
+            </p>
+          }
+        >
+          {copy.intro}
+        </PageIntro>
         <p className={styles.audience}>
           {renderTemplate(copy.audienceNote, { label: copy.pitch.audiences[audience].label })}
         </p>

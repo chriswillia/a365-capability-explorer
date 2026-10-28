@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { content, contentMeta } from './content.ts';
+import { chooseDepth } from './view.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
 import { computePortfolioMetrics, computeWorkshopMinutes } from '../src/lib/content/metrics.ts';
 import { renderTemplate } from '../src/lib/content/template.ts';
@@ -216,10 +217,7 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
       'canvas/blank',
     ]) {
       await page.goto(path);
-      if (path.endsWith('/readout'))
-        await page
-          .getByRole('button', { name: content.site.ui.depth.technical, exact: true })
-          .click();
+      if (path.endsWith('/readout')) await chooseDepth(page, 'technical');
       const before = await saved(page);
       const heading = page.getByRole('heading', { level: 1 });
       const originalSize = await heading.evaluate((node) =>

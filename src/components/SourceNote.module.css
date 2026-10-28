@@ -3,3 +3,14 @@
   color: var(--color-slate);
   font-size: var(--text-14);
 }
+
+.note > summary {
+  width: fit-content;
+  min-height: var(--space-6);
+  line-height: var(--space-6);
+  cursor: pointer;
+}
+
+.list {
+  margin: var(--space-1) 0 0;
+}

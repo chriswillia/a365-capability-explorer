@@ -114,13 +114,7 @@ test.describe('sample customer', () => {
     const region = page.getByRole('region', { name: sample.heading });
     await region.getByRole('button', { name: sample.load }).click();
     await expect(page).toHaveURL(/\/map\?assessment=/);
-    await page
-      .getByRole('navigation', { name: site.ui.mainNavLabel })
-      .getByRole('link', {
-        name: site.ui.nav.overview,
-        exact: true,
-      })
-      .click();
+    await page.getByRole('link', { name: site.ui.homeLinkLabel, exact: true }).click();
 
     const recent = page.getByRole('region', { name: site.overview.recent.heading });
     await expect(recent.getByText(sample.customerName)).toBeVisible();

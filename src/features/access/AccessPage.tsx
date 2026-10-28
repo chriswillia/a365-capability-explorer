@@ -7,6 +7,7 @@ import { Badge } from '../../components/Badge.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { SourceNote } from '../../components/SourceNote.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { evaluateAccessChange, PATTERN_ANSWER, patternsFor } from '../../lib/engine/access.ts';
@@ -65,11 +66,18 @@ export function Component() {
   return (
     <PageContainer>
       <PageHeading>{site.routes.access.title}</PageHeading>
-      <p className={styles.intro}>{copy.intro}</p>
-      <p className={styles.notice}>
-        <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
-      </p>
-      <p className={styles.notice}>{copy.termsNote}</p>
+      <PageIntro
+        notice={
+          <>
+            <p>
+              <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
+            </p>
+            <p>{copy.termsNote}</p>
+          </>
+        }
+      >
+        {copy.intro}
+      </PageIntro>
       <nav aria-label={copy.jumpLabel}>
         <ul className={styles.jump}>
           {jump.map(([id, label]) => (

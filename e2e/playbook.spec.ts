@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { content } from './content.ts';
+import { chooseAudience, openViewMenu } from './view.ts';
 import { emptyWorkspace } from '../src/lib/state/diagnostic-model.ts';
 
 const { site } = content;
@@ -56,22 +57,23 @@ const violations = async (page: Page) =>
   );
 
 test.describe('seller playbook navigation', () => {
-  const jobs = ['overview', 'pitch', 'map', 'licensing', 'deploy'] as const;
+  const jobs = ['pitch', 'patterns', 'map', 'licensing', 'deploy'] as const;
   const library = [
     'fit',
     'access',
     'capabilities',
-    'patterns',
     'learn',
     'portfolio',
     'workshop',
     'methodology',
   ] as const;
 
-  test('lists the four jobs and keeps everything else in a Library menu', async ({ page }) => {
+  test('lists the jobs and the example agents, and keeps everything else in a More menu', async ({
+    page,
+  }) => {
     await page.goto('./');
     const nav = page.getByRole('navigation', { name: site.ui.mainNavLabel });
-    // The Library menu is closed, so only the four jobs are in the page's reading order.
+    // The More menu is closed, so only the jobs and the example agents are in the page's reading order.
     await expect(nav.getByRole('link')).toHaveText(jobs.map((key) => site.ui.nav[key]));
     const menu = nav.locator('details');
     const summary = menu.locator('summary');
@@ -150,15 +152,17 @@ test.describe('Selling as', () => {
     page,
   }) => {
     await page.goto('pitch');
-    const group = page.getByRole('group', { name: site.ui.audience.groupLabel });
-    await group.getByRole('button', { name: site.ui.audience.security, exact: true }).click();
+    await chooseAudience(page, 'security');
     const pitch = content.value.pitch.audiences.security.opening;
     await expect(page.getByText(pitch)).toBeVisible();
     expect(await page.evaluate((key) => localStorage.getItem(key), audienceKey)).toBe('security');
     await page.reload();
+    const menu = await openViewMenu(page);
     await expect(
-      group.getByRole('button', { name: site.ui.audience.security, exact: true }),
+      menu.getByRole('button', { name: site.ui.audience.security, exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
+    // The menu says what is chosen without being opened.
+    await expect(menu.locator('summary')).toContainText(site.ui.audience.security);
     await expect(page.getByText(pitch)).toBeVisible();
     const keys = await page.evaluate(() => Object.keys(localStorage));
     expect(keys.filter((key) => key !== audienceKey)).toEqual([]);
@@ -343,12 +347,24 @@ test.describe('narrow screens', () => {
     });
   }
 
-  test('the Library menu opens inline on a phone', async ({ page }) => {
+  test('the menus open inline on a phone, behind one Menu button', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 800 });
     await page.goto('./');
     const nav = page.getByRole('navigation', { name: site.ui.mainNavLabel });
+    // Closed, the header is one short row: nothing but the brand and the Menu button.
+    await expect(nav).toBeHidden();
+    const header = await page.getByRole('banner').boundingBox();
+    expect(header!.height).toBeLessThan(80);
+    await page.getByRole('button', { name: site.ui.menuLabel, exact: true }).click();
+    await expect(nav).toBeVisible();
     await nav.locator('details summary').click();
     await expect(nav.getByRole('link', { name: site.ui.nav.access, exact: true })).toBeVisible();
     expect(await noOverflow(page)).toBe(true);
+    // Choosing a page closes the menu again.
+    await nav.getByRole('link', { name: site.ui.nav.pitch, exact: true }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
+    ).toBeVisible();
+    await expect(nav).toBeHidden();
   });
 });

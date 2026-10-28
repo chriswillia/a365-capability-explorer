@@ -2,7 +2,7 @@
 # The FAQ states list prices. This site never repeats a price: link to the official page instead.
 # Where the sources are silent the entry says so (need: not-stated) and names the question to ask.
 reviewStatus: draft
-intro: "Agent 365 is licensed per user, not per agent. Which users need a license depends on how the agent acts: for the user (delegated access) or as itself (own access). This page sets out what Microsoft's licensing FAQ and documentation say, and where they are silent."
+intro: "Agent 365 is licensed per user, not per agent. Who needs a license depends on how the agent acts: for the user (delegated access) or as itself (own access). Microsoft's pages are silent in places, and this page says where."
 notice: "Planning guidance, not an official licensing determination. Confirm quantities, prerequisites and terms with your licensing specialist and the Microsoft Product Terms."
 jumpLabel: "On this page"
 needs:

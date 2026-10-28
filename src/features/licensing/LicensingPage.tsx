@@ -6,6 +6,7 @@ import { AssessmentPicker } from '../../components/AssessmentPicker.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { RequirementLine } from '../../components/RequirementLine.tsx';
 import { SourceNote } from '../../components/SourceNote.tsx';
 import { licensingTier, sourcesDiffer } from '../../lib/content/derive.ts';
@@ -171,10 +172,15 @@ export function Component() {
   return (
     <PageContainer>
       <PageHeading>{site.routes.licensing.title}</PageHeading>
-      <p className={styles.intro}>{copy.intro}</p>
-      <p className={styles.notice}>
-        <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
-      </p>
+      <PageIntro
+        notice={
+          <p>
+            <ReviewBadge reviewStatus={copy.reviewStatus} /> {copy.notice}
+          </p>
+        }
+      >
+        {copy.intro}
+      </PageIntro>
       <nav aria-label={copy.jumpLabel}>
         <ul className={styles.jump}>
           {jump.map(([id, label]) => (

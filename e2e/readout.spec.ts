@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import JSZip from 'jszip';
 import { content, contentMeta } from './content.ts';
+import { chooseDepth } from './view.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
 import { exhibitId, exhibitPlan, type ExhibitKey } from '../src/lib/readout/plan.ts';
 import { buildReadout } from '../src/lib/readout/report.ts';
@@ -116,7 +117,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     expect(clipboard).toContain(report.summary[0]);
     expect(clipboard).toContain(content.site.disclaimer);
     const before = await saved(page);
-    await page.getByRole('button', { name: content.site.ui.depth.technical, exact: true }).click();
+    await chooseDepth(page, 'technical');
     for (const title of Object.values(copy.exhibits))
       await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(1);
     await page

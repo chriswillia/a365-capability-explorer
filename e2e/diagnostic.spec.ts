@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import type { PillarDef, Question, Site } from '../src/lib/content/schemas.ts';
 import { renderTemplate } from '../src/lib/content/template.ts';
+import { chooseDepth } from './view.ts';
 
 const site = JSON.parse(readFileSync('src/generated/site.json', 'utf8')) as Site;
 const questions = JSON.parse(readFileSync('src/generated/questions.json', 'utf8')) as Question[];
@@ -208,7 +209,7 @@ test.describe('Phase 4 diagnostic', () => {
   for (const depth of ['executive', 'technical'] as const) {
     test(`zero axe violations on home, full wizard and review in ${depth}`, async ({ page }) => {
       await page.goto('diagnostic');
-      await page.getByRole('button', { name: site.ui.depth[depth], exact: true }).click();
+      await chooseDepth(page, depth);
       expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
       await start(page);
       await page.getByRole('combobox', { name: copy.mode, exact: true }).selectOption('full');

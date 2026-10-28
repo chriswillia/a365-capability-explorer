@@ -1,0 +1,31 @@
+/* The lede and the notices sit close under the heading: they belong to it. */
+.lede {
+  max-width: 48rem;
+  margin: calc(-1 * var(--space-3)) 0 0;
+  font-size: var(--text-16);
+  line-height: var(--line-height-body);
+}
+
+.about {
+  margin: calc(-1 * var(--space-2)) 0 0;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.about > summary {
+  width: fit-content;
+  min-height: var(--space-6);
+  line-height: var(--space-6);
+  cursor: pointer;
+}
+
+.body {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 52rem;
+  margin-top: var(--space-2);
+}
+
+.body p {
+  margin: 0;
+}

@@ -5,6 +5,7 @@ import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { afterEach, describe, expect, it } from 'vitest';
 import { content, contentMeta, metrics, values } from '../lib/content/index.ts';
+import { accessModelLabel } from '../lib/content/access-fit.ts';
 import { renderTemplate } from '../lib/content/template.ts';
 import { DEPTH_STORAGE_KEY } from '../lib/state/depth.ts';
 import { StateProviders } from '../lib/state/StateProviders.tsx';
@@ -57,15 +58,14 @@ describe('layout shell', () => {
     );
   });
 
-  it('lists the four jobs in order, keeps the rest under Library, and also links Methodology in the footer', async () => {
+  it('lists the jobs and the example agents in order, keeps the rest under More, and also links Methodology in the footer', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
-    const jobs = ['overview', 'pitch', 'map', 'licensing', 'deploy'] as const;
+    const jobs = ['pitch', 'patterns', 'map', 'licensing', 'deploy'] as const;
     const library = [
       'fit',
       'access',
       'capabilities',
-      'patterns',
       'learn',
       'portfolio',
       'workshop',
@@ -85,9 +85,14 @@ describe('layout shell', () => {
       ).toBeInTheDocument();
     for (const key of jobs)
       expect(within(menu).queryByRole('link', { name: site.ui.nav[key], hidden: true })).toBeNull();
-    expect(within(nav).getByRole('link', { name: site.ui.nav.overview })).toHaveAttribute(
-      'aria-current',
-      'page',
+    // The logo is the way home, so Home is not a link of its own.
+    expect(within(nav).queryByRole('link', { name: site.ui.nav.overview })).toBeNull();
+    expect(
+      within(screen.getByRole('banner')).getByRole('link', { name: site.ui.homeLinkLabel }),
+    ).toHaveAttribute('href', '/');
+    expect(within(nav).getByRole('link', { name: site.ui.nav.patterns })).toHaveAttribute(
+      'href',
+      '/patterns',
     );
     expect(within(nav).getByRole('link', { name: site.ui.nav.map })).toHaveAttribute(
       'href',
@@ -98,7 +103,7 @@ describe('layout shell', () => {
     ).toHaveAttribute('href', '/methodology');
   });
 
-  it('opens the Library menu, closes it on Escape and after a page change, and marks it current', async () => {
+  it('opens the More menu, closes it on Escape and after a page change, and marks it current', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
     const summary = within(nav).getByText(site.ui.nav.library);
@@ -124,6 +129,60 @@ describe('layout shell', () => {
     const group = await screen.findByRole('group', { name: site.ui.depth.groupLabel });
     expect(group).toHaveAccessibleDescription(site.ui.depth.hint);
     expect(screen.getByText(site.ui.depth.label)).toBeInTheDocument();
+  });
+
+  it('puts Selling as and Detail level in one View menu, which says what is chosen and stays open while a choice is made', async () => {
+    renderApp('/pitch');
+    const banner = within(await screen.findByRole('banner'));
+    const summaryText = (audience: string, depth: string) =>
+      renderTemplate(site.ui.view.summary, { label: site.ui.view.label, audience, depth });
+    const summary = banner.getByText(summaryText(site.ui.audience.joint, site.ui.depth.executive));
+    expect(summary.tagName).toBe('SUMMARY');
+    const menu = summary.closest('details') as HTMLDetailsElement;
+    expect(menu.open).toBe(false);
+    // Both switches are in it, and the header has no other copy of either.
+    expect(
+      within(menu).getByRole('group', { name: site.ui.audience.groupLabel }),
+    ).toBeInTheDocument();
+    expect(within(menu).getByRole('group', { name: site.ui.depth.groupLabel })).toBeInTheDocument();
+    expect(banner.getAllByRole('group', { name: site.ui.audience.groupLabel })).toHaveLength(1);
+    expect(banner.getAllByRole('group', { name: site.ui.depth.groupLabel })).toHaveLength(1);
+
+    await userEvent.click(summary);
+    expect(menu.open).toBe(true);
+    await userEvent.click(within(menu).getByRole('button', { name: site.ui.audience.security }));
+    await userEvent.click(within(menu).getByRole('button', { name: site.ui.depth.technical }));
+    expect(menu.open).toBe(true);
+    expect(summary).toHaveTextContent(
+      summaryText(site.ui.audience.security, site.ui.depth.technical),
+    );
+
+    await userEvent.keyboard('{Escape}');
+    expect(menu.open).toBe(false);
+    expect(summary).toHaveFocus();
+    await userEvent.click(summary);
+    expect(menu.open).toBe(true);
+    // A press anywhere outside closes it, as a menu would.
+    await userEvent.click(screen.getByRole('main'));
+    expect(menu.open).toBe(false);
+  });
+
+  it('keeps the header links behind one Menu button on a phone, and closes them after a page change', async () => {
+    renderApp();
+    const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
+    const button = screen.getByRole('button', { name: site.ui.menuLabel });
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    const controlled = document.getElementById(button.getAttribute('aria-controls')!);
+    expect(controlled).toContainElement(nav);
+
+    await userEvent.click(button);
+    expect(button).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.pitch }));
+    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
+    expect(screen.getByRole('button', { name: site.ui.menuLabel })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
   });
 
   it('offers a skip link as the first focusable element', async () => {
@@ -233,6 +292,26 @@ describe('Overview', () => {
     expect(
       screen.queryByRole('heading', { name: site.overview.recent.heading }),
     ).not.toBeInTheDocument();
+  });
+
+  it('leads with the example agents, each with how it acts, ahead of the jobs', async () => {
+    renderApp();
+    const examples = await screen.findByRole('region', { name: site.overview.examples.heading });
+    expect(content.patterns.length).toBeGreaterThan(0);
+    const cards = within(examples).getAllByRole('listitem');
+    expect(cards).toHaveLength(content.patterns.length);
+    for (const pattern of content.patterns) {
+      const link = within(examples).getByRole('link', { name: pattern.title });
+      expect(link).toHaveAttribute('href', `/patterns/${pattern.id}`);
+      const card = within(link.closest('li') as HTMLElement);
+      expect(card.getByText(pattern.summary)).toBeInTheDocument();
+      expect(card.getByText(accessModelLabel(content, pattern.answers.accessModel)!)).toBeVisible();
+    }
+    expect(
+      within(examples).getByRole('link', { name: site.overview.examples.all }),
+    ).toHaveAttribute('href', '/patterns');
+    const jobs = screen.getByRole('region', { name: site.overview.jobs.heading });
+    expect(examples.compareDocumentPosition(jobs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
 

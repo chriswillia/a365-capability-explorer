@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-28 · Lighter pages: a one-row header, example agents first, and sources one click away
+
+affects: [all]
+
+Made the site lighter to scan and easier to get around. The header is now one row (two on a narrow laptop, and a single Menu button on a phone) instead of about a quarter of the screen: Selling as and Detail level moved into one View menu that says what is chosen, for example "View: Both · Executive". Navigation now reads Pitch, Example agents, Map an agent, Licensing and Deploy, with a More menu for stack fit, how agents act, the capabilities, Learn, the agent portfolio, the workshop kit and how recommendations work. Agent scenarios are renamed Example agents and moved out of the Library menu, and Home now leads with them: ten cards, each saying how the agent acts, ahead of the four jobs, under a much shorter banner. Pages open with one sentence, and the notices that used to follow it sit behind About this page; the disclaimer is still printed once on every page. Each statement's sources are one toggle that says how many there are and when they were read; it opens by itself in the Technical view and in print. Product statements, source availability flags and recommendation rules are unchanged.
+
 ## 2026-10-28 · Seller workflows: agent passport, license sizing, leave-behind, go-live plan and a sample customer
 
 affects: [all]

@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { Outlet, ScrollRestoration, useLocation } from 'react-router';
 import { content } from '../lib/content/index.ts';
+import { usePrintOpensDetails } from '../lib/usePrintOpensDetails.ts';
 import { SiteFooter } from './SiteFooter.tsx';
 import { SiteHeader } from './SiteHeader.tsx';
 import styles from './AppShell.module.css';
@@ -10,6 +11,7 @@ export function AppShell() {
   const { pathname } = useLocation();
   const mainRef = useRef<HTMLElement>(null);
   const previousPath = useRef(pathname);
+  usePrintOpensDetails();
 
   // After a client-side navigation, move focus to the new page's heading so keyboard and screen reader
   // users land at the top of the new page instead of staying on the link they activated.

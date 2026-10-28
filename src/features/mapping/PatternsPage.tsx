@@ -3,6 +3,7 @@ import { Badge } from '../../components/Badge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { PageIntro } from '../../components/PageIntro.tsx';
 import { accessModelLabel } from '../../lib/content/access-fit.ts';
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import type { Capability } from '../../lib/content/schemas.ts';
@@ -64,14 +65,23 @@ export function Component() {
   return (
     <PageContainer>
       <PageHeading>{content.site.routes.patterns.title}</PageHeading>
-      <p className={styles.intro}>{copy.intro}</p>
-      <p className={styles.note}>{copy.neutralNote}</p>
-      {depth === 'technical' && draftCount > 0 && (
-        <p className={styles.note}>
-          {renderTemplate(copy.draftSummary, { draft: draftCount, total: patterns.length })}
-        </p>
-      )}
-      <Link to="/methodology">{copy.methodology}</Link>
+      <PageIntro
+        notice={
+          <>
+            <p>{copy.neutralNote}</p>
+            {depth === 'technical' && draftCount > 0 && (
+              <p>
+                {renderTemplate(copy.draftSummary, { draft: draftCount, total: patterns.length })}
+              </p>
+            )}
+            <p>
+              <Link to="/methodology">{copy.methodology}</Link>
+            </p>
+          </>
+        }
+      >
+        {copy.intro}
+      </PageIntro>
       <ul className={styles.cards}>
         {patterns.map(({ pattern, result }) => (
           <li key={pattern.id} className={styles.card}>

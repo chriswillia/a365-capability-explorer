@@ -3,10 +3,10 @@
 # subject-matter-expert review. The statistics in Proof you can cite each name who published them and say whether
 # they are Microsoft's own. This file states no price and no competitor comparison.
 reviewStatus: draft
-intro: "Use this page to explain why Agent 365 matters to a customer, whatever agent they are building. It starts from the problem every agent creates, then sets out what Agent 365 gives the customer and how to say it to each buyer."
+intro: "Explain why Agent 365 matters to a customer, whatever agent they are building: the problem every agent creates, what Agent 365 gives the customer, and how to say it to each buyer."
 notice: "Seller guidance, not Microsoft messaging. Facts name their Microsoft source. Pitches, angles and objection answers are editorial and stay draft until subject-matter-expert review."
 jumpLabel: "On this page"
-audienceNote: "Showing the {label} version. Change it with Selling as in the header."
+audienceNote: "Showing the {label} version. Change it in the View menu."
 pitch:
   heading: "Your 60-second pitch"
   intro: "Use the version that matches your role. All three rest on the same facts."

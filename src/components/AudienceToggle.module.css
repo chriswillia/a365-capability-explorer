@@ -1,13 +1,10 @@
 .wrapper {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-1) var(--space-3);
+  display: grid;
+  gap: var(--space-2);
 }
 
 .label {
-  color: var(--color-slate);
+  color: var(--color-ink);
   font-size: var(--text-14);
   font-weight: 600;
 }
@@ -18,19 +15,7 @@
   gap: var(--space-2);
 }
 
-@media (max-width: 40rem) {
-  .label {
-    display: none;
-  }
-}
-
-/* The sentence is announced with the group at every width; the header stays compact, so it is never shown. */
 .hint {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
+  color: var(--color-slate);
+  font-size: var(--text-12);
 }

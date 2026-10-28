@@ -21,6 +21,7 @@ ui:
   mainNavLabel: Main navigation
   scrollHint: "This table is wider than the screen. Scroll sideways to see every column."
   homeLinkLabel: "A365 Capability Explorer, home"
+  menuLabel: Menu
   depth:
     groupLabel: Detail level
     label: "Detail level"
@@ -33,11 +34,11 @@ ui:
     map: "Map an agent"
     licensing: Licensing
     deploy: Deploy
-    library: Library
+    library: More
     fit: "Stack fit"
     access: "How agents act"
     capabilities: Capabilities
-    patterns: "Agent scenarios"
+    patterns: "Example agents"
     learn: Learn
     portfolio: "Agent portfolio"
     workshop: "Workshop kit"
@@ -45,6 +46,11 @@ ui:
   library:
     exploreHeading: Explore
     packHeading: "Customer pack"
+  view:
+    label: View
+    summary: "{label}: {audience} · {depth}"
+  about:
+    label: "About this page"
   sample:
     customerName: "Contoso Retail"
     industry: Retail
@@ -113,6 +119,8 @@ ui:
   exhibit:
     eyebrow: "Exhibit {number} · {label}"
     sourcePrefix: "Source:"
+    sourcesSummary: "{count} {count?source|sources} · checked {date}"
+    sourcesSummaryUndated: "{count} {count?source|sources}"
 
 routes:
   overview:
@@ -146,11 +154,11 @@ routes:
     title: Capability brief
     description: "A one-page brief for each capability: the official wording, what it does, where it acts, who owns it and when it applies."
   patterns:
-    title: "Agent scenarios"
-    description: "Common types of agent, and the security, governance and observability capabilities that typically apply to each."
+    title: "Example agents"
+    description: "Common types of agent, and the security, governance and observability controls Agent 365 recommends for each."
   pattern:
-    title: "Scenario brief"
-    description: "One type of agent: what it is, the platforms it typically runs on, and the capabilities and risks that apply."
+    title: "Example agent"
+    description: "One type of agent: what it is, the platforms it typically runs on, and the controls and risks that apply."
   learn:
     title: Learn
     description: "Agent 365 in plain language: where it fits, myths versus facts, how a request flows, the building blocks, the journey to a Frontier Firm and a glossary."
@@ -193,9 +201,13 @@ routes:
 
 overview:
   heroEyebrow: "For Microsoft AI and security sellers"
-  heroLede: "Tell the value story for any customer, map the agent and the guardrails it needs, check who needs which license and what must be in place first, and fit Agent 365 into their stack. Choose AI seller, Security seller or Both in the header to match the pitch to your role."
+  heroLede: "Make the value case, map the agent, size the licenses and plan the go-live."
   ctaPrimary: "Start with the pitch"
   ctaSecondary: "Map an agent"
+  examples:
+    heading: "Start from an example agent"
+    intro: "Pick the one that looks most like your customer's agent to see the controls Agent 365 recommends for it."
+    all: "Compare all example agents"
   jobs:
     heading: "What do you need right now?"
     intro: "Each job works for any agent. Take the one you need, or work through them in order."
@@ -203,28 +215,28 @@ overview:
       - id: pitch
         question: "What do I say?"
         title: Pitch
-        body: "A 60-second pitch for AI and Security sellers, the problem every agent creates, what Agent 365 gives the customer and answers to pushback. It works before you know the use case."
+        body: "A 60-second pitch, the problem every agent creates and answers to pushback. It works before you know the use case."
         cta: "Open the pitch"
         to: "/pitch"
       - id: map
         question: "What does this agent need?"
         title: "Map an agent"
-        body: "Answer six questions about one agent, including whether it acts for a user or as itself, and get its passport: the controls, what must be in place, who to license and the risks."
+        body: "Answer six questions about one agent and get its passport: the controls, what must be in place, who to license and the risks."
         cta: "Map an agent"
         to: "/map"
       - id: licensing
         question: "Who has to be licensed, and what must be in place first?"
         title: "Licensing and prerequisites"
-        body: "Who needs an Agent 365 license by how the agent acts, which plans and underlying services are required, and what to ask your licensing specialist."
+        body: "Who needs a license by how the agent acts, which plans are required, and what to ask your licensing specialist."
         cta: "Check licensing"
         to: "/licensing"
       - id: deploy
         question: "What must be in place to go live?"
         title: Deploy
-        body: "The go-live baseline by gate, how to show each step works, and a 30, 60 and 90 day plan for an agent."
+        body: "The go-live baseline by gate, and a 30, 60 and 90 day plan for an agent."
         cta: "Plan go-live"
         to: "/deploy"
-    libraryNote: "Need the detail? The Library menu holds stack fit, how agents act, the capabilities, agent scenarios, Learn, the agent portfolio and the workshop kit."
+    libraryNote: "Need the detail? The More menu holds stack fit, how agents act, the capabilities, Learn, the agent portfolio and the workshop kit."
   recent:
     heading: "Pick up where you left off"
     useCases: "{count} {count?use case|use cases}"
@@ -564,7 +576,7 @@ diagnostic:
   noPreview: "Correct incompatible answers to resume the live planning preview."
   notFound: "This assessment is not saved in this browser profile. It may have been deleted or created on another device."
   updated: Last updated
-  startFromPattern: "Start Full discovery from this scenario"
+  startFromPattern: "Start Full discovery from this example"
   savedLocally: Local only
   renameTitle: Rename local assessment
 
@@ -778,10 +790,10 @@ readout:
       prompt: Name the accountable owner and sponsor during the workshop.
 
 mapping:
-  intro: "Use illustrative agent scenarios to explore how security, governance and observability capabilities fit together. Every recommendation is generated by the same rules, not a hand-maintained matrix."
-  neutralNote: "Scenario results use a neutral commercial customer: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. Canonical answers are examples, not facts about your customer."
-  matrix: "Generated Scenario × Capability matrix"
-  patternCount: "In-scope capabilities"
+  intro: "Pick an example agent to see the security, governance and observability controls Agent 365 recommends for it. The same rules generate every recommendation."
+  neutralNote: "Results use a neutral commercial customer: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. The answers are examples, not facts about your customer."
+  matrix: "Compare all example agents"
+  patternCount: "Controls in scope"
   draftSummary: "{draft} of {total} scenario summaries {draft?is|are} editorial and {draft?needs|need} SME review. Evidence and sources appear on each scenario page."
   levels: { essential: Essential, recommended: Recommended, consider: Consider }
   levelDescriptions:
@@ -882,8 +894,8 @@ mapping:
     - "Every scenario and sample is checked automatically for the capabilities it must include and exclude. Automated agreement is not SME approval."
   pendingDiagnostic: "These are read-only planning results. Map an agent to get the same view for one customer agent, then save it as a readout and canvas."
   startAssessment: "Map an agent"
-  back: "Back to scenarios"
-  typicalPatterns: "Typical scenarios"
+  back: "Back to example agents"
+  typicalPatterns: "Example agents that use it"
   whenInScope: "When this capability is in scope"
   why: "Reason and evidence"
   samples: "Illustrative sample use cases"

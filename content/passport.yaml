@@ -2,7 +2,7 @@
 # editorial. The questions themselves are in questions.yaml, so the rules that read the answers keep working.
 # Everything here is draft until subject-matter-expert review.
 reviewStatus: draft
-intro: "Answer six questions about one agent to get its passport: how it acts, the Agent 365 controls that matter most, what must be in place, who to license and the risks to cover. It saves in this browser and feeds the rest of the site."
+intro: "Answer six questions about one agent to get its passport: how it acts, the controls that matter most, what must be in place, who to license and the risks to cover. It saves in this browser and feeds the rest of the site."
 notice: "A starting point for the conversation, built from this tool's rules. An answer you leave open shows as a question to confirm, never as a gap."
 setup:
   heading: "About this agent"

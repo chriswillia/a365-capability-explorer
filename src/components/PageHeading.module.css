@@ -1,5 +1,5 @@
 .heading {
-  font-size: clamp(var(--text-32), 4vw, var(--text-44));
+  font-size: clamp(var(--text-24), 3.5vw, var(--text-32));
 }
 
 /* Focus lands here programmatically after navigation; the heading itself is not a control. */

@@ -5,6 +5,7 @@ import type { Capability, Site, Learn, Persona, PillarDef } from '../src/lib/con
 import { PAGE_ROUTES } from '../src/app/route-table.ts';
 import { renderTemplate } from '../src/lib/content/template.ts';
 import { pageTitle } from '../src/lib/content/titles.ts';
+import { chooseDepth } from './view.ts';
 
 /*
  * Reads the same compiled content the app was built from, so expectations follow the content rather than
@@ -29,11 +30,7 @@ const proseOf = (locator: Locator) =>
   });
 
 async function setDepth(page: Page, depth: 'executive' | 'technical') {
-  const label = depth === 'executive' ? site.ui.depth.executive : site.ui.depth.technical;
-  await page
-    .getByRole('group', { name: site.ui.depth.groupLabel })
-    .getByRole('button', { name: label })
-    .click();
+  await chooseDepth(page, depth);
 }
 
 test.describe('home page', () => {

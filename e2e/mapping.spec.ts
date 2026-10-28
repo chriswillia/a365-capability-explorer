@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { content, contentMeta } from './content.ts';
+import { chooseDepth } from './view.ts';
 import {
   evaluateAssessment,
   evaluatePatterns,
@@ -27,6 +28,8 @@ test.describe('Phase 3 mapping', () => {
       const requirement = content.pillars.find((p) => p.id === capability.pillar)!.requirement;
       await expect(row.getByRole('cell')).toHaveText([requirement, ...expected]);
     }
+    // The notices sit behind About this page.
+    await page.getByText(site.ui.about.label, { exact: true }).click();
     await expect(page.getByText(copy.neutralNote)).toBeVisible();
   });
   test('pattern explanations, unknown readiness and technical tables are inspectable', async ({
@@ -53,7 +56,7 @@ test.describe('Phase 3 mapping', () => {
     ).toBeVisible();
     await expect(page.getByText(content.mappingConfig.licensingNote)).toBeVisible();
     await expect(page.getByText(copy.readinessNote)).toBeVisible();
-    await page.getByRole('button', { name: site.ui.depth.technical, exact: true }).click();
+    await chooseDepth(page, 'technical');
     await expect(page.getByRole('table', { name: copy.operatingModel })).toBeVisible();
     await expect(row.getByRole('link', { name: 'pro-code', exact: true })).toBeVisible();
     await row.getByRole('link', { name: 'pro-code', exact: true }).click();
@@ -139,7 +142,7 @@ test.describe('Phase 3 mapping', () => {
       'methodology',
     ]) {
       await page.goto(path);
-      await page.getByRole('button', { name: site.ui.depth.technical, exact: true }).click();
+      await chooseDepth(page, 'technical');
       if (path.startsWith('patterns/'))
         await page.locator('summary').filter({ hasText: copy.answers }).click();
       expect(
@@ -156,7 +159,7 @@ test.describe('Phase 3 mapping', () => {
     page,
   }) => {
     await page.goto('patterns/local-agent');
-    await page.getByRole('button', { name: site.ui.depth.technical, exact: true }).click();
+    await chooseDepth(page, 'technical');
     const disclosure = page
       .getByRole('table', { name: copy.inScope, exact: true })
       .locator('summary')
