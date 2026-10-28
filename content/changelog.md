@@ -8,6 +8,14 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-28 · Seller workflows: agent passport, license sizing, leave-behind, go-live plan and a sample customer
+
+affects: [all]
+
+Added the pages a seller uses once the conversation turns to a particular agent. Map an agent now opens the agent passport: six questions in the seller's words give how the agent acts, the controls that matter most by area, what must be in place, who to license, where it is built and the risks to cover, and the longer assessment stays available as Full discovery. Licensing gains a calculator that turns the counts a seller enters into the number of people who need an Agent 365 license, using the Microsoft licensing FAQ and Product Terms for the rules and the seller's own numbers for the quantities; it copies as Markdown or downloads as CSV, and nothing is stored. A new Deploy page gives the go-live baseline in three gates, with why each step matters, what to do, how to prove it works and who owns it, and a 30, 60 and 90 day plan. A leave-behind for each saved agent prints on one page (A4 or Letter) or downloads as three slides with their own speaker notes, and lists everything not yet confirmed under Questions to confirm instead of stating it as fact.
+
+The Pitch page adds seven openings by customer situation (a customer with Microsoft 365 E5, E3 only, heavy Copilot use, building in Foundry, mostly third-party agents, frontline workers or GCC), each with its licensing path, and a picker that turns up to five discovery questions into a meeting agenda. Three proof points are added with their caveats: the share of employees using unsanctioned agents from Microsoft's Cyber Pulse report (a survey Microsoft commissioned), and Deloitte's figures on agent governance maturity and the top AI risk, which are independent and not Microsoft's. Every capability page gains a Say this card, composed from the capability's existing text, that copies what to say and what to ask. Stack fit adds the seven platforms Microsoft lists for registry sync, with their environment and observability status and the limits Microsoft states. Every guardrail now says how to prove it is in place. Home adds a sample customer, a fictional Contoso Retail with three agents, marked Sample data and reset or removed in one click without touching real customers. Product statements, source availability flags and recommendation rules are unchanged; all new editorial text is draft guidance pending SME review, no price is shown, and what Microsoft's pages leave unstated, such as licensing for external users and administrators, is still shown as not stated.
+
 ## 2026-10-27 · Seller brief v3: jobs, the Product Terms, requirements to confirm and access fit
 
 affects: [all]

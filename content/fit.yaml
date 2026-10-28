@@ -169,6 +169,66 @@ platforms:
       evidence: inferred
       reviewStatus: draft
       lastVerified: "2026-10-27"
+connected:
+  heading: "Connected platforms"
+  intro: "Registry sync reads agents from these third-party platforms into the Microsoft 365 agent registry. All of them support agent synchronization. Microsoft says synchronization, management and observability vary by platform."
+  columns:
+    platform: Platform
+    environment: "Supported environment"
+    observability: Observability
+  observability:
+    "yes": "Available"
+    coming-soon: "Coming soon"
+    frontier: "Frontier program"
+  rows:
+    - {
+        id: bedrock,
+        platform: "Amazon Bedrock",
+        environment: "Agents Classic and AgentCore",
+        observability: "yes",
+      }
+    - {
+        id: vertex,
+        platform: "Google Vertex AI",
+        environment: "Vertex AI agents",
+        observability: "yes",
+      }
+    - {
+        id: agentforce,
+        platform: "Salesforce Agentforce",
+        environment: Agentforce,
+        observability: "yes",
+      }
+    - { id: genie, platform: "Databricks Genie", environment: Genie, observability: frontier }
+    - {
+        id: claude,
+        platform: "Anthropic Claude",
+        environment: "Managed Agents",
+        observability: "yes",
+      }
+    - {
+        id: oracle,
+        platform: "Oracle Generative AI Agents",
+        environment: "Generative AI Agents",
+        observability: coming-soon,
+      }
+    - {
+        id: cortex,
+        platform: "Snowflake Cortex",
+        environment: "Cortex Agents",
+        observability: coming-soon,
+      }
+  limitsHeading: "What to tell the customer"
+  limits:
+    - "Synchronization is manual. Agent 365 does not sync on a schedule, so the customer chooses a cadence and re-runs the sync after agents change."
+    - "Connections are read-only by design. Agent 365 does not invoke, run or change agents in the source platform."
+    - "Every supported platform needs a key-based credential, such as an API key, secret or private key. Keyless options such as workload identity federation are not supported."
+    - "Removing an agent from the source platform does not guarantee it leaves the registry. It may need removing by hand."
+    - "Setting up a connection is shared work: the Agent 365 AI administrator creates it in the Microsoft 365 admin center, and the platform administrator creates the credentials and grants the permissions."
+  sourceIds: [a365-connected-platforms]
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
 stack:
   heading: "What the customer already runs"
   intro: "Choose the Microsoft tools in use to see what Agent 365 adds to each, and what stays in the team's existing portal."

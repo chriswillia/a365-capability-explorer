@@ -54,6 +54,22 @@
   font-size: var(--text-14);
 }
 
+.sampleActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.sampleActions button {
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  cursor: pointer;
+}
+
 @media (max-width: 40rem) {
   .page {
     gap: var(--space-8);

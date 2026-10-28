@@ -30,6 +30,7 @@ items:
     title: "Register the agent and name an accountable owner and sponsor"
     why: "A registered agent with a named owner and sponsor gives the customer a starting point for policy, support and retirement."
     action: "Register the agent in the Agent Registry and record a named owner and sponsor."
+    proveIt: "Find the agent in the Agent Registry and confirm an accountable owner and sponsor are named for it."
     capabilityIds: [registry-inventory, governance-actions]
     appliesWhen: { always: true }
     doneWhen: { q: sponsor, equals: "yes" }
@@ -41,6 +42,7 @@ items:
     title: "Confirm who needs an Agent 365 license"
     why: "Activity tied to an unlicensed user is not entitled to Agent 365 protections."
     action: "Use the Licensing page to list the people to license for the way this agent acts."
+    proveIt: "Compare the people who delegate to, own, sponsor or manage the agent with the people who hold an Agent 365 license, and settle any difference."
     capabilityIds: []
     appliesWhen: { always: true }
     doneWhen: { q: agent365Status, in: [some-users, broad] }
@@ -52,6 +54,7 @@ items:
     title: "Scope the agent's access to its task"
     why: "An agent should reach only what its task needs, whether it acts for a user or as itself."
     action: "Review permissions and consent. For own access, give the agent identity a scoped access package."
+    proveIt: "List what the agent can reach and confirm nothing goes beyond what its task needs."
     capabilityIds: [entra-access-packages]
     appliesWhen: { always: true }
     sourceIds: [entra-agent-id-governance]
@@ -62,6 +65,7 @@ items:
     title: "Bring identity policies to the agent"
     why: "User policies extend to delegated agents, and agents with their own identity are covered by policies that target that identity."
     action: "Create Conditional Access policies for the access pattern the agent uses."
+    proveIt: "Confirm the identity policies the customer expects, such as Conditional Access, target the agent, and read what each one does."
     capabilityIds: [entra-conditional-access]
     appliesWhen: { always: true }
     sourceIds: [entra-ca-agents]
@@ -72,6 +76,7 @@ items:
     title: "Label and protect the data the agent can reach"
     why: "Labels and data loss prevention travel with the data an agent reads and shares."
     action: "Confirm label coverage and onboard the agent to the applicable DLP policies."
+    proveIt: "Check that the data the agent can reach carries sensitivity labels and that a data loss prevention policy covers it."
     capabilityIds: [purview-labels, purview-dlp]
     appliesWhen: { q: dataSensitivity, in: [confidential, highly-confidential] }
     doneWhen: { q: labelsProgram, equals: broad }
@@ -83,6 +88,7 @@ items:
     title: "Turn on telemetry so activity is visible"
     why: "Registration gives inventory. Telemetry shows what the agent does."
     action: "Use native telemetry on Microsoft platforms, or add the Agent 365 SDK and the OpenTelemetry Distro."
+    proveIt: "Run the agent once and confirm its activity shows up in the observability data."
     capabilityIds: [observability]
     appliesWhen: { always: true }
     doneWhen: { q: buildPlatform, in: [copilot-studio, microsoft-foundry, m365-agent-builder] }
@@ -94,6 +100,7 @@ items:
     title: "Keep a person in the loop for consequential actions"
     why: "Actions that change records, move money or contact outsiders are the ones to review first."
     action: "Require approval for those actions until the agent has a track record."
+    proveIt: "Trigger an action that changes something and confirm a person approves it before it happens."
     capabilityIds: [tool-controls]
     appliesWhen:
       {
@@ -109,6 +116,7 @@ items:
     title: "Confirm Frontier enrollment for an agent with its own account"
     why: "Agents that need their own user account and mailbox are available only to tenants in the Frontier preview program."
     action: "Check the tenant's Frontier enrollment before design work."
+    proveIt: "Confirm the tenant is enrolled in the Frontier preview program before the design relies on a preview feature."
     capabilityIds: []
     appliesWhen: { q: accessModel, equals: own-teammate }
     doneWhen: { q: frontierProgram, equals: enrolled }
@@ -120,6 +128,7 @@ items:
     title: "Govern the tools the agent can call"
     why: "Tool access is how an agent acts in other systems, and tenant-wide controls decide which tools it may use."
     action: "Allow only the tools the task needs, and review the rest."
+    proveIt: "List the tools the agent can call and confirm each one has been approved for its task."
     capabilityIds: [tool-controls, defender-threat-protection]
     appliesWhen:
       {
@@ -142,6 +151,7 @@ items:
     title: "Assign who investigates agent incidents"
     why: "Detection helps only if a team owns the alert."
     action: "Name the investigating team and the platform they use."
+    proveIt: "Ask the named team how they would investigate an agent incident, and confirm they can see the agent's alerts."
     capabilityIds: [defender-threat-protection, defender-hunting]
     appliesWhen: { always: true }
     doneWhen: { q: socPlatform, in: [defender-xdr, other] }
@@ -153,6 +163,7 @@ items:
     title: "Keep audit evidence of what the agent does"
     why: "Audit logs and eDiscovery let the customer answer legal and regulatory requests."
     action: "Confirm retention periods and who can search agent activity."
+    proveIt: "Pull the audit record for one agent action and confirm it shows who, what and when."
     capabilityIds: [purview-audit-ediscovery, purview-dlm, purview-ai-compliance]
     appliesWhen:
       {
@@ -167,6 +178,7 @@ items:
     title: "Cover the devices the agent runs on"
     why: "Local agents run on endpoints, where Defender and Intune are the controls."
     action: "Onboard the devices to Defender for Endpoint and manage Windows devices with Intune."
+    proveIt: "Pick a device the agent runs on and confirm it is onboarded to Defender for Endpoint and managed in Intune."
     capabilityIds: [defender-shadow-ai, intune-runtime-policy, intune-block-local]
     appliesWhen:
       any:
@@ -184,6 +196,7 @@ items:
     title: "Review sharing and licensing for outside users"
     why: "People outside the organization change data-sharing, compliance and licensing questions."
     action: "Confirm data boundaries, and ask the licensing specialist about external users."
+    proveIt: "Confirm what outside users can reach through the agent, and get your licensing specialist's answer on who needs a license for them."
     capabilityIds: [purview-dlp]
     appliesWhen: { q: audience, includesAny: [partners, customers] }
     sourceIds: [lic-faq]
@@ -194,6 +207,7 @@ items:
     title: "Automate lifecycle for many agents"
     why: "With many agents, manual review of ownership and retirement does not keep up."
     action: "Use rules-based lifecycle actions and sponsor workflows."
+    proveIt: "Follow one agent whose sponsor leaves and confirm the lifecycle rule reassigns or flags it."
     capabilityIds: [lifecycle-automation, entra-sponsor-lifecycle]
     appliesWhen: { q: agentEstate, in: [dozens, hundreds] }
     sourceIds: [sd-a365]
@@ -204,6 +218,7 @@ items:
     title: "Set a policy baseline with templates"
     why: "Templates give every new agent the same starting guardrails."
     action: "Create policy templates for the common types of agent."
+    proveIt: "Create a new agent and confirm it starts from a policy template, not from ad hoc settings."
     capabilityIds: [policy-templates]
     appliesWhen: { q: agentEstate, in: [handful, dozens, hundreds] }
     doneWhen: { q: orgGovernance, includes: policy-baseline }
@@ -215,6 +230,7 @@ items:
     title: "Plan for owner changes"
     why: "Agents outlive the people who build them."
     action: "Decide what happens to an agent when its owner or sponsor leaves."
+    proveIt: "Walk through an owner change for one agent and confirm a new owner or sponsor is named."
     capabilityIds: [governance-actions, entra-sponsor-lifecycle]
     appliesWhen: { always: true }
     sourceIds: [entra-agent-sponsor-tasks]
@@ -225,6 +241,7 @@ items:
     title: "Report on the agent estate to leaders"
     why: "Leaders need to see how many agents exist, who owns them and what they do."
     action: "Agree the reporting the customer's executives expect, and who produces it."
+    proveIt: "Produce one report of the agent estate for a leader and confirm it matches what the registry shows."
     capabilityIds: [observability]
     appliesWhen:
       any:

@@ -15,6 +15,10 @@ applyTo: 'content/**'
 - Every item in `requirements.yaml` needs an `askPrompt`: the question to ask the customer while the answer is unknown (30 words or fewer, ending in a question mark). Set `appliesTo` only where the source says where the requirement applies.
 - Where public sources describe the same thing differently, add each statement to `prerequisites.differs` in `licensing.yaml`, with the source also listed in the item's `sourceIds`. Do not pick one.
 - A row in `access-patterns.yaml` needs a source that says delegated access, own access or an agent account differ for the capability. Capabilities without a row show "not split by Microsoft".
+- A plan family in `licensing.yaml` `calculator.planFamilies` is `included` only where a Microsoft page says Agent 365 comes with it, and `qualifies` only where the Product Terms or the FAQ name it as a prerequisite. A plan Microsoft does not mention is `unknown`. Never add example quantities.
+- Every guardrail in `guardrails.yaml` needs `proveIt`: how a seller can ask the customer to show it is in place (35 words or fewer).
+- A proof point says whose figure it is: Microsoft's, a survey Microsoft commissioned, or independent research. Do not round a figure up.
+- The sample customer in `site.yaml` `ui.sample` is fictional, and its `sampleIds` name entries in `samples.yaml` that cover both delegated and own access.
 - Recommendation levels are "Essential", "Recommended" and "Consider". Never "Required": that word belongs to the service description's licensing column.
 - Write in a neutral, factual voice, and paraphrase rather than copying long passages. Follow [the style guide](../../docs/CONTENT-STYLE.md).
 - Add an entry to `changelog.md` with an `affects:` list of capability ids (`[all]` for the whole catalog). Wording-only changes to site copy do not need one.

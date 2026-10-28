@@ -60,7 +60,7 @@ describe('layout shell', () => {
   it('lists the four jobs in order, keeps the rest under Library, and also links Methodology in the footer', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
-    const jobs = ['overview', 'pitch', 'map', 'licensing'] as const;
+    const jobs = ['overview', 'pitch', 'map', 'licensing', 'deploy'] as const;
     const library = [
       'fit',
       'access',
@@ -91,7 +91,7 @@ describe('layout shell', () => {
     );
     expect(within(nav).getByRole('link', { name: site.ui.nav.map })).toHaveAttribute(
       'href',
-      '/diagnostic',
+      '/map',
     );
     expect(
       within(screen.getByRole('contentinfo')).getByRole('link', { name: site.ui.nav.methodology }),
@@ -201,7 +201,7 @@ describe('Overview', () => {
       screen
         .getAllByRole('link', { name: overview.ctaSecondary })
         .map((a) => a.getAttribute('href')),
-    ).toContain('/diagnostic');
+    ).toContain('/map');
     const jobs = within(screen.getByRole('region', { name: overview.jobs.heading }));
     const tiles = jobs.getAllByRole('listitem');
     expect(tiles).toHaveLength(overview.jobs.tiles.length);

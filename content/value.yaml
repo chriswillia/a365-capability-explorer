@@ -1,6 +1,7 @@
 # The value story for Agent 365, for any agent and any use case. Facts carry their Microsoft source and the date it was read.
 # Pitches, angles, buyer notes, objection answers and the joint plan are editorial: seller guidance, draft until
-# subject-matter-expert review. This file states no price, no competitor comparison and no statistic beyond the IDC figure.
+# subject-matter-expert review. The statistics in Proof you can cite each name who published them and say whether
+# they are Microsoft's own. This file states no price and no competitor comparison.
 reviewStatus: draft
 intro: "Use this page to explain why Agent 365 matters to a customer, whatever agent they are building. It starts from the problem every agent creates, then sets out what Agent 365 gives the customer and how to say it to each buyer."
 notice: "Seller guidance, not Microsoft messaging. Facts name their Microsoft source. Pitches, angles and objection answers are editorial and stay draft until subject-matter-expert review."
@@ -372,6 +373,126 @@ proof:
       evidence: stated
       reviewStatus: draft
       lastVerified: "2026-10-27"
+    - id: unsanctioned-agents
+      kind: research
+      who: "Microsoft Cyber Pulse"
+      summary: "A survey of more than 1,700 data security professionals, commissioned by Microsoft, found that 29% of employees have already turned to unsanctioned AI agents for work tasks."
+      caveat: "A survey Microsoft commissioned from Hypothesis Group, in a Microsoft report published February 10, 2026. Say it is Microsoft's report."
+      sourceIds: [cyber-pulse]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: governance-maturity
+      kind: research
+      who: Deloitte
+      summary: "Deloitte's 2026 State of AI in the Enterprise report says 21% of the companies it surveyed have a mature model for governing autonomous agents."
+      caveat: "Independent research from Deloitte, not a Microsoft figure. Cite Deloitte as the author."
+      sourceIds: [deloitte-state-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: top-ai-risk
+      kind: research
+      who: Deloitte
+      summary: "In the same report, data privacy and security tops the AI risks companies worry about most, at 73%."
+      caveat: "Independent research from Deloitte, not a Microsoft figure. Cite the same Deloitte report."
+      sourceIds: [deloitte-state-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+entryPoints:
+  heading: "Start from the customer's situation"
+  intro: "Pick the line that sounds like your customer. Each gives a way to open the conversation and the licensing path it leads to. They are seller guidance built from Microsoft's published pages."
+  conversationLabel: "Open the conversation"
+  licensingLabel: "The licensing path"
+  items:
+    - id: has-e5
+      situation: "The customer has Microsoft 365 E5"
+      conversation: "Agent 365 and E5 complement each other. Microsoft says E5 protects users and data, Agent 365 protects agents, and E7 protects both. Start with visibility: which agents exist, who owns them and what they can reach."
+      licensing: "E5 is a prerequisite plan the Product Terms list, so Agent 365 can be added for the people who delegate to, or own, sponsor or manage agents. Size it on the Licensing page."
+      links:
+        - { label: "Size the licenses", to: "/licensing#calculator" }
+        - { label: "Map an agent", to: "/map" }
+      sourceIds: [lic-faq, product-terms-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: e3-only
+      situation: "The customer has Microsoft 365 E3 without the Defender and Purview suites"
+      conversation: "Start with what comes with a Microsoft cloud subscription at no extra cost: agent identity, inventory visibility, basic usage insights and core admin governance actions. The premium controls need an Agent 365 license."
+      licensing: "E3 alone is not one of the plans the Product Terms list as a prerequisite. The customer needs the Defender and Purview suites, or Microsoft 365 E5 or E7, before Agent 365 can be added. Confirm the mix with your licensing specialist."
+      links:
+        - { label: "Ways to license a user", to: "/licensing#plans" }
+        - { label: "Browse the capabilities", to: "/capabilities" }
+      sourceIds: [lic-faq, product-terms-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: copilot-heavy
+      situation: "Microsoft 365 Copilot is widely deployed"
+      conversation: "Copilot does not replace Agent 365. Microsoft puts it this way: Copilot is about what AI can do, and Agent 365 is about controlling what AI is allowed to do. Ask who governs the agents that sit beside Copilot."
+      licensing: "Microsoft 365 Copilot users are named in Microsoft's recommended broad coverage. Agent 365 is needed in addition to Copilot, to manage, govern and secure all agents."
+      links:
+        - { label: "Answer the pushback", to: "/pitch#pushback" }
+        - { label: "Check licensing", to: "/licensing" }
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: foundry-builders
+      situation: "The customer builds agents in Copilot Studio or Microsoft Foundry"
+      conversation: "These agents register automatically, which gives inventory. Confirm identity, permissions, telemetry and data protection separately. Ask who owns each agent and who approves what it can do."
+      licensing: "Effective July 1, 2026, agent security for Copilot Studio and Foundry agents in Defender needs an Agent 365 license. Existing Defender for Cloud Apps and Defender for Cloud licenses no longer cover it."
+      links:
+        - { label: "How each platform connects", to: "/fit" }
+        - { label: "Map an agent", to: "/map" }
+      sourceIds: [a365-cps-registry, entra-agent-id-governance, defender-transition]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: third-party-agents
+      situation: "Most of the customer's agents run on other clouds or SaaS platforms"
+      conversation: "Registry sync can make agents from supported connected platforms visible in the Microsoft 365 admin center. Sync is manual and read-only, and observability data collection is a Frontier preview, so check the current status before you promise it."
+      licensing: "Licensing does not depend on where the agent was built. It follows the person: the people who delegate to, or own, sponsor or manage the agent."
+      links:
+        - { label: "How each platform connects", to: "/fit" }
+        - { label: "Check licensing", to: "/licensing" }
+      sourceIds: [a365-connected-platforms, a365-third-party, lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: frontline
+      situation: "The customer has a large frontline workforce"
+      conversation: "License the people who delegate to, own, sponsor or manage agents, not every frontline worker. Microsoft says one licensed sponsor can oversee many agents."
+      licensing: "Frontline workers need Microsoft 365 F1 or F3 with the Defender and Purview Suite for frontline workers before Agent 365 can be licensed for them."
+      links:
+        - { label: "Size the licenses", to: "/licensing#calculator" }
+      sourceIds: [lic-faq, product-terms-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: gcc
+      situation: "The customer is in GCC or another sovereign cloud"
+      conversation: "Check availability before you promise a capability. The service description marks most Purview, Defender and Intune capabilities, and the Graph API, as not yet available in GCC."
+      licensing: "Microsoft 365 G7 and Agent 365 became available to buy for GCC customers from October 1, 2026, with more purchasing options from November 1 and capabilities expanding in phases."
+      links:
+        - { label: "Browse the capabilities", to: "/capabilities" }
+        - { label: "Regulated and government customers", to: "/licensing#regulated" }
+      sourceIds: [sd-a365, g7-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+discovery:
+  heading: "Questions to ask"
+  intro: "Each capability suggests questions that bring out the need for it. Pick up to {limit} for the meeting, then copy them as an agenda."
+  limit: 5
+  counter: "{count} of {limit} picked"
+  limitReached: "You have picked {limit}. Clear one to pick another."
+  copy: "Copy as meeting agenda"
+  copied: "Copied to the clipboard"
+  clear: "Clear the picks"
+  agendaTitle: "Agent 365 discovery meeting"
+  agendaIntro: "Questions to cover:"
 jointPlan:
   heading: "Plan it as a team"
   intro: "A suggested split of work between the AI seller and the Security seller. Adjust it to your account."
@@ -439,7 +560,7 @@ boundaries:
   items:
     - "These are seller talk tracks built from Microsoft's published pages. They are not Microsoft's approved messaging."
     - "No comparison with other vendors is made, because Microsoft's documentation does not provide one."
-    - "The only statistic is IDC's figure, which Microsoft sponsored and cites. No Microsoft figure on agent sprawl or governance gaps was found."
+    - "The statistics are other people's research, not Microsoft's own findings. IDC and Deloitte are third parties, and the Cyber Pulse figure comes from a survey Microsoft commissioned. Name the publisher when you quote one."
     - "Customer quotes are summarized from Microsoft's own posts. Check with the customer's account team before you repeat them."
 brief:
   heading: "Build a value brief for this customer"

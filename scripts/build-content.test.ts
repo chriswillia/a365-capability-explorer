@@ -63,15 +63,20 @@ describe('buildContent', () => {
     });
   });
 
-  it('gives the same version on every build and with Windows line endings', () => {
-    const files = readdirSync(contentDir);
-    for (const name of files) edit(name, (t) => t.replace(/\r\n/g, '\n'));
-    const lf = run().contentVersion;
-    expect(run().contentVersion).toBe(lf);
+  // Three builds and two rewrites of every content file: slower than the default limit when other tests share the machine.
+  it(
+    'gives the same version on every build and with Windows line endings',
+    { timeout: 30_000 },
+    () => {
+      const files = readdirSync(contentDir);
+      for (const name of files) edit(name, (t) => t.replace(/\r\n/g, '\n'));
+      const lf = run().contentVersion;
+      expect(run().contentVersion).toBe(lf);
 
-    for (const name of files) edit(name, (t) => t.replace(/\n/g, '\r\n'));
-    expect(run().contentVersion).toBe(lf);
-  });
+      for (const name of files) edit(name, (t) => t.replace(/\n/g, '\r\n'));
+      expect(run().contentVersion).toBe(lf);
+    },
+  );
 
   it('changes the version when content changes', () => {
     const first = run().contentVersion;

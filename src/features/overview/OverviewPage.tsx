@@ -9,6 +9,7 @@ import styles from './OverviewPage.module.css';
 
 // Saved customers come from local storage, so they load after the first paint instead of with the landing page.
 const RecentCustomers = lazy(() => import('./RecentCustomers.tsx'));
+const SampleCustomer = lazy(() => import('./SampleCustomer.tsx'));
 
 export function Component() {
   usePageTitle('overview');
@@ -26,7 +27,7 @@ export function Component() {
         <ButtonLink to="/pitch" variant="onDark">
           {overview.ctaPrimary}
         </ButtonLink>
-        <ButtonLink to="/diagnostic" variant="onDarkOutline">
+        <ButtonLink to="/map" variant="onDarkOutline">
           {overview.ctaSecondary}
         </ButtonLink>
       </HeroBand>
@@ -49,6 +50,9 @@ export function Component() {
         </section>
         <Suspense fallback={null}>
           <RecentCustomers />
+        </Suspense>
+        <Suspense fallback={null}>
+          <SampleCustomer />
         </Suspense>
       </div>
     </>

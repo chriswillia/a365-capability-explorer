@@ -32,6 +32,7 @@ ui:
     pitch: Pitch
     map: "Map an agent"
     licensing: Licensing
+    deploy: Deploy
     library: Library
     fit: "Stack fit"
     access: "How agents act"
@@ -44,6 +45,21 @@ ui:
   library:
     exploreHeading: Explore
     packHeading: "Customer pack"
+  sample:
+    customerName: "Contoso Retail"
+    industry: Retail
+    chip: "Sample data"
+    heading: "Try a sample customer"
+    body: "Load a fictional customer with {count} {count?agent|agents} to see the passport, the leave-behind and the go-live plan without entering anything. It stays in this browser. You can put it back to its original answers or remove it in one click."
+    agentsLabel: "Its agents"
+    sampleIds: [store-operations, returns-refunds, developer-coding]
+    load: "Load the sample customer"
+    open: "Open the sample passport"
+    reset: "Reset the sample customer"
+    resetDone: "The sample customer is back to its original answers."
+    remove: "Remove the sample customer"
+    removed: "The sample customer was removed."
+    error: "The sample customer could not be saved. Check that this browser allows local storage."
   audience:
     groupLabel: "Selling as"
     label: "Selling as"
@@ -114,6 +130,15 @@ routes:
   access:
     title: "How an agent acts"
     description: "Delegated access, own access and an agent account in Microsoft's terms: what each means, who to license, what applies differently and how it changes the capabilities for an assessment."
+  map:
+    title: "Map an agent"
+    description: "Answer six questions about one agent to get its passport: how it acts, the controls that matter most, what must be in place, who to license and the risks to cover."
+  leaveBehind:
+    title: "Leave-behind"
+    description: "A one-page summary and three slides to leave with the customer after the conversation, built from the answers saved for one agent."
+  deploy:
+    title: Deploy
+    description: "Take an agent from pilot to production: the go-live baseline by gate, how to show each step works, and a 30, 60 and 90 day plan."
   capabilities:
     title: Capabilities
     description: "Every capability in the Microsoft Agent 365 service description, grouped by area (Observe, Govern, Secure), with where each is configured."
@@ -130,8 +155,8 @@ routes:
     title: Learn
     description: "Agent 365 in plain language: where it fits, myths versus facts, how a request flows, the building blocks, the journey to a Frontier Firm and a glossary."
   diagnostic:
-    title: "Map an agent"
-    description: "Describe your customer and an agent use case to see which capabilities apply across security, governance and observability, and why."
+    title: "Full discovery"
+    description: "Describe your customer and an agent use case in depth to see which capabilities apply across security, governance and observability, and why."
   assessment:
     title: Assessment
     description: "Answer the questions for one agent use case and watch the requirements fill in."
@@ -184,19 +209,26 @@ overview:
       - id: map
         question: "What does this agent need?"
         title: "Map an agent"
-        body: "Describe one agent, including whether it acts for a user or as itself, and see the capabilities, guardrails and gaps that apply."
+        body: "Answer six questions about one agent, including whether it acts for a user or as itself, and get its passport: the controls, what must be in place, who to license and the risks."
         cta: "Map an agent"
-        to: "/diagnostic"
+        to: "/map"
       - id: licensing
         question: "Who has to be licensed, and what must be in place first?"
         title: "Licensing and prerequisites"
         body: "Who needs an Agent 365 license by how the agent acts, which plans and underlying services are required, and what to ask your licensing specialist."
         cta: "Check licensing"
         to: "/licensing"
+      - id: deploy
+        question: "What must be in place to go live?"
+        title: Deploy
+        body: "The go-live baseline by gate, how to show each step works, and a 30, 60 and 90 day plan for an agent."
+        cta: "Plan go-live"
+        to: "/deploy"
     libraryNote: "Need the detail? The Library menu holds stack fit, how agents act, the capabilities, agent scenarios, Learn, the agent portfolio and the workshop kit."
   recent:
     heading: "Pick up where you left off"
     useCases: "{count} {count?use case|use cases}"
+    passport: Passport
     readout: Readout
     licensing: Licensing
     edit: Edit
@@ -385,6 +417,10 @@ capabilities:
     accessUnsplit: "Microsoft's documentation describes how this applies to an agent or agent instance. It does not say whether agents that act for a user, as themselves or through an agent account are treated differently. Treat it as applying to every pattern, and confirm before you claim a difference."
     accessLink: "Compare the ways an agent acts"
     mapCta: "Map an agent"
+    talkTrack: "Say this"
+    copyTalkTrack: "Copy talk track"
+    talkTrackCopied: "Copied to the clipboard"
+    askLabel: "Ask the customer"
     questions: "Questions it answers"
     discovery: "Questions to ask the customer"
     dependencies: Dependencies
@@ -421,7 +457,7 @@ learn:
   nextHeading: "Next"
   next:
     - label: "Next: map an agent"
-      to: "/diagnostic"
+      to: "/map"
     - label: "Next: check licensing"
       to: "/licensing"
   flowNote: "This is a conceptual guide, not a guaranteed runtime sequence or a promise that controls are enabled. Coverage depends on the platform, integration, licensing and configuration. Read the steps in order."
@@ -528,7 +564,7 @@ diagnostic:
   noPreview: "Correct incompatible answers to resume the live planning preview."
   notFound: "This assessment is not saved in this browser profile. It may have been deleted or created on another device."
   updated: Last updated
-  startFromPattern: "Map an agent from this scenario"
+  startFromPattern: "Start Full discovery from this scenario"
   savedLocally: Local only
   renameTitle: Rename local assessment
 
@@ -844,7 +880,7 @@ mapping:
     - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; recommendation (needs review) identifies an editorial choice. Recommendation levels, canonical scenarios, risk associations and operating-model groupings are planning advice, not official mandates."
     - "The matrix is generated from canonical scenario answers and the displayed neutral customer. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a scenario alone."
     - "Every scenario and sample is checked automatically for the capabilities it must include and exclude. Automated agreement is not SME approval."
-  pendingDiagnostic: "These are read-only planning results. Map an agent from a scenario to customize it and create a saved readout and canvas."
+  pendingDiagnostic: "These are read-only planning results. Map an agent to get the same view for one customer agent, then save it as a readout and canvas."
   startAssessment: "Map an agent"
   back: "Back to scenarios"
   typicalPatterns: "Typical scenarios"
@@ -876,12 +912,12 @@ privacy:
     - what: "Whether you sell as an AI seller, a Security seller or both"
       where: "Local storage, key cpcompass:audience"
       why: "So the pitch and talk tracks match your role on your next visit"
-    - what: "Customer profiles, assessment answers, which answers came from a starting scenario and are not yet confirmed, optional names, optional normalized PNG logos and their descriptions, assessment mode and current section"
+    - what: "Customer profiles, assessment answers, which answers came from a starting scenario and are not yet confirmed, optional names, optional normalized PNG logos and their descriptions, assessment mode and current section, and the fictional sample customer if you load it"
       where: "Local storage, key cpcompass:diagnostic"
-      why: "Autosave and resume local assessments, and let the header link back to the customer you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page."
+      why: "Autosave and resume local assessments, and let the header link back to the customer you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page. Reset or remove the sample customer from the home page; that never touches your own customers."
     - what: "Navigation scroll positions managed by React Router"
       where: "Session storage, key react-router-scroll-positions"
       why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. Portfolio views reuse those assessments; portfolio selection and presentation mode are temporary and add no stored preference. JSON backups and selected portfolio bundles, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. Portfolio views reuse those assessments; portfolio selection and presentation mode are temporary and add no stored preference. The numbers you enter to size licenses and the questions you pick for a meeting agenda stay on the page and are not stored. The leave-behind, the go-live plan and the agent passport read the saved assessment. JSON backups and selected portfolio bundles, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

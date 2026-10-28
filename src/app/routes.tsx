@@ -40,6 +40,26 @@ export const routes: RouteObject[] = [
         lazy: () => import('../features/access/AccessPage.tsx'),
       },
       {
+        path: 'map',
+        handle: { routeKey: 'map' satisfies RouteKey },
+        lazy: () => import('../features/diagnostic/DiagnosticLayout.tsx'),
+        children: [{ index: true, lazy: () => import('../features/passport/PassportPage.tsx') }],
+      },
+      {
+        path: 'leave-behind/:id',
+        handle: { routeKey: 'leaveBehind' satisfies RouteKey },
+        lazy: () => import('../features/diagnostic/DiagnosticLayout.tsx'),
+        children: [
+          { index: true, lazy: () => import('../features/leave-behind/LeaveBehindPage.tsx') },
+        ],
+      },
+      {
+        path: 'deploy',
+        handle: { routeKey: 'deploy' satisfies RouteKey },
+        lazy: () => import('../features/diagnostic/DiagnosticLayout.tsx'),
+        children: [{ index: true, lazy: () => import('../features/deploy/DeployPage.tsx') }],
+      },
+      {
         path: 'capabilities',
         handle: { routeKey: 'capabilities' satisfies RouteKey },
         lazy: () => import('../features/explorer/CapabilitiesPage.tsx'),

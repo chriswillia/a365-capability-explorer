@@ -1,4 +1,5 @@
 import { Link } from 'react-router';
+import { SampleChip } from '../../components/SampleChip.tsx';
 import { content } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { displayName } from '../../lib/state/diagnostic-model.ts';
@@ -22,13 +23,17 @@ export default function RecentCustomers() {
           const latest = assessments[0];
           return (
             <li key={customer.id} className={styles.customer}>
-              <h3>{displayName(customer.answers, 'orgName', untitled)}</h3>
+              <h3>
+                {displayName(customer.answers, 'orgName', untitled)}{' '}
+                {customer.sample === true && <SampleChip />}
+              </h3>
               <p>{renderTemplate(copy.useCases, { count: assessments.length })}</p>
               <p className={styles.links}>
                 {latest === undefined ? (
-                  <Link to="/diagnostic">{copy.start}</Link>
+                  <Link to="/map">{copy.start}</Link>
                 ) : (
                   <>
+                    <Link to={`/map?assessment=${latest.id}`}>{copy.passport}</Link>
                     <Link to={`/diagnostic/${latest.id}/readout`}>{copy.readout}</Link>
                     <Link to={`/licensing?assessment=${latest.id}`}>{copy.licensing}</Link>
                     <Link to={`/diagnostic/${latest.id}`}>{copy.edit}</Link>

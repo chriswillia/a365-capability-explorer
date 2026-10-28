@@ -1,0 +1,194 @@
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}
+
+.notice {
+  max-width: 52rem;
+  margin: 0;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.group {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.group legend {
+  padding-inline: var(--space-2);
+  font-weight: 600;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.field input {
+  width: 100%;
+  max-width: 12rem;
+  min-width: 0;
+  padding: var(--space-2);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+}
+
+.hint {
+  margin: 0;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.plan {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.standing {
+  margin: 0;
+}
+
+/* The longest standing is a sentence, so let it wrap on a narrow screen instead of widening the page. */
+.standing > span {
+  white-space: normal;
+}
+
+.results {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-tint);
+  border-radius: var(--radius-md);
+}
+
+.results h3 {
+  margin: 0;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.list > div {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.list dt {
+  font-weight: 600;
+}
+
+.list dd {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.number {
+  font-size: var(--text-24);
+  font-weight: 700;
+  line-height: var(--line-height-snug);
+}
+
+.basis {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.warnings:empty {
+  display: none;
+}
+
+.warnings {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.warnings p {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-amber-text);
+  background: var(--color-amber-background);
+  border-left: 4px solid var(--color-amber-text);
+}
+
+.first {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.first h3 {
+  margin: 0;
+}
+
+.plain {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.actions button {
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  cursor: pointer;
+}
+
+.copied {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}

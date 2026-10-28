@@ -1,0 +1,88 @@
+# The agent passport: six questions about one agent, then a one-page result. The wording of the questions is
+# editorial. The questions themselves are in questions.yaml, so the rules that read the answers keep working.
+# Everything here is draft until subject-matter-expert review.
+reviewStatus: draft
+intro: "Answer six questions about one agent to get its passport: how it acts, the Agent 365 controls that matter most, what must be in place, who to license and the risks to cover. It saves in this browser and feeds the rest of the site."
+notice: "A starting point for the conversation, built from this tool's rules. An answer you leave open shows as a question to confirm, never as a gap."
+setup:
+  heading: "About this agent"
+  openLabel: "Open a saved agent"
+  openNone: "Start a new agent"
+  missing: "That agent is not saved in this browser. Start a new one below."
+  incompatible: "This agent was saved with answers that no longer match the questions. Open it in Full discovery to fix them."
+  customerLabel: Customer
+  newCustomer: "New customer"
+  customerNameLabel: "Customer name (optional)"
+  agentLabel: "Agent name (optional)"
+  cloudLabel: Cloud
+  cloudHint: "Commercial unless you change it. Choose GCC or a sovereign cloud to see availability gaps."
+  stageLabel: "Going to production?"
+  stageHint: "Leave it off for a pilot. Turn it on to see what changes when the agent goes to production."
+  stageAssumed: "This stage is assumed. Confirm it with the customer."
+questionsHeading: "Six questions"
+questions:
+  - id: accessModel
+    ask: "Whose permissions does the agent use?"
+    hint: "It changes who to license and which controls matter. Not sure? Use the three questions below."
+  - id: buildPlatform
+    ask: "Where is it built?"
+    hint: "The platform decides how the agent connects to Agent 365."
+  - id: dataSensitivity
+    ask: "What is the most sensitive data it can reach?"
+    hint: "It drives the data protection, labeling and compliance controls."
+  - id: tools
+    ask: "What can it do besides answer?"
+    hint: "Tools, code and browsing widen what the agent can reach and change. Choose everything that applies."
+  - id: autonomy
+    ask: "Does a person approve its actions?"
+    hint: "The more the agent does on its own, the more oversight and monitoring it needs."
+  - id: audience
+    ask: "Who uses it?"
+    hint: "Partners and customers raise licensing and data-handling questions that employees do not. Choose everyone who applies."
+helper:
+  heading: "Not sure how it acts? Answer three questions."
+  note: "Our own wording to help you decide, not Microsoft's. Check the answer with the customer."
+  questions:
+    actsForPerson: "Does it ever act for a person, using that person's access?"
+    runsAlone: "Does it ever run on a schedule or an event, with no person present?"
+    ownAccount: "Does it have its own account, mailbox or identity?"
+  "yes": "Yes"
+  "no": "No"
+  outcomes:
+    delegated: "It acts for the signed-in user, so it works with that user's access."
+    own-teammate: "It acts as itself through its own agent account, like a teammate."
+    own-background: "It acts as its own identity in the background, with no person present."
+    mixed: "It acts for people at times and as itself at others, so plan for both."
+    unclear: "None of the three applies. Confirm how the agent acts before you go further."
+  use: "Use this answer: {label}"
+result:
+  heading: "Agent passport"
+  title: "{agent} for {customer}"
+  untitledAgent: "Untitled agent"
+  saved: "Saved in this browser. Nothing is sent anywhere."
+  accessHeading: "How it acts"
+  accessUnknown: "Not answered yet. Answer the first question, or use the three questions under it."
+  controlsHeading: "Controls that matter most"
+  controlsIntro: "{essential} Essential and {recommended} Recommended, by area. Open one for what to say and what it needs."
+  controlsNone: "Answer more questions to see which controls matter."
+  mustHaveHeading: "What must be in place"
+  mustHaveIntro: "{count} {count?item|items} to confirm with the customer. Ask the question shown for each."
+  mustHaveNone: "Nothing to confirm yet."
+  mustHaveMore: "Show all {count}"
+  licenseHeading: "Who must be licensed"
+  licenseIntro: "Licensing follows the person, not the agent. These are the people Microsoft says to license for how this agent acts."
+  licenseUnknown: "Answer how the agent acts to see who to license."
+  platformHeading: "Where it is built"
+  platformUnknown: "Choose where the agent is built to see how it connects to Agent 365."
+  risksHeading: "Top risks to cover"
+  risksIntro: "Ranked by how many of the controls above address them."
+  riskControls: "{count} {count?control|controls} in scope"
+  riskPossible: "Possible: depends on an answer still to be given"
+  risksNone: "No risks identified yet. Answer more questions to see them."
+  actionsHeading: "Next"
+  actions:
+    leaveBehind: "Create leave-behind"
+    licensing: "Check licensing"
+    deploy: "Plan go-live"
+    readout: "Open readout"
+    discovery: "Full discovery"

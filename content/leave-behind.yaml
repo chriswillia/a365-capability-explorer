@@ -1,0 +1,51 @@
+# The leave-behind: a one-page summary and three slides to give the customer after the conversation. It is built
+# from the answers saved for one agent, with the same rules as the passport and the readout. The wording here is
+# editorial and draft until subject-matter-expert review. The facts it shows come from the sourced files.
+reviewStatus: draft
+intro: "A one-page summary and three slides to leave with the customer. They use the answers saved for this agent. Anything not confirmed is listed under Questions to confirm, and is never stated as fact."
+notice: "Planning guidance from this tool's rules and Microsoft's public documentation. It is not a quote or a licensing determination. Review it before you share it."
+whyStatementIds: [sprawl, proliferation]
+missing: "That agent is not saved in this browser."
+incompatible: "This agent was saved with answers that no longer match the questions. Open it in Full discovery to fix them."
+toolbar:
+  heading: Share
+  print: "Print or save as PDF"
+  powerpoint: "Download three slides (PowerPoint)"
+  exporting: "Preparing the slides…"
+  exportError: "The slides could not be created. Try again, or print the page."
+  back: "Back to the passport"
+page:
+  eyebrow: "Agent 365 summary"
+  title: "{agent} for {customer}"
+  untitledAgent: "Untitled agent"
+  prepared: "Prepared {date}"
+  accessLabel: "How it acts"
+  accessUnknown: "To confirm"
+  platformLabel: "Built on"
+  stageLabel: Stage
+  stageAssumed: "assumed"
+  whyHeading: "Why it matters"
+  controlsHeading: "Controls by area"
+  controlsNone: "To confirm"
+  controlsEssentialMore: "+{count} more Essential"
+  controlsMore: "+{count} more to consider"
+  licensingHeading: "Who to license"
+  licensingUnknown: "To confirm once how the agent acts is known."
+  licensingNote: "Confirm quantities and prerequisites with your licensing specialist."
+  stepsHeading: "Go-live steps"
+  stepsNone: "None yet."
+  stepsMore: "+{count} more in the plan"
+  confirmHeading: "Questions to confirm"
+  confirmNone: "Nothing left to confirm."
+  confirmMore: "+{count} more in the passport"
+  sourcesHeading: Sources
+deck:
+  fileName: "agent-365-leave-behind"
+  titles:
+    passport: "Agent passport"
+    controls: "Controls and who to license"
+    plan: "Go-live plan and questions to confirm"
+  notes:
+    passport: "Open with the agent and who it serves. Say how it acts, because that decides who needs a license and which controls apply. Then say why it matters: agents spread faster than the teams accountable for them can see."
+    controls: "Walk Observe, Govern and Secure in turn. Name the Essential controls first and say which team configures each. Then say who needs a license, and that your licensing specialist confirms quantities."
+    plan: "Agree the first steps before pilot and before production. Read the questions to confirm aloud and agree an owner and a date for each. Promise nothing the customer has not confirmed."

@@ -1,0 +1,207 @@
+.intro {
+  max-width: 44rem;
+  font-size: var(--text-20);
+  line-height: var(--line-height-snug);
+}
+
+.notice {
+  max-width: 52rem;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  margin-block: var(--space-4);
+}
+
+.toolbar button,
+.toolbar a {
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.status {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.missing {
+  padding: var(--space-3);
+  color: var(--color-amber-text);
+  background: var(--color-amber-background);
+  border-left: 4px solid var(--color-amber-text);
+}
+
+.page {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 60rem;
+  padding: var(--space-6);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-top: 4px solid var(--color-blue);
+  border-radius: var(--radius-md);
+}
+
+.page h2,
+.page h3,
+.page h4,
+.page p {
+  margin: 0;
+}
+
+.eyebrow {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: var(--text-24);
+  line-height: var(--line-height-snug);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 12rem), 1fr));
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.facts > div {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.facts dt {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+  font-weight: 600;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.block {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-3);
+}
+
+/* Licensing and the go-live steps sit side by side where there is room, which keeps the printed page short. */
+.pair {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  align-items: start;
+  gap: var(--space-4);
+}
+
+.column {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  background: var(--color-paper);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.muted {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.sources {
+  color: var(--color-slate);
+  font-size: var(--text-12);
+}
+
+/* One printed page: the smallest type in the scale, tight lines and gaps. A test prints the fullest page on A4 and Letter. */
+@media print {
+  .page {
+    gap: var(--space-2);
+    max-width: none;
+    padding: 0;
+    font-size: var(--text-12);
+    line-height: var(--line-height-snug);
+    border: 0;
+    border-top: 0;
+  }
+
+  .title {
+    font-size: var(--text-20);
+  }
+
+  .page h3 {
+    font-size: var(--text-14);
+  }
+
+  .page h4 {
+    font-size: var(--text-12);
+  }
+
+  .eyebrow,
+  .muted,
+  .facts dt {
+    font-size: var(--text-12);
+  }
+
+  .facts {
+    gap: var(--space-2);
+  }
+
+  .facts > div {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .block {
+    gap: var(--space-1);
+  }
+
+  .list {
+    gap: 0;
+    padding-left: var(--space-4);
+  }
+
+  .columns {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .column {
+    gap: var(--space-1);
+    padding: var(--space-2);
+  }
+
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+}

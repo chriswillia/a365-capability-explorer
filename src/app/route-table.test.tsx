@@ -24,6 +24,6 @@ describe('route table', () => {
         .filter((route) => route.path?.includes(':'))
         .map((route) => route.path)
         .sort(),
-    ).toEqual(['canvas/:id', 'capabilities/:id', 'patterns/:id']);
+    ).toEqual(['canvas/:id', 'capabilities/:id', 'leave-behind/:id', 'patterns/:id']);
   });
 });

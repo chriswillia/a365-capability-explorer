@@ -32,6 +32,9 @@ import requirements from '../../generated/requirements.json';
 import accessPatterns from '../../generated/accessPatterns.json';
 import guardrails from '../../generated/guardrails.json';
 import fit from '../../generated/fit.json';
+import passport from '../../generated/passport.json';
+import leaveBehind from '../../generated/leaveBehind.json';
+import deploy from '../../generated/deploy.json';
 import { computeMetrics, templateValues } from './metrics.ts';
 import type {
   ConsoleId,
@@ -81,6 +84,9 @@ export const content = {
   accessPatterns,
   guardrails,
   fit,
+  passport,
+  leaveBehind,
+  deploy,
 } as unknown as Content;
 
 export const contentMeta = meta as ContentMeta;

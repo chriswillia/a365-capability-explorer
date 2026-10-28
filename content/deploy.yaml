@@ -1,0 +1,58 @@
+# Deploy: the go-live baseline for an agent, with a way to show each step works, and a 30, 60 and 90 day plan.
+# The steps are the guardrails in guardrails.yaml, and the controls come from the assessment's rules and the
+# roadmap waves. This file holds only the page's wording and how the three periods map to gates and waves.
+# Editorial and draft until subject-matter-expert review.
+reviewStatus: draft
+intro: "Take an agent from pilot to production with the guardrails in place. Each step says why it matters, what to do and how to show it works. Choose a saved agent to see which steps are in place and which to confirm."
+notice: "Planning guidance, draft until subject-matter-expert review. The status reflects the customer's answers, not a check of their tenant."
+jumpLabel: "On this page"
+assessmentLabel: "Plan go-live for"
+noAssessment: "No agent selected"
+missing: "That agent is not saved in this browser."
+incompatible: "This agent was saved with answers that no longer match the questions. Open it in Full discovery to fix them."
+noAssessmentNote: "Showing every step. Choose a saved agent, or map one, to see which apply and which are in place."
+baseline:
+  heading: "Go-live baseline"
+  intro: "Three gates: before pilot, before production and as you scale. Work through them in order. Gaps come first, then what is still to confirm."
+  whyLabel: "Why it matters"
+  doLabel: "What to do"
+  proveLabel: "Prove it works"
+  whereLabel: "Configured in"
+  ownerLabel: "Owner team"
+  applies: "Check whether this applies"
+plan:
+  heading: "30, 60 and 90 days"
+  intro: "A starting plan built from the gates and the roadmap. Within each period the gaps come first. Agree an owner and a date for each step."
+  stepsLabel: "Steps"
+  controlsLabel: "Controls to bring in"
+  none: "Nothing to plan yet."
+  tableLabel: "Plan by period"
+  columns:
+    period: Period
+    steps: Steps
+    controls: "Controls to bring in"
+  periods:
+    - id: d30
+      title: "First 30 days"
+      summary: "Before pilot: ownership, access, data and visibility."
+      gate: pilot
+      wave: 1
+    - id: d60
+      title: "Days 31 to 60"
+      summary: "Before production: tools, incident ownership, evidence and devices."
+      gate: production
+      wave: 2
+    - id: d90
+      title: "Days 61 to 90"
+      summary: "As you scale: lifecycle, policy baselines and reporting."
+      gate: scale
+      wave: 3
+next:
+  heading: "Next"
+  items:
+    - label: "Check licensing"
+      to: "/licensing"
+    - label: "Compare agents for one customer"
+      to: "/portfolio"
+    - label: "Map an agent"
+      to: "/map"

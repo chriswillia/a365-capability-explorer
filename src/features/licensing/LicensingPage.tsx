@@ -24,6 +24,7 @@ import { renderTemplate } from '../../lib/content/template.ts';
 import { answerErrors, knownAnswer } from '../../lib/engine/answers.ts';
 import { loadDiagnostics } from '../../lib/state/diagnostic-storage.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { SeatCalculator } from './SeatCalculator.tsx';
 import styles from './LicensingPage.module.css';
 
 const NEED_TONE: Record<'required' | 'recommended' | 'not-licensed' | 'not-stated', BadgeTone> = {
@@ -156,6 +157,7 @@ export function Component() {
   const baselineCounts = summarizeStatuses(baseline);
   const jump: [string, string][] = [
     ['who', copy.who.heading],
+    ['calculator', copy.calculator.heading],
     ['plans', copy.options.heading],
     ['tiers', copy.tiers.heading],
     ['requirements', panel.heading],
@@ -261,6 +263,8 @@ export function Component() {
           ))}
         </ul>
       </section>
+
+      <SeatCalculator />
 
       <section id="plans" aria-labelledby="plans-heading" className={styles.section}>
         <h2 id="plans-heading">{copy.options.heading}</h2>

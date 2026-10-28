@@ -88,6 +88,10 @@ export const LOCAL_TEMPLATE_KEYS = [
   'unknown',
   'date',
   'patterns',
+  'agent',
+  'essential',
+  'recommended',
+  'limit',
 ] as const;
 export const TEMPLATE_KEYS: readonly string[] = [
   ...METRIC_NUMBER_KEYS,
@@ -105,6 +109,15 @@ export const EXPLORER_LENSES = ['layer', 'lifecycle', 'risk', 'pattern'] as cons
 export const AUDIENCES = ['ai', 'security', 'joint'] as const;
 export const ACCESS_PATTERNS = ['delegated', 'own', 'agent-account'] as const;
 export const GATES = ['pilot', 'production', 'scale'] as const;
+// The six questions of the agent passport, in order. Each is a question in questions.yaml.
+export const PASSPORT_QUESTION_IDS = [
+  'accessModel',
+  'buildPlatform',
+  'dataSensitivity',
+  'tools',
+  'autonomy',
+  'audience',
+] as const;
 
 export type AudienceId = (typeof AUDIENCES)[number];
 export type AccessPatternId = (typeof ACCESS_PATTERNS)[number];

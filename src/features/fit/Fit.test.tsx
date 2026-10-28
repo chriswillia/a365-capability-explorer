@@ -118,4 +118,32 @@ describe('stack fit', () => {
       screen.getAllByText(new RegExp(site.ui.exhibit.sourcePrefix)).length,
     ).toBeGreaterThanOrEqual(copy.statements.items.length);
   });
+
+  it('lists every connected platform with its environment and observability, and what to tell the customer', async () => {
+    await open();
+    const section = within(document.getElementById('connected')!);
+    const table = within(section.getByRole('table'));
+    expect(table.getAllByRole('row')).toHaveLength(copy.connected.rows.length + 1);
+    for (const row of copy.connected.rows) {
+      const line = within(table.getByRole('rowheader', { name: row.platform }).closest('tr')!);
+      expect(line.getByText(row.environment)).toBeInTheDocument();
+      expect(line.getByText(copy.connected.observability[row.observability])).toBeInTheDocument();
+    }
+    for (const limit of copy.connected.limits) expect(section.getByText(limit)).toBeInTheDocument();
+    expect(
+      section.getByText(content.sources.find((s) => s.id === 'a365-connected-platforms')!.title),
+    ).toBeInTheDocument();
+  });
+
+  it('names the platforms Microsoft names, and no others', () => {
+    expect(copy.connected.rows.map((row) => row.platform).sort()).toEqual([
+      'Amazon Bedrock',
+      'Anthropic Claude',
+      'Databricks Genie',
+      'Google Vertex AI',
+      'Oracle Generative AI Agents',
+      'Salesforce Agentforce',
+      'Snowflake Cortex',
+    ]);
+  });
 });

@@ -142,7 +142,9 @@ describe('licensing and prerequisites', () => {
     });
     expect(await navigator.clipboard.readText()).toBe(expected);
     expect(expected).toContain('Fictional Customer');
-    expect(screen.getByRole('status')).toHaveTextContent(copy.handoff.copied);
+    expect(within(document.getElementById('handoff')!).getByRole('status')).toHaveTextContent(
+      copy.handoff.copied,
+    );
     expect(router.state.location.search).not.toContain('Fictional');
     expect(stored() ?? '').not.toContain('Fictional');
   });
@@ -226,5 +228,101 @@ describe('licensing and prerequisites', () => {
       const line = section.getByText(item.text).closest('li')!;
       expect(within(line).getByText(sourceById(item.sourceIds[0]!)!.title)).toBeInTheDocument();
     }
+  });
+});
+
+describe('the license calculator', () => {
+  const calc = copy.calculator;
+  const seatField = (id: string) =>
+    screen.getByLabelText(calc.planFamilies.find((family) => family.id === id)!.label);
+  const result = (label: string) =>
+    within(document.getElementById('calculator')!).getByText(label).closest('div')!;
+
+  it('sizes the licenses from the counts, and shows the sources behind the rules', async () => {
+    const user = userEvent.setup();
+    await open();
+    expect(screen.getByText(calc.waiting)).toBeInTheDocument();
+    await user.type(screen.getByLabelText(calc.people.delegating.label), '100');
+    await user.type(screen.getByLabelText(calc.people.owners.label), '10');
+    await user.type(screen.getByLabelText(calc.people.overlap.label), '4');
+    await user.type(screen.getByLabelText(calc.people.everyone.label), '200');
+    await user.type(seatField('e7'), '30');
+    await user.type(seatField('e5-a5-g5'), '50');
+    expect(within(result(calc.results.required.label)).getByText('106')).toBeInTheDocument();
+    expect(within(result(calc.results.recommended.label)).getByText('200')).toBeInTheDocument();
+    expect(within(result(calc.results.included.label)).getByText('30')).toBeInTheDocument();
+    expect(within(result(calc.results.qualifying.label)).getByText('50')).toBeInTheDocument();
+    expect(within(result(calc.results.needsPlan.label)).getByText('26')).toBeInTheDocument();
+    expect(within(result(calc.results.toAdd.label)).getByText('76')).toBeInTheDocument();
+    expect(
+      within(result(calc.results.required.label)).getByText(sourceById('lic-faq')!.title),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(calc.waiting)).not.toBeInTheDocument();
+  });
+
+  it('labels every plan with whether it qualifies, in words', async () => {
+    await open();
+    for (const family of calc.planFamilies) {
+      const card = seatField(family.id).closest('li')!;
+      expect(within(card).getByText(calc.standings[family.standing])).toBeInTheDocument();
+      expect(within(card).getByText(family.text)).toBeInTheDocument();
+    }
+  });
+
+  it('lowers an overlap that is more than either group and says so', async () => {
+    const user = userEvent.setup();
+    await open();
+    await user.type(screen.getByLabelText(calc.people.delegating.label), '5');
+    await user.type(screen.getByLabelText(calc.people.owners.label), '3');
+    await user.type(screen.getByLabelText(calc.people.overlap.label), '9');
+    expect(within(result(calc.results.required.label)).getByText('5')).toBeInTheDocument();
+    expect(screen.getByText(calc.warnings.overlapReduced.replace('{n}', '3'))).toBeInTheDocument();
+  });
+
+  it('lets the seller correct an estimate, and keeps it within what the seats allow', async () => {
+    const user = userEvent.setup();
+    await open();
+    await user.type(screen.getByLabelText(calc.people.delegating.label), '100');
+    await user.type(seatField('e5-a5-g5'), '50');
+    await user.type(
+      screen.getByLabelText(`${calc.estimateLabel}: ${calc.results.qualifying.label}`),
+      '20',
+    );
+    expect(within(result(calc.results.qualifying.label)).getByText('20')).toBeInTheDocument();
+    expect(within(result(calc.results.needsPlan.label)).getByText('80')).toBeInTheDocument();
+  });
+
+  it('asks what a person needs first only while people still need a plan', async () => {
+    const user = userEvent.setup();
+    await open();
+    expect(screen.queryByText(calc.firstHeading)).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText(calc.people.delegating.label), '10');
+    expect(screen.getByRole('heading', { level: 3, name: calc.firstHeading })).toBeInTheDocument();
+    for (const plan of copy.prerequisites.productTerms.plans)
+      expect(
+        within(screen.getByRole('heading', { name: calc.firstHeading }).parentElement!).getByText(
+          plan,
+        ),
+      ).toBeInTheDocument();
+    await user.type(seatField('e7'), '10');
+    expect(screen.queryByText(calc.firstHeading)).not.toBeInTheDocument();
+  });
+
+  it('copies the sizing as Markdown and clears the numbers, and stores nothing', async () => {
+    const user = userEvent.setup();
+    await open();
+    const before = window.localStorage.length;
+    await user.type(screen.getByLabelText(calc.people.delegating.label), '12');
+    await user.click(screen.getByRole('button', { name: calc.copy }));
+    const text = await navigator.clipboard.readText();
+    expect(text).toContain(`# ${calc.export.title}`);
+    expect(text).toContain(`- ${calc.results.required.label}: 12`);
+    expect(
+      within(document.getElementById('calculator')!).getByText(calc.copied),
+    ).toBeInTheDocument();
+    expect(window.localStorage.length).toBe(before);
+    await user.click(screen.getByRole('button', { name: calc.reset }));
+    expect(screen.getByLabelText(calc.people.delegating.label)).toHaveValue('');
+    expect(screen.getByText(calc.waiting)).toBeInTheDocument();
   });
 });

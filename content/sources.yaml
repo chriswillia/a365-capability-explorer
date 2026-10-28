@@ -359,3 +359,17 @@
   publisher: Microsoft
   lastVerified: "2026-10-27"
   notes: "Read 2026-10-27 (page last updated 2026-04-23). Best-practice guidance for administrators. It lists sessions, but listed none on this date."
+
+- id: cyber-pulse
+  title: "Cyber Pulse: AI security report (Microsoft Security Insider)"
+  url: "https://www.microsoft.com/en-us/security/security-insider/emerging-trends/cyber-pulse-ai-security-report"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (publish date 2026-02-10). Cites a survey of over 1,700 data security professionals that Microsoft commissioned from Hypothesis Group. It is a Microsoft report, so say so when you quote it."
+
+- id: deloitte-state-ai
+  title: "The State of AI in the Enterprise (Deloitte, 2026 AI report)"
+  url: "https://www.deloitte.com/cz-sk/en/services/consulting/research/the-state-of-ai-in-the-enterprise.html"
+  publisher: Deloitte
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Independent research and not a Microsoft source: cite Deloitte as the author of its figures."

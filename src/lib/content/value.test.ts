@@ -2,7 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { licensingTier, sourcesDiffer } from './derive.ts';
 import { content } from './index.ts';
 import { AUDIENCES } from './schemas.ts';
-import { briefText, buildBrief, defaultConcerns, parseConcerns, themeViews } from './value.ts';
+import {
+  agendaText,
+  briefText,
+  buildBrief,
+  defaultConcerns,
+  discoveryAreas,
+  parseConcerns,
+  themeViews,
+} from './value.ts';
 
 const views = themeViews(content);
 
@@ -177,5 +185,68 @@ describe('briefText', () => {
       expect(line!.includes(badges.sourcesDiffer), capability.id).toBe(capability.sourcesDiffer);
       expect(line, capability.id).toContain(tier);
     }
+  });
+});
+
+describe('discoveryAreas', () => {
+  const areas = discoveryAreas(content);
+
+  it('groups the questions by requirement area, in area order', () => {
+    const order = content.pillars.map((pillar) => pillar.order);
+    expect(areas.map((area) => area.pillar.order)).toEqual(
+      [...order].sort((a, b) => a - b).filter((o) => areas.some((a) => a.pillar.order === o)),
+    );
+  });
+
+  it('keeps every question every capability suggests, once, under the capability’s own area', () => {
+    const expected = content.capabilities.flatMap((capability) =>
+      (capability.discoveryQuestions ?? []).map((question, index) => ({
+        key: `${capability.id}:${index}`,
+        question,
+        pillar: capability.pillar,
+      })),
+    );
+    expect(expected.length).toBeGreaterThan(0);
+    const found = areas.flatMap((area) =>
+      area.questions.map((item) => ({
+        key: item.key,
+        question: item.question,
+        pillar: area.pillar.id,
+      })),
+    );
+    expect(found.sort((a, b) => a.key.localeCompare(b.key))).toEqual(
+      expected.sort((a, b) => a.key.localeCompare(b.key)),
+    );
+    expect(new Set(found.map((item) => item.key)).size).toBe(found.length);
+  });
+
+  it('names the capability each question comes from, and leaves out an area with no questions', () => {
+    for (const area of areas) {
+      expect(area.questions.length).toBeGreaterThan(0);
+      for (const item of area.questions) {
+        const capability = content.capabilities.find((c) => c.id === item.key.split(':')[0])!;
+        expect(item.capability).toBe(capability.shortName);
+      }
+    }
+  });
+});
+
+describe('agendaText', () => {
+  const { agendaTitle, agendaIntro } = content.value.discovery;
+
+  it('puts the title and the introduction first, then the questions in the order picked', () => {
+    const text = agendaText(content, [{ question: 'Second asked first?' }, { question: 'First?' }]);
+    expect(text.split('\n')).toEqual([
+      `# ${agendaTitle}`,
+      '',
+      agendaIntro,
+      '',
+      '1. Second asked first?',
+      '2. First?',
+    ]);
+  });
+
+  it('is only the heading and the introduction when nothing is picked', () => {
+    expect(agendaText(content, []).split('\n')).toEqual([`# ${agendaTitle}`, '', agendaIntro, '']);
   });
 });

@@ -129,6 +129,122 @@ describe('Pitch', () => {
     for (const step of copy.proofOfValue.steps)
       expect(proofOfValue.getByText(step.title, { exact: false })).toBeInTheDocument();
   });
+
+  it('says who published each statistic, and which are not Microsoft’s own', async () => {
+    await renderPage();
+    const proof = within(document.getElementById('proof')!);
+    const figures = ['29%', '21%', '73%', '1.3 billion'];
+    for (const figure of figures)
+      expect(proof.getByText(figure, { exact: false })).toBeInTheDocument();
+    for (const id of ['governance-maturity', 'top-ai-risk']) {
+      const item = copy.proof.items.find((candidate) => candidate.id === id)!;
+      expect(item.who).toBe('Deloitte');
+      expect(item.caveat).toContain('not a Microsoft figure');
+      expect(item.sourceIds).toEqual(['deloitte-state-ai']);
+    }
+    const survey = copy.proof.items.find((candidate) => candidate.id === 'unsanctioned-agents')!;
+    expect(survey.caveat).toContain('commissioned');
+  });
+});
+
+describe('Pitch: where to start', () => {
+  const entry = () => within(document.getElementById('entry')!);
+
+  it('offers a way in for each customer situation, with the licensing path and where it leads', async () => {
+    await renderPage();
+    for (const item of copy.entryPoints.items) {
+      const card = within(
+        entry().getByRole('heading', { level: 3, name: item.situation }).closest('li')!,
+      );
+      expect(card.getByText(item.conversation)).toBeInTheDocument();
+      expect(card.getByText(item.licensing)).toBeInTheDocument();
+      for (const link of item.links)
+        expect(card.getByRole('link', { name: link.label })).toHaveAttribute('href', link.to);
+      expect(
+        card.getByText(content.sources.find((s) => s.id === item.sourceIds[0])!.title),
+      ).toBeInTheDocument();
+    }
+  });
+
+  it('covers the situations the sellers meet, and every address it links to is a real page', async () => {
+    const ids = copy.entryPoints.items.map((item) => item.id);
+    for (const id of [
+      'has-e5',
+      'e3-only',
+      'copilot-heavy',
+      'foundry-builders',
+      'third-party-agents',
+      'frontline',
+      'gcc',
+    ])
+      expect(ids).toContain(id);
+    const pages = new Set(['/map', '/fit', '/licensing', '/capabilities', '/pitch', '/diagnostic']);
+    for (const link of copy.entryPoints.items.flatMap((item) => item.links))
+      expect(pages.has(link.to.split('#')[0]!)).toBe(true);
+  });
+});
+
+describe('Pitch: questions to ask', () => {
+  const picker = () => within(document.getElementById('questions')!);
+  const openAll = async (user: ReturnType<typeof userEvent.setup>) => {
+    for (const summary of picker().getAllByText(/ · \d+$/)) await user.click(summary);
+  };
+
+  it('groups every capability question by area, and picks nothing at first', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await openAll(user);
+    const total = content.capabilities.reduce(
+      (sum, c) => sum + (c.discoveryQuestions?.length ?? 0),
+      0,
+    );
+    expect(picker().getAllByRole('checkbox')).toHaveLength(total);
+    for (const box of picker().getAllByRole('checkbox')) expect(box).not.toBeChecked();
+    expect(picker().getByRole('button', { name: copy.discovery.copy })).toBeDisabled();
+    expect(
+      picker().getByText(
+        renderTemplate(copy.discovery.counter, { count: 0, limit: copy.discovery.limit }),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('lets the seller pick only as many as the limit, and frees one up when it is cleared', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await openAll(user);
+    const boxes = picker().getAllByRole('checkbox');
+    for (const box of boxes.slice(0, copy.discovery.limit)) await user.click(box);
+    expect(
+      picker().getByText(
+        renderTemplate(copy.discovery.limitReached, { limit: copy.discovery.limit }),
+      ),
+    ).toBeInTheDocument();
+    expect(boxes[copy.discovery.limit]).toBeDisabled();
+    await user.click(boxes[0]!);
+    expect(boxes[copy.discovery.limit]).toBeEnabled();
+  });
+
+  it('copies the picks as an agenda, in the order picked, and clears them', async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await openAll(user);
+    const boxes = picker().getAllByRole('checkbox');
+    await user.click(boxes[3]!);
+    await user.click(boxes[1]!);
+    await user.click(picker().getByRole('button', { name: copy.discovery.copy }));
+    const text = await navigator.clipboard.readText();
+    const lines = text.split('\n');
+    expect(lines[0]).toBe(`# ${copy.discovery.agendaTitle}`);
+    expect(lines).toContain(copy.discovery.agendaIntro);
+    expect(lines.filter((line) => /^\d+\. /.test(line))).toHaveLength(2);
+    expect(lines.findIndex((l) => l.startsWith('1. '))).toBeLessThan(
+      lines.findIndex((l) => l.startsWith('2. ')),
+    );
+    expect(picker().getByText(copy.discovery.copied)).toBeInTheDocument();
+    await user.click(picker().getByRole('button', { name: copy.discovery.clear }));
+    for (const box of boxes) expect(box).not.toBeChecked();
+    expect(window.localStorage.length).toBe(0);
+  });
 });
 
 describe('value brief', () => {
@@ -196,7 +312,9 @@ describe('value brief', () => {
       }),
     );
     expect(await navigator.clipboard.readText()).toBe(expected);
-    expect(screen.getByRole('status')).toHaveTextContent(copy.brief.copied);
+    expect(within(document.getElementById('brief')!).getByRole('status')).toHaveTextContent(
+      copy.brief.copied,
+    );
 
     await user.click(screen.getByRole('button', { name: copy.brief.print }));
     expect(print).toHaveBeenCalledTimes(1);

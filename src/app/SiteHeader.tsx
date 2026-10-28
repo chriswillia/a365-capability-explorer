@@ -14,8 +14,9 @@ const CurrentCustomer = lazy(() => import('./CurrentCustomer.tsx'));
 const NAV: { key: keyof Site['ui']['nav']; to: string; end?: boolean }[] = [
   { key: 'overview', to: '/', end: true },
   { key: 'pitch', to: '/pitch' },
-  { key: 'map', to: '/diagnostic' },
+  { key: 'map', to: '/map' },
   { key: 'licensing', to: '/licensing' },
+  { key: 'deploy', to: '/deploy' },
 ];
 
 export function SiteHeader() {

@@ -13,6 +13,7 @@ import { useAudience } from '../../lib/state/audience.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { ConversationGuide } from '../conversation/ConversationGuide.tsx';
+import { DiscoveryPicker } from './DiscoveryPicker.tsx';
 import { ValueBrief } from './ValueBrief.tsx';
 import styles from './ValuePage.module.css';
 
@@ -70,7 +71,9 @@ export function Component() {
     ['problem', copy.problem.heading],
     ['outcomes', copy.themes.heading],
     ['buyers', copy.buyers.heading],
+    ['entry', copy.entryPoints.heading],
     ['pushback', copy.objections.heading],
+    ['questions', copy.discovery.heading],
     ['proof', copy.proof.heading],
     ['brief', copy.brief.heading],
     ['team', copy.jointPlan.heading],
@@ -260,6 +263,34 @@ export function Component() {
         </ul>
       </section>
 
+      <section id="entry" aria-labelledby="entry-heading" data-no-print className={styles.section}>
+        <h2 id="entry-heading">{copy.entryPoints.heading}</h2>
+        <p>{copy.entryPoints.intro}</p>
+        <ul className={styles.cards}>
+          {copy.entryPoints.items.map((entry) => (
+            <li key={entry.id} className={styles.card}>
+              <h3>{entry.situation}</h3>
+              <h4>{copy.entryPoints.conversationLabel}</h4>
+              <p>{entry.conversation}</p>
+              <h4>{copy.entryPoints.licensingLabel}</h4>
+              <p>{entry.licensing}</p>
+              <ul className={styles.entryLinks}>
+                {entry.links.map((link) => (
+                  <li key={link.to + link.label}>
+                    <Link to={link.to}>{link.label}</Link>
+                  </li>
+                ))}
+              </ul>
+              <SourceNote
+                sourceIds={entry.sourceIds}
+                evidence={entry.evidence}
+                lastVerified={entry.lastVerified}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section
         id="pushback"
         aria-labelledby="pushback-heading"
@@ -278,6 +309,8 @@ export function Component() {
           ))}
         </div>
       </section>
+
+      <DiscoveryPicker />
 
       <section id="proof" aria-labelledby="proof-heading" data-no-print className={styles.section}>
         <h2 id="proof-heading">{copy.proof.heading}</h2>

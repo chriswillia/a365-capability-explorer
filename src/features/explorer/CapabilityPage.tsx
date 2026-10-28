@@ -26,6 +26,7 @@ import type { Capability } from '../../lib/content/schemas.ts';
 import styles from './CapabilitiesPage.module.css';
 import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
 import { RuleExplanation } from '../mapping/RuleExplanation.tsx';
+import { TalkTrack } from './TalkTrack.tsx';
 
 const patterns = evaluatePatterns(content, 'catalog');
 const requirementViews = capabilityRequirements(content, null);
@@ -93,6 +94,7 @@ function Brief({ capability: c }: { capability: Capability }) {
           </section>
         )}
       </div>
+      <TalkTrack capability={c} annotate={annotate} />
       <section>
         <h2>{copy.where}</h2>
         <ul>
@@ -295,7 +297,7 @@ function Brief({ capability: c }: { capability: Capability }) {
         </section>
       )}
       <p className={styles.note}>
-        {copy.assessmentPending} <Link to="/diagnostic">{copy.mapCta}</Link>
+        {copy.assessmentPending} <Link to="/map">{copy.mapCta}</Link>
       </p>
       <ExternalLink href={correction.href}>{copy.correction}</ExternalLink>
       {site.feedbackEmail !== null && (

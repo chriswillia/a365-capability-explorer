@@ -11,6 +11,7 @@ import {
   LOCAL_TEMPLATE_KEYS,
   METRIC_NUMBER_KEYS,
   METRIC_TEXT_KEYS,
+  PASSPORT_QUESTION_IDS,
   PILLARS,
   REVIEW_STATUSES,
   SETUPS,
@@ -41,6 +42,7 @@ export {
   LOCAL_TEMPLATE_KEYS,
   METRIC_NUMBER_KEYS,
   METRIC_TEXT_KEYS,
+  PASSPORT_QUESTION_IDS,
   PILLARS,
   REVIEW_STATUSES,
   SETUPS,
@@ -428,6 +430,9 @@ export const ROUTE_KEYS = [
   'licensing',
   'fit',
   'access',
+  'map',
+  'leaveBehind',
+  'deploy',
   'capabilities',
   'capability',
   'patterns',
@@ -627,7 +632,7 @@ export const WorkshopSchema = z.strictObject({
 });
 
 const ConversationLink = Text.regex(
-  /^\/(?:diagnostic|workshop|learn|capabilities|patterns|portfolio|pitch|access|licensing|fit)(?:#[a-z0-9-]+)?$/,
+  /^\/(?:diagnostic|map|workshop|learn|capabilities|patterns|portfolio|pitch|access|licensing|fit)(?:#[a-z0-9-]+)?$/,
   'must target a page of this site',
 );
 export const ConversationSchema = z.strictObject({
@@ -677,10 +682,13 @@ export const REQUIREMENT_KINDS = [
 // Where a requirement applies: for each user, the tenant as a whole, a device, an agent, or the data an agent uses.
 export const REQUIREMENT_LEVELS = ['each-user', 'tenant', 'device', 'agent', 'data'] as const;
 export const LICENSE_NEEDS = ['required', 'recommended', 'not-licensed', 'not-stated'] as const;
+// What a plan means for adding Agent 365: it already includes it, it is a prerequisite Microsoft lists, it is not, or it is unclear.
+export const PLAN_STANDINGS = ['included', 'qualifies', 'does-not-qualify', 'unknown'] as const;
 export const APPLICABILITY = ['applies', 'differs', 'not-stated'] as const;
 export const FIT_ROUTES = ['native', 'sdk', 'registry-sync', 'endpoint', 'verify'] as const;
 export type RequirementKind = (typeof REQUIREMENT_KINDS)[number];
 export type LicenseNeed = (typeof LICENSE_NEEDS)[number];
+export type PlanStanding = (typeof PLAN_STANDINGS)[number];
 export type Applicability = (typeof APPLICABILITY)[number];
 export type FitRoute = (typeof FIT_ROUTES)[number];
 
@@ -690,6 +698,10 @@ const ByAudience = <T extends z.ZodType>(item: T) =>
   z.strictObject({ ai: item, security: item, joint: item });
 // The values of the accessModel question (questions.yaml); validate.ts checks they still exist.
 const AccessAnswer = z.enum(['delegated', 'own-teammate', 'own-background', 'mixed']);
+
+// A labelled number field, and a labelled result with the words that explain it.
+const CalcField = z.strictObject({ label: Text, hint: Text });
+const CalcResult = z.strictObject({ label: Text, basis: maxWords(50) });
 
 export const ValueSchema = z.strictObject({
   reviewStatus: z.enum(REVIEW_STATUSES),
@@ -794,6 +806,38 @@ export const ValueSchema = z.strictObject({
       )
       .min(1),
   }),
+  // How to start the conversation for a customer's situation, with the licensing path it leads to.
+  entryPoints: z.strictObject({
+    heading: Text,
+    intro: Text,
+    conversationLabel: Text,
+    licensingLabel: Text,
+    items: z
+      .array(
+        z.strictObject({
+          id: Id,
+          situation: Text,
+          conversation: maxWords(60),
+          licensing: maxWords(60),
+          links: z.array(z.strictObject({ label: Text, to: ConversationLink })).min(1),
+          ...Sourced,
+        }),
+      )
+      .min(5),
+  }),
+  // The questions each capability suggests asking, to pick from and take into a meeting.
+  discovery: z.strictObject({
+    heading: Text,
+    intro: Text,
+    limit: z.int().min(3).max(10),
+    counter: Template,
+    limitReached: Text,
+    copy: Text,
+    copied: Text,
+    clear: Text,
+    agendaTitle: Text,
+    agendaIntro: Text,
+  }),
   jointPlan: z.strictObject({
     heading: Text,
     intro: Text,
@@ -873,6 +917,69 @@ export const LicensingSchema = z.strictObject({
       .min(1),
     principlesHeading: Text,
     principles: z.array(z.strictObject({ id: Id, text: maxWords(45), ...Sourced })).min(1),
+  }),
+  // A planning estimate of how many people need an Agent 365 license, from the counts the seller enters.
+  calculator: z.strictObject({
+    heading: Text,
+    intro: Text,
+    notice: Text,
+    peopleHeading: Text,
+    people: z.strictObject({
+      delegating: CalcField,
+      owners: CalcField,
+      overlap: CalcField,
+      everyone: CalcField,
+    }),
+    seatsHeading: Text,
+    seatsIntro: Text,
+    standings: z.strictObject({
+      included: Text,
+      qualifies: Text,
+      'does-not-qualify': Text,
+      unknown: Text,
+    }),
+    planFamilies: z
+      .array(
+        z.strictObject({
+          id: Id,
+          label: Text,
+          standing: z.enum(PLAN_STANDINGS),
+          text: maxWords(45),
+          ...Sourced,
+        }),
+      )
+      .min(1),
+    resultsHeading: Text,
+    estimateLabel: Text,
+    results: z.strictObject({
+      required: z.strictObject({ ...CalcResult.shape, ...Sourced }),
+      recommended: z.strictObject({ ...CalcResult.shape, ...Sourced }),
+      included: CalcResult,
+      qualifying: CalcResult,
+      needsPlan: CalcResult,
+      toAdd: CalcResult,
+    }),
+    waiting: Text,
+    notEntered: Text,
+    firstHeading: Text,
+    firstIntro: Text,
+    warnings: z.strictObject({
+      overlapReduced: Template,
+      includedReduced: Template,
+      qualifyingReduced: Template,
+    }),
+    copy: Text,
+    copied: Text,
+    download: Text,
+    reset: Text,
+    export: z.strictObject({
+      title: Text,
+      notice: Text,
+      people: Text,
+      plans: Text,
+      results: Text,
+      columns: z.strictObject({ section: Text, item: Text, value: Text }),
+    }),
   }),
   options: z.strictObject({
     heading: Text,
@@ -1140,6 +1247,8 @@ export const GuardrailsSchema = z.strictObject({
         title: Text,
         why: maxWords(35),
         action: maxWords(35),
+        // How to show the guardrail works: one thing to try or check, in a sentence.
+        proveIt: maxWords(35),
         capabilityIds: z.array(Id),
         // Whether the guardrail matters for this agent. Unknown shows it as "Check whether this applies".
         appliesWhen: ConditionSchema,
@@ -1190,6 +1299,26 @@ export const FitSchema = z.strictObject({
         }),
       )
       .min(1),
+  }),
+  // The third-party platforms Agent 365 can connect to, from Microsoft's Connected platforms page.
+  connected: z.strictObject({
+    heading: Text,
+    intro: Text,
+    columns: z.strictObject({ platform: Text, environment: Text, observability: Text }),
+    observability: z.strictObject({ yes: Text, 'coming-soon': Text, frontier: Text }),
+    rows: z
+      .array(
+        z.strictObject({
+          id: Id,
+          platform: Text,
+          environment: Text,
+          observability: z.enum(['yes', 'coming-soon', 'frontier']),
+        }),
+      )
+      .min(1),
+    limitsHeading: Text,
+    limits: uniqueList(Text).min(3),
+    ...Sourced,
   }),
   stack: z.strictObject({
     heading: Text,
@@ -1344,6 +1473,185 @@ export const ReadoutCopySchema = z.strictObject({
     .length(10),
 });
 
+// ---------- Agent passport: six questions about one agent, then a one-page result ----------
+
+export const PassportSchema = z.strictObject({
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  intro: Text,
+  notice: Text,
+  setup: z.strictObject({
+    heading: Text,
+    openLabel: Text,
+    openNone: Text,
+    missing: Text,
+    incompatible: Text,
+    customerLabel: Text,
+    newCustomer: Text,
+    customerNameLabel: Text,
+    agentLabel: Text,
+    cloudLabel: Text,
+    cloudHint: Text,
+    stageLabel: Text,
+    stageHint: Text,
+    stageAssumed: Text,
+  }),
+  questionsHeading: Text,
+  // The seller's wording for six questions that already exist in questions.yaml, so the rules keep working.
+  questions: z
+    .array(z.strictObject({ id: z.enum(PASSPORT_QUESTION_IDS), ask: Text, hint: Text }))
+    .length(PASSPORT_QUESTION_IDS.length),
+  // Three plain questions that settle the first one. Editorial wording, not Microsoft's.
+  helper: z.strictObject({
+    heading: Text,
+    note: Text,
+    questions: z.strictObject({ actsForPerson: Text, runsAlone: Text, ownAccount: Text }),
+    yes: Text,
+    no: Text,
+    outcomes: z.strictObject({
+      delegated: Text,
+      'own-teammate': Text,
+      'own-background': Text,
+      mixed: Text,
+      unclear: Text,
+    }),
+    use: Template,
+  }),
+  result: z.strictObject({
+    heading: Text,
+    title: Template,
+    untitledAgent: Text,
+    saved: Text,
+    accessHeading: Text,
+    accessUnknown: Text,
+    controlsHeading: Text,
+    controlsIntro: Template,
+    controlsNone: Text,
+    mustHaveHeading: Text,
+    mustHaveIntro: Template,
+    mustHaveNone: Text,
+    mustHaveMore: Template,
+    licenseHeading: Text,
+    licenseIntro: Text,
+    licenseUnknown: Text,
+    platformHeading: Text,
+    platformUnknown: Text,
+    risksHeading: Text,
+    risksIntro: Text,
+    riskControls: Template,
+    riskPossible: Text,
+    risksNone: Text,
+    actionsHeading: Text,
+    actions: z.strictObject({
+      leaveBehind: Text,
+      licensing: Text,
+      deploy: Text,
+      readout: Text,
+      discovery: Text,
+    }),
+  }),
+});
+
+// ---------- Leave-behind: a one-page summary and three slides for the customer ----------
+
+export const LeaveBehindSchema = z.strictObject({
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  intro: Text,
+  notice: Text,
+  // The statements from value.yaml that say why it matters. Each carries its own source.
+  whyStatementIds: uniqueList(Id).min(1).max(3),
+  missing: Text,
+  incompatible: Text,
+  toolbar: z.strictObject({
+    heading: Text,
+    print: Text,
+    powerpoint: Text,
+    exporting: Text,
+    exportError: Text,
+    back: Text,
+  }),
+  page: z.strictObject({
+    eyebrow: Text,
+    title: Template,
+    untitledAgent: Text,
+    prepared: Template,
+    accessLabel: Text,
+    accessUnknown: Text,
+    platformLabel: Text,
+    stageLabel: Text,
+    stageAssumed: Text,
+    whyHeading: Text,
+    controlsHeading: Text,
+    controlsNone: Text,
+    controlsEssentialMore: Template,
+    controlsMore: Template,
+    licensingHeading: Text,
+    licensingUnknown: Text,
+    licensingNote: Text,
+    stepsHeading: Text,
+    stepsNone: Text,
+    stepsMore: Template,
+    confirmHeading: Text,
+    confirmNone: Text,
+    confirmMore: Template,
+    sourcesHeading: Text,
+  }),
+  deck: z.strictObject({
+    fileName: Text,
+    titles: z.strictObject({ passport: Text, controls: Text, plan: Text }),
+    // What to say on each slide. The detail the slide had to shorten is added from the data.
+    notes: z.strictObject({ passport: Text, controls: Text, plan: Text }),
+  }),
+});
+
+// ---------- Deploy: the go-live baseline and a 30, 60 and 90 day plan ----------
+
+export const DeploySchema = z.strictObject({
+  reviewStatus: z.enum(REVIEW_STATUSES),
+  intro: Text,
+  notice: Text,
+  jumpLabel: Text,
+  assessmentLabel: Text,
+  noAssessment: Text,
+  missing: Text,
+  incompatible: Text,
+  noAssessmentNote: Text,
+  baseline: z.strictObject({
+    heading: Text,
+    intro: Text,
+    whyLabel: Text,
+    doLabel: Text,
+    proveLabel: Text,
+    whereLabel: Text,
+    ownerLabel: Text,
+    applies: Text,
+  }),
+  plan: z.strictObject({
+    heading: Text,
+    intro: Text,
+    stepsLabel: Text,
+    controlsLabel: Text,
+    none: Text,
+    tableLabel: Text,
+    columns: z.strictObject({ period: Text, steps: Text, controls: Text }),
+    // Each period takes one gate's steps and the controls the roadmap puts in one wave.
+    periods: z
+      .array(
+        z.strictObject({
+          id: Id,
+          title: Text,
+          summary: Text,
+          gate: z.enum(GATES),
+          wave: z.union([z.literal(1), z.literal(2), z.literal(3)]),
+        }),
+      )
+      .length(3),
+  }),
+  next: z.strictObject({
+    heading: Text,
+    items: z.array(z.strictObject({ label: Text, to: ConversationLink })).min(2),
+  }),
+});
+
 export const SiteSchema = z.strictObject({
   productName: Text,
   tagline: Text,
@@ -1371,6 +1679,7 @@ export const SiteSchema = z.strictObject({
       pitch: Text,
       map: Text,
       licensing: Text,
+      deploy: Text,
       library: Text,
       fit: Text,
       access: Text,
@@ -1382,6 +1691,23 @@ export const SiteSchema = z.strictObject({
       methodology: Text,
     }),
     library: z.strictObject({ exploreHeading: Text, packHeading: Text }),
+    // A fictional customer with a few agents, loaded into this browser so a seller can try the tool.
+    sample: z.strictObject({
+      customerName: Text,
+      industry: Text,
+      chip: Text,
+      heading: Text,
+      body: Text,
+      agentsLabel: Text,
+      sampleIds: uniqueList(Id).min(1).max(5),
+      load: Text,
+      open: Text,
+      reset: Text,
+      resetDone: Text,
+      remove: Text,
+      removed: Text,
+      error: Text,
+    }),
     audience: z.strictObject({
       groupLabel: Text,
       label: Text,
@@ -1450,7 +1776,10 @@ export const SiteSchema = z.strictObject({
             title: Text,
             body: Text,
             cta: Text,
-            to: Text.regex(/^\/(?:pitch|diagnostic|licensing|deploy)$/, 'must target a job page'),
+            to: Text.regex(
+              /^\/(?:pitch|map|diagnostic|licensing|deploy)$/,
+              'must target a job page',
+            ),
           }),
         )
         .min(3),
@@ -1459,6 +1788,7 @@ export const SiteSchema = z.strictObject({
     recent: z.strictObject({
       heading: Text,
       useCases: Template,
+      passport: Text,
       readout: Text,
       licensing: Text,
       edit: Text,
@@ -1607,6 +1937,10 @@ export const SiteSchema = z.strictObject({
       accessUnsplit: Text,
       accessLink: Text,
       mapCta: Text,
+      talkTrack: Text,
+      copyTalkTrack: Text,
+      talkTrackCopied: Text,
+      askLabel: Text,
       questions: Text,
       discovery: Text,
       dependencies: Text,
@@ -1642,7 +1976,7 @@ export const SiteSchema = z.strictObject({
     // Where to go after reading: the two jobs that follow learning.
     nextHeading: Text,
     next: z
-      .array(z.strictObject({ label: Text, to: Text.regex(/^\/(?:diagnostic|licensing)$/) }))
+      .array(z.strictObject({ label: Text, to: Text.regex(/^\/(?:map|diagnostic|licensing)$/) }))
       .min(2),
     flowNote: Text,
     flowTable: Text,
@@ -1907,6 +2241,9 @@ export const CONTENT_FILES = {
   accessPatterns: { file: 'access-patterns.yaml', schema: AccessPatternsSchema },
   guardrails: { file: 'guardrails.yaml', schema: GuardrailsSchema },
   fit: { file: 'fit.yaml', schema: FitSchema },
+  passport: { file: 'passport.yaml', schema: PassportSchema },
+  leaveBehind: { file: 'leave-behind.yaml', schema: LeaveBehindSchema },
+  deploy: { file: 'deploy.yaml', schema: DeploySchema },
   site: { file: 'site.yaml', schema: SiteSchema },
 } as const;
 
@@ -1944,6 +2281,9 @@ export type RequirementSet = z.infer<typeof RequirementSetSchema>;
 export type AccessPatterns = z.infer<typeof AccessPatternsSchema>;
 export type Guardrails = z.infer<typeof GuardrailsSchema>;
 export type Fit = z.infer<typeof FitSchema>;
+export type PassportCopy = z.infer<typeof PassportSchema>;
+export type LeaveBehindCopy = z.infer<typeof LeaveBehindSchema>;
+export type DeployCopy = z.infer<typeof DeploySchema>;
 
 export interface Content {
   sources: Source[];
@@ -1977,6 +2317,9 @@ export interface Content {
   accessPatterns: AccessPatterns;
   guardrails: Guardrails;
   fit: Fit;
+  passport: PassportCopy;
+  leaveBehind: LeaveBehindCopy;
+  deploy: DeployCopy;
   site: Site;
   changelog: ChangelogEntry[];
 }

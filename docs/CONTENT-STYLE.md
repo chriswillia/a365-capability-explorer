@@ -23,8 +23,9 @@ Sellers read this site, so it uses their words rather than the code's.
 - Licensing: **Included (no Agent 365 license needed)** and **Needs Agent 365 (or E7/G7)**. The code still says foundational and premium.
 - Setup: **Set up once**, **Decide per agent** and **Set up once + decide per agent**.
 - Grouping: **Area** (short) and **requirement area** (spelled out) for Security, Governance and Observability; **Where it's configured** for the console a capability is set up in.
-- Pages: **Pitch**, **Map an agent** (**Full discovery** for the longer form), **Licensing**, **Library**, **Agent scenarios**, **Agent portfolio** and **How recommendations work**. The measure on the portfolio is **Governance effort**.
-- Status: **In place**, **Gap** and **Confirm**. A missing answer is "to confirm" with the question to ask, never a gap, and never a bare 0%: say "Not assessed yet".
+- Pages: **Pitch**, **Map an agent** (the agent passport; **Full discovery** for the longer assessment), **Licensing**, **Deploy**, **Library**, **Agent scenarios**, **Agent portfolio** and **How recommendations work**. The measure on the portfolio is **Governance effort**. What a seller leaves with the customer is the **leave-behind**.
+- Status: **In place**, **Gap** and **Confirm**. A missing answer is "to confirm" with the question to ask, never a gap, and never a bare 0%: say "Not assessed yet". In a customer handout, list what is not confirmed under **Questions to confirm** and never as a headline.
+- The sample customer is **fictional** and **Sample data**: name it as obviously fictional and never after a real company.
 - Access: **delegated access**, **own access** and **agent account**. Never "owned".
 - Say "Agent 365", not "A365", in text people read.
 

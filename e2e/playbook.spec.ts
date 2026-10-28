@@ -56,7 +56,7 @@ const violations = async (page: Page) =>
   );
 
 test.describe('seller playbook navigation', () => {
-  const jobs = ['overview', 'pitch', 'map', 'licensing'] as const;
+  const jobs = ['overview', 'pitch', 'map', 'licensing', 'deploy'] as const;
   const library = [
     'fit',
     'access',
@@ -235,7 +235,9 @@ test.describe('licensing and stack fit', () => {
     await page.goto('licensing?access=own-background');
     await page.getByLabel(content.value.brief.customerLabel).fill('Fictional Customer');
     await page.getByRole('button', { name: content.licensing.handoff.copy }).click();
-    await expect(page.getByRole('status')).toContainText(content.licensing.handoff.copied);
+    await expect(page.locator('#handoff').getByRole('status')).toContainText(
+      content.licensing.handoff.copied,
+    );
     const note = await page.evaluate(() => navigator.clipboard.readText());
     expect(note).toContain('Fictional Customer');
     expect(note).toContain(content.licensing.handoff.questions[0]);

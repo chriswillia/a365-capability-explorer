@@ -485,6 +485,8 @@ test.describe('accessibility (axe, WCAG 2.2 AA)', () => {
     'pitch',
     'licensing',
     'licensing?access=own-teammate',
+    'map',
+    'deploy',
     'fit',
     'fit?platforms=copilot-studio,cloud-registry-sync&tools=stack-purview,stack-defender',
     'access',

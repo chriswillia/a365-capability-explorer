@@ -134,6 +134,147 @@ who:
       evidence: stated
       reviewStatus: draft
       lastVerified: "2026-10-27"
+calculator:
+  heading: "Size the licenses"
+  intro: "Enter your estimates to see how many people need an Agent 365 license and how many can add it now. The rules come from Microsoft's licensing FAQ and Product Terms. The numbers are yours."
+  notice: "A planning estimate, not a quote. Confirm quantities, eligibility and terms with your licensing specialist."
+  peopleHeading: "People who need a license"
+  people:
+    delegating:
+      label: "People who will use agents that act for them"
+      hint: "Delegated access: the agent acts for the signed-in user, with that user's access."
+    owners:
+      label: "People who own, sponsor or manage agents with their own access"
+      hint: "Own access: the agent acts as itself, with its own identity or account."
+    overlap:
+      label: "Of those owners, people who are also in the first group"
+      hint: "Count each person once. The tool lowers this number if it is more than either group."
+    everyone:
+      label: "Everyone who will interact with agents"
+      hint: "Used only for the recommended coverage. Leave it blank if you do not know."
+  seatsHeading: "What the customer holds today"
+  seatsIntro: "Enter how many people are on each plan. The label on each plan says whether it includes Agent 365, is a prerequisite Microsoft lists, or is not."
+  standings:
+    included: "Includes Agent 365"
+    qualifies: "Qualifies: Agent 365 can be added"
+    does-not-qualify: "Does not qualify yet"
+    unknown: "Not counted: check with your licensing specialist"
+  planFamilies:
+    - id: e7
+      label: "Microsoft 365 E7"
+      standing: included
+      text: "Agent 365 is included with Microsoft 365 E7, so these people need nothing more for Agent 365."
+      sourceIds: [lic-faq, a365-admin-overview]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: e5-a5-g5
+      label: "Microsoft 365 E5, A5 or G5"
+      standing: qualifies
+      text: "A prerequisite plan the Product Terms list."
+      sourceIds: [product-terms-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: e3-with-suites
+      label: "Microsoft 365 E3 or A3 with both the Defender and Purview suites"
+      standing: qualifies
+      text: "The Product Terms list the Defender and Purview suites as a prerequisite pair. The FAQ's mixed-license example treats E3 plus Copilot users as not eligible, so confirm this mix."
+      sourceIds: [product-terms-a365, lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: business-premium
+      label: "Microsoft 365 Business Premium"
+      standing: qualifies
+      text: "A prerequisite plan the Product Terms list."
+      sourceIds: [product-terms-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: frontline-with-suite
+      label: "Microsoft 365 F1 or F3 with the Defender and Purview Suite for frontline workers"
+      standing: qualifies
+      text: "The Product Terms list the Defender and Purview Suite for frontline workers as a prerequisite."
+      sourceIds: [product-terms-a365, lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: e3-without-suites
+      label: "Microsoft 365 E3 or A3 without both suites"
+      standing: does-not-qualify
+      text: "Not one of the plans the Product Terms list. These people need a prerequisite plan before Agent 365 can be licensed."
+      sourceIds: [product-terms-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: frontline-without-suite
+      label: "Microsoft 365 F1 or F3 without the frontline Defender and Purview suite"
+      standing: does-not-qualify
+      text: "Not one of the plans the Product Terms list. These people need the suite before Agent 365 can be licensed."
+      sourceIds: [product-terms-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: other
+      label: "Another plan, or not sure"
+      standing: unknown
+      text: "Not counted. The service description lists Agent 365 capabilities as available with Microsoft 365 E7, G7 or Agent 365, so confirm how a G7 or other plan is licensed."
+      sourceIds: [sd-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+  resultsHeading: "Results"
+  estimateLabel: "Your estimate"
+  results:
+    required:
+      label: "People who must be licensed"
+      basis: "Delegating users plus owners of agents with their own access, minus anyone in both groups. Microsoft says each of these people needs an Agent 365 license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    recommended:
+      label: "Recommended coverage"
+      basis: "Microsoft recommends a license for all users who interact with, manage or sponsor agents, so governance and protection stay consistent as adoption grows."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    included:
+      label: "Already have Agent 365 through Microsoft 365 E7"
+      basis: "Your estimate. It starts as the smaller of the people who must be licensed and the E7 seats you entered."
+    qualifying:
+      label: "Can add Agent 365 now"
+      basis: "Your estimate. These people hold a plan marked as qualifying. It starts as the smaller of the people still to license and the qualifying seats you entered."
+    needsPlan:
+      label: "Need a prerequisite plan first"
+      basis: "The people who must be licensed, minus the two groups above. They need a prerequisite plan before Agent 365 can be added."
+    toAdd:
+      label: "Agent 365 licenses to add"
+      basis: "The people who must be licensed, minus those who already have Agent 365 through E7."
+  waiting: "Enter the number of people above to see the results."
+  notEntered: "Not entered"
+  firstHeading: "What a person needs first"
+  firstIntro: "Before Agent 365 can be added for a person, they need one of these prerequisite plans from Microsoft's Product Terms, or Microsoft 365 E7."
+  warnings:
+    overlapReduced: "The overlap was lowered to {n}. It cannot be more than either group, or someone would be counted twice."
+    includedReduced: "The E7 estimate was lowered to {n}. It cannot be more than the people who must be licensed or the E7 seats you entered."
+    qualifyingReduced: "The estimate of people who can add Agent 365 now was lowered to {n}. It cannot be more than the people still to license or the qualifying seats you entered."
+  copy: "Copy as Markdown"
+  copied: "Copied to the clipboard"
+  download: "Download CSV"
+  reset: "Clear the numbers"
+  export:
+    title: "Agent 365 license sizing"
+    notice: "A planning estimate from the seller's counts, not a quote. Confirm quantities and eligibility with your licensing specialist."
+    people: "People"
+    plans: "Plans held today"
+    results: "Results"
+    columns:
+      section: "Section"
+      item: "Item"
+      value: "Value"
 options:
   heading: "Ways to license a user"
   intro: "Microsoft lists these combinations for licensing a user for Agent 365."

@@ -13,14 +13,22 @@ const snapshot = (): DiagnosticWorkspace => {
   if (cache === undefined || cache.raw !== raw) cache = { raw, data: loadDiagnostics().data };
   return cache.data;
 };
+const listeners = new Set<() => void>();
 // Another tab saving fires a storage event. Work on this page is picked up when the page renders again.
 const subscribe = (notify: () => void) => {
+  listeners.add(notify);
   const onStorage = (event: StorageEvent) => {
     if (event.key === null || event.key === STORAGE_PREFIX + DIAGNOSTIC_STORAGE_KEY) notify();
   };
   window.addEventListener('storage', onStorage);
-  return () => window.removeEventListener('storage', onStorage);
+  return () => {
+    listeners.delete(notify);
+    window.removeEventListener('storage', onStorage);
+  };
 };
+
+/** Tells every part of the page that shows saved customers to read them again, after this tab saved a change. */
+export const savedWorkspaceChanged = (): void => listeners.forEach((notify) => notify());
 
 export const useSavedWorkspace = (): DiagnosticWorkspace =>
   useSyncExternalStore(subscribe, snapshot);

@@ -1,4 +1,4 @@
-import { ACCESS_PATTERNS, GATES } from './schemas.ts';
+import { ACCESS_PATTERNS, GATES, PASSPORT_QUESTION_IDS } from './schemas.ts';
 import type { Condition, Content, Question } from './schemas.ts';
 
 /*
@@ -110,6 +110,10 @@ export function validatePlaybook(
     value.proof.items.map((p) => p.id),
   );
   duplicates(
+    'value.yaml entryPoints',
+    value.entryPoints.items.map((e) => e.id),
+  );
+  duplicates(
     'value.yaml jointPlan',
     value.jointPlan.rows.map((r) => r.id),
   );
@@ -182,6 +186,13 @@ export function validatePlaybook(
     'licensing.yaml sizing',
     licensing.sizing.reports.map((r) => r.id),
   );
+  duplicates(
+    'licensing.yaml calculator plans',
+    licensing.calculator.planFamilies.map((family) => family.id),
+  );
+  for (const standing of ['included', 'qualifies'] as const)
+    if (!licensing.calculator.planFamilies.some((family) => family.standing === standing))
+      errors.push(`licensing.yaml calculator: no plan family has the standing "${standing}"`);
   for (const population of licensing.who.populations) {
     for (const answer of population.appliesTo ?? [])
       known(`licensing.yaml › ${population.id}`, 'accessModel answer', answer, accessValues);
@@ -317,6 +328,49 @@ export function validatePlaybook(
   }
   for (const id of fit.netNew.capabilityIds)
     known('fit.yaml › netNew', 'capability', id, capabilityIds);
+
+  // ---------- passport.yaml ----------
+  const passport = content.passport;
+  duplicates(
+    'passport.yaml questions',
+    passport.questions.map((q) => q.id),
+  );
+  for (const id of PASSPORT_QUESTION_IDS) {
+    if (!passport.questions.some((q) => q.id === id))
+      errors.push(`passport.yaml: no wording for the question "${id}"`);
+    if (questionById.get(id)?.scope !== 'useCase')
+      errors.push(`passport.yaml: "${id}" must be a use-case question in questions.yaml`);
+  }
+
+  // ---------- leave-behind.yaml ----------
+  const problemIds = content.value.problem.statements.map((s) => s.id);
+  for (const id of content.leaveBehind.whyStatementIds)
+    known('leave-behind.yaml › whyStatementIds', 'value.yaml problem statement', id, problemIds);
+
+  // ---------- deploy.yaml ----------
+  const periods = content.deploy.plan.periods;
+  duplicates(
+    'deploy.yaml periods',
+    periods.map((p) => p.id),
+  );
+  for (const gate of content.guardrails.gates)
+    if (periods.filter((p) => p.gate === gate.id).length !== 1)
+      errors.push(`deploy.yaml: the gate "${gate.id}" must belong to exactly one period`);
+  duplicates(
+    'deploy.yaml waves',
+    periods.map((p) => String(p.wave)),
+  );
+
+  // ---------- site.yaml sample customer ----------
+  const sampleIds = content.site.ui.sample.sampleIds;
+  duplicates('site.yaml ui.sample.sampleIds', sampleIds);
+  for (const id of sampleIds)
+    known(
+      'site.yaml › ui.sample.sampleIds',
+      'sample',
+      id,
+      content.samples.map((s) => s.id),
+    );
 
   return { errors, dates };
 }

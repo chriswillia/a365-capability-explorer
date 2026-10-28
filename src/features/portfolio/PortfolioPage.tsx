@@ -442,7 +442,7 @@ export function Component() {
               ))}
             </fieldset>
           )}
-          <Link to="/diagnostic">{content.site.routes.diagnostic.title}</Link>
+          <Link to="/map">{content.site.routes.map.title}</Link>
         </div>
         {organization && (
           <h2>

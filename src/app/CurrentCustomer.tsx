@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useRef } from 'react';
 import { Link, matchPath, useLocation } from 'react-router';
+import { SampleChip } from '../components/SampleChip.tsx';
 import { content } from '../lib/content/index.ts';
 import { displayName, type Assessment, type Organization } from '../lib/state/diagnostic-model.ts';
 import { touched, useSavedWorkspace } from '../lib/state/workspace.ts';
@@ -39,6 +40,12 @@ function CustomerMenu({
       <summary>
         {copy.label}:{' '}
         <strong>{displayName(customer.answers, 'orgName', diagnostic.untitledOrganization)}</strong>
+        {customer.sample === true && (
+          <>
+            {' '}
+            <SampleChip />
+          </>
+        )}
       </summary>
       <div className={styles.panel}>
         <p className={styles.heading}>

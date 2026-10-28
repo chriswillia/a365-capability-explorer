@@ -33,9 +33,10 @@ const officeText = (value: string) =>
   // OOXML cannot represent these control characters.
   // eslint-disable-next-line no-control-regex
   value.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '\uFFFD');
-const compact = (value: string, limit: number) => officeText(summarizeText(value, limit));
+export const compact = (value: string, limit: number) => officeText(summarizeText(value, limit));
+export const palette = { ink, paper, white, slate, border, displayFont, bodyFont } as const;
 
-async function presentation(data: Content, title: string) {
+export async function presentation(data: Content, title: string) {
   const { default: Constructor } = await import('pptxgenjs');
   const pptx = new Constructor();
   pptx.layout = 'LAYOUT_WIDE';
@@ -47,7 +48,7 @@ async function presentation(data: Content, title: string) {
   return pptx;
 }
 
-function text(
+export function text(
   slide: PptxGenJS.Slide,
   value: string,
   x: number,
@@ -74,7 +75,7 @@ function text(
   });
 }
 
-function panel(
+export function panel(
   pptx: PptxGenJS,
   slide: PptxGenJS.Slide,
   x: number,
@@ -105,7 +106,7 @@ function addLogo(pptx: PptxGenJS, slide: PptxGenJS.Slide, logo: Logo) {
   });
 }
 
-function slideFrame(
+export function slideFrame(
   pptx: PptxGenJS,
   data: Content,
   title: string,
@@ -146,7 +147,7 @@ function slideFrame(
   return slide;
 }
 
-async function blob(pptx: PptxGenJS): Promise<Blob> {
+export async function blob(pptx: PptxGenJS): Promise<Blob> {
   const output = await pptx.write({ outputType: 'blob', compression: true });
   if (!(output instanceof Blob)) throw new PresentationError();
   return normalizePresentationPackage(output);

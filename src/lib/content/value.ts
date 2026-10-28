@@ -173,3 +173,46 @@ export function briefText(data: Content, brief: Brief): string {
   lines.push('', brief.footnote);
   return lines.join('\n');
 }
+
+export interface DiscoveryQuestion {
+  /** Stable for the page: the capability and the position of the question in its list. */
+  key: string;
+  question: string;
+  /** The short name of the capability that suggests the question. */
+  capability: string;
+}
+export interface DiscoveryArea {
+  pillar: PillarDef;
+  questions: DiscoveryQuestion[];
+}
+
+/** Every question the capabilities suggest asking, by requirement area in area order, then in catalog order. */
+export function discoveryAreas(data: Content): DiscoveryArea[] {
+  return [...data.pillars]
+    .sort((a, b) => a.order - b.order)
+    .map((pillar) => ({
+      pillar,
+      questions: data.capabilities
+        .filter((capability) => capability.pillar === pillar.id)
+        .flatMap((capability) =>
+          (capability.discoveryQuestions ?? []).map((question, index) => ({
+            key: `${capability.id}:${index}`,
+            question,
+            capability: capability.shortName,
+          })),
+        ),
+    }))
+    .filter((area) => area.questions.length > 0);
+}
+
+/** A meeting agenda as plain Markdown, for the questions picked, in the order they were picked. */
+export function agendaText(data: Content, picks: readonly { question: string }[]): string {
+  const { agendaTitle, agendaIntro } = data.value.discovery;
+  return [
+    `# ${agendaTitle}`,
+    '',
+    agendaIntro,
+    '',
+    ...picks.map((pick, index) => `${index + 1}. ${pick.question}`),
+  ].join('\n');
+}

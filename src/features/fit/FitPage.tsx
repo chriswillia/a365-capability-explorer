@@ -133,9 +133,29 @@ export function Component() {
     },
   ];
 
+  const connectedColumns: Column<(typeof copy.connected.rows)[number]>[] = [
+    {
+      key: 'platform',
+      header: copy.connected.columns.platform,
+      rowHeader: true,
+      render: (row) => row.platform,
+    },
+    {
+      key: 'environment',
+      header: copy.connected.columns.environment,
+      render: (row) => row.environment,
+    },
+    {
+      key: 'observability',
+      header: copy.connected.columns.observability,
+      render: (row) => copy.connected.observability[row.observability],
+    },
+  ];
+
   const jump: [string, string][] = [
     ['statements', copy.statements.heading],
     ['platforms', copy.platforms.heading],
+    ['connected', copy.connected.heading],
     ['stack', copy.stack.heading],
     ['new', copy.netNew.heading],
     ['limits', copy.boundaries.heading],
@@ -205,6 +225,30 @@ export function Component() {
             rowKey={(row) => row.id}
           />
         )}
+      </section>
+
+      <section id="connected" aria-labelledby="connected-heading" className={styles.section}>
+        <h2 id="connected-heading">{copy.connected.heading}</h2>
+        <p>{copy.connected.intro}</p>
+        <DataTable
+          caption={copy.connected.heading}
+          hideCaption
+          scrollLabel={renderTemplate(site.readout.tableLabel, { label: copy.connected.heading })}
+          columns={connectedColumns}
+          rows={copy.connected.rows}
+          rowKey={(row) => row.id}
+        />
+        <h3>{copy.connected.limitsHeading}</h3>
+        <ul className={styles.list}>
+          {copy.connected.limits.map((limit) => (
+            <li key={limit}>{limit}</li>
+          ))}
+        </ul>
+        <SourceNote
+          sourceIds={copy.connected.sourceIds}
+          evidence={copy.connected.evidence}
+          lastVerified={copy.connected.lastVerified}
+        />
       </section>
 
       <section id="stack" aria-labelledby="stack-heading" className={styles.section}>

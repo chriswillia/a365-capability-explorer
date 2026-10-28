@@ -14,6 +14,8 @@ export const PAGE_ROUTES = [
   { path: 'licensing', key: 'licensing' },
   { path: 'fit', key: 'fit' },
   { path: 'access', key: 'access' },
+  { path: 'map', key: 'map' },
+  { path: 'deploy', key: 'deploy' },
   { path: 'capabilities', key: 'capabilities' },
   { path: 'patterns', key: 'patterns' },
   { path: 'learn', key: 'learn' },

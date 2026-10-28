@@ -1,10 +1,12 @@
 import { screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { accessFit } from '../../lib/content/access-fit.ts';
 import { licensingTier } from '../../lib/content/derive.ts';
 import { content } from '../../lib/content/index.ts';
 import { capabilityRequirements } from '../../lib/content/requirements.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
+import { talkTrack, talkTrackText } from '../../lib/content/talk-track.ts';
 import { renderRoute } from '../../test-support/playbook.tsx';
 import './CapabilitiesPage.tsx';
 import './CapabilityPage.tsx';
@@ -83,13 +85,34 @@ describe('capability brief: how the agent acts', () => {
   });
 });
 
+describe('capability brief: what to say', () => {
+  it('gives a talk track that says only what the capability already says, and copies it with the questions', async () => {
+    const user = userEvent.setup();
+    const capability = byId('registry-inventory');
+    await renderRoute(`/capabilities/${capability.id}`, capability.shortName);
+    const say = within(screen.getByRole('region', { name: brief.talkTrack }));
+    expect(say.getByText(talkTrack(capability), { exact: false })).toBeInTheDocument();
+    await user.click(say.getByRole('button', { name: brief.copyTalkTrack }));
+    const text = await navigator.clipboard.readText();
+    expect(text).toBe(talkTrackText(content, capability));
+    for (const question of capability.discoveryQuestions!) expect(text).toContain(question);
+    expect(say.getByText(brief.talkTrackCopied)).toBeInTheDocument();
+  });
+
+  it('shows the talk track on every brief', async () => {
+    const capability = byId('purview-dlp');
+    await renderRoute(`/capabilities/${capability.id}`, capability.shortName);
+    expect(screen.getByRole('region', { name: brief.talkTrack })).toBeInTheDocument();
+  });
+});
+
 describe('capability brief: starting a map', () => {
   it('links to map an agent instead of only naming it', async () => {
     const capability = content.capabilities[0]!;
     await renderRoute(`/capabilities/${capability.id}`, capability.shortName);
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: brief.mapCta }),
-    ).toHaveAttribute('href', '/diagnostic');
+    ).toHaveAttribute('href', '/map');
   });
 });
 

@@ -8,7 +8,12 @@ const Entity = {
   updatedAt: z.iso.datetime(),
   contentVersion: z.string().min(1),
 };
-export const OrganizationSchema = z.strictObject({ ...Entity, answers: AnswersSchema });
+export const OrganizationSchema = z.strictObject({
+  ...Entity,
+  answers: AnswersSchema,
+  // True for the fictional sample customer, so it can be marked and removed without touching real ones.
+  sample: z.literal(true).optional(),
+});
 export const AssessmentSchema = z.strictObject({
   ...Entity,
   organizationId: z.uuid(),

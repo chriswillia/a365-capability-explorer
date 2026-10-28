@@ -119,7 +119,7 @@ export function Component() {
         />
       </section>
       <p className={styles.note}>{copy.pendingDiagnostic}</p>
-      <Link to="/diagnostic">{copy.startAssessment}</Link>
+      <Link to="/map">{copy.startAssessment}</Link>
     </PageContainer>
   );
 }
