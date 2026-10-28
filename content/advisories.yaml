@@ -17,10 +17,10 @@
   evidence: inferred
   reviewStatus: draft
 - id: license-basis
-  title: Verify who and what must be licensed
-  body: "The complete licensing answer could not be verified. Do not infer per-agent licensing, a user-license quantity, or an exemption from this illustrative mapping. Confirm current terms with your licensing team."
+  title: "Confirm who and what must be licensed"
+  body: "Agent 365 is licensed per user, not per agent. Users who delegate their access to an agent, and the owner, sponsor or manager of an agent with its own access, need a license. The user range in the assessment is illustrative, not a license quantity. Confirm prerequisites and quantities with your licensing specialist."
   sourceIds: [lic-faq, sd-a365]
-  evidence: judgment
+  evidence: stated
   reviewStatus: draft
 - id: frontier-preview
   title: AI teammate preview gate

@@ -8,12 +8,28 @@
   lastVerified: "2026-10-24"
 - id: delegated-access
   term: "Delegated access"
-  aliases: []
-  definition: "Access on a user's behalf. The service description extends user Conditional Access policies to agents using delegated access."
-  sourceId: sd-a365
-  evidence: inferred
+  aliases: ["On-behalf-of access"]
+  definition: "The agent acts for a signed-in user, whose token also identifies the agent. Microsoft's Entra documentation also calls this on-behalf-of (OBO) access. User policies, including Conditional Access, apply."
+  sourceId: entra-ca-agents
+  evidence: stated
   reviewStatus: draft
-  lastVerified: "2026-10-24"
+  lastVerified: "2026-10-27"
+- id: own-access
+  term: "Own access"
+  aliases: ["Application-only access", "Autonomous agent"]
+  definition: "The agent acts as itself, through its own agent identity and permissions, with no signed-in user needed. Microsoft's documentation calls this application-only or autonomous access. The pages reviewed do not use the word owned."
+  sourceId: entra-security-for-ai
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: agent-user
+  term: "Agent user"
+  aliases: ["Agent's user account", "Agent account"]
+  definition: "An optional user account paired one to one with an agent identity. It gives the agent a mailbox, calendar and Teams presence like a person, and does not replace the agent identity."
+  sourceId: entra-security-for-ai
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
 - id: access-packages
   term: "Access packages"
   aliases: []
@@ -62,3 +78,51 @@
   evidence: stated
   reviewStatus: draft
   lastVerified: "2026-10-24"
+- id: sponsor
+  term: Sponsor
+  aliases: [Sponsors]
+  definition: "A business representative accountable for an agent's purpose and lifecycle decisions, such as access reviews and retention, without technical administrative access. Every agent identity and blueprint needs at least one sponsor. Owners, who administer the agent, are optional."
+  sourceId: entra-agent-sponsors
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: agent-owner
+  term: "Agent owner"
+  aliases: ["Agent owners"]
+  definition: "Usually the technical administrator of an agent. Owners are optional, can be users or service principals, and cannot be groups. They can change properties that a sponsor cannot, such as authentication."
+  sourceId: entra-agent-sponsors
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: entra-agent-id
+  term: "Microsoft Entra Agent ID"
+  aliases: ["Entra Agent ID"]
+  definition: "The Microsoft Entra identity types for agents: agent identities, agent identity blueprints, blueprint principals and agent user accounts. Each has owners, sponsors and managers."
+  sourceId: entra-agent-sponsors
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: connected-platform
+  term: "Connected platform"
+  aliases: ["Connected platforms"]
+  definition: "A supported non-Microsoft agent platform, such as Amazon Bedrock or Google Vertex AI. After an administrator connects it, Agent 365 can discover its agents and add them to the registry. Connections are read-only."
+  sourceId: a365-connected-platforms
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: prerequisite-license
+  term: "Prerequisite license"
+  aliases: ["Prerequisite licenses"]
+  definition: "A license that must be bought alongside Agent 365. The Microsoft Product Terms list the qualifying plans, for example Microsoft 365 E5 or Business Premium."
+  sourceId: product-terms-a365
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+- id: shadow-ai
+  term: "Shadow AI"
+  aliases: []
+  definition: "Consumer-facing AI applications and standalone agents deployed across an organization without IT visibility or approval."
+  sourceId: a365-shadow-ai
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"

@@ -4,7 +4,7 @@ import type { Content } from './schemas.ts';
 import { validateContent } from './validate.ts';
 
 const clone = (): Content => structuredClone(content);
-const NOW = new Date('2026-10-25T00:00:00Z');
+const NOW = new Date('2026-10-28T00:00:00Z');
 
 describe('validateContent', () => {
   it('validates workshop agenda ids and template placeholders', () => {
@@ -56,6 +56,7 @@ describe('validateContent', () => {
     const data = clone();
     data.learn.flow[0]!.technicalSourceId = undefined;
     data.glossary[0]!.lastVerified = '2030-01-01';
+    data.faq[0]!.lastVerified = null;
     const errors = validateContent(data, { now: NOW }).errors.join('\n');
     expect(errors).toContain('technical text needs a technicalSourceId');
     expect(errors).toContain('glossary.yaml');
@@ -108,6 +109,32 @@ describe('validateContent', () => {
     );
   });
 
+  it('warns sooner about licensing and requirements facts, which change faster', () => {
+    const fortyFiveDaysOn = new Date('2026-12-11T00:00:00Z');
+    const warnings = validateContent(clone(), { now: fortyFiveDaysOn }).warnings.join('\n');
+    expect(warnings).toMatch(/licensing\.yaml[^\n]*days old \(limit 30\)/);
+    expect(warnings).toMatch(/requirements\.yaml[^\n]*days old \(limit 30\)/);
+    expect(warnings).not.toMatch(/(?:value|guardrails|fit)\.yaml[^\n]*days old/);
+  });
+
+  it('fails when a "where sources differ" statement cites a source its item does not list', () => {
+    const data = clone();
+    const entry = data.licensing.prerequisites.differs.items[0]!;
+    entry.sourceIds = entry.sourceIds.filter((id) => id !== entry.statements[0]!.sourceId);
+    expect(validateContent(data, { now: NOW }).errors.join('\n')).toMatch(
+      /not in the item's sourceIds/,
+    );
+  });
+
+  it('fails when two statements in one "where sources differ" item come from the same source', () => {
+    const data = clone();
+    const entry = data.licensing.prerequisites.differs.items[0]!;
+    entry.statements.push(structuredClone(entry.statements[0]!));
+    expect(validateContent(data, { now: NOW }).errors.join('\n')).toMatch(
+      /statements: duplicate id "product-terms-a365"/,
+    );
+  });
+
   it('fails when lastVerified is in the future', () => {
     const data = clone();
     data.capabilities[0]!.source.lastVerified = '2030-01-01';
@@ -116,7 +143,8 @@ describe('validateContent', () => {
 
   it('fails on a template placeholder the app does not compute', () => {
     const data = clone();
-    data.site.overview.exhibits.glance.titleTemplate = '{capabilityCount} and {notAMetric}';
+    data.site.capabilities.glance.exhibits.glance.titleTemplate =
+      '{capabilityCount} and {notAMetric}';
     expect(validateContent(data, { now: NOW }).errors.join('\n')).toMatch(
       /unknown placeholder \{notAMetric\}/,
     );

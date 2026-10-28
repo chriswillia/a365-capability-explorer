@@ -8,6 +8,8 @@ import { PresentationControls } from '../../components/PresentationControls.tsx'
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import { computePortfolioMetrics } from '../../lib/content/metrics.ts';
 import { formatNumber, renderTemplate } from '../../lib/content/template.ts';
+import { countReadiness, describeReadiness } from '../../lib/engine/readiness.ts';
+import { describeGcc } from '../../lib/engine/gcc.ts';
 import { answerLabel } from '../../lib/readout/report.ts';
 import {
   buildPortfolio,
@@ -81,11 +83,8 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
     },
     {
       key: 'ready',
-      header: mapping.readinessPercent,
-      render: (item) =>
-        item.result.readiness.percent === null
-          ? mapping.unknownAnswer
-          : `${item.result.readiness.percent}%`,
+      header: mapping.readinessLabel,
+      render: (item) => describeReadiness(countReadiness(item.result.readiness.checks), mapping),
     },
   ];
   return (
@@ -208,7 +207,7 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
                   },
                   {
                     key: 'setup',
-                    header: content.site.readout.agent,
+                    header: content.site.capabilities.columns.setup,
                     render: ({ capability }) =>
                       capability.setup === 'both'
                         ? copy.agentFollowup
@@ -222,10 +221,7 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
             <h2>{copy.readiness}</h2>
             <p>{copy.readinessNote}</p>
             <p>
-              {mapping.readinessPercent}:{' '}
-              {metrics.readinessPercent === null
-                ? mapping.unknownAnswer
-                : `${metrics.readinessPercent}%`}
+              {mapping.readinessLabel}: {describeReadiness(metrics.readiness, mapping)}
             </p>
             {portfolio.checks.length === 0 ? (
               <p>{mapping.noChecks}</p>
@@ -314,7 +310,7 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
                 {
                   key: 'basis',
                   header: mapping.licensing,
-                  render: (item) => item.result.licensing.basis ?? mapping.unknownAnswer,
+                  render: (item) => item.result.licensing.basis ?? mapping.licenseBasisConfirm,
                 },
                 {
                   key: 'users',
@@ -324,11 +320,7 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
                 {
                   key: 'gcc',
                   header: mapping.gcc,
-                  render: (item) =>
-                    item.result.sovereignVerification
-                      ? mapping.sovereign
-                      : item.result.gccGaps.map((row) => row.capability.shortName).join('; ') ||
-                        mapping.unknownAnswer,
+                  render: (item) => describeGcc(item.result, mapping),
                 },
               ]}
             />
@@ -474,7 +466,7 @@ export function Component() {
         <p>
           {content.site.readout.draft} · {contentMeta.contentVersion}
         </p>
-        <p>{content.site.disclaimer}</p>
+        <p data-print-only>{content.site.disclaimer}</p>
       </div>
     </PageContainer>
   );

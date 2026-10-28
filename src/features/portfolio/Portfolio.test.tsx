@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
 import { routes } from '../../app/routes.tsx';
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import { patternAnswers } from '../../lib/engine/evaluate.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { emptyWorkspace } from '../../lib/state/diagnostic-model.ts';
 import { loadDiagnostics, saveDiagnostics } from '../../lib/state/diagnostic-storage.ts';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
@@ -60,9 +60,9 @@ async function renderPage(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   await screen.findByRole('heading', { level: 1, name: site.routes.portfolio.title });

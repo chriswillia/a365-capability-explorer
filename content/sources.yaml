@@ -71,13 +71,160 @@
   lastVerified: "2026-10-25"
   notes: "Read 2026-10-25. Supports centralized governance, lifecycle accountability and organization-level agent usage insights."
 
-# TODO(verify): the rest of this FAQ, including the sources-differ statements and the myths.
+# The licensing FAQ renders its answers with scripts, so a plain request returns none. It was read in full in a browser.
 - id: lic-faq
   title: "Microsoft Licensing FAQs: Microsoft Agent 365"
   url: "https://www.microsoft.com/licensing/faqs/122"
   publisher: Microsoft
-  lastVerified: "2026-10-23"
-  notes: "Partially verified: only the prerequisites-by-segment answer could be read, because the page renders its FAQ with scripts. TODO(verify): everything else that cites this source."
+  lastVerified: "2026-10-27"
+  notes: "Read in full on 2026-10-27 in a browser. The page shows no date. It states list prices, which this site never repeats; read them on the page."
+
+- id: a365-why
+  title: "Why does an enterprise need Agent 365?"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/guidance/why-agent-365-for-enterprise"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-07-30). Supports the agent sprawl problem statement and the point-solutions argument."
+
+- id: a365-security
+  title: "Secure AI agents at scale using Microsoft Agent 365"
+  url: "https://learn.microsoft.com/en-us/security/security-for-ai/agent-365-security"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-04-29). Supports the statements that Agent 365 extends the existing Entra, Defender and Purview tools to agents."
+
+- id: a365-entra-capabilities
+  title: "Protect agent identities with Microsoft Entra"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/capabilities-entra"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-05-12). Supports the separation of concerns between Agent 365 and Microsoft Entra Agent ID."
+
+- id: entra-registry-convergence
+  title: "Agent Registry convergence with Microsoft Agent 365"
+  url: "https://learn.microsoft.com/en-us/entra/agent-id/agent-registry-convergence"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-04-05, updated 2026-10-06). Supports which registry and console to use for which task."
+
+- id: entra-ca-agents
+  title: "Conditional Access for Agents in Microsoft Entra"
+  url: "https://learn.microsoft.com/en-us/entra/identity/conditional-access/agent-id"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-07-31). Supports the three access patterns, their policy targets and the license requirement. It covers more than the service description's delegated-access wording."
+
+- id: entra-idp-agents
+  title: "ID Protection for Agents"
+  url: "https://learn.microsoft.com/en-us/entra/id-protection/concept-risky-agents"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-06-17). Supports how risk is attributed in on-behalf-of flows, the administrator roles, and the license requirement that is described as starting soon."
+
+- id: entra-agent-id
+  title: "What is Microsoft Entra Agent ID?"
+  url: "https://learn.microsoft.com/en-us/entra/agent-id/what-is-microsoft-entra-agent-id"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-04-14). Supports Agent ID availability, the add-on statement and how third-party agents are registered."
+
+- id: entra-security-for-ai
+  title: "Microsoft Entra security for AI overview"
+  url: "https://learn.microsoft.com/en-us/entra/agent-id/security-for-ai-overview"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-05-08). Supports the definitions of interactive agents, autonomous agents and an agent's user account."
+
+- id: entra-agent-id-governance
+  title: "Governing Agent Identities"
+  url: "https://learn.microsoft.com/en-us/entra/id-governance/agent-id-governance-overview"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-06-05). Supports access packages for agents and the license requirement for identity governance."
+
+- id: entra-agent-sponsor-tasks
+  title: "Agent identity sponsor tasks in Lifecycle Workflows"
+  url: "https://learn.microsoft.com/en-us/entra/id-governance/agent-sponsor-tasks"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2025-10-25, updated 2026-06-24). Supports the sponsor workflows and the administrator role they need."
+
+- id: gsa-agents
+  title: "Learn about Secure Web and AI Gateway for Microsoft Copilot Studio agents"
+  url: "https://learn.microsoft.com/en-us/entra/global-secure-access/concept-secure-web-ai-gateway-agents"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2025-11-03, updated 2026-10-06). Supports the network-control onboarding step in the Power Platform admin center."
+
+- id: purview-agent-365
+  title: "Use Microsoft Purview to manage data security & compliance for Microsoft Agent 365"
+  url: "https://learn.microsoft.com/en-us/purview/ai-agent-365"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-05-01). Supports what is enabled automatically for an agent instance and what needs a policy."
+
+- id: purview-billing
+  title: "Learn about Microsoft Purview billing models"
+  url: "https://learn.microsoft.com/en-us/purview/purview-billing-models"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-01-05, updated 2026-06-15). Supports pay-as-you-go billing for non-Microsoft AI apps and agents, and the Azure subscription it needs. This is Purview's general billing page, not an Agent 365 page."
+
+- id: defender-agent-inventory
+  title: "Discover AI agents and assess security posture using Microsoft Defender"
+  url: "https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/ai-agent-inventory"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-07-14). Supports the Defender for Endpoint requirement for local agent discovery."
+
+- id: defender-agent-detection
+  title: "Detect and investigate threats to AI agents using Microsoft Defender (Preview)"
+  url: "https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/ai-agent-detection-protection"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-08-07). Supports the telemetry requirements and which agents threat detection supports. The page is labeled Preview."
+
+- id: a365-third-party
+  title: "Ecosystem partner agents available in Agent 365"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/third-party-agents"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-10-01). Supports registry sync for agents built on Amazon Bedrock and Google Vertex AI, and the ready-to-deploy and agent factory partner types."
+
+- id: a365-ga-blog
+  title: "Microsoft Agent 365, now generally available, expands capabilities and integrations"
+  url: "https://www.microsoft.com/en-us/security/blog/2026/05/01/microsoft-agent-365-now-generally-available-expands-capabilities-and-integrations/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (post date 2026-05-01). Supports the problem statement, the availability by access type, and the customer and partner quotes. A launch post: statuses may have changed since."
+
+- id: a365-launch-blog
+  title: "Microsoft Agent 365: The control plane for AI agents"
+  url: "https://www.microsoft.com/en-us/copilot/blog/2025/11/18/microsoft-agent-365-the-control-plane-for-ai-agents/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (post date 2025-11-18). Supports the manage-agents-like-people framing and the IDC figure it cites."
+
+- id: a365-frontier-blog
+  title: "Secure agentic AI for your Frontier Transformation"
+  url: "https://www.microsoft.com/security/blog/2026/03/09/secure-agentic-ai-for-your-frontier-transformation/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (post date 2026-03-09). Supports the questions security leaders ask and the Avanade quote."
+
+- id: g7-blog
+  title: "Introducing Microsoft 365 G7: Intelligence + Trust for the mission ahead"
+  url: "https://www.microsoft.com/en-us/microsoft-cloud/blog/us-government/2026/09/15/introducing-microsoft-365-g7-intelligence-trust-for-the-mission-ahead/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (post date 2026-09-15, updated 2026-10-01). Supports Microsoft 365 G7 and the GCC purchase dates."
+
+- id: double-agents-blog
+  title: "Beware of double agents: How AI can fortify — or fracture — your cybersecurity"
+  url: "https://blogs.microsoft.com/blog/2025/11/05/beware-of-double-agents-how-ai-can-fortify-or-fracture-your-cybersecurity/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (post date 2025-11-05). Supports the Agentic Zero Trust framing for security leaders."
 
 - id: wti-2025
   title: "2025 Work Trend Index: The year the Frontier Firm is born"
@@ -99,3 +246,116 @@
   publisher: GitHub
   lastVerified: "2026-10-23"
   notes: "URL checked (HTTP 200); content not yet compared with content files."
+
+- id: product-terms-a365
+  title: "Microsoft Product Terms: Agent 365"
+  url: "https://www.microsoft.com/licensing/terms/productoffering/Agent365/EAEAS"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (no page date). The contractual source. Shows the License Prerequisites for an Agent 365 user license for the Enterprise Agreement programs. Where a blog or the FAQ differs, the Product Terms govern."
+
+# TODO(verify): the partner blog says "Effective June 1" and shows no year or date. Confirm the year with the partner team.
+- id: partner-blog-prereq
+  title: "New licensing prerequisite for Agent 365 (Microsoft partner blog)"
+  url: "https://microsoftpartners.microsoft.com/abs/Blog/?title=New%20licensing%20prerequisite%20for%20Agent%20365"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Says a new prerequisite applies to new Agent 365 purchases from June 1. The page shows no year."
+
+- id: a365-multitenant
+  title: "Manage agents across multiple tenants in the Microsoft 365 admin center (preview)"
+  url: "https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-multi-tenant?view=o365-worldwide"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Public preview. Supports the licensing note for partners and enterprises that govern several tenants."
+
+- id: a365-shadow-ai
+  title: "Shadow AI in the Microsoft 365 admin center (preview)"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/agent-shadow-ai"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-10-22). Frontier public preview. Supports the prerequisites and the list of agents it can detect."
+
+- id: a365-connected-platforms
+  title: "Connected platforms in Microsoft Agent 365"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/admin/connected-platforms"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Supports the list of supported third-party platforms, the read-only security model and the current limits."
+
+- id: a365-3p-idp
+  title: "Integrate Microsoft Entra Agent ID with third-party identity providers"
+  url: "https://learn.microsoft.com/en-us/microsoft-agent-365/developer/third-party-identity-providers"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-08-10). Supports what an agent needs when its users sign in through another identity provider."
+
+- id: a365-agent-settings
+  title: "Agent settings in the Microsoft 365 admin center"
+  url: "https://learn.microsoft.com/en-us/microsoft-365/admin/manage/agent-settings?view=o365-worldwide"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Supports the rule that reassigns ownerless agents to the previous owner's manager."
+
+- id: entra-agent-sponsors
+  title: "Administrative relationships for agent IDs: owners, sponsors and managers"
+  url: "https://learn.microsoft.com/en-us/entra/agent-id/agent-owners-sponsors-managers"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Supports the rule that every agent identity and blueprint needs at least one sponsor."
+
+- id: entra-licensing
+  title: "Microsoft Entra licensing"
+  url: "https://learn.microsoft.com/en-us/entra/fundamentals/licensing"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page date 2026-07-28). Supports the Agent 365 license rule for Conditional Access for agents and the planned one for ID Protection for agents."
+
+- id: gsa-internet-profile
+  title: "Manage the Internet Access traffic forwarding profile (Global Secure Access)"
+  url: "https://learn.microsoft.com/en-us/entra/global-secure-access/how-to-manage-internet-access-profile"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27. Supports the Agentic Acquire policy for local agents."
+
+- id: gsa-agent-discovery
+  title: "AI agent discovery in Global Secure Access (preview)"
+  url: "https://learn.microsoft.com/en-us/entra/global-secure-access/concept-ai-agent-discovery"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-06-16). Preview. Supports what discovering local and Copilot Studio agents needs."
+
+- id: defender-ai-start
+  title: "Enable security for AI agents using Microsoft Defender"
+  url: "https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/get-started-defender-security-for-ai"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-07-01). Supports what onboarding to Agent 365 turns on in Defender and the connector hunting needs."
+
+- id: defender-transition
+  title: "Transition Microsoft Copilot Studio and Microsoft Foundry agent security capabilities to Microsoft Agent 365"
+  url: "https://learn.microsoft.com/en-us/defender-xdr/security-for-ai/transition-agent-security-to-agent-365"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-07-01). Effective July 1, 2026, agent security for Copilot Studio and Foundry agents needs an Agent 365 license."
+
+- id: fasttrack-a365
+  title: "Microsoft Agent 365: FastTrack"
+  url: "https://learn.microsoft.com/en-us/microsoft-365/fasttrack/microsoft-agent-365"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-10-16). Lists what FastTrack covers for Agent 365 and what is out of scope."
+
+- id: fasttrack-eligibility
+  title: "FastTrack eligibility"
+  url: "https://learn.microsoft.com/en-us/microsoft-365/fasttrack/eligibility"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-05-04). Supports the 150-license threshold and that Agent 365 is among the supported products."
+
+- id: adoption-hub
+  title: "Microsoft Agent 365: adoption customer hub"
+  url: "https://adoption.microsoft.com/en-us/customer-hub/microsoft-agent-365/"
+  publisher: Microsoft
+  lastVerified: "2026-10-27"
+  notes: "Read 2026-10-27 (page last updated 2026-04-23). Best-practice guidance for administrators. It lists sessions, but listed none on this date."

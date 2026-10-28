@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
+import { GuardrailList } from '../../components/GuardrailList.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PillarSummary } from '../../components/PillarSummary.tsx';
@@ -10,6 +11,7 @@ import { renderTemplate } from '../../lib/content/template.ts';
 import type { Answers, Question } from '../../lib/content/schemas.ts';
 import { answerErrors, knownAnswer } from '../../lib/engine/answers.ts';
 import { evaluateAssessment, type AssessmentResult } from '../../lib/engine/evaluate.ts';
+import { evaluateGuardrails } from '../../lib/engine/guardrails.ts';
 import { pillarCoverage, pillarRows } from '../../lib/engine/pillars.ts';
 import { standingAssumptions } from '../../lib/state/assumptions.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
@@ -324,6 +326,11 @@ function Wizard({
           {section ? (
             <>
               <p>{section.description}</p>
+              {section.questions.some((question) => question.id === 'accessModel') && (
+                <p>
+                  <Link to={`/access?assessment=${assessment.id}`}>{copy.accessHelp}</Link>
+                </p>
+              )}
               {section.scope === 'org' && <p className={styles.note}>{copy.sharedOrganization}</p>}
               {section.questions.map((question) => (
                 <QuestionInput
@@ -356,6 +363,23 @@ function Wizard({
                     </ButtonLink>
                     <Link to={`/canvas/${assessment.id}`}>{content.site.readout.canvas}</Link>
                   </div>
+                  <h3>{content.guardrails.heading}</h3>
+                  <GuardrailList
+                    plan={evaluateGuardrails(content, answers)}
+                    headingLevel={4}
+                    compact
+                  />
+                  <h3>{copy.reviewLinksHeading}</h3>
+                  <ul className={styles.nextSteps}>
+                    <li>
+                      <Link to={`/licensing?assessment=${assessment.id}`}>
+                        {copy.licensingLink}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link to={`/access?assessment=${assessment.id}`}>{copy.accessLink}</Link>
+                    </li>
+                  </ul>
                 </>
               ) : (
                 <p>{copy.noPreview}</p>

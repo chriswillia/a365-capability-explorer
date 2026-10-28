@@ -36,6 +36,8 @@ export function Component() {
     ['concepts', copy.sections.concepts],
     ['integration', copy.sections.integration],
     ['building-blocks', copy.sections.buildingBlocks],
+    ['frontier', copy.sections.frontier],
+    ['roles', copy.sections.roles],
     ['glossary', copy.sections.glossary],
   ] as const;
   const renderTechnical = (item: LearningItem) => {
@@ -72,9 +74,9 @@ export function Component() {
     <PageContainer>
       <PageHeading>{site.routes.learn.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
-      <p>{copy.draftNote}</p>
+      {depth === 'technical' && <p>{copy.draftNote}</p>}
       <p>
-        <Link to="/conversation">{site.routes.conversation.title}</Link>
+        <Link to="/pitch#conversation">{site.routes.conversation.title}</Link>
       </p>
       <nav aria-label={copy.contents} className={styles.contents}>
         {anchors.map(([id, label]) => (
@@ -145,6 +147,32 @@ export function Component() {
         <p>{copy.buildingBlocksNote}</p>
         <div className={styles.grid}>{content.buildingBlocks.map(renderItem)}</div>
       </section>
+      <section id="frontier" className={styles.section}>
+        <h2>{copy.sections.frontier}</h2>
+        <p>{copy.frontierNote}</p>
+        <ol className={styles.grid}>
+          {learn.frontier.map((phase) => (
+            <li key={phase.id} className={styles.card}>
+              <h3>{phase.title}</h3>
+              <p>{phase.summary === null ? copy.pending : annotate(phase.summary)}</p>
+              <LearningEvidence item={phase} />
+            </li>
+          ))}
+        </ol>
+      </section>
+      <section id="roles" className={styles.section}>
+        <h2>{copy.sections.roles}</h2>
+        <p>{copy.rolesNote}</p>
+        <ul className={styles.grid}>
+          {content.personas.map((persona) => (
+            <li key={persona.id} className={styles.card}>
+              <h3>{persona.label}</h3>
+              <p>{persona.need}</p>
+              <Link to={persona.href}>{persona.startLabel}</Link>
+            </li>
+          ))}
+        </ul>
+      </section>
       <section id="glossary" className={styles.section}>
         <h2>{copy.sections.glossary}</h2>
         <dl className={styles.grid}>
@@ -158,6 +186,16 @@ export function Component() {
             </div>
           ))}
         </dl>
+      </section>
+      <section aria-labelledby="learn-next" className={styles.section}>
+        <h2 id="learn-next">{copy.nextHeading}</h2>
+        <ul className={styles.next}>
+          {copy.next.map((item) => (
+            <li key={item.to}>
+              <Link to={item.to}>{item.label}</Link>
+            </li>
+          ))}
+        </ul>
       </section>
     </PageContainer>
   );

@@ -242,6 +242,10 @@ export function evaluateAssessment(
       answers.cloudEnvironment === 'gcc'
         ? inScope.filter((r) => !r.capability.source.gccAvailable)
         : [],
+    cloudEnvironment:
+      typeof answers.cloudEnvironment === 'string' && knownAnswer(answers.cloudEnvironment)
+        ? answers.cloudEnvironment
+        : null,
     sovereignVerification:
       answers.cloudEnvironment === 'gcc-high-dod' || answers.cloudEnvironment === 'other-sovereign',
     openQuestions: data.questions

@@ -146,6 +146,31 @@
   margin-bottom: var(--space-3);
 }
 
+.glance {
+  margin-block: var(--space-4);
+}
+
+.glance > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.glance[open] > summary {
+  margin-bottom: var(--space-4);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-4);
+}
+
+.toolbar > div {
+  display: grid;
+  gap: var(--space-2);
+}
+
 .group {
   display: grid;
   gap: var(--space-3);
@@ -218,6 +243,13 @@
 .relatedLinks {
   display: grid;
   gap: var(--space-2);
+}
+
+.needs {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding-left: var(--space-6);
 }
 
 .relatedLinks a,

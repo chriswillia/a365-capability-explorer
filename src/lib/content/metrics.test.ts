@@ -62,6 +62,26 @@ describe('computeMetrics', () => {
     newer.source.lastVerified = '2026-10-23';
     expect(computeMetrics(input([older, newer])).lastVerified).toBe('2026-10-23');
   });
+
+  it('reports the newest source check, ignoring sources that were never checked', () => {
+    const capability = make('a', 'govern');
+    capability.source.lastVerified = '2026-10-23';
+    const metrics = computeMetrics({
+      ...input([capability]),
+      sources: [
+        { lastVerified: '2026-09-01' },
+        { lastVerified: null },
+        { lastVerified: '2026-10-27' },
+      ],
+    });
+    expect(metrics.sourcesChecked).toBe('2026-10-27');
+  });
+
+  it('falls back to the capability check date when no source has been checked', () => {
+    const capability = make('a', 'govern');
+    capability.source.lastVerified = '2026-10-23';
+    expect(computeMetrics(input([capability])).sourcesChecked).toBe('2026-10-23');
+  });
 });
 
 describe('derived fields', () => {

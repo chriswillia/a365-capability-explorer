@@ -16,6 +16,7 @@ import { licensingTier } from '../../lib/content/derive.ts';
 import { computeWorkshopMinutes } from '../../lib/content/metrics.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { describeCondition } from '../../lib/engine/conditions.ts';
+import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { Evidence } from '../mapping/Evidence.tsx';
 import styles from './Workshop.module.css';
@@ -25,6 +26,7 @@ type PrintTarget = 'all' | 'guide' | 'checklist' | 'patterns' | 'capabilities';
 export function Component() {
   usePageTitle('workshop');
   const copy = content.workshop;
+  const { depth } = useDepth();
   const [target, setTarget] = useState<PrintTarget>('all');
   const [error, setError] = useState(false);
   useEffect(() => {
@@ -59,11 +61,13 @@ export function Component() {
         <PresentationControls />
         <PageHeading>{content.site.routes.workshop.title}</PageHeading>
         <p>{copy.introduction}</p>
-        <p>
-          {copy.reviewStatus === 'draft'
-            ? content.site.ui.badges.draft
-            : content.site.ui.badges.reviewed}
-        </p>
+        {depth === 'technical' && (
+          <p>
+            {copy.reviewStatus === 'draft'
+              ? content.site.ui.badges.draft
+              : content.site.ui.badges.reviewed}
+          </p>
+        )}
         {stamp}
         <div className={styles.actions} data-presentation-hide data-no-print>
           <a href="#workshop-guide">{copy.guide}</a>
@@ -71,7 +75,7 @@ export function Component() {
           <a href="#pattern-cards">{copy.patternsTitle}</a>
           <a href="#capability-cards">{copy.capabilitiesTitle}</a>
           <Link to="/canvas/blank">{content.site.readout.blankCanvas}</Link>
-          <Link to="/conversation">{content.site.routes.conversation.title}</Link>
+          <Link to="/pitch#conversation">{content.site.routes.conversation.title}</Link>
           <Link to="/portfolio">{content.site.routes.portfolio.title}</Link>
           <button type="button" onClick={() => print('guide')}>
             {copy.printGuide}
@@ -246,11 +250,13 @@ export function Component() {
                   <div>
                     <h4>{copy.back}</h4>
                     <p>{capability.summary ?? content.site.learn.pending}</p>
-                    <p>
-                      {capability.reviewStatus === 'draft'
-                        ? content.site.ui.badges.draft
-                        : content.site.ui.badges.reviewed}
-                    </p>
+                    {depth === 'technical' && (
+                      <p>
+                        {capability.reviewStatus === 'draft'
+                          ? content.site.ui.badges.draft
+                          : content.site.ui.badges.reviewed}
+                      </p>
+                    )}
                     <h4>{copy.scope}</h4>
                     {rules.length === 0 ? (
                       <p>{copy.noRules}</p>
@@ -289,7 +295,7 @@ export function Component() {
             })}
           </div>
         </section>
-        <p>{content.site.disclaimer}</p>
+        <p data-print-only>{content.site.disclaimer}</p>
       </div>
     </PageContainer>
   );

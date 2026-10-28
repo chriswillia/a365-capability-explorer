@@ -3,14 +3,6 @@
   border-bottom: 1px solid var(--color-hairline);
 }
 
-.banner {
-  padding: var(--space-2) var(--layout-gutter);
-  background: var(--color-ink);
-  color: var(--color-on-dark);
-  font-size: var(--text-14);
-  text-align: center;
-}
-
 .top,
 .bar {
   max-width: var(--layout-max-width);
@@ -27,6 +19,15 @@
   gap: var(--space-4);
   padding-top: var(--space-3);
   padding-bottom: var(--space-3);
+}
+
+/* The two view switches sit together at the right of the brand row. */
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-2) var(--space-6);
 }
 
 /* The navigation on the left, and the customer being worked on at the right end of the same row. */
@@ -76,7 +77,8 @@
   font-weight: 700;
 }
 
-.nav ul {
+/* Only the top-level list: the Library menu has lists of its own. */
+.nav > ul {
   display: flex;
   flex-wrap: wrap;
   gap: 0 var(--space-6);
@@ -107,12 +109,6 @@
 }
 
 @media (max-width: 40rem) {
-  .banner {
-    padding-block: var(--space-1);
-    font-size: var(--text-12);
-    line-height: var(--line-height-snug);
-  }
-
   .top,
   .bar {
     padding-right: var(--layout-gutter-narrow);
@@ -129,7 +125,7 @@
     font-size: var(--text-16);
   }
 
-  .nav ul {
+  .nav > ul {
     gap: 0 var(--space-3);
   }
 

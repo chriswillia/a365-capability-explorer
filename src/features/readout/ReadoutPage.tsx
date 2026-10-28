@@ -8,6 +8,7 @@ import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Answers } from '../../lib/content/schemas.ts';
 import { formatNumber } from '../../lib/content/template.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
+import { describeReadiness } from '../../lib/engine/readiness.ts';
 import { exhibitId, exhibitPlan } from '../../lib/readout/plan.ts';
 import { answerLabel, buildReadout, readoutMarkdown } from '../../lib/readout/report.ts';
 import { downloadBlob, downloadText } from '../../lib/readout/files.ts';
@@ -289,14 +290,12 @@ function Readout({
                 },
                 { id: 'premium', label: copy.premium, value: formatNumber(metrics.premium) },
                 { id: 'platform', label: copy.platform, value: formatNumber(metrics.platform) },
+                { id: 'both', label: copy.both, value: formatNumber(metrics.both) },
                 { id: 'agent', label: copy.agent, value: formatNumber(metrics.agent) },
                 {
                   id: 'readiness',
-                  label: mapping.readinessPercent,
-                  value:
-                    metrics.readinessPercent === null
-                      ? mapping.unknownAnswer
-                      : `${formatNumber(metrics.readinessPercent)}%`,
+                  label: mapping.readinessLabel,
+                  value: describeReadiness(metrics.readiness, mapping),
                 },
               ]}
             />
@@ -305,8 +304,10 @@ function Readout({
           <ReadoutExhibits report={report} assessment={assessment} organization={organization} />
           <p className={styles.disclaimer}>
             {copy.draft} · {result.contentVersion}
-            <br />
-            {content.site.disclaimer}
+            <span data-print-only>
+              <br />
+              {content.site.disclaimer}
+            </span>
           </p>
         </article>
       </div>

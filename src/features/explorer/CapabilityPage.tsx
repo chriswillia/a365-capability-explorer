@@ -1,9 +1,14 @@
 import { Link, useParams } from 'react-router';
+import { AccessFitBadge } from '../../components/AccessFitBadge.tsx';
 import { Badge } from '../../components/Badge.tsx';
+import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
+import { RequirementLine } from '../../components/RequirementLine.tsx';
+import { SourceNote } from '../../components/SourceNote.tsx';
 import { createGlossaryAnnotator } from '../../lib/content/annotateGlossary.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { ACCESS_PATTERN_KEYS, accessFit } from '../../lib/content/access-fit.ts';
 import {
   consoleById,
   content,
@@ -13,6 +18,7 @@ import {
   sourceById,
 } from '../../lib/content/index.ts';
 import { licensingTier, sourcesDiffer } from '../../lib/content/derive.ts';
+import { capabilityRequirements } from '../../lib/content/requirements.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { Component as NotFoundPage } from '../not-found/NotFoundPage.tsx';
@@ -22,6 +28,7 @@ import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
 import { RuleExplanation } from '../mapping/RuleExplanation.tsx';
 
 const patterns = evaluatePatterns(content, 'catalog');
+const requirementViews = capabilityRequirements(content, null);
 
 function SourceCitation({ id }: { id: string }) {
   const source = sourceById(id);
@@ -39,6 +46,10 @@ function Brief({ capability: c }: { capability: Capability }) {
   const correction = new URL(`${site.repoUrl}/issues/new`);
   correction.searchParams.set('title', `Correction: ${c.shortName}`);
   const pillar = pillarById(c.pillar);
+  const needs = requirementViews.find((view) => view.capability.id === c.id);
+  const panel = content.licensing.requirementsPanel;
+  const fit = accessFit(content, c.id);
+  const accessCopy = content.accessPatterns;
 
   return (
     <PageContainer>
@@ -53,7 +64,7 @@ function Brief({ capability: c }: { capability: Capability }) {
         <Badge tone="neutral">
           {c.source.gccAvailable ? badges.gccAvailable : badges.gccUnavailable}
         </Badge>
-        <Badge tone="draft">{c.reviewStatus === 'draft' ? badges.draft : badges.reviewed}</Badge>
+        <ReviewBadge reviewStatus={c.reviewStatus} verified={c.source.lastVerified} />
         {c.status === 'preview' && <Badge tone="neutral">{badges.preview}</Badge>}
         {c.status === 'frontier-preview' && <Badge tone="neutral">{badges.frontierPreview}</Badge>}
         {sourcesDiffer(c) && <Badge tone="amber">{badges.sourcesDiffer}</Badge>}
@@ -116,6 +127,63 @@ function Brief({ capability: c }: { capability: Capability }) {
         <p>{licensingTier(c) === 'foundational' ? badges.foundational : badges.premium}</p>
         <p>{c.source.gccAvailable ? badges.gccAvailable : badges.gccUnavailable}</p>
         <SourceCitation id={c.source.sourceId} />
+      </section>
+      <section aria-labelledby="needs-heading">
+        <h2 id="needs-heading">{copy.needs}</h2>
+        <p>{copy.needsIntro}</p>
+        {licensingTier(c) === 'premium' && <p>{copy.needsPremium}</p>}
+        {needs === undefined || (needs.items.length === 0 && needs.without.length === 0) ? (
+          <p>{panel.noneStated}</p>
+        ) : (
+          <ul className={styles.needs}>
+            {needs.items.map((view) => (
+              <RequirementLine key={view.item.id} view={view} showStatus={false} />
+            ))}
+            {needs.without.map((entry) => (
+              <li key={entry.id}>
+                <strong>{panel.kinds.license}.</strong> {entry.text}
+                <SourceNote
+                  sourceIds={entry.sourceIds}
+                  evidence={entry.evidence}
+                  lastVerified={entry.lastVerified}
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+        <Link className={styles.relatedLink} to="/licensing#requirements">
+          {copy.needsLink}
+        </Link>
+      </section>
+      <section aria-labelledby="access-heading">
+        <h2 id="access-heading">{copy.access}</h2>
+        <p>{copy.accessIntro}</p>
+        <p>
+          <AccessFitBadge capabilityId={c.id} />
+        </p>
+        {fit.kind === 'unsplit' ? (
+          <p>{copy.accessUnsplit}</p>
+        ) : (
+          <>
+            <ul>
+              {ACCESS_PATTERN_KEYS.map((key) => (
+                <li key={key}>
+                  <strong>{accessCopy.columns[key]}:</strong>{' '}
+                  {accessCopy.applicability[fit.row[key]]}
+                </li>
+              ))}
+            </ul>
+            <p>{fit.row.note}</p>
+            <SourceNote
+              sourceIds={fit.row.sourceIds}
+              evidence={fit.row.evidence}
+              lastVerified={fit.row.lastVerified}
+            />
+          </>
+        )}
+        <Link className={styles.relatedLink} to="/access">
+          {copy.accessLink}
+        </Link>
       </section>
       {c.questionsItAnswers && (
         <section>
@@ -226,7 +294,9 @@ function Brief({ capability: c }: { capability: Capability }) {
           </ul>
         </section>
       )}
-      <p className={styles.note}>{copy.assessmentPending}</p>
+      <p className={styles.note}>
+        {copy.assessmentPending} <Link to="/diagnostic">{copy.mapCta}</Link>
+      </p>
       <ExternalLink href={correction.href}>{copy.correction}</ExternalLink>
       {site.feedbackEmail !== null && (
         <p>

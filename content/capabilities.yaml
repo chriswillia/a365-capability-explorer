@@ -5,8 +5,7 @@
 # Everything else (pillar, wave, control points, setup, lifecycle stages and all text fields) is editorial
 # and stays reviewStatus: draft until a subject-matter expert signs it off.
 #
-# TODO(verify): every sourceNotes entry with sourceId lic-faq was taken from the build brief. The licensing
-# FAQ could not be fully read on 2026-10-23, so those statements need checking against the live page.
+# Every sourceNotes entry with sourceId lic-faq was checked against the licensing FAQ, which was read in full on 2026-10-27.
 
 - id: registry-inventory
   shortName: Agent Registry inventory
@@ -94,7 +93,6 @@
     - "Which agent lifecycle actions do we repeat often enough to automate?"
     - "Which conditions should trigger an action, for example an agent with no sponsor?"
   sourceNotes:
-    # TODO(verify)
     - sourceId: lic-faq
       differs: true
       note: 'Lists "Automate agent lifecycle actions" as requiring an Agent 365 license.'
@@ -127,7 +125,6 @@
     - "Which platforms outside Microsoft are teams building agents on?"
     - "Who owns those platforms and the agents on them?"
   sourceNotes:
-    # TODO(verify)
     - sourceId: lic-faq
       differs: true
       note: 'Lists "Registry sync" as requiring an Agent 365 license.'
@@ -405,7 +402,6 @@
     - "Which legal, regulatory or investigative requests could involve agent interactions?"
     - "Who in legal or compliance runs eDiscovery today?"
   sourceNotes:
-    # TODO(verify)
     - sourceId: lic-faq
       differs: true
       note: 'Lists "Audit logs and eDiscovery for agent activity" under both included and licensed capabilities.'
@@ -625,7 +621,6 @@
     - "Do employees run coding or command-line agents on their devices today?"
     - "Is endpoint protection already deployed on those devices?"
   sourceNotes:
-    # TODO(verify)
     - sourceId: lic-faq
       differs: true
       note: 'Lists "Discovery of AI on endpoints" as included. This may be a different capability, so flagged for SME review.'
@@ -823,7 +818,6 @@
     - "Which local agents are approved, and who decides?"
     - "How would a blocked user request an exception?"
   sourceNotes:
-    # TODO(verify)
     - sourceId: lic-faq
       differs: true
       note: 'Lists "Block unsanctioned local endpoint agents" as included.'

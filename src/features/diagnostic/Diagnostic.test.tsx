@@ -8,8 +8,9 @@ import { routes } from '../../app/routes.tsx';
 import { content, contentMeta, pillarName } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluateAssessment } from '../../lib/engine/evaluate.ts';
+import { evaluateGuardrails } from '../../lib/engine/guardrails.ts';
 import { pillarRows, questionPillars } from '../../lib/engine/pillars.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { emptyWorkspace } from '../../lib/state/diagnostic-model.ts';
 import {
   DIAGNOSTIC_STORAGE_KEY,
@@ -61,9 +62,9 @@ function renderPage(path = '/diagnostic') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   const view = render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   return { ...view, router };
@@ -237,7 +238,7 @@ describe('local diagnostic', () => {
     await screen.findByRole('textbox', { name: questionLabel('useCaseName') });
     await user.click(
       within(screen.getByRole('navigation', { name: copy.sectionRail })).getByRole('button', {
-        name: 'Identity and autonomy',
+        name: 'How the agent acts',
       }),
     );
     const field = within(screen.getByRole('group', { name: questionLabel('accessModel') }));
@@ -255,6 +256,69 @@ describe('local diagnostic', () => {
         }),
       ),
     ).toBeInTheDocument();
+  });
+  it('links the access question to the page that explains the ways an agent can act', async () => {
+    const user = userEvent.setup();
+    const data = seed();
+    saveDiagnostics(loadDiagnostics(), data);
+    renderPage(`/diagnostic/${data.assessments[0]!.id}`);
+    await screen.findByRole('textbox', { name: questionLabel('useCaseName') });
+    expect(screen.queryByRole('link', { name: copy.accessHelp })).not.toBeInTheDocument();
+    await user.click(
+      within(screen.getByRole('navigation', { name: copy.sectionRail })).getByRole('button', {
+        name: 'How the agent acts',
+      }),
+    );
+    expect(screen.getByRole('link', { name: copy.accessHelp })).toHaveAttribute(
+      'href',
+      `/access?assessment=${data.assessments[0]!.id}`,
+    );
+  });
+  it('shows the production guardrails and the next steps in the review, from the answers given', async () => {
+    const user = userEvent.setup();
+    const data = seed();
+    data.assessments[0]!.answers = { ...data.assessments[0]!.answers, sponsor: 'yes' };
+    data.organizations[0]!.answers.agent365Status = 'none';
+    saveDiagnostics(loadDiagnostics(), data);
+    const id = data.assessments[0]!.id;
+    renderPage(`/diagnostic/${id}`);
+    await screen.findByRole('textbox', { name: questionLabel('useCaseName') });
+    await user.click(
+      within(screen.getByRole('navigation', { name: copy.sectionRail })).getByRole('button', {
+        name: copy.review,
+      }),
+    );
+    const plan = evaluateGuardrails(content, {
+      ...data.organizations[0]!.answers,
+      ...data.assessments[0]!.answers,
+    });
+    expect(
+      screen.getByRole('heading', { level: 3, name: content.guardrails.heading }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(renderTemplate(content.guardrails.summary, plan.counts)),
+    ).toBeInTheDocument();
+    for (const { gate, items } of plan.gates)
+      if (items.length > 0)
+        expect(screen.getByRole('heading', { level: 4, name: gate.title })).toBeInTheDocument();
+    const status = (guardrailId: string) => {
+      const item = content.guardrails.items.find((g) => g.id === guardrailId)!;
+      return within(screen.getByText(item.title).closest('li')!);
+    };
+    expect(
+      status('registered-owner').getByText(content.guardrails.statusLabels.ready),
+    ).toBeInTheDocument();
+    expect(
+      status('licensed-people').getByText(content.guardrails.statusLabels.gap),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: copy.licensingLink })).toHaveAttribute(
+      'href',
+      `/licensing?assessment=${id}`,
+    );
+    expect(screen.getByRole('link', { name: copy.accessLink })).toHaveAttribute(
+      'href',
+      `/access?assessment=${id}`,
+    );
   });
   it('preserves full-only inputs across mode switches and resumes the saved section after remount', async () => {
     const user = userEvent.setup();

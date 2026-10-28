@@ -269,3 +269,33 @@
   sourceIds: [sd-a365, lic-faq]
   evidence: judgment
   reviewStatus: draft
+- id: assistant-with-jobs
+  title: "Assistant that also runs scheduled jobs"
+  summary: "A Copilot Studio assistant answers staff in chat for the signed-in user and also runs scheduled jobs under its own access."
+  narrative: "Chat uses delegated access, so user policies and the delegating users' licenses apply. The scheduled jobs use the agent's own identity, so sponsorship and scoped permissions apply too. Microsoft's Entra documentation says a policy on one target does not cover the others, so check both."
+  answers:
+    {
+      stage: pilot,
+      audience: [employees],
+      expectedUsers: 50-500,
+      buildPlatform: copilot-studio,
+      publisherType: published-by-org,
+      channels: [m365-copilot, teams, background],
+      accessModel: mixed,
+      autonomy: approval-gated,
+      actions: [read, update-records],
+      triggers: [user-prompt, schedule],
+      sponsor: "yes",
+      managedDevices: mixed,
+      dataSensitivity: confidential,
+      regulatedData: [none],
+      generatesContent: "no",
+      obligations: [none],
+      tools: [connectors-apis],
+      agentToAgent: "no",
+      networkEgress: "yes",
+      agentGovernance: [approval],
+    }
+  sourceIds: [sd-a365, entra-ca-agents]
+  evidence: judgment
+  reviewStatus: draft

@@ -11,10 +11,9 @@ readinessChecks:
     gap: Verify Frontier preview enrollment before using an agent user account and notifications.
     evidence: stated
     sourceId: a365-sdk
-licensingNote: "Foundational and premium counts follow the service description. User range is the illustrative audience, not a license quantity. The full license basis, sizing-report guidance and eligibility require verification; no license quote or eligibility approval is produced."
+licensingNote: "Foundational and premium counts follow the service description. User range is the illustrative audience, not a license quantity. Who needs a license follows how the agent acts, as the license basis states. Prerequisites and quantities still need your licensing specialist; no license quote or eligibility approval is produced."
 licensingSourceIds: [sd-a365, lic-faq]
 licenseBasis:
-  # TODO(verify): confirm the full licensing FAQ before publishing who must be licensed.
-  delegated:
-  own:
-  mixed:
+  delegated: "Users who delegate their access to the agent need an Agent 365 license."
+  own: "The owner, sponsor or manager of the agent needs an Agent 365 license."
+  mixed: "Both apply: the users who delegate their access, and the owner, sponsor or manager of the agent."

@@ -8,7 +8,7 @@ import { routes } from '../../app/routes.tsx';
 import { content, consoleById, pillarName } from '../../lib/content/index.ts';
 import { licensingTier } from '../../lib/content/derive.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
 import './WorkshopPage.tsx';
 
@@ -19,9 +19,9 @@ async function renderPage() {
   const router = createMemoryRouter(routes, { initialEntries: ['/workshop'] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   await screen.findByRole('heading', { level: 1, name: site.routes.workshop.title });
@@ -129,7 +129,7 @@ describe('workshop kit', () => {
     );
     expect(tools.getByRole('link', { name: site.routes.conversation.title })).toHaveAttribute(
       'href',
-      '/conversation',
+      '/pitch#conversation',
     );
     expect(tools.getByRole('link', { name: site.readout.blankCanvas })).toHaveAttribute(
       'href',

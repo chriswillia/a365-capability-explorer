@@ -11,7 +11,7 @@ import { patternAnswers } from '../../lib/engine/evaluate.ts';
 import { peopleRows } from '../../lib/engine/pillars.ts';
 import { EXHIBIT_KEYS, exhibitId, exhibitPlan } from '../../lib/readout/plan.ts';
 import { answerLabel, buildReadout } from '../../lib/readout/report.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { emptyWorkspace, type Assessment } from '../../lib/state/diagnostic-model.ts';
 import { loadDiagnostics, saveDiagnostics } from '../../lib/state/diagnostic-storage.ts';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
@@ -57,9 +57,9 @@ async function renderAt(path: string, title: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   await screen.findByRole('heading', { level: 1, name: title });
@@ -140,6 +140,46 @@ describe('readout page', () => {
     expect(people.getAllByRole('row')).toHaveLength(teams.length + 1);
     for (const row of teams)
       expect(people.getByRole('rowheader', { name: row.team })).toBeInTheDocument();
+  });
+
+  it('shows how the agent acts, the production guardrails and who to license', async () => {
+    const { assessment, report } = seed();
+    await renderReadout(assessment, report.title);
+    const access = within(document.getElementById(exhibitId('access'))!);
+    expect(access.getByText(copy.accessNote)).toBeInTheDocument();
+    expect(access.getByRole('link', { name: copy.accessOpen })).toHaveAttribute(
+      'href',
+      `/access?assessment=${assessment.id}`,
+    );
+    expect(access.getByRole('table')).toBeInTheDocument();
+    expect(
+      access.getByRole('heading', {
+        level: 3,
+        name: new RegExp(`^${content.accessPatterns.changeBoth}`),
+      }),
+    ).toBeInTheDocument();
+
+    const guardrails = within(document.getElementById(exhibitId('guardrails'))!);
+    expect(
+      guardrails.getByText(renderTemplate(content.guardrails.summary, report.guardrails.counts)),
+    ).toBeInTheDocument();
+    for (const { items } of report.guardrails.gates)
+      for (const { item } of items) expect(guardrails.getByText(item.title)).toBeInTheDocument();
+
+    const licensing = within(document.getElementById(exhibitId('licensing'))!);
+    expect(report.license.populations.length).toBeGreaterThan(0);
+    for (const { population } of report.license.populations)
+      expect(licensing.getByText(population.label)).toBeInTheDocument();
+    for (const { item } of report.license.requirements)
+      expect(licensing.getByText(item.text, { exact: false })).toBeInTheDocument();
+    const unconfirmed = report.license.requirements.filter(({ status }) => status === 'unknown');
+    expect(unconfirmed.length).toBeGreaterThan(0);
+    for (const { item } of unconfirmed)
+      expect(licensing.getByText(item.askPrompt!, { exact: false })).toBeInTheDocument();
+    expect(licensing.getByRole('link', { name: copy.licenseOpen })).toHaveAttribute(
+      'href',
+      `/licensing?assessment=${assessment.id}`,
+    );
   });
 
   it('keeps print and PowerPoint in the toolbar and the other ways to share behind one menu', async () => {

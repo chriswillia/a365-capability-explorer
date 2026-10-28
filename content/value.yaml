@@ -1,0 +1,464 @@
+# The value story for Agent 365, for any agent and any use case. Facts carry their Microsoft source and the date it was read.
+# Pitches, angles, buyer notes, objection answers and the joint plan are editorial: seller guidance, draft until
+# subject-matter-expert review. This file states no price, no competitor comparison and no statistic beyond the IDC figure.
+reviewStatus: draft
+intro: "Use this page to explain why Agent 365 matters to a customer, whatever agent they are building. It starts from the problem every agent creates, then sets out what Agent 365 gives the customer and how to say it to each buyer."
+notice: "Seller guidance, not Microsoft messaging. Facts name their Microsoft source. Pitches, angles and objection answers are editorial and stay draft until subject-matter-expert review."
+jumpLabel: "On this page"
+audienceNote: "Showing the {label} version. Change it with Selling as in the header."
+pitch:
+  heading: "Your 60-second pitch"
+  intro: "Use the version that matches your role. All three rest on the same facts."
+  beatsLabel: "Say it in four beats"
+  askLabel: "The ask"
+  othersLabel: "See the other versions"
+  audiences:
+    ai:
+      label: "AI seller"
+      opening: "Every agent your customer builds needs an owner, the right access and a record of what it does. Agent 365 gives IT and security one place to see and govern agents, so teams can keep building."
+      beats:
+        - "Agents are multiplying across apps, endpoints and clouds, and the teams accountable for risk often cannot see them."
+        - "Agent 365 is the control plane to observe, govern and secure agents, whether they are built on Microsoft platforms, open-source frameworks or partner clouds."
+        - "It adds lightweight guardrails for observability and accountability, so teams keep moving while IT and security stay in control."
+        - "Customers take agents from pilot to production with clear answers to the owner, access, data and monitoring questions security will ask."
+      ask: "Agree one agent to scope together, and who from security and compliance should join."
+    security:
+      label: "Security seller"
+      opening: "Agents are a new kind of non-human actor, with their own identity, data access and tool access. Agent 365 extends the Entra, Defender and Purview controls your customer already runs to those agents."
+      beats:
+        - "Existing controls for users, apps and data do not fully cover how agents operate, and agents multiply with no clear oversight."
+        - "Agent 365 gives every agent an identity and an owner, and brings it under the Conditional Access, data protection and threat detection the customer already trusts."
+        - "Your practitioners keep working in the Entra, Purview and Defender portals, where agent insights and recommendations appear."
+        - "Start with visibility: you cannot govern what you cannot see, and you cannot secure what you do not understand."
+      ask: "Agree who owns agent security today, and book a working session to inventory the agents in use."
+    joint:
+      label: "AI and Security together"
+      opening: "The agent the customer wants to scale is the agent security needs to see, constrain and audit. One control plane serves both teams."
+      beats:
+        - "The AI team brings the use case and the value. The security team brings the guardrails that let it reach production."
+        - "Agent 365 gives both teams one view: which agents exist, who owns them, what they can reach and what they do."
+        - "Each team keeps to the tools it already uses: the admin center for IT, and Entra, Purview and Defender for security."
+        - "Scope one real agent together, then agree what must be in place before pilot and before production."
+      ask: "Agree one agent to scope, and name one person from each side."
+  sourceIds: [a365-docs, a365-ga-blog, a365-why, a365-security, a365-launch-blog]
+  evidence: judgment
+  reviewStatus: draft
+problem:
+  heading: "The problem, in Microsoft's words"
+  intro: "Paraphrased from Microsoft's own pages. These hold for any agent."
+  statements:
+    - id: sprawl
+      text: "Existing controls for users, applications and data do not fully address how agents operate. Without a central view, agents multiply with no clear oversight. Microsoft calls this agent sprawl."
+      sourceIds: [a365-why]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: proliferation
+      text: "Agents spread quickly across apps, endpoints and cloud, and often operate outside the visibility and control of the teams accountable for risk."
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: visibility-first
+      text: "Microsoft's framing is that you cannot govern what you cannot see, and you cannot secure what you do not understand."
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: security-questions
+      text: "Security leaders are asking how to track all these agents, what they are doing, whether they have the right access, whether they can leak data, whether they are protected from threats, and how to govern them."
+      sourceIds: [a365-frontier-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: point-solutions
+      text: "Microsoft argues this needs more than point solutions: a control plane designed for managing agents at enterprise scale."
+      sourceIds: [a365-why]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: agentic-zero-trust
+      text: "Microsoft's guidance for security leaders is Agentic Zero Trust: do not trust agents blindly, keep each agent's access within its role and purpose, and give every agent a strong identity and a clear, accountable owner."
+      sourceIds: [double-agents-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: growth
+      text: "IDC predicts 1.3 billion agents by 2028."
+      caveat: "IDC research sponsored by Microsoft and cited in Microsoft's launch post. It is not a Microsoft figure."
+      sourceIds: [a365-launch-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+gaps:
+  heading: "What the customer may lack without Agent 365"
+  intro: "Microsoft's licensing FAQ says customers who rely on Microsoft 365 E5 alone, which protects users and data, may have limited visibility and control in four areas."
+  items:
+    - id: central-inventory
+      text: "A central inventory and governance of all agents across platforms."
+      themeId: see-every-agent
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: agent-interactions
+      text: "Agent-to-agent and agent-to-tool interactions."
+      themeId: watch-what-agents-do
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: lifecycle-policy
+      text: "Consistent lifecycle management and policy enforcement for agents."
+      themeId: owner-and-policy
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: own-access-agents
+      text: "Agents that operate outside a user's context, with their own access."
+      themeId: control-reach
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+themes:
+  heading: "What Agent 365 gives the customer"
+  intro: "Seven outcomes across security, governance and observability. Each lists the capabilities behind it, so every claim traces to the service description."
+  angleLabel: "How to say it"
+  aiAngleLabel: "AI seller"
+  securityAngleLabel: "Security seller"
+  capabilitiesLabel: "Capabilities behind it"
+  ownersLabel: "Configured in"
+  items:
+    - id: see-every-agent
+      title: "See every agent"
+      pillar: observe
+      outcome: "One inventory of the agents in use, including agents built on other platforms and agents running on devices, so ownership and policy have a starting point."
+      angle:
+        ai: "Gives the AI team a trusted list of what is running, so leaders see the real agent estate."
+        security: "Closes the shadow-agent gap: security cannot protect agents it does not know exist."
+      capabilityIds: [registry-inventory, registry-sync, defender-shadow-ai]
+      reviewStatus: draft
+    - id: watch-what-agents-do
+      title: "Watch what agents do"
+      pillar: observe
+      outcome: "Telemetry and investigation tools show agent activity, so teams can spot unusual behavior and look into incidents."
+      angle:
+        ai: "Shows how agents are used and how they perform, so owners can improve them and judge their value."
+        security: "Gives security operations agent activity to hunt through, in the Defender tools they already use."
+      capabilityIds: [observability, defender-hunting]
+      reviewStatus: draft
+    - id: owner-and-policy
+      title: "Put an owner and a policy on every agent"
+      pillar: govern
+      outcome: "Admins can approve, block, reassign and retire agents, set policy templates and automate lifecycle rules, so every agent has a responsible person."
+      angle:
+        ai: "Lets the business keep building while IT sets the guardrails once, instead of reviewing each agent by hand."
+        security: "Gives every agent an accountable person and a lifecycle, so access does not outlive its purpose."
+      capabilityIds:
+        - governance-actions
+        - lifecycle-automation
+        - policy-templates
+        - entra-sponsor-lifecycle
+        - registry-graph-api
+      reviewStatus: draft
+    - id: control-reach
+      title: "Control what agents can reach"
+      pillar: secure
+      outcome: "Identity, tool, network and device controls limit what an agent can access, whether it acts for a user or as itself."
+      angle:
+        ai: "Teams give an agent the access its task needs, scoped and reviewable by IT."
+        security: "Extends Conditional Access, access packages and tool and network controls to agent identities: least privilege for agents."
+      capabilityIds:
+        - entra-conditional-access
+        - entra-access-packages
+        - tool-controls
+        - entra-network-controls
+        - intune-device-compliance
+      reviewStatus: draft
+    - id: protect-data
+      title: "Protect the data agents touch"
+      pillar: secure
+      outcome: "Sensitivity labels, data loss prevention, DSPM for AI and Insider Risk apply to what agents read and share."
+      angle:
+        ai: "Answers the data-protection question security and compliance raise before an agent goes live."
+        security: "Brings the labels and DLP policies the customer already uses to agent activity, in Purview."
+      capabilityIds: [purview-labels, purview-dlp, purview-dspm-ai, purview-insider-risk]
+      reviewStatus: draft
+    - id: stop-threats
+      title: "Detect and stop agent threats"
+      pillar: secure
+      outcome: "Posture management, threat detection with tool-call blocking, runtime policy and blocking of unsanctioned local agents address misuse and attack."
+      angle:
+        ai: "Gives leaders a security answer for agents that act on their own."
+        security: "Adds agent-specific posture, detection and blocking to the Defender and Intune tools security operations already run."
+      capabilityIds:
+        - defender-posture
+        - defender-threat-protection
+        - intune-runtime-policy
+        - intune-block-local
+      reviewStatus: draft
+    - id: prove-compliance
+      title: "Keep evidence for audit and compliance"
+      pillar: govern
+      outcome: "Audit logs, eDiscovery, data lifecycle and communication compliance cover agent interactions, so the customer can answer legal and regulatory requests."
+      angle:
+        ai: "Gives the business a way to show auditors and regulators how an agent behaved."
+        security: "Extends the audit and retention tools compliance teams already use to agent activity."
+      capabilityIds: [purview-audit-ediscovery, purview-dlm, purview-ai-compliance]
+      reviewStatus: draft
+buyers:
+  heading: "Who you are talking to"
+  intro: "Lead with the outcomes that matter to the person in the room."
+  asksLabel: "What they ask"
+  leadLabel: "Lead with"
+  themesLabel: "Start with"
+  items:
+    - id: ai-leader
+      label: "CIO or AI leader"
+      asks:
+        - "How do we scale agents without losing control?"
+        - "Which agents are running, and who owns them?"
+        - "How will we know the agents are worth it?"
+      lead: "Agent 365 lets IT see and govern every agent, so teams can keep building while IT and security stay in control."
+      themeIds: [see-every-agent, owner-and-policy, watch-what-agents-do]
+      defaultFor: [ai, joint]
+      sourceIds: [a365-launch-blog, a365-docs]
+      evidence: judgment
+      reviewStatus: draft
+    - id: ciso
+      label: "CISO or security leader"
+      asks:
+        - "How do I track and monitor all these agents?"
+        - "How do I know what they are doing?"
+        - "Do they have the right access?"
+        - "Can they leak sensitive data?"
+        - "Are they protected from cyberthreats?"
+        - "How do I govern them?"
+      lead: "Agent 365 extends Entra, Defender and Purview to agents, so security works in its own tools and starts with visibility."
+      themeIds: [see-every-agent, control-reach, protect-data, stop-threats]
+      defaultFor: [security, joint]
+      sourceIds: [a365-frontier-blog, a365-security]
+      evidence: inferred
+      reviewStatus: draft
+    - id: compliance
+      label: "Compliance and privacy lead"
+      asks:
+        - "Can we show what an agent did and who is accountable?"
+        - "How do labels and data loss prevention apply to agents?"
+        - "What do we keep for legal and regulatory requests?"
+      lead: "Agent 365 brings agent activity into Purview audit, eDiscovery, retention and data protection."
+      themeIds: [prove-compliance, protect-data]
+      defaultFor: []
+      sourceIds: [purview-agent-365]
+      evidence: inferred
+      reviewStatus: draft
+    - id: identity-admin
+      label: "Identity or IT administrator"
+      asks:
+        - "Whose identity and permissions does the agent use?"
+        - "Who is accountable for each agent?"
+        - "How do we stop access outliving its purpose?"
+      lead: "Entra gives agents their own identity, a sponsor and access packages, and Conditional Access policies extend to them."
+      themeIds: [control-reach, owner-and-policy]
+      defaultFor: []
+      sourceIds: [entra-agent-id-governance, entra-ca-agents]
+      evidence: inferred
+      reviewStatus: draft
+    - id: business-owner
+      label: "Business owner"
+      asks:
+        - "Will governance slow the agent down?"
+        - "What do I need to do before go-live?"
+        - "How do I show the agent's value?"
+      lead: "Lightweight guardrails keep the agent moving, and the guardrail checklist shows what is needed before pilot and production."
+      themeIds: [owner-and-policy, watch-what-agents-do]
+      defaultFor: []
+      sourceIds: [a365-docs]
+      evidence: judgment
+      reviewStatus: draft
+objections:
+  heading: "Answer the pushback"
+  intro: "Suggested answers built from Microsoft's published pages. They are seller guidance, not Microsoft statements."
+  items:
+    - id: just-entra-defender-purview
+      objection: "Isn't this just Entra, Defender and Purview?"
+      answer: "Agent 365 builds on those tools rather than replacing them. Microsoft describes a separation of concerns: Agent 365 discovers, inventories and manages all agents and monitors activity, while Entra manages agent identities, identity governance and Conditional Access. Agent 365 also surfaces its controls in the portals those teams already use."
+      sourceIds: [a365-entra-capabilities, entra-registry-convergence, a365-security]
+      evidence: inferred
+      reviewStatus: draft
+    - id: platform-governance
+      objection: "Can't each platform govern its own agents?"
+      answer: "Each platform sees its own agents. Agent 365 brings agents from Microsoft platforms, supported third-party platforms and connected clouds into one registry. Microsoft names three integration paths: native integration, the Agent 365 SDK and registry sync."
+      sourceIds: [a365-sdk, sd-a365]
+      evidence: inferred
+      reviewStatus: draft
+    - id: license-every-agent
+      objection: "Do we have to license every agent?"
+      answer: "No. Microsoft says Agent 365 is licensed per user, and agents, blueprints and agent instances are not licensed separately. Which people need a license depends on how the agent acts. The Licensing page sets it out; confirm with your licensing specialist."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+    - id: copilot-enough
+      objection: "We have Microsoft 365 Copilot. Isn't that enough?"
+      answer: "Microsoft's licensing FAQ says Agent 365 is needed in addition, to manage, govern and secure all agents beyond Copilot. It puts it this way: Copilot is about what AI can do, and Agent 365 is about controlling what AI is allowed to do."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+    - id: already-e5
+      objection: "We already have Microsoft 365 E5."
+      answer: "They are complementary. Microsoft says E5 protects users and data, Agent 365 protects agents, and E7 protects both. E5, or E3 with the Defender and Purview suites, is also a licensing prerequisite for core Agent 365 functionality."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+    - id: other-clouds
+      objection: "Our agents are built on AWS or Google."
+      answer: "Registry sync can make agents built on Amazon Bedrock or Google Vertex AI visible in the Microsoft 365 admin center with no development work. It was in public preview at the May 2026 launch, so check the current status."
+      sourceIds: [a365-third-party, a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+    - id: slow-builders
+      objection: "Won't this slow our builders down?"
+      answer: "Microsoft describes lightweight guardrails for observability and accountability that give control and trust while teams keep moving quickly."
+      sourceIds: [a365-docs]
+      evidence: stated
+      reviewStatus: draft
+    - id: few-agents
+      objection: "We only have a few agents today."
+      answer: "Visibility comes first, and agent numbers are expected to grow: IDC predicts 1.3 billion agents by 2028, in research Microsoft sponsored. Microsoft's admin guidance is to bring agents under control from day one."
+      sourceIds: [a365-launch-blog, a365-admin-overview]
+      evidence: inferred
+      reviewStatus: draft
+proof:
+  heading: "Proof you can cite"
+  intro: "Use these with attribution, and say which kind of evidence each is."
+  kinds:
+    customer: Customer
+    partner: Partner
+    research: Research
+  items:
+    - id: avanade
+      kind: customer
+      who: Avanade
+      summary: "Avanade says that running Agent 365 in production gave it real visibility into agent activity and the ability to govern agent sprawl."
+      sourceIds: [a365-frontier-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: ntt-data
+      kind: customer
+      who: "NTT DATA"
+      summary: "NTT DATA says Agent 365 lets it scale and govern AI agents with confidence while keeping enterprise-grade security and control."
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: kore-ai
+      kind: partner
+      who: Kore.ai
+      summary: "Kore.ai, a software partner, says that with its platform integrated with Agent 365, identity, security and governance are built in from the start."
+      caveat: "A partner endorsement, not customer evidence."
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: idc-agents
+      kind: research
+      who: IDC
+      summary: "IDC predicts 1.3 billion agents by 2028."
+      caveat: "IDC research sponsored by Microsoft and cited in its launch post. It is not a Microsoft figure."
+      sourceIds: [a365-launch-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+jointPlan:
+  heading: "Plan it as a team"
+  intro: "A suggested split of work between the AI seller and the Security seller. Adjust it to your account."
+  columns:
+    topic: Topic
+    ai: "AI seller leads"
+    security: "Security seller leads"
+    together: Together
+  rows:
+    - id: open
+      topic: "Opening the conversation"
+      ai: "Starts from the agents the customer wants to build and scale."
+      security: "Starts from agent inventory, identity and data exposure."
+      together: "Agree which agent to scope first."
+    - id: scope
+      topic: "Scoping the agent"
+      ai: "Describes the use case, the users and the value."
+      security: "Asks how the agent acts, what it can reach and who owns it."
+      together: "Complete the assessment together."
+    - id: guardrails
+      topic: Guardrails
+      ai: "Explains what must be true before pilot and production."
+      security: "Confirms access, data protection and monitoring."
+      together: "Review the guardrail checklist."
+    - id: licensing
+      topic: "Licensing and prerequisites"
+      ai: "Sizes the people who use or own the agent."
+      security: "Checks the Entra, Purview, Defender and Intune prerequisites."
+      together: "Take open questions to the licensing specialist."
+    - id: proof
+      topic: "Proof of value"
+      ai: "Picks the agent and the business measure."
+      security: "Picks the guardrails to prove."
+      together: "Agree dates and owners."
+  reviewStatus: draft
+proofOfValue:
+  heading: "Prove it with one agent"
+  intro: "A small, time-boxed proof keeps the conversation concrete."
+  steps:
+    - id: pick
+      title: "Pick one real agent"
+      detail: "Choose an agent the customer already runs or plans to pilot, and name its owner and sponsor."
+    - id: see
+      title: "Make it visible"
+      detail: "Register the agent and turn on telemetry for its platform path."
+    - id: guardrails
+      title: "Apply the first guardrails"
+      detail: "Work through the Before pilot items on the guardrail checklist."
+    - id: review
+      title: "Review with security and compliance"
+      detail: "Show what the security team can now see, and what is still missing."
+    - id: decide
+      title: "Decide what must change before production"
+      detail: "Agree the Before production items, their owners and their dates."
+  measuresHeading: "Qualitative measures to agree with the customer"
+  measures:
+    - "Whether the agent has a named owner and sponsor."
+    - "Whether its activity is visible to the people accountable for risk."
+    - "How long it takes to find who owns an agent and what it can reach."
+    - "Which guardrails are in place and which are still open."
+  note: "These are suggestions to agree with the customer, not Microsoft benchmarks. Add numbers only if the customer sets them."
+  reviewStatus: draft
+boundaries:
+  heading: "What this page does not claim"
+  items:
+    - "These are seller talk tracks built from Microsoft's published pages. They are not Microsoft's approved messaging."
+    - "No comparison with other vendors is made, because Microsoft's documentation does not provide one."
+    - "The only statistic is IDC's figure, which Microsoft sponsored and cites. No Microsoft figure on agent sprawl or governance gaps was found."
+    - "Customer quotes are summarized from Microsoft's own posts. Check with the customer's account team before you repeat them."
+brief:
+  heading: "Build a value brief for this customer"
+  intro: "Choose what matters to this customer. The brief updates as you choose, and you can print it or copy it as text."
+  customerLabel: "Customer name (optional)"
+  customerHint: "Used on this page only. It is not saved."
+  concernsLegend: "What matters to the customer"
+  emptyNote: "Choose at least one outcome to build the brief."
+  titleTemplate: "Agent 365 value brief for {customer}"
+  untitledTitle: "Agent 365 value brief"
+  audienceLine: "Prepared for the {label} conversation. Draft for discussion."
+  capabilitiesHeading: "Capabilities behind these outcomes"
+  licensingLine: "Agent 365 is licensed per user. The Licensing page sets out who needs a license and what the underlying plans must include."
+  nextHeading: "Suggested next steps"
+  nextItems:
+    - "Scope one agent: how it acts, what it can reach and who owns it."
+    - "Confirm who needs an Agent 365 license and which prerequisites are in place."
+    - "Agree what must be in place before pilot and before production."
+  print: "Print or save as PDF"
+  copy: "Copy as text"
+  copied: Copied
+  footnote: "Planning guidance from Microsoft's published documentation. Not an official Microsoft licensing determination. Confirm with your Microsoft account team."

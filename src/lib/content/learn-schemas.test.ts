@@ -67,7 +67,13 @@ describe('learning schemas', () => {
       startLabel: 'Start',
       reviewStatus: 'draft',
     };
-    for (const href of ['/learn#integration', '/capabilities?lens=layer']) {
+    for (const href of [
+      '/learn#integration',
+      '/capabilities?lens=layer',
+      '/pitch',
+      '/fit',
+      '/licensing',
+    ]) {
       expect(PersonaSchema.safeParse({ ...persona, href }).success).toBe(true);
     }
     for (const href of ['//evil.example', 'https://example.com', '/diagnostic', '/patterns']) {

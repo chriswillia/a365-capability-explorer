@@ -51,6 +51,11 @@ jobs:
       - name: Build both base paths
         run: npm run build:all
 
+      # The site is public. Fails on confidentiality markings, internal hosts, unlisted aka.ms links and email
+      # addresses in the content, the source and both builds.
+      - name: Public-safety guard
+        run: npm run check:public
+
       - name: Verify the test browser
         timeout-minutes: 2
         run: node --input-type=module -e "import { chromium } from '@playwright/test'; const browser = await chromium.launch(); console.log(await browser.version()); await browser.close();"

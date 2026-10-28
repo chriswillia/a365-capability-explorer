@@ -64,6 +64,10 @@ jobs:
         env:
           BASE_PATH: ${{ steps.base.outputs.path }}
 
+      # The last check before anything is published: the content, the source and the built site.
+      - name: Public-safety guard
+        run: npm run check:public
+
       - name: Upload the site
         uses: actions/upload-pages-artifact@v5
         with:

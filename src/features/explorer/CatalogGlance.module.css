@@ -1,0 +1,42 @@
+.glance {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pillar {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.pillarName {
+  font-size: var(--text-24);
+}
+
+.requirement {
+  font-weight: 600;
+}
+
+.pillarCount {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+  font-weight: 600;
+}
+
+.hint {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}

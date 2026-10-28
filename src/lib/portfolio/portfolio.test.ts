@@ -107,18 +107,18 @@ describe('portfolio planning', () => {
     expect(computePortfolioMetrics(portfolio)).toMatchObject({
       gaps: 1,
       unknown: 1,
-      readinessPercent: 0,
+      readiness: { ready: 0, gap: 1, unknown: 1 },
       unplotted: 1,
     });
     data.assessments[1]!.answers.businessValue = '4';
     portfolio = buildPortfolio(configured, data, 'current', organizationId, ids);
     expect(portfolio.checks[0]!.ready).toHaveLength(1);
-    expect(computePortfolioMetrics(portfolio).readinessPercent).toBe(50);
+    expect(computePortfolioMetrics(portfolio).readiness).toEqual({ ready: 1, gap: 1, unknown: 0 });
     configured.mappingConfig.readinessChecks = [];
     expect(
       computePortfolioMetrics(buildPortfolio(configured, data, 'current', organizationId, ids))
-        .readinessPercent,
-    ).toBeNull();
+        .readiness,
+    ).toEqual({ ready: 0, gap: 0, unknown: 0 });
   });
 
   it('keeps unknown values and user bands explicit; never invents an exact audience', () => {

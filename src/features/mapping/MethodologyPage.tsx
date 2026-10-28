@@ -1,6 +1,5 @@
 import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router';
-import { DataTable } from '../../components/DataTable.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
@@ -106,57 +105,6 @@ export function Component() {
               <RuleExplanation rule={rule} />
             </article>
           ))}
-        </section>
-        <section>
-          <h2>{copy.golden}</h2>
-          <DataTable
-            caption={copy.golden}
-            hideCaption
-            scrollLabel={copy.golden}
-            rows={content.goldenScenarios}
-            rowKey={(s) => s.id}
-            columns={[
-              {
-                key: 'scenario',
-                header: content.site.routes.pattern.title,
-                rowHeader: true,
-                render: (s) => {
-                  const sample = content.samples.find((sample) => sample.id === s.sampleId);
-                  const pattern = content.patterns.find((p) => p.id === s.patternId)!;
-                  return (
-                    <Link
-                      className={styles.cellLink}
-                      to={`/patterns/${s.patternId}${sample ? `?sample=${sample.id}` : ''}`}
-                    >
-                      {sample?.title ?? pattern.title}
-                    </Link>
-                  );
-                },
-              },
-              {
-                key: 'include',
-                header: copy.levels.essential,
-                render: (s) =>
-                  s.mustInclude
-                    .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
-                    .join(', '),
-              },
-              {
-                key: 'exclude',
-                header: copy.notInScope,
-                render: (s) =>
-                  s.mustNotInclude
-                    .map((id) => content.capabilities.find((c) => c.id === id)!.shortName)
-                    .join(', '),
-              },
-              {
-                key: 'review',
-                header: copy.golden,
-                render: (s) =>
-                  s.reviewedBy === null ? copy.pendingReview : `${s.reviewedBy} · ${s.reviewedOn}`,
-              },
-            ]}
-          />
         </section>
       </details>
       <section>

@@ -3,11 +3,13 @@ import { Badge } from '../../components/Badge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { accessModelLabel } from '../../lib/content/access-fit.ts';
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import type { Capability } from '../../lib/content/schemas.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
 import { pillarRows } from '../../lib/engine/pillars.ts';
+import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import styles from './Mapping.module.css';
 
@@ -18,6 +20,7 @@ const orderedCapabilities = [...content.capabilities].sort(
 
 export function Component() {
   usePageTitle('patterns');
+  const { depth } = useDepth();
   const copy = content.site.mapping;
   const draftCount = patterns.filter(({ pattern }) => pattern.reviewStatus === 'draft').length;
   const columns: Column<Capability>[] = [
@@ -63,7 +66,7 @@ export function Component() {
       <PageHeading>{content.site.routes.patterns.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
       <p className={styles.note}>{copy.neutralNote}</p>
-      {draftCount > 0 && (
+      {depth === 'technical' && draftCount > 0 && (
         <p className={styles.note}>
           {renderTemplate(copy.draftSummary, { draft: draftCount, total: patterns.length })}
         </p>
@@ -76,6 +79,13 @@ export function Component() {
               <Link to={`/patterns/${pattern.id}`}>{pattern.title}</Link>
             </h2>
             <p>{pattern.summary}</p>
+            {accessModelLabel(content, pattern.answers.accessModel) !== null && (
+              <p>
+                <Badge tone="outline">
+                  {accessModelLabel(content, pattern.answers.accessModel)}
+                </Badge>
+              </p>
+            )}
             <p>
               {copy.patternCount}: {result.inScope.length}
             </p>

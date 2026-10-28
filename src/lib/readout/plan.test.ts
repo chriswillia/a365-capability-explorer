@@ -9,9 +9,15 @@ describe('readout exhibit plan', () => {
     expect([...EXHIBIT_KEYS].sort()).toEqual(Object.keys(content.site.readout.exhibits).sort());
   });
 
-  it('starts every view with the requirement areas, then the layers and the risks', () => {
+  it('starts every view with the requirement areas, then how the agent acts, the layers and the risks', () => {
     for (const technical of [false, true])
-      expect(exhibitPlan(technical).slice(0, 3)).toEqual(['pillars', 'anatomy', 'risks']);
+      expect(exhibitPlan(technical).slice(0, 5)).toEqual([
+        'pillars',
+        'access',
+        'anatomy',
+        'risks',
+        'guardrails',
+      ]);
   });
 
   it('leaves the technical exhibits out of the executive view and keeps the shared order', () => {

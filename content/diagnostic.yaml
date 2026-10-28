@@ -38,17 +38,17 @@ sections:
         businessValue,
         successMeasures,
       ]
+  - id: identity
+    title: "How the agent acts"
+    description: "Describe whose access the agent uses, how much it does on its own and who is accountable."
+    scope: useCase
+    questionIds:
+      [accessModel, autonomy, actions, triggers, sponsor, accountableOwner, managedDevices]
   - id: build
     title: Build and run
     description: "Identify the platform, publisher, hosting and interaction channels."
     scope: useCase
     questionIds: [buildPlatform, publisherType, codeStack, hosting, channels]
-  - id: identity
-    title: Identity and autonomy
-    description: "Describe access, consequential actions and human accountability."
-    scope: useCase
-    questionIds:
-      [accessModel, autonomy, actions, triggers, sponsor, accountableOwner, managedDevices]
   - id: data
     title: Data and obligations
     description: "Identify accessible information and retention or investigation obligations."
@@ -114,7 +114,7 @@ consultantNotes:
   codeStack: "The developer stack helps choose relevant SDK guidance; it does not establish deployment support."
   hosting: "The runtime still needs its own hosting, operations and isolation decisions."
   channels: "Channels identify the interaction surface without assuming every integration is configured."
-  accessModel: "Whose identity and permissions the agent uses is central to control planning."
+  accessModel: "How the agent acts decides which policies apply and which people the licensing FAQ says to license. See the Licensing page."
   autonomy: "Independent actions increase the importance of guardrails and investigation evidence."
   actions: "Describe what the agent can actually do, including state changes and external communications."
   triggers: "Events, schedules and other agents can start work without a fresh user prompt."
@@ -165,7 +165,7 @@ askPrompts:
   codeStack: "Which framework or language does your team build the agent with?"
   hosting: "Where will the agent run: which cloud or runtime?"
   channels: "Where will people or systems interact with the agent: Copilot, Teams, Outlook, apps, the web or in the background?"
-  accessModel: "Whose identity and permissions does the agent use: the user's, its own, or both?"
+  accessModel: "How does the agent act: for a signed-in user (delegated access), as itself with its own identity (own access), through its own user account, or a mix?"
   autonomy: "Does the agent only suggest, need approval before it acts, or act on its own?"
   actions: "What can the agent do: read, create content, update records, run transactions, change configuration or communicate externally?"
   triggers: "What starts the agent: a user prompt, an event, a schedule or another agent?"

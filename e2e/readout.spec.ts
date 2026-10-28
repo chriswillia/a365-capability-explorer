@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import JSZip from 'jszip';
 import { content, contentMeta } from './content.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
-import { exhibitPlan, type ExhibitKey } from '../src/lib/readout/plan.ts';
+import { exhibitId, exhibitPlan, type ExhibitKey } from '../src/lib/readout/plan.ts';
 import { buildReadout } from '../src/lib/readout/report.ts';
 import { emptyWorkspace, type DiagnosticWorkspace } from '../src/lib/state/diagnostic-model.ts';
 import { MAX_IMPORT_BYTES, parseDiagnosticBundle } from '../src/lib/state/diagnostic-transfer.ts';
@@ -139,6 +139,36 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     }
     await expect(page.getByRole('navigation', { name: content.site.ui.mainNavLabel })).toBeHidden();
   });
+
+  for (const [name, size] of [
+    ['wide', { width: 1280, height: 800 }],
+    ['phone', { width: 390, height: 800 }],
+  ] as const) {
+    test(`Contents links bring each section's heading into view, clear of the toolbar (${name})`, async ({
+      page,
+    }) => {
+      test.setTimeout(90000);
+      await page.setViewportSize(size);
+      const { assessment } = await seed(page);
+      await page.goto(`diagnostic/${assessment.id}/readout`);
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      const contents = page.getByRole('navigation', { name: copy.contents });
+      for (const key of exhibitPlan(false)) {
+        if ((await contents.locator('details').getAttribute('open')) === null)
+          await contents.locator('summary').click();
+        await contents.getByRole('link', { name: copy.exhibits[key], exact: true }).click();
+        const heading = page.locator(`#${exhibitId(key)} h2`);
+        await expect(heading, key).toBeInViewport();
+        // Nothing, such as the sticky toolbar, sits on top of the heading.
+        const covered = await heading.evaluate((node) => {
+          const rect = node.getBoundingClientRect();
+          const top = document.elementFromPoint(rect.left + 4, rect.top + rect.height / 2);
+          return top !== null && !node.contains(top);
+        });
+        expect(covered, key).toBe(false);
+      }
+    });
+  }
 
   test('assessment JSON round trips as copies, and cancel never changes local data', async ({
     page,
@@ -300,7 +330,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     );
   });
 
-  test('PowerPoint downloads contain seven readout slides or one populated/blank canvas slide, with local previews', async ({
+  test('PowerPoint downloads contain eight readout slides or one populated/blank canvas slide, with local previews', async ({
     page,
     context,
   }, testInfo) => {
@@ -333,7 +363,7 @@ test.describe('Phase 5 readouts and portable assessments', () => {
       page.getByRole('img', { name: 'Fictional layout-check logo', exact: true }),
     ).toBeVisible();
     for (const [route, count, name] of [
-      [`diagnostic/${assessment.id}/readout`, 7, 'readout'],
+      [`diagnostic/${assessment.id}/readout`, 8, 'readout'],
       [`canvas/${assessment.id}`, 1, 'canvas'],
       ['canvas/blank', 1, 'blank-canvas'],
     ] as const) {

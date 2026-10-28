@@ -39,6 +39,27 @@
   gap: var(--space-4);
 }
 
+ol.grid,
+ul.grid {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.next {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.next a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}
+
 .card {
   display: grid;
   align-content: start;

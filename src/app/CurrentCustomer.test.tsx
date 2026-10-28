@@ -5,7 +5,7 @@ import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { describe, expect, it } from 'vitest';
 import { content, contentMeta } from '../lib/content/index.ts';
-import { DepthProvider } from '../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../lib/state/StateProviders.tsx';
 import { emptyWorkspace } from '../lib/state/diagnostic-model.ts';
 import {
   DIAGNOSTIC_STORAGE_KEY,
@@ -26,9 +26,9 @@ function renderApp(path = '/') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   return router;
@@ -110,6 +110,10 @@ describe('current customer shortcut', () => {
       'href',
       `/diagnostic/${ids.newerSecond}/readout`,
     );
+    expect(first.getByRole('link', { name: copy.licensing })).toHaveAttribute(
+      'href',
+      `/licensing?assessment=${ids.newerSecond}`,
+    );
     expect(first.getByRole('link', { name: copy.canvas })).toHaveAttribute(
       'href',
       `/canvas/${ids.newerSecond}`,
@@ -177,6 +181,8 @@ describe('current customer shortcut', () => {
         new StorageEvent('storage', { key: STORAGE_PREFIX + DIAGNOSTIC_STORAGE_KEY }),
       );
     });
-    expect(await screen.findByText('Fictional renamed customer')).toBeInTheDocument();
+    expect(
+      await within(screen.getByText(label)).findByText('Fictional renamed customer'),
+    ).toBeInTheDocument();
   });
 });

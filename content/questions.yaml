@@ -223,16 +223,19 @@
   ifUnknown: Confirm the channels where people or systems interact with the agent.
 - id: accessModel
   scope: useCase
-  label: Access model
+  label: "How the agent acts"
   type: single
   options:
     [
-      { value: delegated, label: Delegated user access },
-      { value: own-teammate, label: Own access as an AI teammate },
-      { value: own-background, label: Own access in the background },
-      { value: mixed, label: Mixed delegated and own access },
+      { value: delegated, label: "Delegated: acts for the signed-in user" },
+      { value: own-teammate, label: "Own access with an agent user account (teammate)" },
+      {
+        value: own-background,
+        label: "Own access as the agent identity (autonomous, in the background)",
+      },
+      { value: mixed, label: "Mixed delegated and own access" },
     ]
-  ifUnknown: Confirm whose identity and permissions the agent uses.
+  ifUnknown: Confirm whether the agent acts for a user, as itself or both.
 - id: autonomy
   scope: useCase
   label: Agent autonomy

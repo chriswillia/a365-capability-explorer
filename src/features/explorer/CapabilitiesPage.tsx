@@ -1,10 +1,12 @@
 import { CheckmarkCircle16Regular, Prohibited16Regular } from '@fluentui/react-icons';
 import { Link, useSearchParams } from 'react-router';
 import { Badge } from '../../components/Badge.tsx';
+import { AccessFitBadge } from '../../components/AccessFitBadge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { VerifiedBadge } from '../../components/VerifiedBadge.tsx';
 import {
   consoleById,
   content,
@@ -20,6 +22,7 @@ import { renderTemplate } from '../../lib/content/template.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import styles from './CapabilitiesPage.module.css';
+import { CatalogGlance } from './CatalogGlance.tsx';
 import {
   applyFilter,
   belongsTo,
@@ -82,12 +85,19 @@ function CapabilityCell({ capability, technical }: { capability: Capability; tec
         )
       )}
       <span className={styles.badges}>
-        {capability.reviewStatus === 'reviewed' && <Badge tone="outline">{badges.reviewed}</Badge>}
+        <VerifiedBadge date={capability.source.lastVerified} />
+        {technical && capability.reviewStatus === 'draft' && (
+          <Badge tone="draft">{badges.draft}</Badge>
+        )}
+        {technical && capability.reviewStatus === 'reviewed' && (
+          <Badge tone="outline">{badges.reviewed}</Badge>
+        )}
         {capability.status === 'preview' && <Badge tone="neutral">{badges.preview}</Badge>}
         {capability.status === 'frontier-preview' && (
           <Badge tone="neutral">{badges.frontierPreview}</Badge>
         )}
         {sourcesDiffer(capability) && <Badge tone="amber">{badges.sourcesDiffer}</Badge>}
+        <AccessFitBadge capabilityId={capability.id} />
       </span>
     </div>
   );
@@ -277,6 +287,10 @@ export function Component() {
     compareColumn,
   ];
   const resultsText = renderTemplate(explorer.results, { ...values, count: filtered.length });
+  // The filters behind "More filters" count here, so a closed drawer never hides why results are narrowed.
+  const moreActive = [state.console, state.licensing, state.gcc, state.setup, state.lens].filter(
+    (value) => value !== '',
+  ).length;
   const facetCount = (changes: Partial<ExplorerState>) =>
     filterCapabilities(capabilities, { ...state, ...changes }, membership).length;
   const select = <T extends string>(
@@ -302,6 +316,10 @@ export function Component() {
     <PageContainer>
       <PageHeading>{site.routes.capabilities.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
+      <details className={styles.glance}>
+        <summary>{copy.glance.heading}</summary>
+        <CatalogGlance />
+      </details>
       {(state.lens === 'pattern' || state.lens === 'risk') && (
         <aside>
           <p>{state.lens === 'pattern' ? site.mapping.neutralNote : site.mapping.riskNote}</p>
@@ -367,62 +385,7 @@ export function Component() {
             </button>
           ))}
         </fieldset>
-        <div className={styles.filters}>
-          {select(
-            'explorer-console',
-            explorer.productArea,
-            state.console,
-            [
-              { value: '', label: explorer.anyOption },
-              ...sectionGroups(content, 'console').map((group) => ({
-                value: group.id,
-                label: group.label,
-              })),
-            ],
-            (value) => update({ console: value }),
-          )}
-          {select(
-            'explorer-licensing',
-            explorer.licensing,
-            state.licensing,
-            [
-              { value: '', label: explorer.anyOption },
-              ...LICENSING_FILTERS.map((value) => ({
-                value,
-                label: explorer.licensingOptions[value],
-              })),
-            ],
-            (value) => update({ licensing: value as ExplorerState['licensing'] }),
-          )}
-          {select(
-            'explorer-gcc',
-            explorer.gcc,
-            state.gcc,
-            [
-              { value: '', label: explorer.anyOption },
-              ...GCC_FILTERS.map((value) => ({ value, label: explorer.gccOptions[value] })),
-            ],
-            (value) => update({ gcc: value as ExplorerState['gcc'] }),
-          )}
-          {select(
-            'explorer-setup',
-            explorer.setup,
-            state.setup,
-            [
-              { value: '', label: explorer.anyOption },
-              ...SETUP_FILTERS.map((value) => ({ value, label: explorer.setupOptions[value] })),
-            ],
-            (value) => update({ setup: value as ExplorerState['setup'] }),
-          )}
-        </div>
-        <div className={styles.filters}>
-          {select(
-            'explorer-group-by',
-            explorer.groupBy,
-            state.by,
-            SECTIONINGS.map((value) => ({ value, label: explorer.groupByOptions[value] })),
-            (value) => update({ by: value as ExplorerState['by'] }),
-          )}
+        <div className={styles.toolbar}>
           {select(
             'explorer-view',
             explorer.view,
@@ -451,9 +414,68 @@ export function Component() {
             </button>
           </div>
         </div>
-        <details className={styles.more} open={state.lens !== ''}>
-          <summary>{explorer.more}</summary>
+        <details className={styles.more} open={moreActive > 0}>
+          <summary>
+            {moreActive > 0
+              ? renderTemplate(explorer.moreActive, { count: moreActive })
+              : explorer.more}
+          </summary>
           <div className={styles.filters}>
+            {select(
+              'explorer-console',
+              explorer.productArea,
+              state.console,
+              [
+                { value: '', label: explorer.anyOption },
+                ...sectionGroups(content, 'console').map((group) => ({
+                  value: group.id,
+                  label: group.label,
+                })),
+              ],
+              (value) => update({ console: value }),
+            )}
+            {select(
+              'explorer-licensing',
+              explorer.licensing,
+              state.licensing,
+              [
+                { value: '', label: explorer.anyOption },
+                ...LICENSING_FILTERS.map((value) => ({
+                  value,
+                  label: explorer.licensingOptions[value],
+                })),
+              ],
+              (value) => update({ licensing: value as ExplorerState['licensing'] }),
+            )}
+            {select(
+              'explorer-gcc',
+              explorer.gcc,
+              state.gcc,
+              [
+                { value: '', label: explorer.anyOption },
+                ...GCC_FILTERS.map((value) => ({ value, label: explorer.gccOptions[value] })),
+              ],
+              (value) => update({ gcc: value as ExplorerState['gcc'] }),
+            )}
+            {select(
+              'explorer-setup',
+              explorer.setup,
+              state.setup,
+              [
+                { value: '', label: explorer.anyOption },
+                ...SETUP_FILTERS.map((value) => ({ value, label: explorer.setupOptions[value] })),
+              ],
+              (value) => update({ setup: value as ExplorerState['setup'] }),
+            )}
+          </div>
+          <div className={styles.filters}>
+            {select(
+              'explorer-group-by',
+              explorer.groupBy,
+              state.by,
+              SECTIONINGS.map((value) => ({ value, label: explorer.groupByOptions[value] })),
+              (value) => update({ by: value as ExplorerState['by'] }),
+            )}
             {select(
               'explorer-lens',
               explorer.lens,
@@ -478,7 +500,7 @@ export function Component() {
         </details>
       </div>
       <p role="status">{resultsText}</p>
-      {draftCount > 0 && (
+      {technical && draftCount > 0 && (
         <p className={styles.note}>
           {renderTemplate(explorer.draftSummary, { draft: draftCount, total: filtered.length })}
         </p>
@@ -573,7 +595,7 @@ export function Component() {
         </section>
       )}
       {capabilities.some(sourcesDiffer) && <p className={styles.note}>{copy.sourcesDifferNote}</p>}
-      <p className={styles.note}>{copy.draftNote}</p>
+      {technical && <p className={styles.note}>{copy.draftNote}</p>}
       {compared.length > 0 && (
         <div className={styles.compareBar} role="group" aria-label={explorer.compare}>
           <span role="status">

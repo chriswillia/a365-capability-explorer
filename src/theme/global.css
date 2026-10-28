@@ -85,6 +85,11 @@ table {
 }
 
 @media screen {
+  /* A line that belongs to a printed copy. On screen the page footer already says it; presentation mode hides the footer. */
+  body:not([data-presentation-mode]) [data-print-only] {
+    display: none;
+  }
+
   body[data-presentation-mode] header[data-no-print],
   body[data-presentation-mode] footer,
   body[data-presentation-mode] [data-presentation-hide] {

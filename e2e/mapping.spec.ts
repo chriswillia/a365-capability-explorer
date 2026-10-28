@@ -65,7 +65,7 @@ test.describe('Phase 3 mapping', () => {
       ['risk', 'shadow-ai'],
       ['pattern', 'local-agent'],
     ]) {
-      await page.goto(`capabilities?lens=${lens}&group=${group}`);
+      await page.goto(`capabilities?lens=${lens}&group=${group}&view=table`);
       await page.reload();
       const expected =
         lens === 'risk'

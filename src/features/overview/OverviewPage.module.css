@@ -6,7 +6,13 @@
   padding: var(--space-12) var(--layout-gutter) 0;
 }
 
-.pillars {
+.section {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.jobs,
+.recent {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
   gap: var(--space-4);
@@ -15,12 +21,8 @@
   list-style: none;
 }
 
-.section {
-  display: grid;
-  gap: var(--space-4);
-}
-
-.pillar {
+.job,
+.customer {
   display: grid;
   align-content: start;
   gap: var(--space-2);
@@ -30,18 +32,21 @@
   border-radius: var(--radius-md);
 }
 
-.pillarName {
-  font-size: var(--text-24);
+.job {
+  border-top: 4px solid var(--color-blue);
 }
 
-.requirement {
-  font-weight: 600;
-}
-
-.pillarCount {
+.question {
   color: var(--color-slate);
   font-size: var(--text-14);
   font-weight: 600;
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: 0;
 }
 
 .hint {

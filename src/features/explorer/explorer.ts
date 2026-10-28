@@ -1,17 +1,11 @@
 import { licensingTier } from '../../lib/content/derive.ts';
+import { CONSOLES, EXPLORER_LENSES, PILLARS } from '../../lib/content/constants.ts';
 import { pillarName } from '../../lib/content/index.ts';
-import {
-  CONSOLES,
-  EXPLORER_LENSES,
-  PILLARS,
-  type Capability,
-  type Content,
-  type ExplorerFilter,
-} from '../../lib/content/schemas.ts';
+import type { Capability, Content, ExplorerFilter } from '../../lib/content/schemas.ts';
 import { evaluatePatterns } from '../../lib/engine/evaluate.ts';
 
 export const LENSES = EXPLORER_LENSES;
-export const VIEWS = ['table', 'cards', 'matrix'] as const;
+export const VIEWS = ['cards', 'table', 'matrix'] as const;
 export const SECTIONINGS = ['pillar', 'console', 'none'] as const;
 export const LICENSING_FILTERS = ['base', 'premium'] as const;
 export const GCC_FILTERS = ['available', 'unavailable'] as const;
@@ -128,7 +122,7 @@ export function readExplorerState(params: URLSearchParams, content: Content): Ex
   const gcc = choose('gcc', GCC_FILTERS);
   const setup = choose('setup', SETUP_FILTERS);
   let by: Sectioning = choose('by', SECTIONINGS) || 'pillar';
-  const view = choose('view', VIEWS) || 'table';
+  const view = choose('view', VIEWS) || 'cards';
   let lens: '' | Lens = '';
   let rawGroup = params.get('group') ?? '';
   const rawLens = params.get('lens');
@@ -186,7 +180,7 @@ export function explorerSearch(state: ExplorerState): URLSearchParams {
   set('by', state.by, 'pillar');
   set('lens', state.lens);
   if (state.lens !== '') set('group', state.group);
-  set('view', state.view, 'table');
+  set('view', state.view, 'cards');
   for (const id of state.compare) next.append('compare', id);
   return next;
 }

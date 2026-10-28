@@ -23,7 +23,7 @@ const count = (query: string) =>
   filterCapabilities(content.capabilities, read(query), membership).length;
 
 describe('explorer state and filtering', () => {
-  it('defaults to the complete table grouped by pillar, without reporting an error', () => {
+  it('defaults to cards grouped by area, without reporting an error', () => {
     const state = read('');
     expect(state).toEqual({
       query: '',
@@ -35,7 +35,7 @@ describe('explorer state and filtering', () => {
       by: 'pillar',
       lens: '',
       group: '',
-      view: 'table',
+      view: 'cards',
       compare: [],
       invalid: false,
     });
@@ -46,7 +46,7 @@ describe('explorer state and filtering', () => {
 
   it('restores every setting from a shareable URL and writes the same URL back', () => {
     const query =
-      'q=content&pillar=secure&console=Purview&licensing=premium&gcc=unavailable&setup=platform&by=console&lens=layer&group=data&view=cards&compare=purview-dlp';
+      'q=content&pillar=secure&console=Purview&licensing=premium&gcc=unavailable&setup=platform&by=console&lens=layer&group=data&view=table&compare=purview-dlp';
     const state = read(query);
     expect(state).toEqual({
       query: 'content',
@@ -58,7 +58,7 @@ describe('explorer state and filtering', () => {
       by: 'console',
       lens: 'layer',
       group: 'data',
-      view: 'cards',
+      view: 'table',
       compare: ['purview-dlp'],
       invalid: false,
     });
@@ -81,8 +81,11 @@ describe('explorer state and filtering', () => {
   });
 
   it('omits default settings from the URL', () => {
-    expect(explorerSearch(read('by=pillar&view=table&pillar=govern')).toString()).toBe(
+    expect(explorerSearch(read('by=pillar&view=cards&pillar=govern')).toString()).toBe(
       'pillar=govern',
+    );
+    expect(explorerSearch(read('view=table&pillar=govern')).toString()).toBe(
+      'pillar=govern&view=table',
     );
   });
 
@@ -194,8 +197,8 @@ describe('explorer state and filtering', () => {
     );
   });
 
-  it('keeps every number on the Overview linked to exactly what it counts', () => {
-    for (const kpi of content.site.overview.kpis) {
+  it('keeps every number in the catalog overview linked to exactly what it counts', () => {
+    for (const kpi of content.site.capabilities.glance.kpis) {
       const state = read(kpi.href.split('?')[1] ?? '');
       expect(state.invalid).toBe(false);
       expect(filterCapabilities(content.capabilities, state, membership)).toHaveLength(
@@ -288,8 +291,6 @@ describe('search shortcuts', () => {
       expect(filterLabel(content, shortcut.filter)).not.toBe('');
     }
     expect(filterLabel(content, { pillar: 'secure' })).toBe('Security (Secure)');
-    expect(filterLabel(content, { licensing: 'premium' })).toBe(
-      'Requires Microsoft 365 E7/G7 or Agent 365',
-    );
+    expect(filterLabel(content, { licensing: 'premium' })).toBe('Needs Agent 365 (or E7/G7)');
   });
 });

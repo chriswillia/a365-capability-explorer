@@ -1,8 +1,12 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { AccessChange } from '../../components/AccessChange.tsx';
+import { AccessTable } from '../../components/AccessTable.tsx';
+import { Badge, type BadgeTone } from '../../components/Badge.tsx';
 import { DataTable } from '../../components/DataTable.tsx';
 import { ExhibitFrame } from '../../components/ExhibitFrame.tsx';
 import { ExternalLink } from '../../components/ExternalLink.tsx';
+import { GuardrailList } from '../../components/GuardrailList.tsx';
 import { PillarSummary } from '../../components/PillarSummary.tsx';
 import { content } from '../../lib/content/index.ts';
 import { licensingTier } from '../../lib/content/derive.ts';
@@ -10,6 +14,7 @@ import { renderTemplate } from '../../lib/content/template.ts';
 import { describeCondition } from '../../lib/engine/conditions.ts';
 import { evaluateWhatIfs } from '../../lib/engine/evaluate.ts';
 import { peopleRows, questionPillars } from '../../lib/engine/pillars.ts';
+import { describeReadiness } from '../../lib/engine/readiness.ts';
 import { exhibitId, exhibitPlan, type ExhibitKey } from '../../lib/readout/plan.ts';
 import { answerLabel, answerText, type Readout } from '../../lib/readout/report.ts';
 import type { Assessment, Organization } from '../../lib/state/diagnostic-model.ts';
@@ -19,6 +24,11 @@ import { CapabilityLinks } from '../mapping/MappingReport.tsx';
 import styles from './Readout.module.css';
 
 const informs = questionPillars(content);
+const REQUIREMENT_TONE: Record<'ready' | 'gap' | 'unknown', BadgeTone> = {
+  ready: 'info',
+  gap: 'amber',
+  unknown: 'neutral',
+};
 
 export function ReadoutExhibits({
   report,
@@ -54,14 +64,24 @@ export function ReadoutExhibits({
       ...new Set(
         key === 'frontier'
           ? result.frontier.flatMap((item) => item.sourceIds)
-          : key === 'risks'
-            ? [...result.risks, ...result.potentialRisks].flatMap(({ risk }) => risk.sourceIds)
-            : key === 'integration'
-              ? result.integrationPaths.flatMap((path) => path.sourceIds)
-              : result.inScope.flatMap((r) => [
-                  r.capability.source.sourceId,
-                  ...r.reasons.flatMap((reason) => reason.sourceIds),
-                ]),
+          : key === 'access'
+            ? [
+                ...content.accessPatterns.patterns.flatMap((pattern) => pattern.sourceIds),
+                ...content.accessPatterns.capabilities.flatMap((row) => row.sourceIds),
+                ...content.accessPatterns.tension.sourceIds,
+              ]
+            : key === 'guardrails'
+              ? report.guardrails.gates.flatMap((gate) =>
+                  gate.items.flatMap((view) => view.item.sourceIds),
+                )
+              : key === 'risks'
+                ? [...result.risks, ...result.potentialRisks].flatMap(({ risk }) => risk.sourceIds)
+                : key === 'integration'
+                  ? result.integrationPaths.flatMap((path) => path.sourceIds)
+                  : result.inScope.flatMap((r) => [
+                      r.capability.source.sourceId,
+                      ...r.reasons.flatMap((reason) => reason.sourceIds),
+                    ]),
       ),
     ],
   });
@@ -91,6 +111,21 @@ export function ReadoutExhibits({
       <ExhibitFrame {...frame('pillars')}>
         <p>{mapping.pillarsNote}</p>
         <PillarSummary rows={report.pillars} headingLevel={3} />
+      </ExhibitFrame>
+      <ExhibitFrame {...frame('access')}>
+        <p>{copy.accessNote}</p>
+        <p>
+          <strong>{content.questions.find((q) => q.id === 'accessModel')!.label}:</strong>{' '}
+          {answerLabel(content, report.answers, 'accessModel')}
+        </p>
+        <AccessChange view={report.access} headingLevel={3} />
+        <h3>{content.accessPatterns.statedHeading}</h3>
+        <AccessTable />
+        <h3>{content.accessPatterns.tensionHeading}</h3>
+        <p>{content.accessPatterns.tension.text}</p>
+        <p data-no-print data-presentation-hide>
+          <Link to={`/access?assessment=${assessment.id}`}>{copy.accessOpen}</Link>
+        </p>
       </ExhibitFrame>
       <ExhibitFrame {...frame('anatomy')}>
         <p>{copy.anatomyNote}</p>
@@ -155,6 +190,10 @@ export function ReadoutExhibits({
             {risks(result.potentialRisks)}
           </details>
         )}
+      </ExhibitFrame>
+      <ExhibitFrame {...frame('guardrails')}>
+        <p>{copy.guardrailsNote}</p>
+        <GuardrailList plan={report.guardrails} headingLevel={3} />
       </ExhibitFrame>
       {technical && (
         <ExhibitFrame {...frame('capabilities')}>
@@ -246,21 +285,23 @@ export function ReadoutExhibits({
       <ExhibitFrame {...frame('decisions')}>
         <p>{copy.setupNote}</p>
         <div className={styles.roadmap}>
+          {(['platform', 'both'] as const).map((setup) => (
+            <div key={setup}>
+              <h3>{copy[setup]}</h3>
+              <ul>
+                {result.inScope
+                  .filter((r) => r.capability.setup === setup)
+                  .map((r) => (
+                    <li key={r.capability.id}>
+                      <Link to={`/capabilities/${r.capability.id}`}>{r.capability.shortName}</Link>{' '}
+                      — {r.ownerTeam}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
           <div>
-            <h3>{copy.platform}</h3>
-            <ul>
-              {result.inScope
-                .filter((r) => r.capability.setup !== 'agent')
-                .map((r) => (
-                  <li key={r.capability.id}>
-                    <Link to={`/capabilities/${r.capability.id}`}>{r.capability.shortName}</Link> —{' '}
-                    {r.ownerTeam}
-                  </li>
-                ))}
-            </ul>
-          </div>
-          <div>
-            <h3>{mapping.agentDecisions}</h3>
+            <h3>{copy.agent}</h3>
             <dl>
               {['accountableOwner', 'sponsor'].map((id) => (
                 <div key={id}>
@@ -269,7 +310,11 @@ export function ReadoutExhibits({
                 </div>
               ))}
             </dl>
-            <CapabilityLinks ids={result.agentDecisions.map((r) => r.capability.id)} />
+            <CapabilityLinks
+              ids={result.inScope
+                .filter((r) => r.capability.setup === 'agent')
+                .map((r) => r.capability.id)}
+            />
           </div>
         </div>
       </ExhibitFrame>
@@ -302,11 +347,7 @@ export function ReadoutExhibits({
           <ExhibitFrame {...frame('readiness')}>
             <p>{mapping.readinessNote}</p>
             <p>
-              {mapping.readinessPercent}:{' '}
-              {report.metrics.readinessPercent === null
-                ? mapping.unknownAnswer
-                : `${report.metrics.readinessPercent}%`}{' '}
-              ({result.readiness.readyCount} / {result.readiness.total})
+              {mapping.readinessLabel}: {describeReadiness(report.metrics.readiness, mapping)}
             </p>
             <ul>
               {result.readiness.checks.map((check) => (
@@ -372,15 +413,57 @@ export function ReadoutExhibits({
           </ExhibitFrame>
         </>
       )}
-      <ExhibitFrame {...frame('licensing')} sourceIds={result.licensing.sourceIds}>
+      <ExhibitFrame
+        {...frame('licensing')}
+        sourceIds={[
+          ...new Set([
+            ...result.licensing.sourceIds,
+            ...report.license.populations.flatMap((view) => view.population.sourceIds),
+            ...report.license.requirements.flatMap((view) => view.item.sourceIds),
+          ]),
+        ]}
+      >
         <p>
           {mapping.expectedUsers}: {result.licensing.expectedUsersLabel ?? mapping.unknownAnswer}
         </p>
-        <p>{result.licensing.basis ?? mapping.unknownAnswer}</p>
+        <p>{result.licensing.basis ?? mapping.licenseBasisConfirm}</p>
         <p>{result.licensing.note}</p>
-        <p>
-          <strong>{copy.eligibility}</strong>
+        <h3>{copy.licenseWho}</h3>
+        <ul>
+          {report.license.populations.map(({ population }) => (
+            <li key={population.id}>
+              <strong>{population.label}</strong> ({content.licensing.needs[population.need]}):{' '}
+              {population.statement}
+              {population.confirm !== undefined && <> {population.confirm}</>}
+            </li>
+          ))}
+        </ul>
+        <h3>{copy.licenseNeeds}</h3>
+        <ul>
+          {report.license.requirements.map(({ item, status }) => (
+            <li key={item.id}>
+              <strong>{content.licensing.requirementsPanel.kinds[item.kind]}.</strong> {item.text}{' '}
+              {item.appliesTo !== undefined && (
+                <Badge tone="outline">
+                  {content.licensing.requirementsPanel.levels[item.appliesTo]}
+                </Badge>
+              )}{' '}
+              <Badge tone={REQUIREMENT_TONE[status]}>
+                {content.licensing.requirementsPanel.status[status]}
+              </Badge>
+              {status === 'unknown' && item.askPrompt !== undefined && (
+                <>
+                  {' '}
+                  <strong>{content.licensing.requirementsPanel.askLabel}:</strong> {item.askPrompt}
+                </>
+              )}
+            </li>
+          ))}
+        </ul>
+        <p data-no-print data-presentation-hide>
+          <Link to={`/licensing?assessment=${assessment.id}`}>{copy.licenseOpen}</Link>
         </p>
+        <p>{copy.eligibility}</p>
         <p>
           {copy.foundational}: {report.metrics.foundational} · {copy.premium}:{' '}
           {report.metrics.premium}

@@ -143,6 +143,23 @@
     reviewedOn: null,
   }
 - {
+    id: assistant-with-jobs,
+    patternId: assistant-with-jobs,
+    org: {},
+    answers: {},
+    mustInclude:
+      [
+        registry-inventory,
+        governance-actions,
+        entra-conditional-access,
+        entra-access-packages,
+        entra-sponsor-lifecycle,
+      ],
+    mustNotInclude: [registry-sync, defender-shadow-ai, intune-block-local],
+    reviewedBy: null,
+    reviewedOn: null,
+  }
+- {
     id: store-operations,
     patternId: knowledge-agent,
     sampleId: store-operations,

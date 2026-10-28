@@ -1,0 +1,452 @@
+# What each capability needs, from Microsoft's documentation (read 2026-10-27). No single Microsoft page lists these;
+# each lives in a different doc set, so this file consolidates them and names the page for every item.
+# readyWhen ties an item to the customer's answers (true = in place, false = gap, unknown = confirm).
+# appliesTo is set only where the source says where the requirement applies. askPrompt is the question to put to the customer while the answer is unknown.
+# Not stated in the sources: the minimum Intune plan, and a general administrator role for basic agent management.
+- capabilityIds: [all]
+  items:
+    - id: agent-365-license
+      kind: license
+      appliesTo: each-user
+      text: "An Agent 365 license (or Microsoft 365 E7) for the users who delegate to, own, sponsor or manage the agent. Foundational capabilities do not need it."
+      askPrompt: "Which users delegate to, own, sponsor or manage this agent, and do they hold an Agent 365 license or Microsoft 365 E7?"
+      readyWhen:
+        any:
+          - { q: basePlan, equals: m365-e7 }
+          - { q: agent365Status, in: [trial, some-users, broad] }
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: one-licensed-user
+      kind: license
+      appliesTo: tenant
+      text: "At least one user must be licensed with a qualifying Agent 365 license to enable Agent 365."
+      askPrompt: "Which user will hold the first Agent 365 license, so the customer can enable Agent 365?"
+      readyWhen:
+        any:
+          - { q: basePlan, equals: m365-e7 }
+          - { q: agent365Status, in: [trial, some-users, broad] }
+      sourceIds: [a365-overview]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: plan-prerequisites
+      kind: license
+      appliesTo: each-user
+      text: "The plan prerequisites for the customer's segment, for example Microsoft 365 E5, or E3 with both the Defender and Purview suites."
+      askPrompt: "Which plan does each of those users hold, and does it meet the prerequisite for the customer's segment?"
+      readyWhen:
+        any:
+          - { q: basePlan, in: [m365-e7, m365-e5] }
+          - { q: securitySuites, equals: "yes" }
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: accept-terms
+      kind: onboarding
+      text: "Accept the applicable terms when starting an Agent 365 trial or buying licenses."
+      askPrompt: "Have the applicable Agent 365 terms been accepted during onboarding?"
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [registry-inventory, governance-actions]
+  items:
+    - id: admin-role
+      kind: role
+      appliesTo: tenant
+      text: "An administrator role with permission to manage Microsoft 365, Microsoft Copilot or Agent 365 settings in the Microsoft 365 admin center. The documentation does not name a specific role."
+      askPrompt: "Who will manage Agent 365 settings in the Microsoft 365 admin center, and do they hold an administrator role that allows it?"
+      sourceIds: [a365-admin-overview]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [lifecycle-automation]
+  items:
+    - id: ownerless-rule
+      kind: scope
+      appliesTo: agent
+      text: "The rule that reassigns ownerless agents supports only agents created with Microsoft Copilot Agent Builder. It transfers ownership to the manager of the previous owner, based on the Microsoft Entra ID hierarchy."
+      askPrompt: "Which agents will lose their owner when their creator leaves, and were they created with Agent Builder?"
+      sourceIds: [a365-agent-settings]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [registry-sync]
+  items:
+    - id: connect-platform
+      kind: onboarding
+      appliesTo: tenant
+      text: "Configure registry synchronization for each connected platform. Agents built on Amazon Bedrock or Google Vertex AI can become visible with no development work."
+      askPrompt: "Which non-Microsoft platforms host agents today, and who will set up registry synchronization for each?"
+      sourceIds: [a365-third-party, a365-sdk, a365-connected-platforms]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: sync-status
+      kind: scope
+      appliesTo: tenant
+      text: "At the May 2026 launch, registry sync with AWS and Google Cloud connections was in public preview. Check the current status before you promise it."
+      askPrompt: "Does the customer accept a preview feature for registry sync, and has someone checked its current status?"
+      status: preview
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: connected-platforms-list
+      kind: scope
+      appliesTo: tenant
+      text: "Supported platforms are Amazon Bedrock, Google Vertex AI, Salesforce Agentforce, Databricks Genie, Anthropic Claude Managed Agents, Oracle Generative AI Agents and Snowflake Cortex. Observability for Oracle and Snowflake is marked coming soon, and for Databricks Genie it is available through Frontier."
+      askPrompt: "Which non-Microsoft agent platforms does the customer use, and are they on this list?"
+      sourceIds: [a365-connected-platforms]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: connected-platforms-limits
+      kind: scope
+      appliesTo: tenant
+      text: "Synchronization is manual, so re-run it after agents change. Removing an agent in the source platform does not guarantee its removal from the registry. Connections are read-only by design, with one optional permission to remove a synchronized agent."
+      askPrompt: "Who will re-run synchronization, how often, and who owns the credentials for each connection?"
+      sourceIds: [a365-connected-platforms]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: connected-platforms-credentials
+      kind: onboarding
+      appliesTo: tenant
+      text: "Every supported platform needs a key-based credential, such as an API key, secret or private key. Keyless options such as workload identity federation or role assumption are not supported."
+      askPrompt: "Will the customer's security team allow a stored key-based credential for each connected platform?"
+      sourceIds: [a365-connected-platforms]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [observability, defender-threat-protection]
+  items:
+    - id: native-telemetry
+      kind: telemetry
+      appliesTo: agent
+      text: "Agents built with Copilot Studio, Microsoft Foundry or Microsoft 365 Agent Builder send observability data by default. Agents on other platforms need the Agent 365 SDK and the Microsoft OpenTelemetry Distro."
+      askPrompt: "Which platform is the agent built on, and if it is not a Microsoft one, will the team add the Agent 365 SDK?"
+      readyWhen: { q: buildPlatform, in: [copilot-studio, microsoft-foundry, m365-agent-builder] }
+      sourceIds: [defender-agent-detection, a365-sdk]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [observability]
+  items:
+    - id: third-party-idp
+      kind: scope
+      appliesTo: agent
+      text: "If users sign in through a third-party identity provider, the agent can still send observability data by passing the user's ID and email. Resources that need Entra tokens need sign-in through Microsoft Entra ID, which can federate with that provider."
+      askPrompt: "Which identity provider do the agent's users sign in with, and does the agent need access to resources that require Entra tokens?"
+      sourceIds: [a365-3p-idp]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [defender-posture, defender-threat-protection, defender-hunting]
+  items:
+    - id: defender-onboard
+      kind: onboarding
+      appliesTo: tenant
+      text: "Onboard to Agent 365. Security for AI agents then turns on automatically, including agent discovery, security posture assessment and threat detection. The Enable toggle is on by default."
+      askPrompt: "Has the customer onboarded to Agent 365 and confirmed that security for AI agents is on in Defender?"
+      sourceIds: [defender-ai-start]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: defender-role
+      kind: role
+      appliesTo: tenant
+      text: "The Security Administrator role or higher in Microsoft Entra ID to set it up. Real-time protection for Copilot Studio also needs a Power Platform administrator."
+      askPrompt: "Who will set up security for AI agents in Defender, and do they hold the Security Administrator role or higher?"
+      sourceIds: [defender-ai-start]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [defender-posture, defender-threat-protection]
+  items:
+    - id: defender-transition
+      kind: license
+      appliesTo: tenant
+      text: "Effective July 1, 2026, agent security for Microsoft Copilot Studio and Microsoft Foundry agents needs an Agent 365 license. Defender for Cloud Apps and Defender for Cloud licenses no longer cover it."
+      askPrompt: "Does the customer run Copilot Studio or Foundry agents that relied on Defender for Cloud Apps or Defender for Cloud, and is an Agent 365 license in place?"
+      sourceIds: [defender-transition]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [defender-threat-protection, defender-hunting]
+  items:
+    - id: defender-m365-connector
+      kind: onboarding
+      appliesTo: tenant
+      text: "Connect the Microsoft 365 connector in Defender, with at least the Entra ID management events and Microsoft 365 activities components, to get investigation and advanced hunting. Without it, Copilot Studio real-time protection still blocks, but alerts and incidents do not appear."
+      askPrompt: "Is the Microsoft 365 connector connected in Defender, with the Entra ID management events and Microsoft 365 activities components selected?"
+      sourceIds: [defender-ai-start]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [defender-threat-protection]
+  items:
+    - id: foundry-published
+      kind: scope
+      appliesTo: agent
+      text: "Threat detection is supported for published Microsoft Foundry agents. Unpublished agents are not supported. The Microsoft page that describes it is labeled Preview."
+      askPrompt: "Is the Foundry agent published, and does the customer accept a preview feature?"
+      status: preview
+      sourceIds: [defender-agent-detection]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [defender-shadow-ai]
+  items:
+    - id: mde-active-mode
+      kind: service
+      appliesTo: device
+      text: "Microsoft Defender for Endpoint with Microsoft Defender Antivirus in active mode on the devices. Local agents are onboarded separately."
+      askPrompt: "Is Defender for Endpoint running in active mode on the devices that host local agents?"
+      readyWhen: { q: defenderEndpoint, equals: most }
+      sourceIds: [defender-agent-inventory, defender-ai-start]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: openclaw-frontier
+      kind: enrollment
+      appliesTo: tenant
+      text: "At the May 2026 launch, seeing OpenClaw agents in use was available to customers enrolled in the Frontier program. Check the current status."
+      askPrompt: "Is the customer enrolled in the Frontier program, and has someone checked the current status of OpenClaw visibility?"
+      readyWhen: { q: frontierProgram, equals: enrolled }
+      status: frontier-preview
+      sourceIds: [a365-ga-blog, a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: shadow-ai-license
+      kind: license
+      appliesTo: each-user
+      text: "A Microsoft 365 E5 license to view Shadow AI agents. Shadow AI is in public preview in the Frontier program."
+      askPrompt: "Which administrators will view Shadow AI, and do they hold a Microsoft 365 E5 license?"
+      readyWhen: { q: basePlan, in: [m365-e7, m365-e5] }
+      status: frontier-preview
+      sourceIds: [a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: shadow-ai-intune
+      kind: enrollment
+      appliesTo: device
+      text: "Microsoft Intune enrollment for managed Windows devices. Blocking applies only to managed Windows devices enrolled in Intune."
+      askPrompt: "Are the Windows devices that run local agents enrolled in Intune?"
+      readyWhen: { q: intuneWindows, equals: most }
+      sourceIds: [a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: shadow-ai-agents
+      kind: scope
+      appliesTo: device
+      text: "During the preview it detects OpenClaw, ChatGPT Desktop, Ollama Desktop, Poe Desktop, Claw/ZeroClaw, OpenCode and Claude Desktop. Blocking is available only for OpenClaw."
+      askPrompt: "Which unsanctioned agents is the customer worried about, and are they on this list?"
+      status: frontier-preview
+      sourceIds: [a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: shadow-ai-gsa
+      kind: service
+      appliesTo: tenant
+      text: "Enable Global Secure Access for the tenant and enrolled devices to see more about how detected agents are being used."
+      askPrompt: "Is Global Secure Access enabled for the tenant and the enrolled devices?"
+      sourceIds: [a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: shadow-ai-roles
+      kind: role
+      appliesTo: tenant
+      text: "At least one of these roles: Security Administrator, AI Administrator, Global Reader, Security Reader, Security Operator, Reports Reader, User Experience Success Manager or Intune Administrator."
+      askPrompt: "Who needs to see Shadow AI, and do they hold one of these roles?"
+      sourceIds: [a365-shadow-ai]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [entra-conditional-access, entra-access-packages, entra-sponsor-lifecycle]
+  items:
+    - id: entra-license
+      kind: license
+      appliesTo: each-user
+      text: "Microsoft 365 E7, or an Agent 365 license paired with at least Microsoft Entra P1 or Microsoft 365 E3."
+      askPrompt: "Do the users hold Microsoft 365 E7, or an Agent 365 license together with Entra ID P1 or Microsoft 365 E3?"
+      readyWhen:
+        any:
+          - { q: basePlan, equals: m365-e7 }
+          - all:
+              - { q: agent365Status, in: [some-users, broad] }
+              - any:
+                  - { q: entraP1, equals: "yes" }
+                  - { q: basePlan, equals: m365-e3 }
+      sourceIds: [entra-ca-agents, entra-agent-id-governance, entra-licensing]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [entra-conditional-access]
+  items:
+    - id: idp-roles
+      kind: role
+      appliesTo: tenant
+      text: "Conditional Access Administrator to configure policies that use agent risk. Security Administrator, Security Operator or Security Reader to view the Risky Agent reports."
+      askPrompt: "Who will configure Conditional Access policies for agents, and who will review the Risky Agent reports?"
+      sourceIds: [entra-idp-agents]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: idp-license-soon
+      kind: license
+      appliesTo: each-user
+      text: "ID Protection for agents will require an Agent 365 license starting soon. Entra gives no date."
+      askPrompt: "Will the customer use ID Protection for agents, so it plans for the Agent 365 license it will need?"
+      sourceIds: [entra-idp-agents, entra-licensing]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [entra-sponsor-lifecycle]
+  items:
+    - id: lifecycle-admin
+      kind: role
+      appliesTo: tenant
+      text: "At least the Lifecycle Workflows Administrator role to configure the sponsor workflows."
+      askPrompt: "Who holds the Lifecycle Workflows Administrator role, or will someone be given it?"
+      sourceIds: [entra-agent-sponsor-tasks]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: sponsor-required
+      kind: scope
+      appliesTo: agent
+      text: "Every agent identity and agent blueprint needs at least one sponsor. Owners are optional. Some groups can be sponsors, but groups cannot be owners."
+      askPrompt: "Who will sponsor this agent, and who takes over if that person leaves or moves?"
+      readyWhen: { q: sponsor, equals: "yes" }
+      sourceIds: [entra-agent-sponsors]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [entra-network-controls]
+  items:
+    - id: network-license
+      kind: license
+      appliesTo: each-user
+      text: "Microsoft 365 E3 or Microsoft Entra ID P1 for cloud agents. Network controls for local agents come from Entra Suite or standalone Entra offerings."
+      askPrompt: "Do the users hold Microsoft 365 E3 or Entra ID P1 for cloud agents, and is Entra Suite or standalone Entra in place for local agents?"
+      readyWhen:
+        any:
+          - { q: entraP1, equals: "yes" }
+          - { q: basePlan, equals: m365-e3 }
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: traffic-forwarding
+      kind: onboarding
+      text: "For Copilot Studio agents, turn on traffic forwarding in the Power Platform admin center, per environment or environment group."
+      askPrompt: "Which Power Platform environments host the Copilot Studio agents, and is traffic forwarding turned on for each?"
+      sourceIds: [gsa-agents]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: gsa-local-agents
+      kind: service
+      appliesTo: device
+      text: "For local agents, install the Global Secure Access client on the endpoint with internet access forwarding and TLS inspection enabled. The Agentic Acquire policy, which acquires local agent traffic, is supported on Windows and Mac only."
+      askPrompt: "Which devices run local agents, are they Windows or Mac, and does the customer allow the Global Secure Access client and TLS inspection on them?"
+      sourceIds: [gsa-agent-discovery, gsa-internet-profile]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: gsa-discovery-preview
+      kind: scope
+      appliesTo: tenant
+      text: "AI agent discovery in Global Secure Access is in preview. It covers local agents and Copilot Studio agents. Copilot Studio agents need the Copilot Studio integration with Global Secure Access enabled."
+      askPrompt: "Does the customer accept a preview feature for network-level agent discovery?"
+      status: preview
+      sourceIds: [gsa-agent-discovery]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [purview-labels]
+  items:
+    - id: label-access
+      kind: onboarding
+      appliesTo: data
+      text: "Share files explicitly with the agent instance. If a label encrypts content, the encryption must grant the agent instance VIEW and EXTRACT usage rights. A label that grants all users in the organization or any authenticated users is not sufficient."
+      askPrompt: "Are the files the agent needs shared with the agent instance, and do encrypting labels grant it VIEW and EXTRACT?"
+      sourceIds: [purview-agent-365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: label-inheritance
+      kind: scope
+      appliesTo: data
+      text: "New content created by Agent 365 does not inherit sensitivity labels from the source items."
+      askPrompt: "Does the customer know that new content the agent creates will not inherit sensitivity labels from its sources?"
+      sourceIds: [purview-agent-365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [purview-dlp, purview-insider-risk, purview-dlm, purview-ai-compliance]
+  items:
+    - id: policy-inclusion
+      kind: onboarding
+      appliesTo: agent
+      text: "A new agent instance is enabled automatically only for audit, sensitive-data classification and Compliance Manager assessments. For other Purview capabilities, include the agent instance in policies as you would a user."
+      askPrompt: "Which Purview policies must cover the agent instance, and have they been updated to include it?"
+      sourceIds: [purview-agent-365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [purview-dlp]
+  items:
+    - id: dlp-for-ai
+      kind: service
+      appliesTo: tenant
+      text: "Adding DLP for an agent needs Purview DLP for AI enabled in the tenant, including licensing, pay-as-you-go billing and DSPM for AI onboarding."
+      askPrompt: "Is Purview DLP for AI enabled in the tenant, with licensing, pay-as-you-go billing and DSPM for AI onboarding?"
+      sourceIds: [a365-quickstart]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds:
+    [purview-audit-ediscovery, purview-dlm, purview-ai-compliance, purview-insider-risk]
+  items:
+    - id: purview-payg
+      kind: license
+      appliesTo: tenant
+      text: "For non-Microsoft AI apps and agents, Purview bills these capabilities pay-as-you-go, which needs an active Azure subscription linked to the tenant. This is Purview's general billing page, so confirm how it applies to Agent 365."
+      askPrompt: "Is an Azure subscription linked to the tenant so pay-as-you-go Purview capabilities can run?"
+      sourceIds: [purview-billing]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [intune-runtime-policy, intune-block-local]
+  items:
+    - id: intune-windows
+      kind: service
+      appliesTo: device
+      text: "Windows devices managed by Intune. At the May 2026 launch, discovery and blocking started with OpenClaw agents on Windows, with other agents to follow."
+      askPrompt: "Are the Windows devices that run local agents enrolled in Intune?"
+      readyWhen: { q: intuneWindows, equals: most }
+      sourceIds: [a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+- capabilityIds: [intune-device-compliance]
+  items:
+    - id: intune-plan
+      kind: service
+      appliesTo: device
+      text: "Microsoft Intune device compliance. The sources reviewed do not state a minimum Intune plan, so confirm it."
+      askPrompt: "Which Intune plan does the customer hold, and does it include device compliance?"
+      sourceIds: [sd-a365]
+      evidence: judgment
+      reviewStatus: draft
+      lastVerified: "2026-10-27"

@@ -1,0 +1,248 @@
+# How Agent 365 fits an existing stack, from Microsoft's documentation (read 2026-10-27).
+# Microsoft's pages describe Agent 365 on its own terms. They do not compare it with other vendors' tools,
+# and this file makes no such comparison.
+reviewStatus: draft
+intro: "Agent 365 sits above the platforms where agents are built, and it surfaces its controls in the Microsoft tools the customer's teams already use. Use this page to show what stays where it is and what is new."
+notice: "Seller guidance built from Microsoft's documentation. It makes no comparison with other vendors' products."
+jumpLabel: "On this page"
+statements:
+  heading: "What Microsoft says about where Agent 365 fits"
+  intro: "Paraphrased from Microsoft's documentation, with the source for each."
+  items:
+    - id: one-control-plane
+      text: "Agent 365 brings agents from different sources into one control plane where an organization can discover, govern and secure them. The integration path depends on where and how the agent is built."
+      sourceIds: [a365-sdk]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: existing-security-tools
+      text: "Agent 365 extends the Microsoft Defender, Entra and Purview tools a customer already runs to agents. Security practitioners keep working in the tools they already use, with agent insights shown in each product's portal."
+      sourceIds: [a365-security]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: people-model
+      text: "Microsoft's framing is to manage agents the way an organization manages people, using the same infrastructure, apps and protections it already runs."
+      sourceIds: [a365-launch-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: entra-split
+      text: "Microsoft describes a separation of concerns: Agent 365 discovers and inventories all agents, while Entra Agent ID manages their identities, permissions and protections."
+      sourceIds: [a365-entra-capabilities]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: which-registry
+      text: "On which registry to use today, Microsoft says to use Agent 365 to discover and manage all agents and monitor activity, and Microsoft Entra to manage agent identities, identity governance and Conditional Access."
+      sourceIds: [entra-registry-convergence]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: other-platforms
+      text: "Agent 365 works with agents built on Microsoft platforms and with agents built or acquired from third-party sources."
+      sourceIds: [sd-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: protocols
+      text: "Microsoft's Entra documentation says the platform supports OAuth 2.0, the Model Context Protocol and agent-to-agent communication."
+      sourceIds: [entra-agent-id]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+platforms:
+  heading: "Where the customer's agents are built"
+  intro: "Choose the platforms in use to see how each one connects to Agent 365 and what to check."
+  legend: "Platforms in use"
+  emptyNote: "Choose at least one platform to see how it connects."
+  routeLabels:
+    native: "Native integration"
+    sdk: "Agent 365 SDK"
+    registry-sync: "Registry sync"
+    endpoint: "Endpoint discovery"
+    verify: "Verify the path"
+  columns:
+    platform: Platform
+    route: "How it connects"
+    needs: "What to check"
+    status: Status
+  items:
+    - id: copilot-studio
+      label: "Copilot Studio"
+      route: native
+      buildPlatforms: [copilot-studio]
+      summary: "Copilot Studio agents register automatically. Registration gives inventory, so confirm identity, permissions, telemetry and data protection separately."
+      needs:
+        - "Check the registered entry and its publisher details."
+        - "Confirm identity, permissions, DLP configuration and telemetry."
+      sourceIds: [a365-cps-registry, a365-quickstart]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: m365-agent-builder
+      label: "Microsoft 365 Agent Builder"
+      route: native
+      buildPlatforms: [m365-agent-builder]
+      summary: "Declarative agents built with Microsoft 365 Agent Builder send observability data to Microsoft 365 by default."
+      needs:
+        - "Confirm the agent appears in the Agent Registry."
+        - "Confirm identity, permissions and data protection."
+      sourceIds: [defender-agent-detection]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: microsoft-foundry
+      label: "Microsoft Foundry"
+      route: native
+      buildPlatforms: [microsoft-foundry]
+      summary: "Microsoft Foundry provisions and manages agent identities through the agent lifecycle, and Foundry agents send observability data by default."
+      needs:
+        - "Publish the agent: threat detection supports only published Foundry agents."
+        - "Confirm permissions, telemetry and data protection."
+      sourceIds: [entra-agent-id-governance, defender-agent-detection]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: sdk-agents
+      label: "Pro-code agents on a framework"
+      route: sdk
+      buildPlatforms: [pro-code-microsoft, pro-code-third-party]
+      summary: "Add the Agent 365 SDK to an agent you build to give it identity, governed tooling and notifications. The SDK does not build or host the agent."
+      needs:
+        - "Choose only the SDK capabilities the agent needs."
+        - "Add telemetry with the separate Microsoft OpenTelemetry Distro."
+        - "Register the agent and verify permissions, licensing and signals."
+      sourceIds: [a365-sdk, a365-quickstart]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: cloud-registry-sync
+      label: "Amazon Bedrock or Google Vertex AI"
+      route: registry-sync
+      buildPlatforms: [hyperscaler]
+      summary: "Agents built on Amazon Bedrock or Google Vertex AI can be made visible in the Microsoft 365 admin center through registry sync, with no development work."
+      needs:
+        - "Configure registry synchronization for each connected platform."
+        - "Check telemetry and runtime controls separately: synchronization gives inventory."
+      status: preview
+      statusNote: "Registry sync with AWS and Google Cloud connections was in public preview at the May 2026 launch. Check the current status."
+      sourceIds: [a365-third-party, a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: ecosystem-partners
+      label: "SaaS and partner agents"
+      route: verify
+      buildPlatforms: [saas-platform, partner-agent]
+      summary: "Ecosystem partners offer ready-to-deploy agents and agent factories. Microsoft says agents built in a factory each receive a governed Entra Agent ID."
+      needs:
+        - "Check the partner's listing for the current integration."
+        - "Confirm telemetry and permissions."
+      sourceIds: [a365-third-party]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: local-agents
+      label: "Local agents on endpoints"
+      route: endpoint
+      buildPlatforms: [local-agent]
+      summary: "Local agents on Windows devices are discovered through Defender for Endpoint and controlled with Intune. Support started with OpenClaw agents, with others to follow."
+      needs:
+        - "Onboard devices to Defender for Endpoint with Defender Antivirus in active mode."
+        - "Manage the Windows devices with Intune."
+        - "Check the Frontier program status."
+      status: frontier-preview
+      statusNote: "At the May 2026 launch, seeing OpenClaw agents in use was available to customers enrolled in the Frontier program."
+      sourceIds: [defender-agent-inventory, a365-ga-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: undecided
+      label: "Not decided yet"
+      route: verify
+      buildPlatforms: [undecided]
+      summary: "Choose the platform first, then confirm its integration path. Native, SDK and registry-sync paths are not equivalent."
+      needs:
+        - "Compare the native, SDK and registry-sync paths for each candidate platform."
+      sourceIds: [a365-sdk]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+stack:
+  heading: "What the customer already runs"
+  intro: "Choose the Microsoft tools in use to see what Agent 365 adds to each, and what stays in the team's existing portal."
+  legend: "Tools in use"
+  emptyNote: "Choose at least one tool to see what Agent 365 adds."
+  columns:
+    product: Product
+    adds: "What Agent 365 adds"
+    stays: "What stays in this tool"
+    capabilities: Capabilities
+  items:
+    - id: stack-m365-admin
+      console: "Microsoft 365 admin center"
+      label: "Microsoft 365 admin center"
+      adds: "The Agent Registry, agent inventory and Agent Map, governance actions, lifecycle rules, policy templates, tool controls and observability."
+      stays: "IT administrators manage agents where they already manage Microsoft 365 apps and users."
+      sourceIds: [a365-admin-overview]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: stack-entra
+      console: Entra
+      label: "Microsoft Entra"
+      adds: "Conditional Access, ID Protection, access packages, sponsor lifecycle and network controls for agents."
+      stays: "Identity teams keep managing agent identities, identity governance and Conditional Access in Entra."
+      sourceIds: [a365-entra-capabilities, entra-registry-convergence]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: stack-purview
+      console: Purview
+      label: "Microsoft Purview"
+      adds: "Audit, eDiscovery, data lifecycle, compliance assessments, DSPM for AI, Insider Risk, sensitivity labels and DLP applied to agents."
+      stays: "Compliance teams keep working in Purview, with agent insights shown in its portal."
+      sourceIds: [a365-security, purview-agent-365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: stack-defender
+      console: Defender
+      label: "Microsoft Defender"
+      adds: "Agent inventory and posture, threat detection and tool-call blocking, hunting, and discovery of local agents."
+      stays: "Security operations keep investigating in Defender, where agent alerts and recommendations appear."
+      sourceIds: [a365-security, defender-agent-inventory]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: stack-intune
+      console: Intune
+      label: "Microsoft Intune"
+      adds: "Device compliance for agent Conditional Access, a policy-controlled runtime and blocking of unsanctioned local agents."
+      stays: "Endpoint teams keep managing devices in Intune."
+      sourceIds: [sd-a365]
+      evidence: inferred
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+netNew:
+  heading: "What is new for the customer"
+  intro: "Most of Agent 365 extends tools the customer already uses. These capabilities are configured in the Microsoft 365 admin center or through the Graph API, so they are the new surface the customer's administrators learn."
+  capabilityIds:
+    - registry-inventory
+    - registry-sync
+    - governance-actions
+    - lifecycle-automation
+    - policy-templates
+    - observability
+    - tool-controls
+    - registry-graph-api
+  sourceIds: [sd-a365]
+  evidence: inferred
+  reviewStatus: draft
+boundaries:
+  heading: "What this page does not cover"
+  items:
+    - "Microsoft's documentation does not rank the build platforms or say which to choose for a use case."
+    - "The sources reviewed say little about agent-to-agent protocols and do not walk through registry-sync setup step by step."
+    - "Other vendors' security, identity governance and DLP products are not covered: Microsoft's documentation does not compare them with Agent 365."

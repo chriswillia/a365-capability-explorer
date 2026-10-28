@@ -1,0 +1,235 @@
+# Production guardrails: an editorial checklist, grouped into three gates. Draft until subject-matter-expert review.
+# appliesWhen decides whether a guardrail matters for the agent; doneWhen reads the customer's answers to say whether it
+# is already in place. Neither checks a tenant. Unknown answers never count as "no": they show as "Confirm".
+reviewStatus: draft
+heading: "Production guardrails"
+intro: "A checklist of what to put in place before a pilot, before production and as the agent estate grows. Each item shows whether this assessment's answers say it is in place."
+notice: "Editorial planning guidance, draft until subject-matter-expert review. In place reflects the customer's answers, not a check of their tenant."
+statusLabels:
+  ready: "In place"
+  gap: Gap
+  unknown: Confirm
+  maybe: "Check whether this applies"
+summary: "{ready} in place, {gap} {gap?gap|gaps}, {unknown} to confirm."
+actionLabel: "What to do"
+capabilitiesLabel: Capabilities
+empty: "No guardrails apply yet. Answer more questions to see them."
+gates:
+  - id: pilot
+    title: "Before pilot"
+    summary: "The minimum to start safely with real users and real data: ownership, access, data and visibility."
+  - id: production
+    title: "Before production"
+    summary: "What to settle before the agent serves its full audience: tools, incident ownership, evidence and devices."
+  - id: scale
+    title: "As you scale"
+    summary: "What to add as the number of agents, users and data sources grows."
+items:
+  - id: registered-owner
+    gate: pilot
+    title: "Register the agent and name an accountable owner and sponsor"
+    why: "A registered agent with a named owner and sponsor gives the customer a starting point for policy, support and retirement."
+    action: "Register the agent in the Agent Registry and record a named owner and sponsor."
+    capabilityIds: [registry-inventory, governance-actions]
+    appliesWhen: { always: true }
+    doneWhen: { q: sponsor, equals: "yes" }
+    sourceIds: [a365-admin-overview]
+    evidence: inferred
+    reviewStatus: draft
+  - id: licensed-people
+    gate: pilot
+    title: "Confirm who needs an Agent 365 license"
+    why: "Activity tied to an unlicensed user is not entitled to Agent 365 protections."
+    action: "Use the Licensing page to list the people to license for the way this agent acts."
+    capabilityIds: []
+    appliesWhen: { always: true }
+    doneWhen: { q: agent365Status, in: [some-users, broad] }
+    sourceIds: [lic-faq]
+    evidence: stated
+    reviewStatus: draft
+  - id: scoped-access
+    gate: pilot
+    title: "Scope the agent's access to its task"
+    why: "An agent should reach only what its task needs, whether it acts for a user or as itself."
+    action: "Review permissions and consent. For own access, give the agent identity a scoped access package."
+    capabilityIds: [entra-access-packages]
+    appliesWhen: { always: true }
+    sourceIds: [entra-agent-id-governance]
+    evidence: inferred
+    reviewStatus: draft
+  - id: identity-policies
+    gate: pilot
+    title: "Bring identity policies to the agent"
+    why: "User policies extend to delegated agents, and agents with their own identity are covered by policies that target that identity."
+    action: "Create Conditional Access policies for the access pattern the agent uses."
+    capabilityIds: [entra-conditional-access]
+    appliesWhen: { always: true }
+    sourceIds: [entra-ca-agents]
+    evidence: stated
+    reviewStatus: draft
+  - id: protect-data
+    gate: pilot
+    title: "Label and protect the data the agent can reach"
+    why: "Labels and data loss prevention travel with the data an agent reads and shares."
+    action: "Confirm label coverage and onboard the agent to the applicable DLP policies."
+    capabilityIds: [purview-labels, purview-dlp]
+    appliesWhen: { q: dataSensitivity, in: [confidential, highly-confidential] }
+    doneWhen: { q: labelsProgram, equals: broad }
+    sourceIds: [purview-agent-365, a365-quickstart]
+    evidence: inferred
+    reviewStatus: draft
+  - id: telemetry-on
+    gate: pilot
+    title: "Turn on telemetry so activity is visible"
+    why: "Registration gives inventory. Telemetry shows what the agent does."
+    action: "Use native telemetry on Microsoft platforms, or add the Agent 365 SDK and the OpenTelemetry Distro."
+    capabilityIds: [observability]
+    appliesWhen: { always: true }
+    doneWhen: { q: buildPlatform, in: [copilot-studio, microsoft-foundry, m365-agent-builder] }
+    sourceIds: [defender-agent-detection, a365-sdk]
+    evidence: stated
+    reviewStatus: draft
+  - id: human-in-loop
+    gate: pilot
+    title: "Keep a person in the loop for consequential actions"
+    why: "Actions that change records, move money or contact outsiders are the ones to review first."
+    action: "Require approval for those actions until the agent has a track record."
+    capabilityIds: [tool-controls]
+    appliesWhen:
+      {
+        q: actions,
+        includesAny: [update-records, transactions, change-config, communicate-externally],
+      }
+    doneWhen: { q: autonomy, in: [suggests, approval-gated] }
+    sourceIds: [sd-a365]
+    evidence: judgment
+    reviewStatus: draft
+  - id: frontier-enrollment
+    gate: pilot
+    title: "Confirm Frontier enrollment for an agent with its own account"
+    why: "Agents that need their own user account and mailbox are available only to tenants in the Frontier preview program."
+    action: "Check the tenant's Frontier enrollment before design work."
+    capabilityIds: []
+    appliesWhen: { q: accessModel, equals: own-teammate }
+    doneWhen: { q: frontierProgram, equals: enrolled }
+    sourceIds: [a365-sdk]
+    evidence: stated
+    reviewStatus: draft
+  - id: tool-governance
+    gate: production
+    title: "Govern the tools the agent can call"
+    why: "Tool access is how an agent acts in other systems, and tenant-wide controls decide which tools it may use."
+    action: "Allow only the tools the task needs, and review the rest."
+    capabilityIds: [tool-controls, defender-threat-protection]
+    appliesWhen:
+      {
+        q: tools,
+        includesAny:
+          [
+            microsoft-mcp,
+            third-party-mcp,
+            connectors-apis,
+            code-execution,
+            web-browsing,
+            computer-use,
+          ],
+      }
+    sourceIds: [sd-a365]
+    evidence: inferred
+    reviewStatus: draft
+  - id: incident-owner
+    gate: production
+    title: "Assign who investigates agent incidents"
+    why: "Detection helps only if a team owns the alert."
+    action: "Name the investigating team and the platform they use."
+    capabilityIds: [defender-threat-protection, defender-hunting]
+    appliesWhen: { always: true }
+    doneWhen: { q: socPlatform, in: [defender-xdr, other] }
+    sourceIds: [sd-a365]
+    evidence: judgment
+    reviewStatus: draft
+  - id: audit-evidence
+    gate: production
+    title: "Keep audit evidence of what the agent does"
+    why: "Audit logs and eDiscovery let the customer answer legal and regulatory requests."
+    action: "Confirm retention periods and who can search agent activity."
+    capabilityIds: [purview-audit-ediscovery, purview-dlm, purview-ai-compliance]
+    appliesWhen:
+      {
+        q: obligations,
+        includesAny: [legal-hold, records-retention, regulator-audit, ai-regulation],
+      }
+    sourceIds: [purview-agent-365]
+    evidence: inferred
+    reviewStatus: draft
+  - id: device-coverage
+    gate: production
+    title: "Cover the devices the agent runs on"
+    why: "Local agents run on endpoints, where Defender and Intune are the controls."
+    action: "Onboard the devices to Defender for Endpoint and manage Windows devices with Intune."
+    capabilityIds: [defender-shadow-ai, intune-runtime-policy, intune-block-local]
+    appliesWhen:
+      any:
+        - { q: buildPlatform, equals: local-agent }
+        - { q: shadowAI, equals: "yes" }
+    doneWhen:
+      all:
+        - { q: defenderEndpoint, equals: most }
+        - { q: intuneWindows, equals: most }
+    sourceIds: [defender-agent-inventory, a365-ga-blog]
+    evidence: stated
+    reviewStatus: draft
+  - id: outside-users
+    gate: production
+    title: "Review sharing and licensing for outside users"
+    why: "People outside the organization change data-sharing, compliance and licensing questions."
+    action: "Confirm data boundaries, and ask the licensing specialist about external users."
+    capabilityIds: [purview-dlp]
+    appliesWhen: { q: audience, includesAny: [partners, customers] }
+    sourceIds: [lic-faq]
+    evidence: judgment
+    reviewStatus: draft
+  - id: lifecycle-rules
+    gate: scale
+    title: "Automate lifecycle for many agents"
+    why: "With many agents, manual review of ownership and retirement does not keep up."
+    action: "Use rules-based lifecycle actions and sponsor workflows."
+    capabilityIds: [lifecycle-automation, entra-sponsor-lifecycle]
+    appliesWhen: { q: agentEstate, in: [dozens, hundreds] }
+    sourceIds: [sd-a365]
+    evidence: inferred
+    reviewStatus: draft
+  - id: policy-baseline
+    gate: scale
+    title: "Set a policy baseline with templates"
+    why: "Templates give every new agent the same starting guardrails."
+    action: "Create policy templates for the common types of agent."
+    capabilityIds: [policy-templates]
+    appliesWhen: { q: agentEstate, in: [handful, dozens, hundreds] }
+    doneWhen: { q: orgGovernance, includes: policy-baseline }
+    sourceIds: [a365-security]
+    evidence: inferred
+    reviewStatus: draft
+  - id: owner-changes
+    gate: scale
+    title: "Plan for owner changes"
+    why: "Agents outlive the people who build them."
+    action: "Decide what happens to an agent when its owner or sponsor leaves."
+    capabilityIds: [governance-actions, entra-sponsor-lifecycle]
+    appliesWhen: { always: true }
+    sourceIds: [entra-agent-sponsor-tasks]
+    evidence: inferred
+    reviewStatus: draft
+  - id: leader-reporting
+    gate: scale
+    title: "Report on the agent estate to leaders"
+    why: "Leaders need to see how many agents exist, who owns them and what they do."
+    action: "Agree the reporting the customer's executives expect, and who produces it."
+    capabilityIds: [observability]
+    appliesWhen:
+      any:
+        - { q: orgGovernance, includes: exec-reporting }
+        - { q: agentGovernance, includes: exec-reporting }
+    sourceIds: [a365-launch-blog]
+    evidence: inferred
+    reviewStatus: draft

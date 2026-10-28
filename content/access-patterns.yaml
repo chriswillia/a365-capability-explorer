@@ -1,0 +1,149 @@
+# How an agent acts, in Microsoft's terms (read 2026-10-27). The Microsoft pages reviewed do not use the word "owned":
+# they say an agent acts with its own identity, credentials or access. This site labels that "Own access".
+# Per-capability statements exist only where Microsoft's documentation makes one. Everything else is "not stated".
+reviewStatus: draft
+intro: "Microsoft describes three ways an agent can act. They change whose identity is the subject of access, which policies target it and which people need a license."
+notice: "Microsoft's documentation does not split most Purview and Defender controls by access pattern. Where it is silent, this page says so instead of guessing."
+termsNote: "The Microsoft pages reviewed do not use the word owned. They say the agent acts with its own identity, credentials or access. This site calls that Own access."
+patternsHeading: "Three ways an agent acts"
+termsLabel: "Microsoft's terms"
+licenseLabel: "Who to license"
+questionLabel: "Assessment answers"
+jumpLabel: "On this page"
+assessmentLabel: "Show this for an assessment"
+noAssessment: "No assessment selected"
+thisAgent: "This assessment: {label}"
+thisAgentUnknown: "This assessment has not said how the agent acts."
+viewNoAssessment: "Choose an assessment above to see which capabilities change for that agent."
+openLicensing: "Open licensing"
+answerLabels:
+  delegated: "Delegated access"
+  own-teammate: "Own access with an agent account"
+  own-background: "Own access"
+  mixed: "Delegated and own access"
+patterns:
+  - id: delegated
+    label: "Delegated access"
+    terms: ["Delegated access", "On-behalf-of (OBO)"]
+    plain: "The agent acts for a signed-in user. The token represents the user and also identifies the agent, so policies that target users and groups apply."
+    answers: [delegated, mixed]
+    licensingIds: [delegating-users]
+    sourceIds: [entra-ca-agents, entra-security-for-ai]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - id: own
+    label: "Own access"
+    terms: ["Application-only access", "Client credentials", "Autonomous agent", "Agent identity"]
+    plain: "The agent acts as itself, with its own agent identity and permissions, and needs no signed-in user. Policies target the agent identity or its blueprint."
+    answers: [own-background, mixed]
+    licensingIds: [own-access-owners]
+    sourceIds: [entra-ca-agents, entra-security-for-ai]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - id: agent-account
+    label: "Own access with an agent account"
+    terms: ["Agent-user access", "Agent's user account"]
+    plain: "The agent also has its own user account, paired with its agent identity, with a mailbox, calendar and Teams presence like a person. Policies target that account."
+    answers: [own-teammate, mixed]
+    licensingIds: [own-access-owners]
+    sourceIds: [entra-ca-agents, entra-security-for-ai]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+viewHeading: "How recommendations change with how the agent acts"
+viewIntro: "Recommendations for this assessment are recomputed under each way of acting, using this tool's rules, which follow the service description's wording. Capabilities in scope under every way are listed last."
+columns:
+  capability: Capability
+  delegated: "Delegated"
+  own: "Own access"
+  agentAccount: "Agent account"
+  note: "What Microsoft's documentation says"
+applicability:
+  applies: Applies
+  differs: "Applies differently"
+  not-stated: "Not stated"
+statedHeading: "What Microsoft's documentation states by access pattern"
+unsplitHeading: "Everything else"
+unsplit: "For the other capabilities, Microsoft's documentation describes how they apply to an agent or agent instance and does not say whether delegated, own-access or agent-account agents differ. Treat them as applying to every pattern, and confirm before you claim a difference."
+tensionHeading: "Where the sources differ"
+tension:
+  text: "The service description words Conditional Access and Identity Protection for agents as for agents with delegated access. Microsoft's Entra documentation also describes policies for agents that act with their own identity and for agent user accounts. The Entra pages are the fuller and more recent statement; verify before you answer."
+  sourceIds: [sd-a365, entra-ca-agents]
+  evidence: judgment
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+changeHeading: "What changes for this agent"
+changeIntro: "Capabilities in scope for this assessment, recomputed with each way of acting. The rules follow the service description's wording."
+changeOnly: "Only when the agent acts as {label}"
+changeBoth: "In scope under every way of acting"
+changeNone: "No difference for this assessment: the same capabilities are in scope however the agent acts."
+changeAlso: "Microsoft's documentation also describes it for {label}. See where the sources differ."
+currentBadge: "This assessment"
+statusHeading: "Availability by access pattern"
+statusNames:
+  ga: "Generally available"
+  preview: "Public preview"
+  frontier-preview: "Frontier preview"
+statuses:
+  - id: delegated-launch
+    label: "Agents working on behalf of users, at the May 2026 launch"
+    patternId: delegated
+    status: ga
+    sourceIds: [a365-ga-blog]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - id: own-background-launch
+    label: "Agents operating behind the scenes with their own access, at the May 2026 launch"
+    patternId: own
+    status: ga
+    sourceIds: [a365-ga-blog]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - id: team-workflows-launch
+    label: "Agents taking part in team workflows with their own access, at the May 2026 launch"
+    patternId: agent-account
+    status: preview
+    sourceIds: [a365-ga-blog]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - id: agent-account-frontier
+    label: "Agents that need their own user account and mailbox, in the SDK documentation of October 2026"
+    patternId: agent-account
+    status: frontier-preview
+    sourceIds: [a365-sdk]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+capabilities:
+  - capabilityId: entra-conditional-access
+    delegated: differs
+    own: applies
+    agentAccount: applies
+    note: "Separate policies target users and groups (delegated), the agent identity or blueprint (own access) and the agent's user account. A policy on one target does not cover the others. In delegated flows, ID Protection attributes risk to the user, not the agent."
+    sourceIds: [entra-ca-agents, entra-idp-agents]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - capabilityId: entra-access-packages
+    delegated: not-stated
+    own: applies
+    agentAccount: not-stated
+    note: "Access packages give agent identities resource access directly. Agents, or their owners or sponsors on their behalf, can request them. The documentation does not describe them for delegated agents."
+    sourceIds: [entra-agent-id-governance]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  - capabilityId: entra-sponsor-lifecycle
+    delegated: not-stated
+    own: applies
+    agentAccount: not-stated
+    note: "Sponsor workflows act on the sponsors of agent identities, so they apply to agents that have their own identity. The documentation does not say whether delegated-only agents have sponsors."
+    sourceIds: [entra-agent-sponsor-tasks]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"

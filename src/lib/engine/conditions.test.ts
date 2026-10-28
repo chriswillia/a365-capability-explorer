@@ -65,7 +65,7 @@ describe('three-valued conditions', () => {
     const render = (c: Condition) =>
       describeCondition(c, content.questions, content.site.mapping.condition);
     expect(render({ q: 'accessModel', equals: 'own-teammate' })).toBe(
-      'Access model is Own access as an AI teammate',
+      'How the agent acts is Own access with an agent user account (teammate)',
     );
     expect(
       render({

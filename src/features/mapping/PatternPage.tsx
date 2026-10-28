@@ -1,8 +1,10 @@
 import { Link, useParams, useSearchParams } from 'react-router';
+import { Badge } from '../../components/Badge.tsx';
 import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PillarSummary } from '../../components/PillarSummary.tsx';
+import { accessModelLabel } from '../../lib/content/access-fit.ts';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Pattern, Sample } from '../../lib/content/schemas.ts';
 import { evaluateAssessment, evaluateWhatIfs, patternAnswers } from '../../lib/engine/evaluate.ts';
@@ -34,6 +36,11 @@ function Brief({ pattern, sample }: { pattern: Pattern; sample?: Sample }) {
         </p>
       )}
       <p className={styles.intro}>{sample?.summary ?? pattern.summary}</p>
+      {accessModelLabel(content, answers.accessModel) !== null && (
+        <p>
+          <Badge tone="outline">{accessModelLabel(content, answers.accessModel)}</Badge>
+        </p>
+      )}
       <p>{pattern.narrative}</p>
       <Evidence {...(sample ?? pattern)} />
       <p>

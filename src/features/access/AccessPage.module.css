@@ -1,0 +1,94 @@
+.intro {
+  max-width: 44rem;
+  font-size: var(--text-20);
+  line-height: var(--line-height-snug);
+}
+
+.notice {
+  max-width: 52rem;
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.section {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 19rem), 1fr));
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.card p {
+  margin: 0;
+}
+
+.card h3 {
+  margin: 0;
+  font-size: var(--text-16);
+}
+
+.mine {
+  border-left: 4px solid var(--color-blue);
+}
+
+.plain {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.statements {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.statements > li {
+  display: grid;
+  gap: var(--space-1);
+  max-width: 52rem;
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--color-hairline);
+}
+
+.muted {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}

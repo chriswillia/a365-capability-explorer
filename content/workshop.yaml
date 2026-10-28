@@ -9,7 +9,7 @@ preparation:
   - Review draft labels, source differences and unknown answers before presenting. Nothing in this workshop certifies readiness or grants access.
 agendaTitle: Run the workshop
 duration: "{count}-minute suggested agenda"
-minutes: "{count} minutes"
+minutes: "{count} {count?minute|minutes}"
 agenda:
   - id: frame
     title: Agree the outcome and boundaries
@@ -36,16 +36,16 @@ agenda:
     title: Test the assumptions
     minutes: 20
     instructions:
-      - Enter the agreed answers in Diagnostic and inspect the readout, readiness checks and access-model basis.
+      - Enter the agreed answers in Map an agent and inspect the readout, readiness checks and who to license.
       - Compare the generated recommendations with the card sort. Discuss differences rather than treating the engine as approval.
     output: A saved assessment and an explicit gap and unknown list.
   - id: compare
-    title: Identify reusable foundations
+    title: Identify reusable set-up-once capabilities
     minutes: 15
     instructions:
-      - Compare selected use cases for the same customer in Compare use cases.
-      - Review shared platform foundations, per-agent decisions and the draft business-value/intensity quadrants.
-    output: A candidate platform backlog and separate agent decisions.
+      - Compare selected use cases for the same customer in the Agent portfolio.
+      - Review shared set-up-once capabilities, per-agent decisions and the draft business-value and governance-effort quadrants.
+    output: A candidate set-up-once backlog and separate agent decisions.
   - id: close
     title: Assign follow-up and agree next steps
     minutes: 10
@@ -61,7 +61,7 @@ followup:
   - Revisit the assessment when assumptions change; keep licensing eligibility and unknown answers explicit.
 patternsTitle: "Printable scenario cards"
 capabilitiesTitle: Printable capability card-sort kit
-cardNote: "Editorial content is draft pending SME review. Scenario cards describe illustrative starters, not facts about your customer. Capability card backs use the existing summaries and rule conditions; links lead to the full evidence and official sources."
+cardNote: "Editorial content needs SME review. Scenario cards describe illustrative starters, not facts about your customer. Capability card backs use the existing summaries and rule conditions; links lead to the full evidence and official sources."
 front: Front
 back: Back
 scope: When this capability is in scope
@@ -74,11 +74,11 @@ printError: Printing could not start. Try your browser's print command.
 guide: Facilitator guide
 checklistTitle: "Security, governance and observability requirements checklist"
 checklistNote: "A leave-behind for a customer conversation, built from the catalog. Tick what to discuss, write the customer's requirement and agree an owner and priority. Availability comes from the service description; confirm licensing with your account team."
-checklistPillar: "{label}: {count} capabilities"
+checklistPillar: "{label}: {count} {count?capability|capabilities}"
 checklistColumns:
   discuss: Discuss
   capability: Capability
-  productArea: "Product area"
+  productArea: "Where it's configured"
   availability: "Licensing and availability"
   requirement: "Customer requirement"
   owner: Owner

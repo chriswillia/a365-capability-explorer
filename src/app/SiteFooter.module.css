@@ -12,6 +12,11 @@
   padding: var(--space-8) var(--layout-gutter);
 }
 
+.stamp {
+  font-size: var(--text-14);
+  font-weight: 600;
+}
+
 .disclaimer {
   max-width: 52rem;
   font-size: var(--text-14);

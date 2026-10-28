@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { content } from '../content/index.ts';
 import { evaluateWhatIfs, patternAnswers } from '../engine/evaluate.ts';
 import { peopleRows, pillarLabel, questionPillars } from '../engine/pillars.ts';
+import { countReadiness } from '../engine/readiness.ts';
 import type { Assessment, Organization } from '../state/diagnostic-model.ts';
 import {
   answerLabel,
@@ -71,11 +72,18 @@ describe('saved assessment readouts', () => {
     expect(Object.values(report.metrics.levels).reduce((a, b) => a + b, 0)).toBe(
       report.result.inScope.length,
     );
-    expect(report.metrics.platform).toBe(
-      report.result.inScope.filter((r) => r.capability.setup !== 'agent').length,
+    const inScope = report.result.inScope;
+    const count = (setup: 'platform' | 'agent' | 'both') =>
+      inScope.filter((r) => r.capability.setup === setup).length;
+    expect(report.metrics.platform).toBe(count('platform'));
+    expect(report.metrics.agent).toBe(count('agent'));
+    expect(report.metrics.both).toBe(count('both'));
+    // Each capability is counted once, so the three setup counts add up to the capabilities in scope.
+    expect(report.metrics.platform + report.metrics.agent + report.metrics.both).toBe(
+      report.metrics.capabilityCount,
     );
     expect(report.result.licensing.eligibility).toBe('unknown');
-    expect(report.metrics.readinessPercent).toBe(report.result.readiness.percent);
+    expect(report.metrics.readiness).toEqual(countReadiness(report.result.readiness.checks));
     expect({ organization, assessment }).toEqual(before);
   });
   it('preserves unknown answers and exports evidence, version, roadmap and the disclaimer', () => {
@@ -149,8 +157,62 @@ describe('saved assessment readouts', () => {
       });
     expect(markdown).toContain(`## ${heading(1, 'pillars')}`);
     expect(markdown.indexOf(heading(1, 'pillars'))).toBeLessThan(
-      markdown.indexOf(heading(2, 'anatomy')),
+      markdown.indexOf(heading(2, 'access')),
     );
+    expect(markdown.indexOf(heading(2, 'access'))).toBeLessThan(
+      markdown.indexOf(heading(3, 'anatomy')),
+    );
+  });
+  it('keeps the populations that depend on how the agent acts when that answer is unknown, with what to confirm', () => {
+    const { organization, assessment } = entities();
+    assessment.answers.accessModel = 'unknown';
+    assessment.answers.audience = ['unknown'];
+    const report = buildReadout(content, organization, assessment, 'current');
+    const ids = report.license.populations.map((view) => view.population.id);
+    for (const id of ['delegating-users', 'own-access-owners', 'external-users'])
+      expect(ids, id).toContain(id);
+    expect(report.access.current).toEqual([]);
+    const markdown = readoutMarkdown(content, report);
+    for (const id of ['delegating-users', 'own-access-owners'])
+      expect(markdown).toContain(
+        escapeMarkdown(content.licensing.who.populations.find((p) => p.id === id)!.label),
+      );
+    expect(report.result.licensing.basis).toBeNull();
+  });
+  it('exports how the agent acts, the production guardrails and who to license', () => {
+    const { organization, assessment } = entities();
+    const report = buildReadout(content, organization, assessment, 'current');
+    const markdown = readoutMarkdown(content, report);
+    const access = content.accessPatterns;
+    expect(report.access.current.length).toBeGreaterThan(0);
+    for (const text of [
+      access.changeHeading,
+      access.statedHeading,
+      access.tensionHeading,
+      content.site.readout.accessNote,
+      content.site.readout.guardrailsNote,
+      content.site.readout.licenseWho,
+      content.site.readout.licenseNeeds,
+    ])
+      expect(markdown).toContain(escapeMarkdown(text));
+    for (const { gate, items } of report.guardrails.gates)
+      if (items.length > 0) expect(markdown).toContain(`### ${escapeMarkdown(gate.title)}`);
+    expect(markdown).toContain(
+      escapeMarkdown(renderTemplate(content.guardrails.summary, report.guardrails.counts)),
+    );
+    expect(report.license.populations.length).toBeGreaterThan(0);
+    for (const { population } of report.license.populations)
+      expect(markdown).toContain(escapeMarkdown(population.label));
+    for (const { item } of report.license.requirements)
+      expect(markdown).toContain(escapeMarkdown(item.text));
+    const unconfirmed = report.license.requirements.filter(({ status }) => status === 'unknown');
+    expect(unconfirmed.length).toBeGreaterThan(0);
+    for (const { item } of unconfirmed) expect(markdown).toContain(escapeMarkdown(item.askPrompt!));
+    for (const group of report.access.only)
+      for (const entry of group.entries)
+        expect(markdown).toContain(
+          escapeMarkdown(content.capabilities.find((c) => c.id === entry.capabilityId)!.shortName),
+        );
   });
   it('groups the in-scope capabilities by requirement area and counts them against the catalog', () => {
     const { organization, assessment } = entities();

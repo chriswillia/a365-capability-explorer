@@ -2,6 +2,37 @@
   overflow-x: auto;
 }
 
+.hint {
+  margin: 0 0 var(--space-2);
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+@media print {
+  .hint {
+    display: none;
+  }
+}
+
+/* The row header stays in view while the other columns scroll under it, once there is room for both. */
+@media (min-width: 40rem) {
+  .scroll .rowHeader,
+  .scroll .corner {
+    position: sticky;
+    left: 0;
+    background: var(--color-paper);
+    box-shadow: 1px 0 0 var(--color-hairline);
+  }
+
+  .scroll .rowHeader {
+    z-index: 1;
+  }
+
+  .scroll .corner {
+    z-index: 2;
+  }
+}
+
 .table {
   width: 100%;
   font-size: var(--text-14);

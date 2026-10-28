@@ -3,6 +3,8 @@ import type { Content } from '../content/schemas.ts';
 import { colors, typography } from '../../theme/tokens.ts';
 import { renderTemplate } from '../content/template.ts';
 import { pillarLabel } from '../engine/pillars.ts';
+import { describeReadiness } from '../engine/readiness.ts';
+import { byUrgency } from '../engine/guardrails.ts';
 import {
   answerLabel,
   canvasFields,
@@ -10,6 +12,7 @@ import {
   summarizeText,
   type Readout,
 } from './report.ts';
+import { readoutSlideNotes, type SlideNotes } from './notes.ts';
 import type { Logo } from '../state/logo.ts';
 
 export class PresentationError extends Error {
@@ -244,10 +247,10 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
     const copy = data.site.readout;
     const mapping = data.site.mapping;
     const { result, metrics } = report;
-    const notes = readoutMarkdown(data, report);
-    const frame = (title: string, dark = false) =>
-      slideFrame(pptx, data, title, result.contentVersion, notes, report.logo, dark);
-    let slide = frame(data.site.productName, true);
+    const notes = readoutSlideNotes(data, report);
+    const frame = (key: keyof SlideNotes, title: string, dark = false) =>
+      slideFrame(pptx, data, title, result.contentVersion, notes[key], report.logo, dark);
+    let slide = frame('title', data.site.productName, true);
     slide.addText(compact(report.title, 96), {
       x: 0.5,
       y: 1.7,
@@ -287,7 +290,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       text(slide, compact(value!, 62), 0.7 + i * 4.15, 5.35, 3.58, 0.6, 18);
     });
 
-    slide = frame(mapping.pillars);
+    slide = frame('pillars', mapping.pillars);
     report.pillars.forEach((row, i) => {
       const x = 0.5 + i * 4.15;
       panel(pptx, slide, x, 1.55, 3.98, 4.75);
@@ -348,7 +351,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       );
     });
 
-    slide = frame(copy.summary);
+    slide = frame('summary', copy.summary);
     (['essential', 'recommended', 'consider'] as const).forEach((level, i) => {
       const x = 0.5 + i * 4.15;
       panel(pptx, slide, x, 1.55, 3.98, 4.35);
@@ -358,7 +361,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
     });
     text(
       slide,
-      `${copy.foundational}: ${metrics.foundational} · ${copy.premium}: ${metrics.premium} · ${mapping.readinessPercent}: ${metrics.readinessPercent === null ? mapping.unknownAnswer : `${metrics.readinessPercent}%`}`,
+      `${copy.foundational}: ${metrics.foundational} · ${copy.premium}: ${metrics.premium} · ${mapping.readinessLabel}: ${describeReadiness(metrics.readiness, mapping)}`,
       0.5,
       6.02,
       12.3,
@@ -367,7 +370,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
     );
     text(
       slide,
-      `${copy.platform}: ${metrics.platform} · ${copy.agent}: ${metrics.agent}`,
+      `${copy.platform}: ${metrics.platform} · ${copy.both}: ${metrics.both} · ${copy.agent}: ${metrics.agent}`,
       0.5,
       6.24,
       12.3,
@@ -375,7 +378,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       12,
     );
 
-    slide = frame(copy.anatomy);
+    slide = frame('anatomy', copy.anatomy);
     result.anatomy.forEach(({ point, capabilities }, i) => {
       const x = 0.5 + (i % 4) * 3.1;
       const y = 1.55 + Math.floor(i / 4) * 2.32;
@@ -395,7 +398,7 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       );
     });
 
-    slide = frame(copy.riskControls);
+    slide = frame('riskControls', copy.riskControls);
     const riskRows = result.risks.slice(0, 3);
     if (riskRows.length === 0) text(slide, mapping.noRisks, 0.5, 2.0, 12.3, 0.8, 24);
     riskRows.forEach(({ risk, inScope }, i) => {
@@ -418,7 +421,43 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       );
     });
 
-    slide = frame(copy.roadmap);
+    slide = frame('guardrails', copy.exhibits.guardrails);
+    report.guardrails.gates.forEach(({ gate, items }, i) => {
+      const x = 0.5 + i * 4.15;
+      panel(pptx, slide, x, 1.55, 3.98, 4.5);
+      text(slide, compact(gate.title, 30), x + 0.2, 1.75, 3.58, 0.45, 22, ink, true);
+      if (items.length === 0) text(slide, copy.empty, x + 0.2, 2.5, 3.58, 0.7, 16);
+      // The slide is a summary: gaps first, then what to confirm. The readout and the notes list every guardrail.
+      const shown = byUrgency(items).slice(0, 4);
+      shown.forEach(({ item, status }, index) => {
+        const y = 2.4 + index * 0.82;
+        text(slide, data.guardrails.statusLabels[status], x + 0.2, y, 3.58, 0.22, 12, slate, true);
+        text(slide, compact(item.title, 56), x + 0.2, y + 0.26, 3.58, 0.5, 13, ink, true);
+      });
+      if (items.length > shown.length)
+        text(
+          slide,
+          `+${items.length - shown.length}`,
+          x + 0.2,
+          2.4 + 4 * 0.82,
+          3.58,
+          0.25,
+          12,
+          slate,
+        );
+    });
+    text(
+      slide,
+      compact(renderTemplate(data.guardrails.summary, report.guardrails.counts), 120),
+      0.5,
+      6.2,
+      12.3,
+      0.35,
+      15,
+      slate,
+    );
+
+    slide = frame('roadmap', copy.roadmap);
     ([1, 2, 3] as const).forEach((wave, i) => {
       const x = 0.5 + i * 4.15;
       panel(pptx, slide, x, 1.55, 3.98, 4.55);
@@ -432,12 +471,12 @@ export async function readoutPowerPoint(data: Content, report: Readout): Promise
       });
     });
 
-    slide = frame(copy.exhibits.licensing, true);
+    slide = frame('licensing', copy.exhibits.licensing, true);
     panel(pptx, slide, 0.5, 1.65, 5.6, 4.5);
     text(slide, copy.eligibility, 0.75, 1.9, 5.1, 0.9, 24, ink, true);
     text(
       slide,
-      compact(result.licensing.basis ?? mapping.unknownAnswer, 250),
+      compact(result.licensing.basis ?? mapping.licenseBasisConfirm, 250),
       0.75,
       3.0,
       5.1,

@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -7,18 +7,21 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { content, contentMeta, metrics, values } from '../lib/content/index.ts';
 import { renderTemplate } from '../lib/content/template.ts';
 import { DEPTH_STORAGE_KEY } from '../lib/state/depth.ts';
-import { DepthProvider } from '../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../lib/state/StateProviders.tsx';
 import { STORAGE_PREFIX } from '../lib/state/storage.ts';
 import { fluentTheme } from '../theme/fluentTheme.ts';
+import '../features/explorer/CapabilitiesPage.tsx';
+import '../features/explorer/CapabilityPage.tsx';
+import '../features/value/ValuePage.tsx';
 import { routes } from './routes.tsx';
 
 function renderApp(path = '/') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   return router;
@@ -27,7 +30,7 @@ function renderApp(path = '/') {
 const { site } = content;
 
 describe('layout shell', () => {
-  it('has the landmarks, the preview banner and the mandated disclaimer on every page', async () => {
+  it('has the landmarks, the footer stamp and the mandated disclaimer on every page', async () => {
     renderApp();
     expect(
       await screen.findByRole('heading', { level: 1, name: site.productName }),
@@ -35,10 +38,17 @@ describe('layout shell', () => {
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(screen.getByRole('main')).toBeInTheDocument();
     expect(screen.getByRole('contentinfo')).toBeInTheDocument();
-    expect(screen.getByText(site.ui.previewBanner)).toBeInTheDocument();
+    expect(screen.getByText(renderTemplate(site.ui.footer.stamp, values))).toBeInTheDocument();
     expect(screen.getByText(site.disclaimer)).toBeInTheDocument();
     expect(screen.getByText(site.independenceNotice)).toBeInTheDocument();
     expect(screen.getByText(contentMeta.contentVersion)).toBeInTheDocument();
+  });
+
+  it('shows no site-wide preview banner above the header', async () => {
+    renderApp();
+    const header = await screen.findByRole('banner');
+    expect(header.previousElementSibling?.className ?? '').not.toMatch(/banner/i);
+    expect(within(header).queryByText(/preview/i)).not.toBeInTheDocument();
   });
 
   it('keeps the disclaimer wording the brief requires', () => {
@@ -47,31 +57,66 @@ describe('layout shell', () => {
     );
   });
 
-  it('lists the main sections in workflow order, marks the current one, and keeps Methodology in the footer', async () => {
+  it('lists the four jobs in order, keeps the rest under Library, and also links Methodology in the footer', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
-    const links = within(nav).getAllByRole('link');
+    const jobs = ['overview', 'pitch', 'map', 'licensing'] as const;
+    const library = [
+      'fit',
+      'access',
+      'capabilities',
+      'patterns',
+      'learn',
+      'portfolio',
+      'workshop',
+      'methodology',
+    ] as const;
+    // A closed menu hides its links from the accessibility tree, so ask for them explicitly.
+    const links = within(nav).getAllByRole('link', { hidden: true });
     expect(links.map((l) => l.textContent)).toEqual(
-      (
-        [
-          'overview',
-          'learn',
-          'capabilities',
-          'patterns',
-          'diagnostic',
-          'portfolio',
-          'workshop',
-        ] as const
-      ).map((key) => site.ui.nav[key]),
+      [...jobs, ...library].map((key) => site.ui.nav[key]),
     );
+    const summary = within(nav).getByText(site.ui.nav.library);
+    expect(summary.tagName).toBe('SUMMARY');
+    const menu = summary.closest('details') as HTMLElement;
+    for (const key of library)
+      expect(
+        within(menu).getByRole('link', { name: site.ui.nav[key], hidden: true }),
+      ).toBeInTheDocument();
+    for (const key of jobs)
+      expect(within(menu).queryByRole('link', { name: site.ui.nav[key], hidden: true })).toBeNull();
     expect(within(nav).getByRole('link', { name: site.ui.nav.overview })).toHaveAttribute(
       'aria-current',
       'page',
     );
-    expect(within(nav).queryByRole('link', { name: site.ui.nav.methodology })).toBeNull();
+    expect(within(nav).getByRole('link', { name: site.ui.nav.map })).toHaveAttribute(
+      'href',
+      '/diagnostic',
+    );
     expect(
       within(screen.getByRole('contentinfo')).getByRole('link', { name: site.ui.nav.methodology }),
     ).toHaveAttribute('href', '/methodology');
+  });
+
+  it('opens the Library menu, closes it on Escape and after a page change, and marks it current', async () => {
+    renderApp();
+    const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
+    const summary = within(nav).getByText(site.ui.nav.library);
+    const menu = summary.closest('details') as HTMLDetailsElement;
+    expect(menu.open).toBe(false);
+    await userEvent.click(summary);
+    expect(menu.open).toBe(true);
+    await userEvent.keyboard('{Escape}');
+    expect(menu.open).toBe(false);
+    expect(summary).toHaveFocus();
+
+    await userEvent.click(summary);
+    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.capabilities }));
+    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    const afterNavigation = within(
+      await screen.findByRole('navigation', { name: site.ui.mainNavLabel }),
+    ).getByText(site.ui.nav.library);
+    expect((afterNavigation.closest('details') as HTMLDetailsElement).open).toBe(false);
   });
 
   it('explains the detail-level switch to everyone who uses it', async () => {
@@ -90,13 +135,14 @@ describe('layout shell', () => {
 
   it('moves focus to the new page heading after navigating', async () => {
     renderApp();
-    await userEvent.click(await screen.findByRole('link', { name: site.ui.nav.capabilities }));
+    await userEvent.click(await screen.findByRole('link', { name: site.ui.nav.pitch }));
     const heading = await screen.findByRole('heading', {
       level: 1,
-      name: site.routes.capabilities.title,
+      name: site.routes.pitch.title,
     });
-    expect(heading).toHaveFocus();
-    expect(document.title).toBe(`${site.routes.capabilities.title} · ${site.productName}`);
+    // Focus moves in an effect after the new page renders, so the heading can exist a moment before it has focus.
+    await waitFor(() => expect(heading).toHaveFocus());
+    expect(document.title).toBe(`${site.routes.pitch.title} · ${site.productName}`);
   });
 
   it('shows a page-not-found message for an unknown address', async () => {
@@ -143,74 +189,50 @@ describe('Executive | Technical toggle', () => {
 });
 
 describe('Overview', () => {
-  it('shows KPIs that are computed from the content, not typed', async () => {
+  it('opens with the pitch and map actions, then one tile for each job', async () => {
     renderApp();
     await screen.findByRole('heading', { level: 1 });
-    for (const kpi of site.overview.kpis) {
-      const label = screen.getByText(kpi.label);
-      const tile = label.closest('div') as HTMLElement;
-      expect(tile).toHaveTextContent(String(metrics[kpi.valueKey]));
-    }
-  });
-
-  it('links every number to the capabilities it counts, and every pillar to its capabilities', async () => {
-    renderApp();
-    await screen.findByRole('heading', { level: 1 });
-    for (const kpi of site.overview.kpis)
-      expect(screen.getByRole('link', { name: kpi.label })).toHaveAttribute('href', kpi.href);
-    const gcc = site.overview.kpis.find((kpi) => kpi.noteHref !== undefined)!;
-    expect(
-      screen.getByRole('link', { name: `${metrics.notInGccCount} are not available in GCC.` }),
-    ).toHaveAttribute('href', gcc.noteHref);
-    for (const pillar of content.pillars)
-      expect(screen.getByRole('link', { name: pillar.label })).toHaveAttribute(
-        'href',
-        `/capabilities?pillar=${pillar.id}`,
-      );
-  });
-
-  it('opens with the seller path first and a way to start a customer conversation', async () => {
-    renderApp();
-    await screen.findByRole('heading', { level: 1 });
-    expect(content.personas[0]!.id).toBe('seller-partner');
-    const cards = screen.getAllByRole('heading', { level: 3 }).slice(0, 2);
-    expect(cards[0]).toHaveTextContent(content.personas[0]!.label);
-    expect(screen.getByRole('link', { name: site.overview.ctaConversation })).toHaveAttribute(
+    const { overview } = site;
+    expect(screen.getByRole('link', { name: overview.ctaPrimary })).toHaveAttribute(
       'href',
-      '/conversation',
+      '/pitch',
     );
-    const personas = screen.getByRole('region', { name: site.overview.personasHeading });
-    expect(within(personas).queryByText(site.ui.badges.draft)).not.toBeInTheDocument();
-  });
-
-  it('generates the exhibit title from the data', async () => {
-    renderApp();
     expect(
-      await screen.findByRole('heading', {
-        level: 2,
-        name: `${metrics.premiumCount} of ${metrics.capabilityCount} capabilities require Microsoft 365 E7/G7 or Agent 365; ${metrics.foundationalCount} come with base plans.`,
-      }),
-    ).toBeInTheDocument();
+      screen
+        .getAllByRole('link', { name: overview.ctaSecondary })
+        .map((a) => a.getAttribute('href')),
+    ).toContain('/diagnostic');
+    const jobs = within(screen.getByRole('region', { name: overview.jobs.heading }));
+    const tiles = jobs.getAllByRole('listitem');
+    expect(tiles).toHaveLength(overview.jobs.tiles.length);
+    for (const [index, tile] of overview.jobs.tiles.entries()) {
+      const item = within(tiles[index]!);
+      expect(item.getByText(tile.question)).toBeInTheDocument();
+      expect(item.getByRole('heading', { level: 3, name: tile.title })).toBeInTheDocument();
+      expect(item.getByRole('link', { name: tile.cta })).toHaveAttribute('href', tile.to);
+    }
+    expect(screen.getByText(overview.jobs.libraryNote)).toBeInTheDocument();
   });
 
-  it('states that most of Agent 365 is a platform foundation, because the data supports it', async () => {
-    renderApp();
-    expect(await screen.findByText(site.overview.insights.platformFoundation)).toBeInTheDocument();
-  });
-
-  it('adds console and layer detail only in the Technical view', async () => {
+  it('keeps the catalog numbers, the role starts and the Frontier journey off the home page', async () => {
     renderApp();
     await screen.findByRole('heading', { level: 1 });
+    expect(screen.queryByText(site.capabilities.glance.kpis[0]!.label)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: site.learn.sections.roles }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: site.learn.sections.frontier }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    expect(screen.getByText(site.overview.technicalHint)).toBeInTheDocument();
+  });
 
-    await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
-    const tables = await screen.findAllByRole('table');
-    expect(tables).toHaveLength(2);
-    expect(within(tables[0] as HTMLElement).getAllByRole('row')).toHaveLength(
-      content.consoles.length + 1,
-    );
-    expect(screen.queryByText(site.overview.technicalHint)).not.toBeInTheDocument();
+  it('shows no recent customers before the first one is saved', async () => {
+    renderApp();
+    await screen.findByRole('heading', { level: 1 });
+    expect(
+      screen.queryByRole('heading', { name: site.overview.recent.heading }),
+    ).not.toBeInTheDocument();
   });
 });
 
@@ -236,7 +258,7 @@ describe('Capabilities page', () => {
   });
 
   it('groups capabilities under Observability, Governance and Security, with counts', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     for (const pillar of content.pillars) {
       const heading = await screen.findByRole('heading', {
         level: 2,
@@ -263,7 +285,7 @@ describe('Capabilities page', () => {
   });
 
   it('filters by requirement area chip, product area, licensing and GCC, and shows the counts', async () => {
-    const router = renderApp('/capabilities');
+    const router = renderApp('/capabilities?view=table');
     const chips = within(await screen.findByRole('group', { name: explorer.pillarFilter }));
     await userEvent.click(
       chips.getByRole('button', {
@@ -273,14 +295,14 @@ describe('Capabilities page', () => {
         }),
       }),
     );
-    expect(router.state.location.search).toBe('?pillar=secure');
+    expect(router.state.location.search).toBe('?pillar=secure&view=table');
     expect(screen.getAllByRole('table')).toHaveLength(1);
     expect(screen.getAllByRole('rowheader')).toHaveLength(metrics.secureCount);
     await userEvent.selectOptions(screen.getByLabelText(explorer.gcc), 'unavailable');
     await userEvent.selectOptions(screen.getByLabelText(explorer.licensing), 'premium');
     await userEvent.selectOptions(screen.getByLabelText(explorer.productArea), 'Purview');
     expect(router.state.location.search).toBe(
-      '?pillar=secure&console=Purview&licensing=premium&gcc=unavailable',
+      '?pillar=secure&console=Purview&licensing=premium&gcc=unavailable&view=table',
     );
     const expected = content.capabilities.filter(
       (c) =>
@@ -295,11 +317,30 @@ describe('Capabilities page', () => {
       renderTemplate(explorer.results, { ...values, count: expected.length }),
     );
     await userEvent.click(screen.getByRole('button', { name: explorer.reset }));
-    expect(router.state.location.search).toBe('');
+    expect(router.state.location.search).toBe('?view=table');
+  });
+
+  it('shows cards by default, with every filter beyond area and search behind "More filters"', async () => {
+    const router = renderApp('/capabilities');
+    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    expect(screen.getAllByRole('checkbox')).toHaveLength(content.capabilities.length);
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByLabelText(explorer.view)).toHaveValue('cards');
+    const summary = screen.getByText(explorer.more, { selector: 'summary' });
+    const drawer = summary.closest('details') as HTMLDetailsElement;
+    expect(drawer.open).toBe(false);
+    for (const label of [explorer.productArea, explorer.licensing, explorer.gcc, explorer.setup])
+      expect(drawer.contains(screen.getByLabelText(label))).toBe(true);
+    await userEvent.selectOptions(screen.getByLabelText(explorer.gcc), 'unavailable');
+    expect(router.state.location.search).toBe('?gcc=unavailable');
+    expect(
+      screen.getByText(renderTemplate(explorer.moreActive, { count: 1 }), { selector: 'summary' }),
+    ).toBeInTheDocument();
+    expect((summary.closest('details') as HTMLDetailsElement).open).toBe(true);
   });
 
   it('groups by product area when asked, and keeps links written for the console lens working', async () => {
-    renderApp('/capabilities?lens=console&group=Entra');
+    renderApp('/capabilities?lens=console&group=Entra&view=table');
     const heading = await screen.findByRole('heading', {
       level: 2,
       name: content.consoles.find((c) => c.id === 'Entra')!.displayName,
@@ -312,7 +353,7 @@ describe('Capabilities page', () => {
   });
 
   it('offers a filter for words a seller uses but the catalog does not contain', async () => {
-    const router = renderApp('/capabilities');
+    const router = renderApp('/capabilities?view=table');
     const search = await screen.findByLabelText(explorer.search);
     await userEvent.type(search, 'SIEM');
     expect(screen.getByText(explorer.empty)).toBeInTheDocument();
@@ -327,27 +368,26 @@ describe('Capabilities page', () => {
         }),
       }),
     );
-    expect(router.state.location.search).toBe('?lens=layer&group=oversight');
+    expect(router.state.location.search).toBe('?lens=layer&group=oversight&view=table');
     expect(screen.getAllByRole('rowheader')).toHaveLength(expected.length);
     expect(screen.getByLabelText(explorer.search)).toHaveValue('');
   });
 
-  it('says once that summaries are drafts instead of repeating the marker on every row', async () => {
-    renderApp('/capabilities');
+  it('says once, and only in the Technical view, that summaries need review instead of marking every row', async () => {
+    renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
-    expect(
-      screen.getByText(
-        renderTemplate(explorer.draftSummary, {
-          draft: content.capabilities.length,
-          total: content.capabilities.length,
-        }),
-      ),
-    ).toBeInTheDocument();
+    const note = renderTemplate(explorer.draftSummary, {
+      draft: content.capabilities.length,
+      total: content.capabilities.length,
+    });
+    expect(screen.queryByText(note)).not.toBeInTheDocument();
     expect(screen.queryByText(site.ui.badges.draft)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    expect(await screen.findByText(note)).toBeInTheDocument();
   });
 
   it('shows licensing and GCC availability on every row in the Executive view', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
     expect(screen.getAllByText(site.ui.badges.gccUnavailable)).toHaveLength(metrics.notInGccCount);
     expect(screen.getAllByText(site.ui.badges.gccAvailable).length).toBeGreaterThanOrEqual(
@@ -368,7 +408,7 @@ describe('Capabilities page', () => {
   });
 
   it('enforces a four-capability comparison, keeps selections across filters and offers a sticky bar', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
     const boxes = screen.getAllByRole('checkbox');
     for (const box of boxes.slice(0, 4)) await userEvent.click(box);
@@ -394,7 +434,7 @@ describe('Capabilities page', () => {
   });
 
   it('lists every capability once, without a per-row draft marker', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     const tables = await screen.findAllByRole('table');
     expect(tables.flatMap((table) => within(table).getAllByRole('rowheader'))).toHaveLength(
       content.capabilities.length,
@@ -402,20 +442,33 @@ describe('Capabilities page', () => {
   });
 
   describe('Capability briefs', () => {
-    it('opens a brief with source fidelity, availability and editorial status', async () => {
+    it('opens a brief with source fidelity, availability and a verified date', async () => {
       const first = content.capabilities[0]!;
-      renderApp('/capabilities');
+      renderApp('/capabilities?view=table');
       await userEvent.click(await screen.findByRole('link', { name: first.shortName }));
       expect(
         await screen.findByRole('heading', { level: 1, name: first.shortName }),
       ).toBeInTheDocument();
       expect(screen.getByText(first.source.featureText)).toBeInTheDocument();
       expect(screen.getByText(first.withoutIt!)).toBeInTheDocument();
-      expect(screen.getAllByText(site.ui.badges.draft).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText(
+          renderTemplate(site.ui.badges.verified, { date: first.source.lastVerified }),
+        ).length,
+      ).toBeGreaterThan(0);
+      expect(screen.queryByText(site.ui.badges.draft)).not.toBeInTheDocument();
       expect(document.title).toBe(`${first.shortName} · ${site.productName}`);
       expect(
         screen.getByRole('link', { name: site.capabilities.brief.correction }),
       ).toHaveAttribute('href', expect.stringContaining('/issues/new?title='));
+    });
+
+    it('shows the review status of a brief in the Technical view', async () => {
+      const first = content.capabilities[0]!;
+      renderApp(`/capabilities/${first.id}`);
+      await screen.findByRole('heading', { level: 1, name: first.shortName });
+      await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+      expect(screen.getAllByText(site.ui.badges.draft).length).toBeGreaterThan(0);
     });
 
     it('shows both sources when they differ, without hiding official availability', async () => {
@@ -450,14 +503,14 @@ describe('Capabilities page', () => {
   });
 
   it('flags capabilities whose sources differ, and says what the flag means', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
     expect(screen.getAllByText(site.ui.badges.sourcesDiffer)).toHaveLength(5);
     expect(screen.getByText(site.capabilities.sourcesDifferNote)).toBeInTheDocument();
   });
 
   it('labels the Graph API as a preview', async () => {
-    renderApp('/capabilities');
+    renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
     expect(screen.getAllByText(site.ui.badges.preview)).toHaveLength(1);
   });

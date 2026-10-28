@@ -1,5 +1,6 @@
 import { content, sourceById } from '../lib/content/index.ts';
 import type { Evidence, ReviewStatus } from '../lib/content/schemas.ts';
+import { useDepth } from '../lib/state/depth.ts';
 import { Badge } from './Badge.tsx';
 import { ExternalLink } from './ExternalLink.tsx';
 
@@ -14,15 +15,18 @@ export function LearningEvidence({
   };
 }) {
   const { site } = content;
+  const { depth } = useDepth();
   const source = sourceById(item.sourceId);
   return (
     <div>
-      <p>
-        <Badge tone="outline">{site.learn.evidence[item.evidence]}</Badge>{' '}
-        <Badge tone={item.reviewStatus === 'draft' ? 'draft' : 'outline'}>
-          {item.reviewStatus === 'draft' ? site.ui.badges.draft : site.ui.badges.reviewed}
-        </Badge>
-      </p>
+      {depth === 'technical' && (
+        <p>
+          <Badge tone="outline">{site.learn.evidence[item.evidence]}</Badge>{' '}
+          <Badge tone={item.reviewStatus === 'draft' ? 'draft' : 'outline'}>
+            {item.reviewStatus === 'draft' ? site.ui.badges.draft : site.ui.badges.reviewed}
+          </Badge>
+        </p>
+      )}
       <p>
         {site.ui.exhibit.sourcePrefix}{' '}
         {source && <ExternalLink href={source.url}>{source.title}</ExternalLink>}

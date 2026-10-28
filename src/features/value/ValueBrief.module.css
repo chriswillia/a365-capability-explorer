@@ -1,0 +1,142 @@
+.section {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.builder {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.field {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 28rem;
+}
+
+.field input {
+  width: 100%;
+  padding: var(--space-2);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+}
+
+.hint {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.concerns {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-hairline);
+  background: var(--color-white);
+}
+
+.concerns legend {
+  padding: 0 var(--space-2);
+  font-weight: 600;
+}
+
+.concern {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding-block: var(--space-1);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.actions button {
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  cursor: pointer;
+}
+
+.actions button:disabled {
+  color: var(--color-slate);
+  cursor: not-allowed;
+}
+
+.brief {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.brief h3 {
+  font-size: var(--text-24);
+}
+
+.brief h4 {
+  margin-top: var(--space-2);
+  font-size: var(--text-16);
+}
+
+.brief ul,
+.brief ol {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-6);
+}
+
+.outcomes ul {
+  margin-top: var(--space-1);
+}
+
+.meta {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+.footnote {
+  color: var(--color-slate);
+  font-size: var(--text-14);
+}
+
+@media print {
+  .brief {
+    gap: var(--space-2);
+    padding: 0;
+    border: 0;
+    font-size: 10pt;
+  }
+
+  .brief h3 {
+    font-size: 16pt;
+  }
+
+  .brief h4 {
+    font-size: 11pt;
+  }
+
+  .capabilities {
+    columns: 2;
+  }
+
+  .capabilities li {
+    break-inside: avoid;
+  }
+
+  .meta,
+  .footnote {
+    font-size: 9pt;
+  }
+}

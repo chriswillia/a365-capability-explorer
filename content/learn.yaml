@@ -119,14 +119,13 @@ positioning:
     reviewStatus: draft
     lastVerified: "2026-10-24"
   - id: complementary
-    title: "Copilot, E5 and E7: confirm the full relationship"
-    # TODO(verify): the licensing FAQ exposes only part of its answers to automated reading.
-    summary:
+    title: "How Copilot, E5 and E7 relate"
+    summary: "Per the licensing FAQ, E5 protects users and data, Agent 365 protects agents, and E7 protects both. Copilot is about what AI can do; Agent 365 is about controlling what AI is allowed to do."
     capabilityIds: []
     sourceId: lic-faq
     evidence: stated
     reviewStatus: draft
-    lastVerified:
+    lastVerified: "2026-10-27"
 frontier:
   - id: assistant
     title: "Human with assistant"

@@ -1,10 +1,14 @@
 import type { Content } from './schemas.ts';
 import { CONSOLES, CONTROL_POINTS, PILLARS, STAGES, TEMPLATE_KEYS } from './schemas.ts';
 import { validateMapping } from './validate-mapping.ts';
+import { validatePlaybook } from './validate-playbook.ts';
+import { PLACEHOLDER } from './template.ts';
 
 export interface ValidationOptions {
   now?: Date;
   staleAfterDays?: number;
+  /** Licensing and requirements facts change faster than the rest, so they go stale sooner. */
+  fastMovingAfterDays?: number;
   /** When true, a source that nothing references fails the build instead of warning. */
   failOnOrphanedSources?: boolean;
 }
@@ -15,7 +19,6 @@ export interface ValidationResult {
 }
 
 const DAY_MS = 86_400_000;
-const PLACEHOLDER = /\{([A-Za-z][A-Za-z0-9]*)\}/g;
 
 function* stringLeaves(value: unknown, path: string): Generator<[string, string]> {
   if (typeof value === 'string') {
@@ -38,7 +41,12 @@ export function validateContent(
   content: Content,
   options: ValidationOptions = {},
 ): ValidationResult {
-  const { now = new Date(), staleAfterDays = 90, failOnOrphanedSources = false } = options;
+  const {
+    now = new Date(),
+    staleAfterDays = 90,
+    fastMovingAfterDays = 30,
+    failOnOrphanedSources = false,
+  } = options;
   const errors: string[] = [];
   const warnings: string[] = [];
 
@@ -133,6 +141,8 @@ export function validateContent(
   const mapping = validateMapping(content, (where, id) => citeSource(where, id));
   errors.push(...mapping.errors);
   warnings.push(...mapping.warnings);
+  const playbook = validatePlaybook(content, (where, id) => citeSource(where, id));
+  errors.push(...playbook.errors);
 
   const learningCollections = [
     ['building-blocks.yaml', content.buildingBlocks],
@@ -214,6 +224,11 @@ export function validateContent(
     ...stringLeaves(content.site, 'site.yaml'),
     ...stringLeaves(content.workshop, 'workshop.yaml'),
     ...stringLeaves(content.conversation, 'conversation.yaml'),
+    ...stringLeaves(content.value, 'value.yaml'),
+    ...stringLeaves(content.licensing, 'licensing.yaml'),
+    ...stringLeaves(content.accessPatterns, 'access-patterns.yaml'),
+    ...stringLeaves(content.guardrails, 'guardrails.yaml'),
+    ...stringLeaves(content.fit, 'fit.yaml'),
   ]) {
     for (const match of text.matchAll(PLACEHOLDER)) {
       const key = match[1] as string;
@@ -226,8 +241,8 @@ export function validateContent(
     }
   }
   duplicates(
-    'site.yaml overview.kpis id',
-    content.site.overview.kpis.map((k) => k.id),
+    'site.yaml capabilities.glance.kpis id',
+    content.site.capabilities.glance.kpis.map((k) => k.id),
   );
   duplicates(
     'site.yaml capabilities.shortcuts id',
@@ -272,12 +287,12 @@ export function validateContent(
   // Staleness and unverified sources.
   const ageInDays = (isoDate: string) =>
     (now.getTime() - Date.parse(`${isoDate}T00:00:00Z`)) / DAY_MS;
-  const checkDate = (where: string, isoDate: string) => {
+  const checkDate = (where: string, isoDate: string, limit = staleAfterDays) => {
     const age = ageInDays(isoDate);
     if (age < -1) errors.push(`${where}: lastVerified ${isoDate} is in the future`);
-    else if (age > staleAfterDays) {
+    else if (age > limit) {
       warnings.push(
-        `${where}: lastVerified ${isoDate} is ${Math.floor(age)} days old (limit ${staleAfterDays})`,
+        `${where}: lastVerified ${isoDate} is ${Math.floor(age)} days old (limit ${limit})`,
       );
     }
   };
@@ -302,6 +317,12 @@ export function validateContent(
     if (date === null) warnings.push(`${where}: not verified yet`);
     else checkDate(where, date);
   }
+  for (const { where, date } of playbook.dates)
+    checkDate(
+      where,
+      date,
+      /^(licensing|requirements)\.yaml/.test(where) ? fastMovingAfterDays : staleAfterDays,
+    );
 
   return { errors, warnings };
 }

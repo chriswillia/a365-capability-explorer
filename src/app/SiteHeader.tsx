@@ -1,21 +1,21 @@
 import { lazy, Suspense } from 'react';
 import { Link, NavLink } from 'react-router';
+import { AudienceToggle } from '../components/AudienceToggle.tsx';
 import { ViewDepthToggle } from '../components/ViewDepthToggle.tsx';
 import { content } from '../lib/content/index.ts';
 import type { Site } from '../lib/content/schemas.ts';
+import { LibraryMenu } from './LibraryMenu.tsx';
 import styles from './SiteHeader.module.css';
 
 // The customer shortcut reads local storage, so it loads after the first paint instead of with the landing page.
 const CurrentCustomer = lazy(() => import('./CurrentCustomer.tsx'));
 
+// The four jobs of a customer conversation, in order. The reference material lives in the Library menu.
 const NAV: { key: keyof Site['ui']['nav']; to: string; end?: boolean }[] = [
   { key: 'overview', to: '/', end: true },
-  { key: 'learn', to: '/learn' },
-  { key: 'capabilities', to: '/capabilities' },
-  { key: 'patterns', to: '/patterns' },
-  { key: 'diagnostic', to: '/diagnostic' },
-  { key: 'portfolio', to: '/portfolio' },
-  { key: 'workshop', to: '/workshop' },
+  { key: 'pitch', to: '/pitch' },
+  { key: 'map', to: '/diagnostic' },
+  { key: 'licensing', to: '/licensing' },
 ];
 
 export function SiteHeader() {
@@ -23,7 +23,6 @@ export function SiteHeader() {
 
   return (
     <header className={styles.header} data-no-print>
-      <div className={styles.banner}>{ui.previewBanner}</div>
       <div className={styles.top}>
         <Link to="/" className={styles.brand} aria-label={ui.homeLinkLabel}>
           <svg className={styles.mark} viewBox="0 0 32 32" aria-hidden="true" focusable="false">
@@ -33,7 +32,10 @@ export function SiteHeader() {
           </svg>
           <span className={styles.name}>{productName}</span>
         </Link>
-        <ViewDepthToggle />
+        <div className={styles.tools}>
+          <AudienceToggle />
+          <ViewDepthToggle />
+        </div>
       </div>
       <div className={styles.bar}>
         <nav aria-label={ui.mainNavLabel} className={styles.nav}>
@@ -51,6 +53,7 @@ export function SiteHeader() {
                 </NavLink>
               </li>
             ))}
+            <LibraryMenu />
           </ul>
         </nav>
         <Suspense fallback={null}>

@@ -1,15 +1,15 @@
 import { FluentProvider } from '@fluentui/react-components';
 import { RouterProvider } from 'react-router/dom';
-import { DepthProvider } from '../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../lib/state/StateProviders.tsx';
 import { fluentTheme } from '../theme/fluentTheme.ts';
 import { router } from './router.ts';
 
 export function App() {
   return (
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>
   );
 }

@@ -5,12 +5,15 @@ import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { describe, expect, it } from 'vitest';
 import { routes } from '../../app/routes.tsx';
+import { accessModelLabel } from '../../lib/content/access-fit.ts';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { evaluateAssessment, evaluatePatterns, patternAnswers } from '../../lib/engine/evaluate.ts';
 import { pillarRows } from '../../lib/engine/pillars.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
+import './PatternPage.tsx';
+import './PatternsPage.tsx';
 
 const { site } = content;
 const copy = site.mapping;
@@ -18,9 +21,9 @@ function renderPage(path: string) {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   return router;
@@ -56,15 +59,32 @@ describe('Phase 3 mapping views', () => {
     }
     expect(screen.queryByText(site.ui.comingSoon.status)).not.toBeInTheDocument();
   });
-  it('summarises how many scenarios are drafts once and shows each scenario by requirement area', async () => {
+  it('shows how the agent acts on every scenario card and brief, including the mixed scenario', async () => {
+    renderPage('/patterns');
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    for (const pattern of content.patterns) {
+      const card = screen.getByRole('heading', { level: 2, name: pattern.title }).closest('li')!;
+      expect(
+        within(card).getByText(accessModelLabel(content, pattern.answers.accessModel)!),
+      ).toBeInTheDocument();
+    }
+    const mixed = content.patterns.find((p) => p.answers.accessModel === 'mixed')!;
+    expect(mixed.title).toBe('Assistant that also runs scheduled jobs');
+  });
+  it('shows how the agent acts at the top of a scenario brief', async () => {
+    renderPage('/patterns/assistant-with-jobs');
+    const pattern = content.patterns.find((p) => p.id === 'assistant-with-jobs')!;
+    await screen.findByRole('heading', { level: 1, name: pattern.title });
+    expect(screen.getByText(content.accessPatterns.answerLabels.mixed)).toBeInTheDocument();
+  });
+  it('summarises how many scenarios need review once, in the Technical view, and shows each scenario by requirement area', async () => {
     renderPage('/patterns');
     await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
     const draft = content.patterns.filter((p) => p.reviewStatus === 'draft').length;
-    expect(
-      screen.getByText(
-        renderTemplate(copy.draftSummary, { draft, total: content.patterns.length }),
-      ),
-    ).toBeInTheDocument();
+    const summary = renderTemplate(copy.draftSummary, { draft, total: content.patterns.length });
+    expect(screen.queryByText(summary)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    expect(screen.getByText(summary)).toBeInTheDocument();
     expect(screen.queryAllByText(site.ui.badges.draft)).toHaveLength(0);
     const patterns = evaluatePatterns(content, contentMeta.contentVersion);
     for (const { pattern, result } of patterns) {
@@ -90,7 +110,9 @@ describe('Phase 3 mapping views', () => {
     expect(screen.getByText(content.mappingConfig.licensingNote)).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'AI teammate preview gate' })).toBeInTheDocument();
     await userEvent.click(screen.getByText(copy.answers, { selector: 'summary' }));
-    expect(screen.getByText('Own access as an AI teammate', { selector: 'dd' })).toBeVisible();
+    expect(
+      screen.getByText('Own access with an agent user account (teammate)', { selector: 'dd' }),
+    ).toBeVisible();
     const observability = within(table)
       .getByRole('rowheader', { name: 'Agent observability & monitoring' })
       .closest('tr')!;
@@ -100,8 +122,9 @@ describe('Phase 3 mapping views', () => {
         'Registration provides catalog visibility; telemetry needs instrumentation.',
       ),
     ).toBeVisible();
-    expect(within(observability).getByText(site.learn.evidence.stated)).toBeVisible();
+    expect(within(observability).queryByText(site.learn.evidence.stated)).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    expect(within(observability).getByText(site.learn.evidence.stated)).toBeVisible();
     expect(screen.getByRole('table', { name: copy.operatingModel })).toBeInTheDocument();
     expect(screen.getByRole('table', { name: copy.anatomy })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: copy.whatIfs })).toBeInTheDocument();
@@ -160,18 +183,15 @@ describe('Phase 3 mapping views', () => {
     for (const rule of content.rules)
       expect(engine.contains(document.getElementById(`rule-${rule.id}`))).toBe(true);
   });
-  it('makes every rule and risk inspectable and reports SME review separately from automated tests', async () => {
+  it('makes every rule and risk inspectable and keeps test fixtures out of the page', async () => {
     renderPage('/methodology');
     await screen.findByRole('heading', { level: 1, name: site.routes.methodology.title });
     for (const rule of content.rules)
       expect(screen.getByRole('heading', { level: 3, name: rule.id })).toBeInTheDocument();
     for (const risk of content.risks)
       expect(screen.getByRole('heading', { level: 3, name: risk.title })).toBeInTheDocument();
-    const table = screen.getByRole('table', { name: copy.golden });
-    expect(within(table).getAllByRole('row')).toHaveLength(content.goldenScenarios.length + 1);
-    expect(within(table).getAllByText(copy.pendingReview)).toHaveLength(
-      content.goldenScenarios.length,
-    );
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.queryByText(/golden/i)).not.toBeInTheDocument();
   });
   it('adds plain-language scope, rules, risk associations and generated typical patterns to capability briefs', async () => {
     renderPage('/capabilities/registry-sync');

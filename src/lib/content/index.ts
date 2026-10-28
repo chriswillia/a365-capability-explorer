@@ -26,6 +26,12 @@ import whatIfs from '../../generated/whatIfs.json';
 import mappingConfig from '../../generated/mappingConfig.json';
 import workshop from '../../generated/workshop.json';
 import conversation from '../../generated/conversation.json';
+import value from '../../generated/value.json';
+import licensing from '../../generated/licensing.json';
+import requirements from '../../generated/requirements.json';
+import accessPatterns from '../../generated/accessPatterns.json';
+import guardrails from '../../generated/guardrails.json';
+import fit from '../../generated/fit.json';
 import { computeMetrics, templateValues } from './metrics.ts';
 import type {
   ConsoleId,
@@ -69,6 +75,12 @@ export const content = {
   mappingConfig,
   workshop,
   conversation,
+  value,
+  licensing,
+  requirements,
+  accessPatterns,
+  guardrails,
+  fit,
 } as unknown as Content;
 
 export const contentMeta = meta as ContentMeta;
@@ -79,6 +91,7 @@ export const metrics = computeMetrics({
   consoles: content.consoles,
   controlPoints: content.controlPoints,
   contentVersion: contentMeta.contentVersion,
+  sources: content.sources,
 });
 
 /** Values for {placeholders} in content templates. */

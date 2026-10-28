@@ -1,7 +1,8 @@
 import { Link } from 'react-router';
 import { ExternalLink } from '../components/ExternalLink.tsx';
-import { content, contentMeta, sourceById } from '../lib/content/index.ts';
+import { content, contentMeta, sourceById, values } from '../lib/content/index.ts';
 import type { Source } from '../lib/content/schemas.ts';
+import { renderTemplate } from '../lib/content/template.ts';
 import styles from './SiteFooter.module.css';
 
 export function SiteFooter() {
@@ -15,6 +16,7 @@ export function SiteFooter() {
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
+        <p className={styles.stamp}>{renderTemplate(footer.stamp, values)}</p>
         <p className={styles.disclaimer}>{site.disclaimer}</p>
         <p className={styles.notice}>{site.independenceNotice}</p>
         <div className={styles.columns}>

@@ -1,20 +1,20 @@
-# Suggested starting paths are editorial, not product claims. Order is the order shown on the home page.
+# Suggested starting paths are editorial, not product claims. Order is the order shown on the Learn page.
 - id: seller-partner
   label: "Microsoft seller or partner"
-  need: "Run a customer conversation: map the agent to security, governance and observability requirements, with sourced answers and explicit verification gaps."
-  startLabel: "Open the customer conversation guide"
-  href: "/conversation"
+  need: "Explain why Agent 365 matters to a customer, then map the agent, fit it to their stack and check licensing."
+  startLabel: "Start with the pitch"
+  href: "/pitch"
   reviewStatus: draft
 - id: executive
   label: "Executive or business leader"
   need: "Understand the value, boundaries and investment questions before discussing controls."
-  startLabel: "See where Agent 365 fits"
-  href: "/learn#positioning"
+  startLabel: "Read the pitch"
+  href: "/pitch"
   reviewStatus: draft
 - id: administrator
   label: "Security or compliance administrator"
-  need: "Find the product area, central configuration and per-agent decisions behind each control."
-  startLabel: "Browse by product area"
+  need: "Find where each control is configured, what is set up once and what is decided per agent."
+  startLabel: "Browse by where it is configured"
   href: "/capabilities?by=console"
   reviewStatus: draft
 - id: architect
@@ -26,6 +26,6 @@
 - id: builder
   label: "Agent builder or developer"
   need: "Choose an integration path and distinguish registration, SDK integration and telemetry."
-  startLabel: "Review integration paths"
-  href: "/learn#integration"
+  startLabel: "See how each platform connects"
+  href: "/fit"
   reviewStatus: draft

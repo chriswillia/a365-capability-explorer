@@ -6,8 +6,9 @@ import { posix } from 'node:path';
 import { content } from '../content/index.ts';
 import { renderTemplate } from '../content/template.ts';
 import { patternAnswers } from '../engine/evaluate.ts';
+import { byUrgency } from '../engine/guardrails.ts';
 import { pillarLabel } from '../engine/pillars.ts';
-import { buildReadout } from './report.ts';
+import { buildReadout, readoutMarkdown } from './report.ts';
 import { canvasPowerPoint, normalizePresentationPackage, readoutPowerPoint } from './powerpoint.ts';
 import type { Assessment, Organization } from '../state/diagnostic-model.ts';
 
@@ -141,30 +142,42 @@ describe('editable local PowerPoint exports', () => {
     }
   });
   it.each([false, true])(
-    'makes exactly seven readout slides with full notes, no remote assets and a logo (dense=%s)',
+    'makes exactly eight readout slides with their own notes, no remote assets and a logo (dense=%s)',
     async (dense) => {
       const report = readout(dense);
       const before = structuredClone(report);
-      const result = await packageContents(await readoutPowerPoint(content, report), 7);
+      const result = await packageContents(await readoutPowerPoint(content, report), 8);
       const titles = [
         content.site.productName,
         content.site.mapping.pillars,
         content.site.readout.summary,
         content.site.readout.anatomy,
         content.site.readout.riskControls,
+        content.site.readout.exhibits.guardrails,
         content.site.readout.roadmap,
         content.site.readout.exhibits.licensing,
+      ];
+      const talk = content.site.readout.slideNotes;
+      const talkTracks = [
+        talk.title,
+        talk.pillars,
+        talk.summary,
+        talk.anatomy,
+        talk.riskControls,
+        talk.guardrails,
+        talk.roadmap,
+        talk.licensing,
       ];
       for (let i = 0; i < titles.length; i++) {
         expect(result.slides[i]).toContain(titles[i]);
         expect(result.slides[i]).toContain('test-version');
         expect(result.slides[i]).toContain(content.site.disclaimer);
         expect(result.slides[i]).toContain(content.site.readout.notesDetail);
-        expect(result.notes[i]).toContain('Fictional preparer');
-        expect(result.notes[i]).toContain(report.result.matchedRuleIds[0]);
-        expect(result.notes[i]).toContain(content.site.readout.eligibility);
-        if (dense) expect(result.notes[i]).toContain(String(report.answers.businessOutcome));
+        expect(result.notes[i]).toContain(talkTracks[i]);
+        expect(result.notes[i]).toContain(content.site.readout.slideNotesDetail);
       }
+      expect(result.notes[0]).toContain('Fictional preparer');
+      if (dense) expect(result.notes[0]).toContain(String(report.answers.businessOutcome));
       expect(
         Object.keys(result.zip.files).filter((name) => /^ppt\/media\/.+\.png$/.test(name)).length,
       ).toBeGreaterThan(0);
@@ -172,9 +185,55 @@ describe('editable local PowerPoint exports', () => {
     },
   );
 
+  it('gives each slide its own speaker notes instead of the whole readout', async () => {
+    const report = readout();
+    const markdown = readoutMarkdown(content, report);
+    const result = await packageContents(await readoutPowerPoint(content, report), 8);
+    expect(new Set(result.notes).size).toBe(8);
+    for (const note of result.notes) expect(note.length).toBeLessThan(markdown.length);
+    const [title, pillars, , , , guardrails, , licensing] = result.notes as [
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+      string,
+    ];
+    expect(pillars).not.toContain('Fictional preparer');
+    expect(title).not.toContain(content.site.readout.verifyNext);
+    expect(guardrails).not.toContain(content.site.readout.verifyNext);
+    expect(licensing).toContain(content.site.readout.verifyNext);
+  });
+
+  it('lists in the notes everything a slide has to shorten', async () => {
+    const report = readout();
+    const result = await packageContents(await readoutPowerPoint(content, report), 8);
+    // Each requirement-area panel shows a few capabilities; the notes name every one in scope.
+    for (const row of report.pillars)
+      for (const { capability } of row.items)
+        expect(result.notes[1]).toContain(capability.shortName);
+    // The guardrails slide shows four items per gate; the notes list them all, with the action to take.
+    for (const { items } of report.guardrails.gates)
+      for (const { item } of items) {
+        expect(result.notes[5]).toContain(item.title);
+        expect(result.notes[5]).toContain(item.action);
+      }
+    // The licensing slide holds the basis and the note; the notes add what is still to confirm.
+    expect(result.notes[7]).toContain(
+      report.result.licensing.basis ?? content.site.mapping.licenseBasisConfirm,
+    );
+    expect(result.notes[7]).toContain(content.site.readout.eligibility);
+    for (const { item, status } of report.license.requirements)
+      if (status === 'unknown') expect(result.notes[7]).toContain(item.askPrompt!);
+    for (const question of report.result.openQuestions)
+      expect(result.notes[7]).toContain(question.label);
+  });
+
   it('puts one panel per requirement area on the second slide, with the in-scope counts', async () => {
     const report = readout();
-    const result = await packageContents(await readoutPowerPoint(content, report), 7);
+    const result = await packageContents(await readoutPowerPoint(content, report), 8);
     expect(report.pillars.length).toBe(content.pillars.length);
     for (const row of report.pillars) {
       expect(result.slides[1]).toContain(pillarLabel(content, row.pillar));
@@ -188,6 +247,20 @@ describe('editable local PowerPoint exports', () => {
     expect(report.pillars.reduce((sum, row) => sum + row.items.length, 0)).toBe(
       report.result.inScope.length,
     );
+  });
+
+  it('puts one panel per gate on the guardrails slide, with the status in words and the counts', async () => {
+    const report = readout();
+    const result = await packageContents(await readoutPowerPoint(content, report), 8);
+    const slide = result.slides[5]!;
+    for (const { gate, items } of report.guardrails.gates) {
+      expect(slide).toContain(gate.title);
+      for (const { item, status } of byUrgency(items).slice(0, 4)) {
+        expect(slide).toContain(content.guardrails.statusLabels[status]);
+        expect(slide).toContain(item.title.slice(0, 20));
+      }
+    }
+    expect(slide).toContain(renderTemplate(content.guardrails.summary, report.guardrails.counts));
   });
 
   it.each([false, true])(

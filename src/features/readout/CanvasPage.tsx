@@ -195,7 +195,9 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
               })}
           </div>
         </section>
-        <p className={styles.disclaimer}>{content.site.disclaimer}</p>
+        <p className={styles.disclaimer} data-print-only>
+          {content.site.disclaimer}
+        </p>
       </article>
     </PageContainer>
   );

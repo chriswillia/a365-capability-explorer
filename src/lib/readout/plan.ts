@@ -1,8 +1,10 @@
 /** The readout's numbered exhibits, in reading order. Exec and Technical share the order; Technical adds more. */
 export const EXHIBIT_KEYS = [
   'pillars',
+  'access',
   'anatomy',
   'risks',
+  'guardrails',
   'capabilities',
   'decisions',
   'people',

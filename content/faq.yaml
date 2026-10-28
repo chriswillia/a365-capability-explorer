@@ -1,51 +1,47 @@
-# Empty facts are visible verification gaps, not permission to publish the build brief's unverified claims.
+# Every fact is paraphrased from a Microsoft page and names it. An empty fact would be a visible verification gap,
+# not permission to publish a claim from the build brief. The licensing answers were read in the licensing FAQ on 2026-10-27.
 - id: copilot-governance
   myth: "Microsoft 365 Copilot alone governs all our agents."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. The licensing FAQ says Agent 365 is needed in addition to Microsoft 365 Copilot, to manage, govern and secure all agents beyond Copilot."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: per-agent-license
   myth: "Every agent needs its own license."
-  fact: "Microsoft Agent 365 is licensed per user. Confirm the applicable user and subscription requirements in the licensing FAQ before making a licensing determination."
-  sourceId: a365-overview
+  fact: "No. Agent 365 is licensed per user, and agents themselves are not licensed. Which people need a license depends on how the agent acts: see the Licensing page."
+  sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified: "2026-10-24"
+  lastVerified: "2026-10-27"
 - id: blueprint-license
   myth: "Blueprints and agent instances each count as licenses."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. Blueprints, agents and agent instances are not licensed separately, and one licensed user can create, manage and use many of them."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: platform-license
   myth: "The Agent 365 licensing model varies by agent build platform."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. Licensing is per user and does not depend on the platform used to build the agent. Microsoft adds that the depth or availability of some premium capabilities can vary by agent type, platform or level of integration."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: sponsor-cap
   myth: "A sponsor can oversee only a fixed number of agents."
-  # TODO(verify): confirm licensing and service limits independently.
-  fact:
+  fact: "No fixed cap. Microsoft says one licensed user can oversee a large number of agents, though standard service protections and usage limits may apply."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: replaces-e5
   myth: "Agent 365 replaces Microsoft 365 E5."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. Microsoft describes them as complementary: E5 protects users and data, Agent 365 protects agents, and E7 protects both. E5, or E3 with the Defender and Purview suites, is also a licensing prerequisite for core Agent 365 functionality."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: e7-only
   myth: "Microsoft 365 E7 is the only way to obtain Agent 365."
   fact: "The service description lists a standalone Agent 365 subscription for eligible Microsoft 365 subscriptions, as well as inclusion in Microsoft 365 E7."
@@ -55,12 +51,11 @@
   lastVerified: "2026-10-24"
 - id: dspm-license
   myth: "All DSPM for AI use requires Agent 365."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. DSPM and AI observability work without an Agent 365 license, but the agent-specific insights in them need Agent 365 or Microsoft 365 E7."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"
 - id: sdk-builder
   myth: "The Agent 365 SDK builds and hosts the agent."
   fact: "It extends an existing agent with identity, tooling and notifications; it does not build or host it. The Microsoft 365 Agents SDK is a separate framework for building conversational agents."
@@ -77,9 +72,8 @@
   lastVerified: "2026-10-24"
 - id: windows-included
   myth: "Windows 365 for Agents is included with Agent 365."
-  # TODO(verify): full licensing FAQ answer unavailable.
-  fact:
+  fact: "No. Windows 365 for Agents is a separate offering that is not included in Agent 365. It is billed pay-as-you-go by hourly usage and provides the runtime when agents need a desktop or browser."
   sourceId: lic-faq
   evidence: stated
   reviewStatus: draft
-  lastVerified:
+  lastVerified: "2026-10-27"

@@ -4,6 +4,7 @@ import { ExternalLink } from '../../components/ExternalLink.tsx';
 import { content, sourceById } from '../../lib/content/index.ts';
 import { describeCondition } from '../../lib/engine/conditions.ts';
 import type { AssessmentResult, InScope } from '../../lib/engine/evaluate.ts';
+import { countReadiness, describeReadiness } from '../../lib/engine/readiness.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { Evidence } from './Evidence.tsx';
 import styles from './Mapping.module.css';
@@ -184,9 +185,7 @@ export function MappingReport({
         <h2>{copy.readiness}</h2>
         <p className={styles.note}>{copy.readinessNote}</p>
         <p>
-          {copy.readinessPercent}:{' '}
-          {result.readiness.percent === null ? copy.unknownAnswer : `${result.readiness.percent}%`}{' '}
-          ({result.readiness.readyCount} / {result.readiness.total})
+          {copy.readinessLabel}: {describeReadiness(countReadiness(result.readiness.checks), copy)}
         </p>
         <ul>
           {result.readiness.checks.map((check) => (
@@ -221,7 +220,7 @@ export function MappingReport({
         <p>
           {copy.expectedUsers}: {result.licensing.expectedUsersLabel ?? copy.unknownAnswer}
         </p>
-        <p>{result.licensing.basis ?? copy.unknownAnswer}</p>
+        <p>{result.licensing.basis ?? copy.licenseBasisConfirm}</p>
         <p>{result.licensing.note}</p>
         <ul className={styles.links}>
           {result.licensing.sourceIds.map((id) => {

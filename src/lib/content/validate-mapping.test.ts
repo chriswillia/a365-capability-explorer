@@ -6,7 +6,7 @@ const errors = (edit: (data: typeof content) => void) => {
   const data = structuredClone(content);
   edit(data);
   return validateContent(data, {
-    now: new Date('2026-10-25T00:00:00Z'),
+    now: new Date('2026-10-28T00:00:00Z'),
     failOnOrphanedSources: true,
   }).errors.join('\n');
 };
@@ -34,7 +34,7 @@ describe('mapping cross-reference validation', () => {
   });
   it('accepts real content and warns, rather than failing, on unsigned scenarios', () => {
     const result = validateContent(content, {
-      now: new Date('2026-10-25T00:00:00Z'),
+      now: new Date('2026-10-28T00:00:00Z'),
       failOnOrphanedSources: true,
     });
     expect(result.errors).toEqual([]);

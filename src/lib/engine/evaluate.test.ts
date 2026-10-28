@@ -270,6 +270,34 @@ describe('assessment engine', () => {
 });
 
 describe('generated mappings and authored golden scenarios', () => {
+  it('has a mixed-access scenario whose recommendations cover both delegated and own access', () => {
+    const mixed = content.patterns.find((p) => p.answers.accessModel === 'mixed')!;
+    expect(mixed).toBeDefined();
+    const result = evaluateAssessment(
+      content,
+      patternAnswers(content, mixed.id),
+      contentMeta.contentVersion,
+    );
+    const level = (id: string) => result.inScope.find((r) => r.capability.id === id)?.level;
+    expect(level('entra-conditional-access')).toBe('essential');
+    expect(level('entra-access-packages')).toBe('essential');
+    expect(level('entra-sponsor-lifecycle')).toBe('essential');
+    expect(result.licensing.basis).toBe(content.mappingConfig.licenseBasis.mixed);
+  });
+  it.each([
+    ['delegated', 'delegated'],
+    ['own-teammate', 'own'],
+    ['own-background', 'own'],
+    ['mixed', 'mixed'],
+  ] as const)('states who to license for the access answer "%s"', (answer, key) => {
+    const basis = evaluate({}, { accessModel: answer }).licensing.basis;
+    expect(basis).toBe(content.mappingConfig.licenseBasis[key]);
+    expect(basis?.length).toBeGreaterThan(20);
+  });
+  it('states no license basis, rather than a guess, while the access answer is missing or unknown', () => {
+    expect(evaluate({}, {}).licensing.basis).toBeNull();
+    expect(evaluate({}, { accessModel: 'unknown' }).licensing.basis).toBeNull();
+  });
   it.each(content.goldenScenarios)(
     '$id matches essential inclusions and exclusions',
     (scenario) => {
@@ -290,7 +318,7 @@ describe('generated mappings and authored golden scenarios', () => {
   );
   it('generates every matrix cell from the same evaluation with the neutral organization', () => {
     const generated = evaluatePatterns(content, contentMeta.contentVersion);
-    expect(generated).toHaveLength(9);
+    expect(generated).toHaveLength(content.patterns.length);
     for (const row of generated)
       expect(row.result).toEqual(
         evaluateAssessment(

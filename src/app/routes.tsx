@@ -20,6 +20,26 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, handle: { routeKey: 'overview' satisfies RouteKey }, Component: OverviewPage },
       {
+        path: 'pitch',
+        handle: { routeKey: 'pitch' satisfies RouteKey },
+        lazy: () => import('../features/value/ValuePage.tsx'),
+      },
+      {
+        path: 'licensing',
+        handle: { routeKey: 'licensing' satisfies RouteKey },
+        lazy: () => import('../features/licensing/LicensingPage.tsx'),
+      },
+      {
+        path: 'fit',
+        handle: { routeKey: 'fit' satisfies RouteKey },
+        lazy: () => import('../features/fit/FitPage.tsx'),
+      },
+      {
+        path: 'access',
+        handle: { routeKey: 'access' satisfies RouteKey },
+        lazy: () => import('../features/access/AccessPage.tsx'),
+      },
+      {
         path: 'capabilities',
         handle: { routeKey: 'capabilities' satisfies RouteKey },
         lazy: () => import('../features/explorer/CapabilitiesPage.tsx'),
@@ -87,7 +107,7 @@ export const routes: RouteObject[] = [
       {
         path: 'conversation',
         handle: { routeKey: 'conversation' satisfies RouteKey },
-        lazy: () => import('../features/conversation/ConversationPage.tsx'),
+        lazy: () => import('./RedirectToPitch.tsx'),
       },
       {
         path: 'methodology',

@@ -10,6 +10,10 @@ import type { RouteKey } from '../lib/content/schemas.ts';
  * 404.html fallback, which loads the same app.
  */
 export const PAGE_ROUTES = [
+  { path: 'pitch', key: 'pitch' },
+  { path: 'licensing', key: 'licensing' },
+  { path: 'fit', key: 'fit' },
+  { path: 'access', key: 'access' },
   { path: 'capabilities', key: 'capabilities' },
   { path: 'patterns', key: 'patterns' },
   { path: 'learn', key: 'learn' },

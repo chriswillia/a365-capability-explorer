@@ -10,6 +10,7 @@
   },
   "scripts": {
     "content:build": "tsx scripts/build-content.ts",
+    "check:public": "tsx scripts/check-public-safety.ts",
     "predev": "npm run content:build",
     "dev": "vite",
     "prebuild": "npm run content:build",

@@ -6,18 +6,18 @@ import { RouterProvider } from 'react-router/dom';
 import { describe, expect, it } from 'vitest';
 import { routes } from '../../app/routes.tsx';
 import { content } from '../../lib/content/index.ts';
-import { DepthProvider } from '../../lib/state/DepthProvider.tsx';
+import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
-import '../conversation/ConversationPage.tsx';
+import '../value/ValuePage.tsx';
 import './LearnPage.tsx';
 
 function renderPage(path = '/learn') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
-      <DepthProvider>
+      <StateProviders>
         <RouterProvider router={router} />
-      </DepthProvider>
+      </StateProviders>
     </FluentProvider>,
   );
   return router;
@@ -34,40 +34,38 @@ function withoutTooltips(element: HTMLElement): HTMLElement {
 }
 
 describe('Phase 2 learning experience', () => {
-  it('gives every persona a live starting path and shows the north-star questions and Frontier phases', async () => {
-    const router = renderPage('/');
-    await screen.findByRole('heading', { level: 2, name: site.overview.personasHeading });
+  it('gives every persona a live starting path and shows the Frontier phases', async () => {
+    const router = renderPage('/learn');
+    await screen.findByRole('heading', { level: 2, name: copy.sections.roles });
     for (const persona of content.personas) {
       expect(screen.getByRole('link', { name: persona.startLabel })).toHaveAttribute(
         'href',
         persona.href,
       );
     }
-    for (const question of site.overview.questions)
-      expect(screen.getByText(question)).toBeInTheDocument();
     for (const phase of content.learn.frontier)
       expect(screen.getByRole('heading', { name: phase.title })).toBeInTheDocument();
-    const positioning = content.personas.find((p) => p.href === '/learn#positioning')!;
-    await userEvent.click(screen.getByRole('link', { name: positioning.startLabel }));
+    const executive = content.personas.find((p) => p.id === 'executive')!;
+    await userEvent.click(screen.getByRole('link', { name: executive.startLabel }));
     expect(
-      await screen.findByRole('heading', { level: 1, name: site.routes.learn.title }),
+      await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title }),
     ).toBeInTheDocument();
-    expect(router.state.location.hash).toBe('#positioning');
+    expect(router.state.location.pathname).toBe('/pitch');
     expect(screen.queryByText(site.ui.comingSoon.status)).not.toBeInTheDocument();
   });
 
-  it('starts a seller on the customer conversation guide', async () => {
-    const router = renderPage('/');
-    await screen.findByRole('heading', { level: 2, name: site.overview.personasHeading });
+  it('starts a seller on the pitch', async () => {
+    const router = renderPage('/learn');
+    await screen.findByRole('heading', { level: 2, name: copy.sections.roles });
     expect(content.personas[0]!.id).toBe('seller-partner');
     await userEvent.click(screen.getByRole('link', { name: content.personas[0]!.startLabel }));
     expect(
-      await screen.findByRole('heading', { level: 1, name: site.routes.conversation.title }),
+      await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title }),
     ).toBeInTheDocument();
-    expect(router.state.location.pathname).toBe('/conversation');
+    expect(router.state.location.pathname).toBe('/pitch');
   });
 
-  it('orders the page from positioning to glossary and links the seller guide', async () => {
+  it('orders the page from positioning to glossary, links the seller guide and ends with next steps', async () => {
     renderPage();
     await screen.findByRole('heading', { level: 1, name: site.routes.learn.title });
     const main = within(screen.getByRole('main'));
@@ -77,12 +75,17 @@ describe('Phase 2 learning experience', () => {
       copy.sections.concepts,
       copy.sections.integration,
       copy.sections.buildingBlocks,
+      copy.sections.frontier,
+      copy.sections.roles,
       copy.sections.glossary,
+      copy.nextHeading,
     ]);
     expect(main.getByRole('link', { name: site.routes.conversation.title })).toHaveAttribute(
       'href',
-      '/conversation',
+      '/pitch#conversation',
     );
+    for (const item of copy.next)
+      expect(main.getByRole('link', { name: item.label })).toHaveAttribute('href', item.to);
   });
 
   it('lists every concept in one table with matching capabilities and no stepper', async () => {
@@ -94,7 +97,7 @@ describe('Phase 2 learning experience', () => {
     for (const current of content.learn.flow) {
       const row = within(table).getByRole('heading', { name: current.title }).closest('tr')!;
       expect(withoutTooltips(row)).toHaveTextContent(current.summary!);
-      expect(row).toHaveTextContent(site.ui.badges.draft);
+      expect(row).not.toHaveTextContent(site.ui.badges.draft);
       for (const id of current.capabilityIds) {
         expect(
           within(row).getByRole('link', {

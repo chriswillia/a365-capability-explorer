@@ -1,3 +1,11 @@
+import {
+  CONSOLES,
+  CONTROL_POINTS,
+  METRIC_NUMBER_KEYS,
+  METRIC_TEXT_KEYS,
+  PILLARS,
+  SETUPS,
+} from './constants.ts';
 import type {
   Capability,
   ConsoleDef,
@@ -10,16 +18,9 @@ import type {
   PillarId,
   Setup,
 } from './schemas.ts';
-import {
-  CONSOLES,
-  CONTROL_POINTS,
-  METRIC_NUMBER_KEYS,
-  METRIC_TEXT_KEYS,
-  PILLARS,
-  SETUPS,
-} from './schemas.ts';
 import type { TemplateValues } from './template.ts';
 import type { AssessmentResult } from '../engine/evaluate.ts';
+import { countReadiness } from '../engine/readiness.ts';
 import type { Portfolio } from '../portfolio/portfolio.ts';
 
 export interface MetricsInput {
@@ -28,6 +29,8 @@ export interface MetricsInput {
   consoles: ConsoleDef[];
   controlPoints: ControlPointDef[];
   contentVersion: string;
+  /** The sources the content cites. The newest check date is shown in the footer. */
+  sources?: { lastVerified: string | null }[];
 }
 
 export type Metrics = Record<MetricNumberKey, number> &
@@ -60,6 +63,11 @@ export function templateValues(metrics: Metrics): TemplateValues {
 }
 
 export function computeReadoutMetrics(result: AssessmentResult) {
+  // Each capability is counted once, so the three setup counts add up to the capabilities in scope.
+  const setups = tally(
+    SETUPS,
+    result.inScope.map((r) => r.capability.setup),
+  );
   return {
     levels: tally(
       ['essential', 'recommended', 'consider'],
@@ -68,17 +76,17 @@ export function computeReadoutMetrics(result: AssessmentResult) {
     capabilityCount: result.inScope.length,
     foundational: result.licensing.foundational,
     premium: result.licensing.premium,
-    platform: result.inScope.filter((r) => r.capability.setup !== 'agent').length,
-    agent: result.agentDecisions.length,
+    platform: setups.platform,
+    agent: setups.agent,
+    both: setups.both,
     unresolved: result.readiness.checks.filter((check) => check.status !== 'ready').length,
     unanswered: result.openQuestions.length,
-    readinessPercent: result.readiness.percent,
+    readiness: countReadiness(result.readiness.checks),
   };
 }
 
 export function computePortfolioMetrics(portfolio: Portfolio) {
   const checks = portfolio.cases.flatMap((item) => item.result.readiness.checks);
-  const ready = checks.filter((check) => check.status === 'ready').length;
   return {
     selected: portfolio.assessments.length,
     evaluated: portfolio.cases.length,
@@ -86,7 +94,7 @@ export function computePortfolioMetrics(portfolio: Portfolio) {
     sharedFoundations: portfolio.foundations.length,
     gaps: checks.filter((check) => check.status === 'gap').length,
     unknown: checks.filter((check) => check.status === 'unknown').length,
-    readinessPercent: checks.length === 0 ? null : Math.round((100 * ready) / checks.length),
+    readiness: countReadiness(checks),
     uniqueCapabilities: portfolio.capabilities.length,
     foundational: portfolio.capabilities.filter(
       ({ capability }) => capability.source.includedWithBasePlans,
@@ -142,6 +150,11 @@ export function computeMetrics(input: MetricsInput): Metrics {
       .map((c) => c.source.lastVerified)
       .sort()
       .at(-1) ?? '';
+  const sourcesChecked =
+    (input.sources ?? [])
+      .flatMap((s) => (s.lastVerified === null ? [] : [s.lastVerified]))
+      .sort()
+      .at(-1) ?? lastVerified;
 
   return {
     capabilityCount: total,
@@ -163,6 +176,7 @@ export function computeMetrics(input: MetricsInput): Metrics {
     largestPillarCount,
     largestPillarLabel: joinLabels(largestPillarLabels),
     lastVerified,
+    sourcesChecked,
     contentVersion: input.contentVersion,
     platformShare: total === 0 ? 0 : bySetup.platform / total,
     byConsole,

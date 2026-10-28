@@ -1,8 +1,14 @@
 import type { Answers, Content } from '../content/schemas.ts';
 import { computeReadoutMetrics } from '../content/metrics.ts';
+import { populationViews } from '../content/licensing.ts';
+import { baselineRequirements } from '../content/requirements.ts';
 import { renderTemplate } from '../content/template.ts';
+import { evaluateAccessChange } from '../engine/access.ts';
 import { knownAnswer } from '../engine/answers.ts';
 import { evaluateAssessment, evaluateWhatIfs } from '../engine/evaluate.ts';
+import { evaluateGuardrails } from '../engine/guardrails.ts';
+import { describeReadiness } from '../engine/readiness.ts';
+import { describeGcc } from '../engine/gcc.ts';
 import { describeCondition } from '../engine/conditions.ts';
 import { pillarLabel, peopleRows, pillarRows, questionPillars } from '../engine/pillars.ts';
 import { licensingTier } from '../content/derive.ts';
@@ -59,15 +65,32 @@ export function buildReadout(
     'orgName',
     data.site.diagnostic.untitledOrganization,
   );
+  const answers = { ...organization.answers, ...assessment.answers };
+  const accessAnswer = typeof answers.accessModel === 'string' ? answers.accessModel : null;
+  const audience =
+    Array.isArray(answers.audience) && answers.audience.length > 0 ? answers.audience : null;
   return {
     name,
     title: renderTemplate(data.site.readout.title, { label: name, organization: organizationName }),
     organizationName,
-    answers: { ...organization.answers, ...assessment.answers },
+    answers,
     assumed,
     result,
     metrics,
     pillars: pillarRows(data, result.inScope),
+    // How the agent acts, the production checklist and who to license are read from the same answers as the rest.
+    access: evaluateAccessChange(
+      data,
+      { org: organization.answers, useCase: assessment.answers },
+      version,
+    ),
+    guardrails: evaluateGuardrails(data, answers),
+    license: {
+      populations: populationViews(data, { access: accessAnswer, audience }).filter(
+        (view) => view.relevant !== false,
+      ),
+      requirements: baselineRequirements(data, answers),
+    },
     summary,
     logo: assessment.logo,
   };
@@ -149,10 +172,11 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
       (level) => `- ${mapping.levels[level]}: ${readout.metrics.levels[level]}`,
     ),
     `${text(copy.platform)}: ${readout.metrics.platform}`,
+    `${text(copy.both)}: ${readout.metrics.both}`,
     `${text(copy.agent)}: ${readout.metrics.agent}`,
     `${text(copy.foundational)}: ${readout.metrics.foundational}`,
     `${text(copy.premium)}: ${readout.metrics.premium}`,
-    `${text(mapping.readinessPercent)}: ${readout.metrics.readinessPercent === null ? text(mapping.unknownAnswer) : `${readout.metrics.readinessPercent}%`}`,
+    `${text(mapping.readinessLabel)}: ${text(describeReadiness(readout.metrics.readiness, mapping))}`,
     '',
   );
   heading('pillars');
@@ -178,6 +202,44 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
           ]),
     );
   }
+  heading('access');
+  const accessCopy = data.accessPatterns;
+  const patternLabels = (ids: readonly string[], type: 'conjunction' | 'disjunction') =>
+    new Intl.ListFormat('en', { style: 'long', type }).format(
+      ids.map((id) => accessCopy.patterns.find((p) => p.id === id)?.label ?? id),
+    );
+  lines.push(
+    text(copy.accessNote),
+    `${text(data.questions.find((q) => q.id === 'accessModel')!.label)}: ${text(answerLabel(data, readout.answers, 'accessModel'))}`,
+  );
+  for (const id of readout.access.current) {
+    const pattern = accessCopy.patterns.find((p) => p.id === id)!;
+    lines.push(`- ${text(pattern.label)}: ${text(pattern.plain)}`);
+  }
+  lines.push(`### ${text(accessCopy.changeHeading)}`);
+  if (!readout.access.differs) lines.push(text(accessCopy.changeNone));
+  for (const group of readout.access.only) {
+    lines.push(
+      `- ${text(renderTemplate(accessCopy.changeOnly, { label: patternLabels(group.patterns, 'disjunction') }))}: ${names(group.entries.map((e) => e.capabilityId))}`,
+    );
+    for (const entry of group.entries.filter((e) => e.alsoDocumented.length > 0))
+      lines.push(
+        `  - ${names([entry.capabilityId])}: ${text(renderTemplate(accessCopy.changeAlso, { label: patternLabels(entry.alsoDocumented, 'disjunction') }))}`,
+      );
+  }
+  lines.push(
+    `- ${text(accessCopy.changeBoth)} (${readout.access.shared.length}): ${names(readout.access.shared)}`,
+    `### ${text(accessCopy.statedHeading)}`,
+  );
+  for (const row of accessCopy.capabilities)
+    lines.push(
+      `- ${names([row.capabilityId])}: ${text(accessCopy.columns.delegated)} ${text(accessCopy.applicability[row.delegated])}; ${text(accessCopy.columns.own)} ${text(accessCopy.applicability[row.own])}; ${text(accessCopy.columns.agentAccount)} ${text(accessCopy.applicability[row.agentAccount])}. ${text(row.note)} (${evidence(row)})`,
+    );
+  lines.push(
+    `### ${text(accessCopy.tensionHeading)}`,
+    text(accessCopy.tension.text),
+    `(${evidence(accessCopy.tension)})`,
+  );
   heading('anatomy');
   lines.push(text(copy.anatomyNote));
   for (const { point, capabilities } of result.anatomy)
@@ -200,6 +262,20 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
         `  - ${text(mapping.mitigationsOutOfScope)}: ${names(outOfScope)}`,
       );
     if (rows.length === 0) lines.push(text(mapping.noRisks));
+  }
+  heading('guardrails');
+  const guardrailCopy = data.guardrails;
+  lines.push(
+    text(copy.guardrailsNote),
+    text(renderTemplate(guardrailCopy.summary, readout.guardrails.counts)),
+  );
+  for (const { gate, items } of readout.guardrails.gates) {
+    if (items.length === 0) continue;
+    lines.push(`### ${text(gate.title)}`);
+    for (const { item, applies, status } of items)
+      lines.push(
+        `- ${text(item.title)} — ${text(guardrailCopy.statusLabels[status])}${applies === null ? `; ${text(guardrailCopy.statusLabels.maybe)}` : ''}: ${text(item.why)} ${text(guardrailCopy.actionLabel)}: ${text(item.action)} (${evidence(item)})`,
+      );
   }
   heading('capabilities');
   for (const row of result.inScope) {
@@ -260,10 +336,27 @@ export function readoutMarkdown(data: Content, readout: Readout): string {
   lines.push(
     text(copy.eligibility),
     `${text(mapping.expectedUsers)}: ${text(result.licensing.expectedUsersLabel ?? mapping.unknownAnswer)}`,
-    text(result.licensing.basis ?? mapping.unknownAnswer),
+    text(result.licensing.basis ?? mapping.licenseBasisConfirm),
     text(result.licensing.note),
-    `${text(mapping.gcc)}: ${names(result.gccGaps.map((r) => r.capability.id))}`,
+    `${text(mapping.gcc)}: ${text(describeGcc(result, mapping))}`,
   );
+  const needs = data.licensing.requirementsPanel;
+  lines.push(`### ${text(copy.licenseWho)}`);
+  for (const { population } of readout.license.populations)
+    lines.push(
+      `- ${text(population.label)} (${text(data.licensing.needs[population.need])}): ${text(population.statement)}${population.confirm === undefined ? '' : ` ${text(population.confirm)}`}`,
+    );
+  lines.push(`### ${text(copy.licenseNeeds)}`);
+  for (const { item, status } of readout.license.requirements) {
+    const level = item.appliesTo === undefined ? '' : ` [${text(needs.levels[item.appliesTo])}]`;
+    const ask =
+      status === 'unknown' && item.askPrompt !== undefined
+        ? ` ${text(needs.askLabel)}: ${text(item.askPrompt)}`
+        : '';
+    lines.push(
+      `- ${text(needs.kinds[item.kind])}${level}: ${text(item.text)} — ${text(needs.status[status])}${ask} (${evidence(item)})`,
+    );
+  }
   if (result.sovereignVerification) lines.push(text(mapping.sovereign));
   heading('openQuestions');
   lines.push(text(copy.openQuestionsNote));

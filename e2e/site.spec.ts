@@ -37,11 +37,26 @@ async function setDepth(page: Page, depth: 'executive' | 'technical') {
 }
 
 test.describe('home page', () => {
-  test('shows the product name, subtitle and KPIs computed from the content', async ({ page }) => {
+  test('shows the product name, subtitle and one tile for each job', async ({ page }) => {
     await page.goto('./');
     await expect(page.getByRole('heading', { level: 1, name: site.productName })).toBeVisible();
     await expect(page.getByText(site.tagline)).toBeVisible();
+    const jobs = page.getByRole('region', { name: site.overview.jobs.heading });
+    for (const tile of site.overview.jobs.tiles) {
+      await expect(jobs.getByText(tile.question)).toBeVisible();
+      await expect(jobs.getByRole('link', { name: tile.cta })).toHaveAttribute(
+        'href',
+        new RegExp(`${tile.to}$`),
+      );
+    }
+    await expect(page.getByRole('table')).toHaveCount(0);
+  });
 
+  test('puts the catalog numbers, computed from the content, on the Capabilities page', async ({
+    page,
+  }) => {
+    await page.goto('capabilities');
+    await page.getByText(site.capabilities.glance.heading, { exact: true }).click();
     const expected: Record<string, number> = {
       capabilityCount: capabilities.length,
       foundationalCount: capabilities.filter((c) => c.source.includedWithBasePlans).length,
@@ -50,7 +65,7 @@ test.describe('home page', () => {
       platformCount: capabilities.filter((c) => c.setup === 'platform').length,
       agentDecisionCount: capabilities.filter((c) => c.setup !== 'platform').length,
     };
-    for (const kpi of site.overview.kpis) {
+    for (const kpi of site.capabilities.glance.kpis) {
       const tile = page.locator('dl > div', { hasText: kpi.label });
       await expect(tile.locator('dd').first()).toHaveText(String(expected[kpi.valueKey]));
     }
@@ -66,10 +81,11 @@ test.describe('home page', () => {
     await expect(page.getByRole('contentinfo')).toContainText(site.disclaimer);
   });
 
-  test('adds console and layer tables in the Technical view only, and remembers the choice', async ({
+  test('adds where-it-is-configured and layer tables in the Technical view only, and remembers the choice', async ({
     page,
   }) => {
-    await page.goto('./');
+    await page.goto('capabilities');
+    await page.getByText(site.capabilities.glance.heading, { exact: true }).click();
     await expect(page.getByRole('table')).toHaveCount(0);
 
     await setDepth(page, 'technical');
@@ -79,6 +95,7 @@ test.describe('home page', () => {
     );
 
     await page.reload();
+    await page.getByText(site.capabilities.glance.heading, { exact: true }).click();
     await expect(page.getByRole('table')).toHaveCount(2);
     await setDepth(page, 'executive');
     await expect(page.getByRole('table')).toHaveCount(0);
@@ -202,6 +219,8 @@ test.describe('Understand and Learn', () => {
     if (path === '/learn') return site.routes.learn.title;
     if (path === '/capabilities') return site.routes.capabilities.title;
     if (path === '/conversation') return site.routes.conversation.title;
+    if (path === '/pitch') return site.routes.pitch.title;
+    if (path === '/fit') return site.routes.fit.title;
     throw new Error(`No page title is known for ${href}`);
   };
   test('persona starts reach available sections under either base path', async ({
@@ -209,7 +228,7 @@ test.describe('Understand and Learn', () => {
     baseURL,
   }) => {
     for (const persona of personas) {
-      await page.goto('./');
+      await page.goto('learn');
       await page.getByRole('link', { name: persona.startLabel, exact: true }).click();
       const expected = new URL(persona.href.slice(1), baseURL);
       await expect(page).toHaveURL(expected.href);
@@ -243,13 +262,16 @@ test.describe('Understand and Learn', () => {
       site.learn.sections.concepts,
       site.learn.sections.integration,
       site.learn.sections.buildingBlocks,
+      site.learn.sections.frontier,
+      site.learn.sections.roles,
       site.learn.sections.glossary,
+      site.learn.nextHeading,
     ]);
     await expect(
       page
         .getByRole('main')
         .getByRole('link', { name: site.routes.conversation.title, exact: true }),
-    ).toHaveAttribute('href', /conversation$/);
+    ).toHaveAttribute('href', /pitch#conversation$/);
   });
   test('glossary links expose keyboard tooltips and survive refresh at the definition', async ({
     page,
@@ -270,7 +292,7 @@ test.describe('Understand and Learn', () => {
   });
   test('Learn and persona cards fit a narrow screen without page overflow', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    for (const path of ['./', 'learn', 'learn#glossary']) {
+    for (const path of ['./', 'learn', 'learn#glossary', 'pitch']) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       expect(
@@ -290,7 +312,7 @@ test.describe('capabilities page', () => {
         requirement: pillar.requirement,
         label: pillar.label,
       });
-    await page.goto('capabilities');
+    await page.goto('capabilities?view=table');
     for (const pillar of pillars) {
       const count = capabilities.filter((c) => c.pillar === pillar.id).length;
       await expect(
@@ -321,7 +343,7 @@ test.describe('capabilities page', () => {
     await expect(page).not.toHaveURL(/pillar=/);
   });
 
-  test('every headline number on the home page opens the capabilities it counts', async ({
+  test('every headline number in the catalog overview opens the capabilities it counts', async ({
     page,
   }) => {
     const expected: Record<string, number> = {
@@ -332,15 +354,16 @@ test.describe('capabilities page', () => {
       platformCount: capabilities.filter((c) => c.setup === 'platform').length,
       agentDecisionCount: capabilities.filter((c) => c.setup !== 'platform').length,
     };
-    const linked = site.overview.kpis.filter((kpi) => kpi.href !== undefined);
+    const linked = site.capabilities.glance.kpis.filter((kpi) => kpi.href !== undefined);
     expect(linked.length).toBeGreaterThan(0);
     for (const kpi of linked) {
-      await page.goto('./');
+      await page.goto('capabilities');
+      await page.getByText(site.capabilities.glance.heading, { exact: true }).click();
       await page.getByRole('link', { name: kpi.label, exact: true }).click();
       await expect(
         page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
       ).toBeVisible();
-      await expect(page.getByRole('rowheader'), kpi.id).toHaveCount(expected[kpi.valueKey]!);
+      await expect(page.getByRole('checkbox'), kpi.id).toHaveCount(expected[kpi.valueKey]!);
     }
   });
   test('keeps lenses, views and comparison in the URL through refresh and history', async ({
@@ -394,6 +417,27 @@ test.describe('capabilities page', () => {
     ).toBe(true);
   });
 
+  test('a table wider than the screen keeps its row header in view and says to scroll', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await page.goto('patterns');
+    const matrix = page.getByRole('region', { name: site.mapping.matrix });
+    await expect(matrix).toBeVisible();
+    await expect(page.getByText(site.ui.scrollHint)).toBeVisible();
+    const rowHeader = matrix.getByRole('rowheader').first();
+    const before = await rowHeader.boundingBox();
+    await matrix.evaluate((node) => {
+      node.scrollLeft = node.scrollWidth;
+    });
+    expect(await matrix.evaluate((node) => node.scrollLeft)).toBeGreaterThan(0);
+    const after = await rowHeader.boundingBox();
+    expect(Math.round(after!.x)).toBe(Math.round(before!.x));
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
+  });
+
   test('badge icons keep their size (an icon squeezed to a sliver is invisible)', async ({
     page,
   }) => {
@@ -421,14 +465,14 @@ test.describe('keyboard and focus', () => {
     page,
   }) => {
     await page.goto('./');
-    await page.getByRole('navigation').getByRole('link', { name: 'Capabilities' }).click();
-    const heading = page.getByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    await page.getByRole('navigation').getByRole('link', { name: site.ui.nav.pitch }).click();
+    const heading = page.getByRole('heading', { level: 1, name: site.routes.pitch.title });
     await expect(heading).toBeFocused();
-    await expect(page).toHaveTitle(`${site.routes.capabilities.title} · ${site.productName}`);
+    await expect(page).toHaveTitle(`${site.routes.pitch.title} · ${site.productName}`);
   });
 
   test('the capabilities table scroll region can be reached by keyboard', async ({ page }) => {
-    await page.goto('capabilities');
+    await page.goto('capabilities?view=table');
     const region = page.getByRole('region', { name: /scrollable/i }).first();
     await region.focus();
     await expect(region).toBeFocused();
@@ -438,6 +482,12 @@ test.describe('keyboard and focus', () => {
 test.describe('accessibility (axe, WCAG 2.2 AA)', () => {
   const pages = [
     './',
+    'pitch',
+    'licensing',
+    'licensing?access=own-teammate',
+    'fit',
+    'fit?platforms=copilot-studio,cloud-registry-sync&tools=stack-purview,stack-defender',
+    'access',
     'capabilities',
     'capabilities?view=cards',
     'capabilities?view=matrix',

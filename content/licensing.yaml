@@ -1,0 +1,500 @@
+# Licensing basis for Agent 365, paraphrased from Microsoft's licensing FAQ and documentation (all read 2026-10-27).
+# The FAQ states list prices. This site never repeats a price: link to the official page instead.
+# Where the sources are silent the entry says so (need: not-stated) and names the question to ask.
+reviewStatus: draft
+intro: "Agent 365 is licensed per user, not per agent. Which users need a license depends on how the agent acts: for the user (delegated access) or as itself (own access). This page sets out what Microsoft's licensing FAQ and documentation say, and where they are silent."
+notice: "Planning guidance, not an official licensing determination. Confirm quantities, prerequisites and terms with your licensing specialist and the Microsoft Product Terms."
+jumpLabel: "On this page"
+needs:
+  required: "License required"
+  recommended: "License recommended"
+  not-licensed: "Not licensed"
+  not-stated: "Not stated"
+who:
+  heading: "Who needs a license"
+  intro: "Licensing follows the person, not the agent. Choose how the agent acts to see which people Microsoft says to license."
+  accessLabel: "How the agent acts"
+  anyAccess: "Show every population"
+  appliesToYou: "Applies to this agent"
+  notApplicable: "Does not apply to this agent"
+  populationHeading: Population
+  needHeading: "License need"
+  confirmLabel: "Confirm with your licensing specialist"
+  populations:
+    - id: delegating-users
+      label: "Users who delegate their access to the agent"
+      need: required
+      appliesTo: [delegated, mixed]
+      statement: "The licensing FAQ says users who delegate their access to agents (on-behalf-of agents) need an Agent 365 license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: own-access-owners
+      label: "The owner, sponsor or manager of an agent with its own access"
+      need: required
+      appliesTo: [own-teammate, own-background, mixed]
+      statement: "The FAQ says the owner, sponsor or manager of an agent with its own access needs an Agent 365 license. Its example is an HR help agent that answers employees."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: interacting-users
+      label: "Users who interact with, manage or sponsor managed agents"
+      need: recommended
+      statement: "Microsoft recommends broad coverage for compliance and scale, including these users. It also says a license is required only for users of agents that use Agent 365 premium capabilities."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: copilot-users
+      label: "Microsoft 365 Copilot users"
+      need: recommended
+      statement: "Named in Microsoft's recommended broad coverage."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: expanding-teams
+      label: "Teams expanding beyond initial pilots"
+      need: recommended
+      statement: "Named in Microsoft's recommended broad coverage, as agent adoption widens."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: external-users
+      label: "People outside the organization who use a customer-facing or partner-facing agent"
+      need: not-stated
+      whenAudience: [partners, customers]
+      statement: "The licensing FAQ does not say whether external users of an agent need a license."
+      confirm: "Ask your licensing specialist whether external users of this agent need a license, and under what terms."
+      sourceIds: [lic-faq]
+      evidence: judgment
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: administrators
+      label: "Administrators who manage agents"
+      need: not-stated
+      statement: "Microsoft's documentation requires an administrator role with permission to manage Agent 365 settings. It does not state a separate license rule for administrators."
+      confirm: "Ask your licensing specialist whether administrators need their own license."
+      sourceIds: [a365-admin-overview, lic-faq]
+      evidence: judgment
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: agents-themselves
+      label: "The agents, blueprints and agent instances themselves"
+      need: not-licensed
+      statement: "Agents do not need their own licenses. Blueprints, agents and agent instances are not licensed separately, and Microsoft says there are no per-agent or per-instance charges within Agent 365."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+  principlesHeading: "Principles Microsoft states"
+  principles:
+    - id: per-user
+      text: "Agent 365 is licensed per user, whether it comes with Microsoft 365 E7 or is bought standalone. One license covers all agents associated with that user."
+      sourceIds: [lic-faq, a365-overview]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: unlicensed-user
+      text: "If an agent is tied to an unlicensed user, that activity is not entitled to Agent 365 protections, which Microsoft calls out of compliance. Pooling licenses to reduce the count is not permitted."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: foundational
+      text: "Foundational capabilities come with a Microsoft Cloud subscription at no extra cost: agent identity, inventory visibility, basic usage insights and core admin governance actions. Premium capabilities need an Agent 365 license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: platform
+      text: "Licensing does not depend on where the agent was built. Premium capability depth and availability can still vary by agent type, platform or level of integration."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: fleet
+      text: "One licensed sponsor can oversee many agents. Microsoft says the licensing model has no fixed cap, though standard service protections and usage limits may apply."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: copilot
+      text: "Microsoft 365 Copilot does not replace Agent 365. The FAQ says Agent 365 is needed in addition, to manage, govern and secure agents beyond Copilot."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: visibility
+      text: "Microsoft says this guidance can be hard to apply today, because user-level agent interactions are only partly visible when policies are configured. It says it is improving visibility and tracking."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+options:
+  heading: "Ways to license a user"
+  intro: "Microsoft lists these combinations for licensing a user for Agent 365."
+  items:
+    - "Microsoft 365 E7"
+    - "Microsoft 365 E5, A5 or Business Premium, plus Agent 365"
+    - "Microsoft 365, plus Defender Suite and Purview Suite, plus Agent 365"
+    - "Office 365 E3 plus EMS E3, plus Defender Suite and Purview Suite, plus Agent 365"
+    - "Microsoft 365, plus Defender Suite for Education and Purview Suite for Education, plus Agent 365"
+    - "Office 365 A3 plus EMS A3, plus Defender Suite for Education and Purview Suite for Education, plus Agent 365"
+    - "Microsoft 365 F1 or F3, plus Defender and Purview Suite for frontline workers, plus Agent 365"
+    - "Office 365 F3 plus EMS E3 (K), plus Defender and Purview Suite for frontline workers, plus Agent 365"
+  note: "Agent 365 is included with Microsoft 365 E7 and can also be bought standalone. Microsoft says it is not included in Microsoft 365 E3 or E5, and that E7 is not required to use it."
+  sourceIds: [lic-faq, sd-a365]
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+prerequisites:
+  heading: "Licensing prerequisites"
+  intro: "Core Agent 365 functionality relies on the technical capabilities of the underlying licenses. Microsoft's FAQ lists what each customer type needs before Agent 365 can be licensed."
+  segments:
+    - id: e7
+      label: "Microsoft 365 E7"
+      requires: "No separate prerequisite. E7 includes Microsoft 365 E5, Agent 365, Microsoft 365 Copilot and Microsoft Entra Suite."
+      basePlans: [m365-e7]
+      sourceIds: [lic-faq, a365-admin-overview]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: enterprise
+      label: Enterprise
+      requires: "Microsoft 365 E5, or Microsoft 365 E3 (or Office 365 E3 plus EMS E3), plus both Defender Suite and Purview Suite."
+      basePlans: [m365-e5, m365-e3, o365-e3-ems-e3]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: frontline
+      label: "Frontline workers"
+      requires: "Microsoft 365 F1 or F3, plus Defender and Purview Suite for frontline workers."
+      basePlans: [frontline-f1-f3]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: smb
+      label: "Small and medium-sized business"
+      requires: "Microsoft 365 Business Premium. Defender Suite for SMB and Purview Suite for SMB are also needed for the full Agent 365 functionality, though the FAQ says they are not formal prerequisites."
+      basePlans: [business-premium]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: education
+      label: Education
+      requires: "Microsoft 365 A5 for Faculty, or A3 (or Office 365 A3 plus EMS A3) for Faculty, plus both Defender Suite for Education and Purview Suite for Education."
+      basePlans: [education-a5, education-a3]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+  mixedHeading: "Mixed-license environments"
+  mixed:
+    text: "Agent 365 can be licensed only for users who meet the prerequisites. The FAQ's example treats Microsoft 365 E3 plus Copilot users as not eligible, while E5 users and frontline users with the Defender and Purview suites can be licensed."
+    sourceIds: [lic-faq]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  productTerms:
+    heading: "What the Product Terms require"
+    intro: "The Microsoft Product Terms are the contractual source. For the Enterprise Agreement programs, buying the Agent 365 user license also requires buying one of these prerequisite licenses."
+    plans:
+      - "Microsoft 365 A5, E5 or G5"
+      - "Microsoft 365 Business Premium"
+      - "Microsoft Defender Suite and Microsoft Purview Suite"
+      - "Microsoft Defender Suite for Education and Microsoft Purview Suite for Education"
+      - "Microsoft Defender and Purview Suite for frontline workers"
+    availability: "The Product Terms list the Agent 365 user license as an additional product for Enterprise Agreement customers, with a US GCC attribute."
+    sourceIds: [product-terms-a365]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+  differs:
+    heading: "Where public sources differ on the prerequisite"
+    intro: "Microsoft's public pages describe the prerequisite in different words. Show the customer the Product Terms, and say which other page says what."
+    items:
+      - id: enterprise-prerequisite
+        topic: "What an enterprise customer needs first"
+        statements:
+          - sourceId: product-terms-a365
+            text: "A qualifying plan: Microsoft 365 A5, E5 or G5, Business Premium, or the Defender and Purview suites."
+          - sourceId: lic-faq
+            text: "Microsoft 365 E5, or Microsoft 365 E3 (or Office 365 E3 plus EMS E3) with both the Defender Suite and the Purview Suite."
+          - sourceId: partner-blog-prereq
+            text: "From June 1, new Agent 365 purchases need Microsoft 365 E5 for enterprise customers, Defender and Purview at F5 level for frontline workers and Business Premium for small and medium-sized businesses. The page gives no year."
+          - sourceId: a365-overview
+            text: "Agent 365 works best when using Microsoft E5 as a prerequisite. At least one user must be licensed with a qualifying Agent 365 license to enable Agent 365."
+        advice: "The Product Terms govern a purchase. Where a blog lists fewer plans than the Product Terms, say so, and confirm the customer's mix with your licensing specialist."
+        sourceIds: [product-terms-a365, lic-faq, partner-blog-prereq, a365-overview]
+        evidence: stated
+        reviewStatus: draft
+        lastVerified: "2026-10-27"
+  withoutHeading: "What does not work without the underlying licenses"
+  withoutIntro: "Microsoft's FAQ lists what stays unavailable when the underlying licenses are missing."
+  without:
+    - id: purview-without-e5
+      area: Purview
+      text: "Without the underlying Microsoft 365 E5 licenses (or the Purview suite for frontline workers), Purview does not provide advanced classification or auto-labeling of grounding data."
+      capabilityIds: [purview-labels]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: defender-without-e5
+      area: Defender
+      text: "Without the underlying licenses, Defender does not detect local agents on endpoints, protect the posture and runtime of local agents, or provide threat hunting and investigation for cloud agents."
+      capabilityIds: [defender-shadow-ai, defender-posture, defender-hunting]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: intune-without-e5
+      area: Intune
+      text: "Without the underlying licenses, Intune does not provide controls for local agents on Windows or the ability to block OpenClaw."
+      capabilityIds: [intune-runtime-policy, intune-block-local]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: entra-without
+      area: Entra
+      text: "Entra network controls for cloud agents need Microsoft 365 E3 or Microsoft Entra ID P1. Identity Protection and network controls for local agents are not provided without the underlying licenses; local-agent network controls come from Entra Suite or standalone Entra offerings."
+      capabilityIds: [entra-network-controls, entra-conditional-access]
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+  contracts:
+    text: "Signed contracts are not affected by these prerequisites and stay valid until renewal."
+    sourceIds: [lic-faq]
+    evidence: stated
+    reviewStatus: draft
+    lastVerified: "2026-10-27"
+tiers:
+  heading: "What is included and what needs a license"
+  intro: "Microsoft splits Agent 365 into foundational capabilities that come with a Microsoft Cloud subscription and premium capabilities that need an Agent 365 license."
+  foundationalLabel: "Included with a Microsoft Cloud subscription"
+  premiumLabel: "Needs an Agent 365 license"
+  foundational:
+    - "Agent Identity"
+    - "Agent Registry"
+    - "Basic agent usage insights"
+    - "Admin agent governance actions"
+    - "Audit logs and eDiscovery for agent activity"
+    - "Block unsanctioned local endpoint agents"
+    - "Discovery of AI on endpoints"
+  premium:
+    - group: Observability
+      items: ["Advanced agent usage insights", "Agent Map", "Registry sync", "Graph API"]
+    - group: Governance
+      items:
+        - "Agent Identity Governance"
+        - "Lifecycle management for agents"
+        - "Automate agent lifecycle actions"
+        - "Tool controls for agents"
+        - "Policy templates for agents"
+        - "Audit logs and eDiscovery for agent activity"
+        - "Data Lifecycle Management for agent data and interactions"
+        - "Communication Compliance for agents"
+    - group: Security
+      items:
+        - "Data Security Posture Management for agents"
+        - "Insider Risk Management for agents"
+        - "Sensitivity label inheritance"
+        - "Data loss prevention for agents"
+        - "Conditional access and identity protection for agents"
+        - "Secure Access Service Edge (SASE) for agents"
+        - "Device compliance for agent conditional access"
+        - "Policy controlled environment for agents runtime"
+        - "Agent Security Posture Management"
+        - "Threat Detection and Blocking for agents"
+        - "Threat Hunting and Investigation for agents"
+  differsHeading: "Where the licensing FAQ and the service description differ"
+  differsIntro: "The service description is this site's primary source. The FAQ classifies these capabilities differently, so check both before you answer."
+  note: "These are the FAQ's capability names. It lists audit logs and eDiscovery under both headings."
+  sourceIds: [lic-faq]
+  evidence: stated
+  reviewStatus: draft
+  lastVerified: "2026-10-27"
+sizing:
+  heading: "Size the license count"
+  intro: "Microsoft points to two reports in the Microsoft 365 admin center. Use them together to cover both users and agent owners."
+  reports:
+    - id: agent-users
+      name: "Active users using agents in Microsoft 365 Copilot"
+      where: "Microsoft 365 admin center, Reports, Usage, Microsoft 365 Copilot, Agents"
+      shows: "The number of unique users who used agents in Microsoft 365 Copilot in the last 30 days. It can be exported and needs no license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: agent-owners
+      name: "Registry agent owners"
+      where: "Microsoft 365 admin center, Agents, All agents"
+      shows: "The owners of existing agents in the registry, including Microsoft agents and third-party agents brought in through the SDK, Partner Center or registry sync. It can be exported and needs no license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+  note: "Microsoft says user-level agent interactions are only partly visible today, so treat the counts as a starting point."
+regulated:
+  heading: "Regulated and government customers"
+  intro: "Check availability for the customer's cloud before you promise a capability."
+  items:
+    - id: gcc-g7
+      text: "Microsoft 365 G7, the Frontier Suite for government, and Agent 365 became available to buy for GCC customers from October 1, 2026, with more purchasing options from November 1 and capabilities expanding in phases."
+      sourceIds: [g7-blog]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: gcc-flags
+      text: "The service description marks most Purview, Defender and Intune capabilities, and the Graph API, as not yet available in GCC. The catalog's GCC flags show each row."
+      sourceIds: [sd-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: fedramp
+      text: "The service description says that as of October 1, 2026 Agent 365 meets all FedRAMP High controls reviewed by Microsoft's independent assessor, with final authorization pending."
+      sourceIds: [sd-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: eu-boundary
+      text: "The licensing FAQ says Microsoft 365 E7, including Agent 365, is designed to align with Microsoft's EU Data Boundary commitments."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+other:
+  heading: "Other licensing points"
+  items:
+    - id: terms
+      text: "You must accept the applicable terms when you start an Agent 365 trial or buy licenses."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: signals
+      text: "Agent 365 observability signals appear in the Agent 365 Overview page as soon as the first license is assigned."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: no-consumption
+      text: "The licensing FAQ says there are no consumption-based costs for Agent 365 yet. Interactions of a user's agents fall under the per-user license."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: dspm
+      text: "Data Security Posture Management and AI observability work without an Agent 365 license. Agent-specific insights in them need Agent 365 or Microsoft 365 E7."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: windows-365
+      text: "Windows 365 for Agents is not included in Agent 365. It is a separate offering billed pay-as-you-go by hourly usage, and it provides the runtime when agents need a desktop or browser."
+      sourceIds: [lic-faq]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: purview-payg
+      text: "Purview bills some capabilities for non-Microsoft AI apps and agents pay-as-you-go, which needs the tenant linked to an Azure subscription. Microsoft 365 Copilot experiences are not charged. This is Purview's general billing page, so confirm how it applies to Agent 365."
+      sourceIds: [purview-billing]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: id-protection
+      text: "Entra says ID Protection for agents will require an Agent 365 license starting soon. It gives no date."
+      sourceIds: [entra-idp-agents]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: e3-wording
+      text: "The FAQ's enterprise answer allows Microsoft 365 E3 with both suites, but its mixed-license example treats E3 plus Copilot users as not eligible. Confirm which applies to the customer's mix."
+      sourceIds: [lic-faq]
+      evidence: judgment
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: defender-july
+      text: "Effective July 1, 2026, agent security capabilities for Microsoft Copilot Studio and Microsoft Foundry agents in Defender need an Agent 365 license. Existing Defender for Cloud Apps and Defender for Cloud licenses no longer cover them."
+      sourceIds: [defender-transition]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: multi-tenant
+      text: "Managing agents across tenants is in public preview. Viewing and managing them needs no additional license. Viewing agent risk and activity needs an Agent 365 license assigned to the end user."
+      sourceIds: [a365-multitenant]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+help:
+  heading: "Help with deployment"
+  intro: "Microsoft publishes guidance for getting an Agent 365 deployment done. Check the current pages before you promise what they cover."
+  items:
+    - id: fasttrack-scope
+      text: "FastTrack gives remote guidance for Agent 365: agent discovery through the registry, blueprints and identities, baseline controls across Entra, Defender and Purview, and network controls. It does not register agents through the SDK or CLI, develop custom MCP, run the deployment, or perform a formal security assessment."
+      sourceIds: [fasttrack-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: fasttrack-eligibility
+      text: "FastTrack needs at least 150 eligible paid licenses per tenant. Agent 365 is a listed eligible product, and customers on an Agent 365 trial stay eligible for FastTrack support."
+      sourceIds: [fasttrack-eligibility, fasttrack-a365]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+    - id: adoption-hub
+      text: "Microsoft's Agent 365 adoption hub offers best practices for IT administrators to manage, govern and secure agents at scale, with visibility, policy enforcement and control across the agent estate."
+      sourceIds: [adoption-hub]
+      evidence: stated
+      reviewStatus: draft
+      lastVerified: "2026-10-27"
+handoff:
+  heading: "Take these to your licensing specialist"
+  intro: "Copy this note into your account team's licensing request. It lists what Microsoft states and what it leaves open."
+  questions:
+    - "Which users must hold a license for this agent, given how it acts?"
+    - "Which owners, sponsors or managers need a license, and how many?"
+    - "Do external users of a customer-facing or partner-facing agent need a license?"
+    - "Do the customer's current plans meet the prerequisites, including the Defender and Purview suites?"
+    - "Which premium capabilities will the agent use, so only the users who need them are licensed?"
+    - "Does the customer's cloud (GCC or another sovereign cloud) offer the capabilities they need?"
+    - "Which contract and renewal date apply?"
+  copy: "Copy note"
+  copied: Copied
+  titleTemplate: "Licensing questions for {customer}"
+  accessLine: "Access model: {label}"
+requirementsPanel:
+  heading: "What each capability needs"
+  intro: "For each capability, the license, role, service, enrollment or onboarding step that Microsoft's documentation states. Choose an assessment to see what is in place for that customer."
+  kinds:
+    license: License
+    role: "Admin role"
+    service: "Underlying service"
+    enrollment: Enrollment
+    onboarding: Onboarding
+    telemetry: Telemetry
+    scope: Scope
+  levelLabel: "Applies to"
+  askLabel: "Ask the customer"
+  levels:
+    each-user: "Each licensed user"
+    tenant: "The whole tenant"
+    device: "Each device"
+    agent: "Each agent"
+    data: "The data the agent uses"
+  status:
+    ready: "In place"
+    gap: Gap
+    unknown: Confirm
+  noneStated: "No requirement beyond the plan is stated in the sources reviewed."
+  assessmentLabel: "Check against an assessment"
+  noAssessment: "No assessment"
