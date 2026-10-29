@@ -297,7 +297,7 @@ function Brief({ capability: c }: { capability: Capability }) {
         </section>
       )}
       <p className={styles.note}>
-        {copy.assessmentPending} <Link to="/map">{copy.mapCta}</Link>
+        {copy.assessmentPending} <Link to="/patterns">{copy.mapCta}</Link>
       </p>
       <ExternalLink href={correction.href}>{copy.correction}</ExternalLink>
       {site.feedbackEmail !== null && (

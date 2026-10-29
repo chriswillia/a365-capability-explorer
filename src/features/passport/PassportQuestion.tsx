@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import { Badge } from '../../components/Badge.tsx';
 import { content } from '../../lib/content/index.ts';
 import type { Answers } from '../../lib/content/schemas.ts';
 import { knownAnswer } from '../../lib/engine/answers.ts';
@@ -15,6 +16,8 @@ export function PassportQuestion({
   hint,
   answer,
   onChange,
+  assumed = false,
+  onConfirm,
   children,
 }: {
   number: number;
@@ -23,10 +26,14 @@ export function PassportQuestion({
   hint: string;
   answer: Answers[string] | undefined;
   onChange: (answer: Answers[string]) => void;
+  /** The answer came from an example and has not been confirmed with the customer. */
+  assumed?: boolean;
+  onConfirm?: () => void;
   children?: ReactNode;
 }) {
   const question = content.questions.find((candidate) => candidate.id === id)!;
   const unknown = content.site.diagnostic.unknown;
+  const copy = content.passport.assumed;
   const baseId = useId();
   const hintId = `${baseId}-hint`;
   const text = typeof answer === 'string' && knownAnswer(answer) ? answer : '';
@@ -49,6 +56,14 @@ export function PassportQuestion({
         <p id={hintId} className={styles.hint}>
           {hint}
         </p>
+        {assumed && (
+          <p className={styles.assumed}>
+            <Badge tone="info">{copy.badge}</Badge>
+            <button type="button" onClick={onConfirm}>
+              {copy.confirm} <span className="visually-hidden">— {ask}</span>
+            </button>
+          </p>
+        )}
         {question.type === 'multi' ? (
           <>
             {question.options.map((option) => (

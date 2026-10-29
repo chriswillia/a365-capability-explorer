@@ -10,7 +10,6 @@ views:
   prepare: Prepare
   run: "Run the meeting"
   brief: "Value brief"
-audienceNote: "Showing the {label} version. Change it in the View menu."
 pitch:
   heading: "Your 60-second pitch"
   intro: "Use the version that matches your role. All three rest on the same facts."
@@ -416,7 +415,7 @@ entryPoints:
       licensing: "E5 is a prerequisite plan the Product Terms list, so Agent 365 can be added for the people who delegate to, or own, sponsor or manage agents. Size it on the Licensing page."
       links:
         - { label: "Size the licenses", to: "/licensing#calculator" }
-        - { label: "Map an agent", to: "/map" }
+        - { label: "Scope an agent", to: "/patterns" }
       sourceIds: [lic-faq, product-terms-a365]
       evidence: stated
       reviewStatus: draft
@@ -449,7 +448,7 @@ entryPoints:
       licensing: "Effective July 1, 2026, agent security for Copilot Studio and Foundry agents in Defender needs an Agent 365 license. Existing Defender for Cloud Apps and Defender for Cloud licenses no longer cover it."
       links:
         - { label: "How each platform connects", to: "/fit" }
-        - { label: "Map an agent", to: "/map" }
+        - { label: "Scope an agent", to: "/patterns" }
       sourceIds: [a365-cps-registry, entra-agent-id-governance, defender-transition]
       evidence: stated
       reviewStatus: draft

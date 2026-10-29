@@ -6,30 +6,16 @@ import styles from './LibraryMenu.module.css';
 
 type NavKey = keyof Site['ui']['nav'];
 
-const EXPLORE: { key: NavKey; to: string }[] = [
-  { key: 'fit', to: '/fit' },
-  { key: 'access', to: '/access' },
+// Reference pages a seller opens now and then, behind the steps they do in order.
+const REFERENCE: { key: NavKey; to: string }[] = [
   { key: 'capabilities', to: '/capabilities' },
+  { key: 'access', to: '/access' },
   { key: 'learn', to: '/learn' },
-];
-const PACK: { key: NavKey; to: string }[] = [
-  { key: 'portfolio', to: '/portfolio' },
-  { key: 'workshop', to: '/workshop' },
   { key: 'methodology', to: '/methodology' },
 ];
 
 function MoreDetails({ active }: { active: boolean }) {
-  const { nav, library } = content.site.ui;
-  const link = (item: { key: NavKey; to: string }) => (
-    <li key={item.key}>
-      <NavLink
-        to={item.to}
-        className={({ isActive }) => (isActive ? `${styles.link} ${styles.current}` : styles.link)}
-      >
-        {nav[item.key]}
-      </NavLink>
-    </li>
-  );
+  const { nav } = content.site.ui;
 
   return (
     <li className={styles.item}>
@@ -38,19 +24,29 @@ function MoreDetails({ active }: { active: boolean }) {
         className={active ? `${styles.menu} ${styles.active}` : styles.menu}
         panelClassName={styles.panel}
       >
-        <p className={styles.heading}>{library.exploreHeading}</p>
-        <ul>{EXPLORE.map(link)}</ul>
-        <p className={styles.heading}>{library.packHeading}</p>
-        <ul>{PACK.map(link)}</ul>
+        <ul>
+          {REFERENCE.map((item) => (
+            <li key={item.key}>
+              <NavLink
+                to={item.to}
+                className={({ isActive }) =>
+                  isActive ? `${styles.link} ${styles.current}` : styles.link
+                }
+              >
+                {nav[item.key]}
+              </NavLink>
+            </li>
+          ))}
+        </ul>
       </MenuDetails>
     </li>
   );
 }
 
-/** Stack fit, the capabilities, Learn and the customer pack: the reference material behind the main steps. */
+/** The capabilities, how agents act, Learn and how recommendations work: the reference pages behind the steps. */
 export function LibraryMenu() {
   const { pathname } = useLocation();
-  const active = [...EXPLORE, ...PACK].some(
+  const active = REFERENCE.some(
     (item) => matchPath({ path: item.to, end: false }, pathname) !== null,
   );
   // A new page starts with the menu closed: keying on the path remounts it, with no effect to wait for.

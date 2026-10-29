@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { GuardrailList } from '../../components/GuardrailList.tsx';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PillarSummary } from '../../components/PillarSummary.tsx';
@@ -222,6 +223,7 @@ function Wizard({
   ].join(' · ');
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessment.id} />
       <Link to="/diagnostic">{copy.back}</Link>
       <PageHeading>
         {displayName(assessment.answers, 'useCaseName', copy.untitledAssessment)}

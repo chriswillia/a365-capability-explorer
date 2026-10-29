@@ -1,4 +1,5 @@
 import { CheckmarkCircle16Regular, Prohibited16Regular } from '@fluentui/react-icons';
+import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { Badge } from '../../components/Badge.tsx';
 import { AccessFitBadge } from '../../components/AccessFitBadge.tsx';
@@ -134,6 +135,10 @@ export function Component() {
   const [params, setParams] = useSearchParams();
   const state = readExplorerState(params, content);
   const explorer = copy.explorer;
+  // Comparing is for the seller who asks for it: the checkboxes appear once it is turned on, and stay while any
+  // capability is selected, so a shared link that carries a comparison still shows it.
+  const [compareOn, setCompareOn] = useState(false);
+  const comparing = compareOn || state.compare.length > 0;
   const filtered = filterCapabilities(capabilities, state, membership);
   const compared = state.compare.flatMap((id) => capabilities.filter((c) => c.id === id));
   const activeLens = state.lens || (state.view === 'matrix' ? matrixLens(state) : '');
@@ -257,7 +262,7 @@ export function Component() {
             ),
           },
         ]),
-    compareColumn,
+    ...(comparing ? [compareColumn] : []),
   ];
   const detailedColumns: Column<Capability>[] = [
     capabilityColumn,
@@ -284,7 +289,7 @@ export function Component() {
           ? explorer.applies
           : explorer.notApplicable,
     })),
-    compareColumn,
+    ...(comparing ? [compareColumn] : []),
   ];
   const resultsText = renderTemplate(explorer.results, { ...values, count: filtered.length });
   // The filters behind "More filters" count here, so a closed drawer never hides why results are narrowed.
@@ -386,17 +391,9 @@ export function Component() {
           ))}
         </fieldset>
         <div className={styles.toolbar}>
-          {select(
-            'explorer-view',
-            explorer.view,
-            state.view,
-            VIEWS.map((value) => ({ value, label: explorer.views[value] })),
-            (value) => update({ view: value as ExplorerState['view'] }),
-          )}
-          <div>
+          {hasFilters(state) && (
             <button
               type="button"
-              disabled={!hasFilters(state)}
               onClick={() =>
                 update({
                   query: '',
@@ -412,7 +409,7 @@ export function Component() {
             >
               {explorer.reset}
             </button>
-          </div>
+          )}
         </div>
         <details className={styles.more} open={moreActive > 0}>
           <summary>
@@ -420,6 +417,24 @@ export function Component() {
               ? renderTemplate(explorer.moreActive, { count: moreActive })
               : explorer.more}
           </summary>
+          <div className={styles.filters}>
+            {select(
+              'explorer-view',
+              explorer.view,
+              state.view,
+              VIEWS.map((value) => ({ value, label: explorer.views[value] })),
+              (value) => update({ view: value as ExplorerState['view'] }),
+            )}
+            <label className={styles.compareToggle}>
+              <input
+                type="checkbox"
+                checked={comparing}
+                disabled={state.compare.length > 0}
+                onChange={(event) => setCompareOn(event.target.checked)}
+              />
+              {explorer.compareToggle}
+            </label>
+          </div>
           <div className={styles.filters}>
             {select(
               'explorer-console',
@@ -505,7 +520,9 @@ export function Component() {
           {renderTemplate(explorer.draftSummary, { draft: draftCount, total: filtered.length })}
         </p>
       )}
-      <p className={styles.note}>{renderTemplate(explorer.comparisonHint, { n: MAX_COMPARE })}</p>
+      {comparing && (
+        <p className={styles.note}>{renderTemplate(explorer.comparisonHint, { n: MAX_COMPARE })}</p>
+      )}
       {filtered.length === 0 ? (
         <>
           <p>{explorer.empty}</p>
@@ -537,7 +554,7 @@ export function Component() {
                       <LicensingBadge capability={c} />
                       <GccBadge capability={c} />
                     </span>
-                    {comparisonControl(c)}
+                    {comparing && comparisonControl(c)}
                   </li>
                 ))}
               </ul>
@@ -564,7 +581,7 @@ export function Component() {
                 <LicensingBadge capability={c} />
                 <GccBadge capability={c} />
               </span>
-              {comparisonControl(c)}
+              {comparing && comparisonControl(c)}
             </li>
           ))}
         </ul>

@@ -31,7 +31,7 @@ export default function SampleCustomer() {
       setMessage(copy.error);
       return;
     }
-    navigate(`/map?assessment=${result.assessmentId}`);
+    navigate(`/map?assessment=${result.assessmentId}#passport-heading`);
   };
   const reset = () => {
     setMessage(resetSampleCustomer().ok ? copy.resetDone : copy.error);

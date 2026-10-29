@@ -4,28 +4,29 @@ import { content } from './content.ts';
 const { site } = content;
 
 /**
- * Opens the View menu in the header, which holds Selling as and Detail level, unless it is already open. On a phone
- * the header's links sit behind the Menu button, so that opens first.
+ * The Technical detail switch in the header. On a phone the header's links sit behind the Menu button, so that
+ * opens first.
  */
-export async function openViewMenu(page: Page) {
-  const summary = page.locator('header summary', {
-    hasText: new RegExp(`^${site.ui.view.label}:`),
-  });
-  // The menu is drawn once the app has started. On a phone it is in the page but hidden behind the Menu button.
-  await summary.waitFor({ state: 'attached' });
-  if (!(await summary.isVisible()))
+export async function technicalSwitch(page: Page) {
+  // A CSS locator, not a role one: on a phone the switch is in the page but hidden behind the Menu button, and a
+  // role locator skips what is hidden.
+  const button = page.locator('header button', { hasText: site.ui.depth.technical });
+  // The switch is drawn once the app has started.
+  await button.waitFor({ state: 'attached' });
+  if (!(await button.isVisible()))
     await page.getByRole('button', { name: site.ui.menuLabel, exact: true }).click();
-  const menu = summary.locator('xpath=..');
-  if ((await menu.getAttribute('open')) === null) await summary.click();
-  return menu;
+  return button;
 }
 
+/** Puts the switch on or off, whichever it is now. */
 export async function chooseDepth(page: Page, depth: 'executive' | 'technical') {
-  const menu = await openViewMenu(page);
-  await menu.getByRole('button', { name: site.ui.depth[depth], exact: true }).click();
+  const button = await technicalSwitch(page);
+  const on = (await button.getAttribute('aria-pressed')) === 'true';
+  if (on !== (depth === 'technical')) await button.click();
 }
 
+/** Selling as sits on the Pitch page, in the parts the choice changes. */
 export async function chooseAudience(page: Page, audience: 'ai' | 'security' | 'joint') {
-  const menu = await openViewMenu(page);
-  await menu.getByRole('button', { name: site.ui.audience[audience], exact: true }).click();
+  const group = page.getByRole('group', { name: site.ui.audience.groupLabel });
+  await group.getByRole('button', { name: site.ui.audience[audience], exact: true }).click();
 }

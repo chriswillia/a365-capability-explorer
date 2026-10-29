@@ -36,7 +36,7 @@ agenda:
     title: Test the assumptions
     minutes: 20
     instructions:
-      - Enter the agreed answers in Map an agent and inspect the readout, readiness checks and who to license.
+      - Enter the agreed answers in the agent passport and inspect the readout, readiness checks and who to license.
       - Compare the generated recommendations with the card sort. Discuss differences rather than treating the engine as approval.
     output: A saved assessment and an explicit gap and unknown list.
   - id: compare

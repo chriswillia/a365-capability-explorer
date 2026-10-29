@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router';
 import { KpiStrip } from '../../components/KpiStrip.tsx';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
@@ -91,6 +92,7 @@ function Readout({
   };
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessment.id} />
       <PresentationControls />
       <div className={styles.toolbar} data-no-print data-presentation-hide>
         <Link to={`/diagnostic/${assessment.id}`}>{copy.edit}</Link>

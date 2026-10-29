@@ -710,7 +710,6 @@ export const ValueSchema = z.strictObject({
   notice: Text,
   // The four parts of the Pitch page, one on screen at a time.
   views: z.strictObject({ say: Text, prepare: Text, run: Text, brief: Text }),
-  audienceNote: Template,
   pitch: z.strictObject({
     heading: Text,
     intro: Text,
@@ -1500,6 +1499,8 @@ export const PassportSchema = z.strictObject({
     stageHint: Text,
     stageAssumed: Text,
   }),
+  // What the seller sees when the agent started from an example, so its answers are not taken for the customer's.
+  assumed: z.strictObject({ note: Template, badge: Text, confirm: Text }),
   questionsHeading: Text,
   // The seller's wording for six questions that already exist in questions.yaml, so the rules keep working.
   questions: z
@@ -1546,13 +1547,23 @@ export const PassportSchema = z.strictObject({
     riskPossible: Text,
     risksNone: Text,
     actionsHeading: Text,
+    // The steps for this agent, in the order a seller takes them, each with what it gives them.
     actions: z.strictObject({
-      leaveBehind: Text,
       licensing: Text,
       deploy: Text,
+      leaveBehind: Text,
       readout: Text,
+      canvas: Text,
       discovery: Text,
+      portfolio: Text,
     }),
+    actionNotes: z.strictObject({
+      licensing: Text,
+      deploy: Text,
+      leaveBehind: Text,
+      readout: Text,
+    }),
+    alsoLabel: Text,
   }),
 });
 
@@ -1674,32 +1685,22 @@ export const SiteSchema = z.strictObject({
     homeLinkLabel: Text,
     // The button that opens the header's links on a phone.
     menuLabel: Text,
-    depth: z.strictObject({
-      groupLabel: Text,
-      label: Text,
-      hint: Text,
-      executive: Text,
-      technical: Text,
-    }),
+    // The one setting in the header: a switch that adds the technical detail. Selling as sits on the Pitch page.
+    depth: z.strictObject({ technical: Text, on: Text, off: Text, hint: Text }),
+    // The steps in the order a seller does them, then the reference pages behind More.
     nav: z.strictObject({
       overview: Text,
       pitch: Text,
-      map: Text,
+      scope: Text,
+      fit: Text,
       licensing: Text,
       deploy: Text,
       library: Text,
-      fit: Text,
       access: Text,
       capabilities: Text,
-      patterns: Text,
       learn: Text,
-      portfolio: Text,
-      workshop: Text,
       methodology: Text,
     }),
-    library: z.strictObject({ exploreHeading: Text, packHeading: Text }),
-    // The one menu that holds Selling as and Detail level, so the header stays one row.
-    view: z.strictObject({ label: Text, summary: Template }),
     // The parts of a long page, shown one at a time, and the links that step between them.
     views: z.strictObject({ label: Text, pagerLabel: Text, previous: Text, next: Text }),
     // A page's notices sit behind this label, so the first screen shows the page and not the preamble.
@@ -1740,17 +1741,9 @@ export const SiteSchema = z.strictObject({
       stamp: Template,
     }),
     loading: Text,
-    customer: z.strictObject({
-      label: Text,
-      useCases: Text,
-      empty: Text,
-      edit: Text,
-      readout: Text,
-      canvas: Text,
-      licensing: Text,
-      compare: Text,
-      switch: Text,
-    }),
+    customer: z.strictObject({ edit: Text }),
+    // The shortcut in the header to the agent a seller is working on, and the link back to it from its pages.
+    working: z.strictObject({ label: Text, back: Template }),
     comingSoon: z.strictObject({ status: Text, back: Text }),
     notFound: z.strictObject({ body: Text, back: Text }),
     badges: z.strictObject({
@@ -1784,7 +1777,7 @@ export const SiteSchema = z.strictObject({
     ctaPrimary: Text,
     ctaSecondary: Text,
     // The example agents a seller can start from, ahead of the jobs.
-    examples: z.strictObject({ heading: Text, intro: Text, all: Text }),
+    examples: z.strictObject({ heading: Text, intro: Text, all: Text, blank: Text }),
     // The jobs a seller does before and after a customer call, one tile each.
     jobs: z.strictObject({
       heading: Text,
@@ -1797,14 +1790,14 @@ export const SiteSchema = z.strictObject({
             title: Text,
             body: Text,
             cta: Text,
-            to: Text.regex(
-              /^\/(?:pitch|map|diagnostic|licensing|deploy)$/,
-              'must target a job page',
-            ),
+            to: Text.regex(/^\/(?:pitch|patterns|fit|licensing|deploy)$/, 'must target a job page'),
           }),
         )
         .min(3),
       libraryNote: Text,
+      // The customer-session pages, named by route so their titles are not written twice.
+      packNote: Text,
+      packKeys: z.array(z.enum(['workshop', 'portfolio'])).min(1),
     }),
     recent: z.strictObject({
       heading: Text,
@@ -1930,6 +1923,8 @@ export const SiteSchema = z.strictObject({
       shortcutLabel: Template,
       reset: Text,
       compare: Text,
+      // The switch that shows a checkbox on each capability, so comparing is there for a seller who asks for it.
+      compareToggle: Text,
       comparison: Text,
       comparisonHint: Template,
       compareBar: Template,
@@ -1997,7 +1992,12 @@ export const SiteSchema = z.strictObject({
     // Where to go after reading: the two jobs that follow learning.
     nextHeading: Text,
     next: z
-      .array(z.strictObject({ label: Text, to: Text.regex(/^\/(?:map|diagnostic|licensing)$/) }))
+      .array(
+        z.strictObject({
+          label: Text,
+          to: Text.regex(/^\/(?:patterns|map|diagnostic|licensing)$/),
+        }),
+      )
       .min(2),
     flowNote: Text,
     flowTable: Text,
@@ -2195,7 +2195,17 @@ export const SiteSchema = z.strictObject({
     rules: Text,
     assumptions: Text,
     pendingDiagnostic: Text,
-    startAssessment: Text,
+    // The button that saves an example as the customer's agent, and the choice of customer beside it.
+    use: z.strictObject({
+      button: Text,
+      hint: Text,
+      customerLabel: Text,
+      newCustomer: Text,
+      error: Text,
+    }),
+    // The way in for an agent no example looks like.
+    startBlank: Text,
+    startBlankCta: Text,
     methodologyNotes: uniqueList(Text),
     back: Text,
     typicalPatterns: Text,

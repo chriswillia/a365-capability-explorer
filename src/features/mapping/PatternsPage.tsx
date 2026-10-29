@@ -91,6 +91,9 @@ export function Component() {
       >
         {copy.intro}
       </PageIntro>
+      <p className={styles.startBlank}>
+        {copy.startBlank} <Link to="/map">{copy.startBlankCta}</Link>
+      </p>
       <ViewSwitcher views={VIEWS} current={part} />
       <ViewPane view={part} id="cards">
         <ul className={styles.cards}>
@@ -142,8 +145,6 @@ export function Component() {
           />
         </section>
       </ViewPane>
-      <p className={styles.note}>{copy.pendingDiagnostic}</p>
-      <Link to="/map">{copy.startAssessment}</Link>
       <ViewPager views={VIEWS} current={part} />
     </PageContainer>
   );

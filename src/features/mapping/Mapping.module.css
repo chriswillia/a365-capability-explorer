@@ -27,6 +27,16 @@
   font-size: var(--text-14);
 }
 
+.startBlank {
+  max-width: 60rem;
+  margin-block: var(--space-4);
+}
+
+.startBlank a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}
+
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));

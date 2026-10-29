@@ -1,4 +1,5 @@
 import { Link, useSearchParams } from 'react-router';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { AssessmentPicker } from '../../components/AssessmentPicker.tsx';
 import { Badge, type BadgeTone } from '../../components/Badge.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
@@ -171,6 +172,7 @@ export function Component() {
 
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessment?.id} />
       <PageHeading>{site.routes.deploy.title}</PageHeading>
       <PageIntro
         notice={

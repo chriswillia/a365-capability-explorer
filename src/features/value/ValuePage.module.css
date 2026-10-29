@@ -12,8 +12,6 @@
 .notice,
 .audience {
   max-width: 52rem;
-  color: var(--color-slate);
-  font-size: var(--text-14);
 }
 
 .section {

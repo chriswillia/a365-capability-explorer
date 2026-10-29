@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { AccessChange } from '../../components/AccessChange.tsx';
 import { AccessTable } from '../../components/AccessTable.tsx';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { AssessmentPicker } from '../../components/AssessmentPicker.tsx';
 import { Badge } from '../../components/Badge.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
@@ -65,6 +66,7 @@ export function Component() {
 
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessment?.id} />
       <PageHeading>{site.routes.access.title}</PageHeading>
       <PageIntro
         notice={

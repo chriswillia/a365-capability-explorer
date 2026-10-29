@@ -58,49 +58,61 @@ describe('layout shell', () => {
     );
   });
 
-  it('lists the jobs and the example agents in order, keeps the rest under More, and also links Methodology in the footer', async () => {
+  it('lists the steps in order, keeps the reference pages under More, and also links Methodology in the footer', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
-    const jobs = ['pitch', 'patterns', 'map', 'licensing', 'deploy'] as const;
-    const library = [
-      'fit',
-      'access',
-      'capabilities',
-      'learn',
-      'portfolio',
-      'workshop',
-      'methodology',
-    ] as const;
+    const steps = ['pitch', 'scope', 'fit', 'licensing', 'deploy'] as const;
+    const reference = ['capabilities', 'access', 'learn', 'methodology'] as const;
     // A closed menu hides its links from the accessibility tree, so ask for them explicitly.
     const links = within(nav).getAllByRole('link', { hidden: true });
     expect(links.map((l) => l.textContent)).toEqual(
-      [...jobs, ...library].map((key) => site.ui.nav[key]),
+      [...steps, ...reference].map((key) => site.ui.nav[key]),
     );
     const summary = within(nav).getByText(site.ui.nav.library);
     expect(summary.tagName).toBe('SUMMARY');
     const menu = summary.closest('details') as HTMLElement;
-    for (const key of library)
+    for (const key of reference)
       expect(
         within(menu).getByRole('link', { name: site.ui.nav[key], hidden: true }),
       ).toBeInTheDocument();
-    for (const key of jobs)
+    for (const key of steps)
       expect(within(menu).queryByRole('link', { name: site.ui.nav[key], hidden: true })).toBeNull();
     // The logo is the way home, so Home is not a link of its own.
     expect(within(nav).queryByRole('link', { name: site.ui.nav.overview })).toBeNull();
     expect(
       within(screen.getByRole('banner')).getByRole('link', { name: site.ui.homeLinkLabel }),
     ).toHaveAttribute('href', '/');
-    expect(within(nav).getByRole('link', { name: site.ui.nav.patterns })).toHaveAttribute(
+    // Scoping an agent starts at the examples, and the stack fit is a step of its own.
+    expect(within(nav).getByRole('link', { name: site.ui.nav.scope })).toHaveAttribute(
       'href',
       '/patterns',
     );
-    expect(within(nav).getByRole('link', { name: site.ui.nav.map })).toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: site.ui.nav.fit })).toHaveAttribute(
       'href',
-      '/map',
+      '/fit',
     );
     expect(
       within(screen.getByRole('contentinfo')).getByRole('link', { name: site.ui.nav.methodology }),
     ).toHaveAttribute('href', '/methodology');
+  });
+
+  it('marks Scope an agent as the current step on the examples and on an agent passport', async () => {
+    const first = renderApp('/patterns/process-agent');
+    const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
+    expect(within(nav).getByRole('link', { name: site.ui.nav.scope })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+    expect(within(nav).getByRole('link', { name: site.ui.nav.pitch })).not.toHaveAttribute(
+      'aria-current',
+    );
+    await first.navigate('/map');
+    await screen.findByRole('heading', { level: 1, name: site.routes.map.title });
+    expect(
+      within(screen.getByRole('navigation', { name: site.ui.mainNavLabel })).getByRole('link', {
+        name: site.ui.nav.scope,
+      }),
+    ).toHaveAttribute('aria-current', 'true');
   });
 
   it('opens the More menu, closes it on Escape and after a page change, and marks it current', async () => {
@@ -124,47 +136,20 @@ describe('layout shell', () => {
     expect((afterNavigation.closest('details') as HTMLDetailsElement).open).toBe(false);
   });
 
-  it('explains the detail-level switch to everyone who uses it', async () => {
-    renderApp();
-    const group = await screen.findByRole('group', { name: site.ui.depth.groupLabel });
-    expect(group).toHaveAccessibleDescription(site.ui.depth.hint);
-    expect(screen.getByText(site.ui.depth.label)).toBeInTheDocument();
-  });
-
-  it('puts Selling as and Detail level in one View menu, which says what is chosen and stays open while a choice is made', async () => {
+  it('keeps one setting in the header, a Technical detail switch, and no View menu', async () => {
     renderApp('/pitch');
-    const banner = within(await screen.findByRole('banner'));
-    const summaryText = (audience: string, depth: string) =>
-      renderTemplate(site.ui.view.summary, { label: site.ui.view.label, audience, depth });
-    const summary = banner.getByText(summaryText(site.ui.audience.joint, site.ui.depth.executive));
-    expect(summary.tagName).toBe('SUMMARY');
-    const menu = summary.closest('details') as HTMLDetailsElement;
-    expect(menu.open).toBe(false);
-    // Both switches are in it, and the header has no other copy of either.
-    expect(
-      within(menu).getByRole('group', { name: site.ui.audience.groupLabel }),
-    ).toBeInTheDocument();
-    expect(within(menu).getByRole('group', { name: site.ui.depth.groupLabel })).toBeInTheDocument();
-    expect(banner.getAllByRole('group', { name: site.ui.audience.groupLabel })).toHaveLength(1);
-    expect(banner.getAllByRole('group', { name: site.ui.depth.groupLabel })).toHaveLength(1);
-
-    await userEvent.click(summary);
-    expect(menu.open).toBe(true);
-    await userEvent.click(within(menu).getByRole('button', { name: site.ui.audience.security }));
-    await userEvent.click(within(menu).getByRole('button', { name: site.ui.depth.technical }));
-    expect(menu.open).toBe(true);
-    expect(summary).toHaveTextContent(
-      summaryText(site.ui.audience.security, site.ui.depth.technical),
-    );
-
-    await userEvent.keyboard('{Escape}');
-    expect(menu.open).toBe(false);
-    expect(summary).toHaveFocus();
-    await userEvent.click(summary);
-    expect(menu.open).toBe(true);
-    // A press anywhere outside closes it, as a menu would.
-    await userEvent.click(screen.getByRole('main'));
-    expect(menu.open).toBe(false);
+    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
+    const banner = within(screen.getByRole('banner'));
+    const switchButton = banner.getByRole('button', { name: site.ui.depth.technical });
+    expect(switchButton).toHaveAccessibleDescription(site.ui.depth.hint);
+    expect(switchButton).toHaveTextContent(site.ui.depth.off);
+    expect(banner.queryByRole('group', { name: site.ui.audience.groupLabel })).toBeNull();
+    // One setting only: the header holds a single control that is on or off.
+    expect(screen.getByRole('banner').querySelectorAll('[aria-pressed]')).toHaveLength(1);
+    // Selling as changes only the pitch, so it sits with the pitch and not in the header.
+    expect(banner.queryByText(site.ui.audience.label)).toBeNull();
+    const pitch = within(screen.getByRole('main'));
+    expect(pitch.getByRole('group', { name: site.ui.audience.groupLabel })).toBeInTheDocument();
   });
 
   it('keeps the header links behind one Menu button on a phone, and closes them after a page change', async () => {
@@ -222,25 +207,27 @@ describe('layout shell', () => {
   });
 });
 
-describe('Executive | Technical toggle', () => {
-  it('starts in Executive and remembers a switch to Technical in local storage', async () => {
+describe('Technical detail switch', () => {
+  it('starts off and remembers a switch on in local storage', async () => {
     renderApp('/capabilities');
-    const group = await screen.findByRole('group', { name: site.ui.depth.groupLabel });
-    const executive = within(group).getByRole('button', { name: site.ui.depth.executive });
-    const technical = within(group).getByRole('button', { name: site.ui.depth.technical });
-    expect(executive).toHaveAttribute('aria-pressed', 'true');
-    expect(technical).toHaveAttribute('aria-pressed', 'false');
+    const toggle = await screen.findByRole('button', { name: site.ui.depth.technical });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).toHaveTextContent(site.ui.depth.off);
 
-    await userEvent.click(technical);
-    expect(technical).toHaveAttribute('aria-pressed', 'true');
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(toggle).toHaveTextContent(site.ui.depth.on);
     expect(window.localStorage.getItem(`${STORAGE_PREFIX}${DEPTH_STORAGE_KEY}`)).toBe('technical');
+
+    await userEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(window.localStorage.getItem(`${STORAGE_PREFIX}${DEPTH_STORAGE_KEY}`)).toBe('executive');
   });
 
   it('restores the saved choice on the next visit', async () => {
     window.localStorage.setItem(`${STORAGE_PREFIX}${DEPTH_STORAGE_KEY}`, 'technical');
     renderApp();
-    const group = await screen.findByRole('group', { name: site.ui.depth.groupLabel });
-    expect(within(group).getByRole('button', { name: site.ui.depth.technical })).toHaveAttribute(
+    expect(await screen.findByRole('button', { name: site.ui.depth.technical })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
@@ -248,7 +235,7 @@ describe('Executive | Technical toggle', () => {
 });
 
 describe('Overview', () => {
-  it('opens with the pitch and map actions, then one tile for each job', async () => {
+  it('opens with the pitch and scope actions, then one tile for each other job', async () => {
     renderApp();
     await screen.findByRole('heading', { level: 1 });
     const { overview } = site;
@@ -260,10 +247,17 @@ describe('Overview', () => {
       screen
         .getAllByRole('link', { name: overview.ctaSecondary })
         .map((a) => a.getAttribute('href')),
-    ).toContain('/map');
+    ).toContain('/patterns');
     const jobs = within(screen.getByRole('region', { name: overview.jobs.heading }));
     const tiles = jobs.getAllByRole('listitem');
     expect(tiles).toHaveLength(overview.jobs.tiles.length);
+    // Scoping an agent is the section of examples above, so the tiles are the other steps in the header.
+    expect(overview.jobs.tiles.map((tile) => tile.to)).toEqual([
+      '/pitch',
+      '/fit',
+      '/licensing',
+      '/deploy',
+    ]);
     for (const [index, tile] of overview.jobs.tiles.entries()) {
       const item = within(tiles[index]!);
       expect(item.getByText(tile.question)).toBeInTheDocument();
@@ -271,6 +265,12 @@ describe('Overview', () => {
       expect(item.getByRole('link', { name: tile.cta })).toHaveAttribute('href', tile.to);
     }
     expect(screen.getByText(overview.jobs.libraryNote)).toBeInTheDocument();
+    // The customer session pages are not in the header, so the home page links them.
+    for (const key of overview.jobs.packKeys)
+      expect(jobs.getByRole('link', { name: site.routes[key].title })).toHaveAttribute(
+        'href',
+        `/${key}`,
+      );
   });
 
   it('keeps the catalog numbers, the role starts and the Frontier journey off the home page', async () => {
@@ -310,6 +310,9 @@ describe('Overview', () => {
     expect(
       within(examples).getByRole('link', { name: site.overview.examples.all }),
     ).toHaveAttribute('href', '/patterns');
+    expect(
+      within(examples).getByRole('link', { name: site.overview.examples.blank }),
+    ).toHaveAttribute('href', '/map');
     const jobs = screen.getByRole('region', { name: site.overview.jobs.heading });
     expect(examples.compareDocumentPosition(jobs) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
@@ -323,17 +326,25 @@ describe('Capabilities page', () => {
       label: content.pillars.find((p) => p.id === id)!.label,
     });
 
+  // The checkboxes on the capabilities themselves. The switch that turns comparing on is a checkbox too, in the
+  // drawer, so it is left out.
+  const compareBoxes = () =>
+    screen.queryAllByRole('checkbox').filter((box) => box.closest('details') === null);
+
   it('filters through URL state, changes views and supports browser history', async () => {
     const router = renderApp('/capabilities?lens=layer&group=data&view=cards');
     await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
     const expected = content.capabilities.filter((c) => c.controlPoints.includes('data'));
-    expect(screen.getAllByRole('checkbox')).toHaveLength(expected.length);
+    // Comparing is for the seller who asks for it, so no capability has a checkbox yet.
+    expect(compareBoxes()).toHaveLength(0);
+    await userEvent.click(screen.getByLabelText(explorer.compareToggle));
+    expect(compareBoxes()).toHaveLength(expected.length);
     await userEvent.selectOptions(screen.getByLabelText(explorer.view), 'matrix');
     expect(router.state.location.search).toContain('view=matrix');
     expect(await screen.findByRole('table')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: explorer.reset }));
     expect(router.state.location.search).not.toContain('group=');
-    expect(screen.getAllByRole('checkbox')).toHaveLength(content.capabilities.length);
+    expect(compareBoxes()).toHaveLength(content.capabilities.length);
   });
 
   it('groups capabilities under Observability, Governance and Security, with counts', async () => {
@@ -399,23 +410,49 @@ describe('Capabilities page', () => {
     expect(router.state.location.search).toBe('?view=table');
   });
 
-  it('shows cards by default, with every filter beyond area and search behind "More filters"', async () => {
+  it('shows cards by default, with the view, comparing and every filter beyond area and search behind "More ways to browse"', async () => {
     const router = renderApp('/capabilities');
     await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
-    expect(screen.getAllByRole('checkbox')).toHaveLength(content.capabilities.length);
+    expect(compareBoxes()).toHaveLength(0);
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    // Nothing to clear until something is chosen.
+    expect(screen.queryByRole('button', { name: explorer.reset })).not.toBeInTheDocument();
     expect(screen.getByLabelText(explorer.view)).toHaveValue('cards');
     const summary = screen.getByText(explorer.more, { selector: 'summary' });
     const drawer = summary.closest('details') as HTMLDetailsElement;
     expect(drawer.open).toBe(false);
-    for (const label of [explorer.productArea, explorer.licensing, explorer.gcc, explorer.setup])
+    for (const label of [
+      explorer.view,
+      explorer.compareToggle,
+      explorer.productArea,
+      explorer.licensing,
+      explorer.gcc,
+      explorer.setup,
+      explorer.groupBy,
+      explorer.lens,
+    ])
       expect(drawer.contains(screen.getByLabelText(label))).toBe(true);
+    // Outside the drawer there is only the search and the area chips.
+    const outside = within(screen.getByRole('main')).getAllByRole('combobox');
+    expect(outside.every((control) => drawer.contains(control))).toBe(true);
     await userEvent.selectOptions(screen.getByLabelText(explorer.gcc), 'unavailable');
     expect(router.state.location.search).toBe('?gcc=unavailable');
     expect(
       screen.getByText(renderTemplate(explorer.moreActive, { count: 1 }), { selector: 'summary' }),
     ).toBeInTheDocument();
     expect((summary.closest('details') as HTMLDetailsElement).open).toBe(true);
+    expect(screen.getByRole('button', { name: explorer.reset })).toBeInTheDocument();
+  });
+
+  it('turns comparing on by itself when a link carries a comparison, and says how to leave it', async () => {
+    const [first, second] = content.capabilities;
+    renderApp(`/capabilities?view=table&compare=${first!.id}&compare=${second!.id}`);
+    await screen.findAllByRole('table');
+    expect(compareBoxes().length).toBeGreaterThanOrEqual(content.capabilities.length);
+    const toggle = screen.getByLabelText(explorer.compareToggle);
+    expect(toggle).toBeChecked();
+    expect(toggle).toBeDisabled();
+    expect(screen.getByRole('region', { name: explorer.comparison })).toBeInTheDocument();
   });
 
   it('groups by product area when asked, and keeps links written for the console lens working', async () => {
@@ -489,9 +526,11 @@ describe('Capabilities page', () => {
   it('enforces a four-capability comparison, keeps selections across filters and offers a sticky bar', async () => {
     renderApp('/capabilities?view=table');
     await screen.findAllByRole('table');
-    const boxes = screen.getAllByRole('checkbox');
+    await userEvent.click(screen.getByLabelText(explorer.compareToggle));
+    const boxes = compareBoxes();
+    expect(boxes).toHaveLength(content.capabilities.length);
     for (const box of boxes.slice(0, 4)) await userEvent.click(box);
-    expect(screen.getAllByRole('checkbox')[4]).toBeDisabled();
+    expect(compareBoxes()[4]).toBeDisabled();
     const comparison = screen.getByRole('region', { name: explorer.comparison });
     expect(within(comparison).getAllByRole('row')).toHaveLength(5);
     const bar = screen.getByRole('group', { name: explorer.compare });

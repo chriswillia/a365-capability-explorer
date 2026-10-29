@@ -94,6 +94,8 @@ export const LOCAL_TEMPLATE_KEYS = [
   'limit',
   'audience',
   'depth',
+  'example',
+  'name',
 ] as const;
 export const TEMPLATE_KEYS: readonly string[] = [
   ...METRIC_NUMBER_KEYS,

@@ -29,7 +29,7 @@ export function Component() {
         <ButtonLink to="/pitch" variant="onDark">
           {overview.ctaPrimary}
         </ButtonLink>
-        <ButtonLink to="/map" variant="onDarkOutline">
+        <ButtonLink to="/patterns" variant="onDarkOutline">
           {overview.ctaSecondary}
         </ButtonLink>
       </HeroBand>
@@ -56,8 +56,9 @@ export function Component() {
               );
             })}
           </ul>
-          <p>
+          <p className={styles.exampleLinks}>
             <Link to="/patterns">{overview.examples.all}</Link>
+            <Link to="/map">{overview.examples.blank}</Link>
           </p>
         </section>
 
@@ -75,6 +76,14 @@ export function Component() {
             ))}
           </ul>
           <p className={styles.hint}>{overview.jobs.libraryNote}</p>
+          <p className={styles.exampleLinks}>
+            <span className={styles.hint}>{overview.jobs.packNote}</span>
+            {overview.jobs.packKeys.map((key) => (
+              <Link key={key} to={`/${key}`}>
+                {site.routes[key].title}
+              </Link>
+            ))}
+          </p>
         </section>
         <Suspense fallback={null}>
           <RecentCustomers />

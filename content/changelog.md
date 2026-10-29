@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-28 · Simpler: one path from an example to the customer's agent, and one setting in the header
+
+affects: [all]
+
+Cut the number of places a seller has to look. An example agent's main button is now "Use this for my customer's agent": it saves a copy for a customer, with the example's answers marked as assumptions to confirm, and opens its agent passport, so an example reaches a leave-behind in two clicks. A seller with saved customers chooses which one it is for, and the fictional sample customer is never chosen for them. The passport's result now opens with the next steps for that agent (check licensing, plan go-live, create the leave-behind and open the readout), with the canvas, Full discovery (worded "Add detail") and a comparison of the customer's agents on one line. A single "Working on" link in the header, naming the agent and its customer, replaces the Customer menu that listed four links for every agent, and every page for an agent has a link back to its passport. The header is now Pitch, Scope an agent, Stack fit, Licensing and Deploy, with More holding the capabilities, how agents act, Learn and how recommendations work: Example agents and Map an agent became one step, Scope an agent, and Stack fit moved out of More. The View menu is gone. Selling as moved onto the Pitch page and the value brief, next to what it changes, and the detail level is one Technical detail switch. The Workshop kit and the Agent portfolio are linked from Home, the Pitch's Run the meeting part and the passport instead of the header. The Capabilities page opens with just the search and the four areas: the view (cards, table or matrix), comparing and every other filter sit behind one drawer, "More ways to browse", and the Compare checkbox on each capability appears once comparing is turned on or a link carries a comparison. Product statements, sources, rules and recommendations are unchanged, and every earlier address still works.
+
 ## 2026-10-28 · Renamed to A365 Explorer
 
 affects: [all]

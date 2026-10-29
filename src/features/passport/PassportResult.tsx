@@ -24,19 +24,24 @@ const NEED_TONE = {
 const SHOWN_REQUIREMENTS = 6;
 
 /**
- * The one-page result for an agent: how it acts, the controls that matter most, what must be in place, who to
- * license, where it is built and the risks to cover. Everything comes from buildPassport, which uses the same
- * engine as the readout.
+ * The page for one agent: where every step for it starts, then how it acts, the controls that matter most, what
+ * must be in place, who to license, where it is built and the risks to cover. Everything comes from
+ * buildPassport, which uses the same engine as the readout.
  */
 export function PassportResult({
   passport,
   assessmentId,
+  organizationId,
+  customerAgents,
   customer,
   agent,
   sample = false,
 }: {
   passport: Passport;
   assessmentId: string;
+  organizationId: string;
+  /** How many agents the customer has saved, so comparing them is only offered when there is more than one. */
+  customerAgents: number;
   customer: string;
   agent: string;
   /** True for the fictional sample customer, which is marked as sample data. */
@@ -54,6 +59,20 @@ export function PassportResult({
       ? helper[passport.access as keyof typeof helper]
       : null;
   const toConfirm = passport.requirementCounts.unknown;
+  // The steps a seller takes after scoping, then the ones they only sometimes need.
+  const steps = [
+    { key: 'licensing', to: `/licensing?assessment=${assessmentId}` },
+    { key: 'deploy', to: `/deploy?assessment=${assessmentId}` },
+    { key: 'leaveBehind', to: `/leave-behind/${assessmentId}` },
+    { key: 'readout', to: `/diagnostic/${assessmentId}/readout` },
+  ] as const;
+  const also = [
+    { key: 'canvas', to: `/canvas/${assessmentId}` },
+    { key: 'discovery', to: `/diagnostic/${assessmentId}` },
+    ...(customerAgents > 1
+      ? ([{ key: 'portfolio', to: `/portfolio?customer=${organizationId}` }] as const)
+      : []),
+  ] as const;
 
   return (
     <section aria-labelledby="passport-heading" className={styles.passport}>
@@ -63,6 +82,26 @@ export function PassportResult({
           {renderTemplate(copy.title, { agent, customer })} {sample && <SampleChip />}
         </p>
         <p className={styles.hint}>{copy.saved}</p>
+      </div>
+
+      <div className={styles.next}>
+        <h3>{copy.actionsHeading}</h3>
+        <ul className={styles.steps}>
+          {steps.map(({ key, to }) => (
+            <li key={key}>
+              <Link to={to}>{copy.actions[key]}</Link>
+              <span className={styles.hint}>{copy.actionNotes[key]}</span>
+            </li>
+          ))}
+        </ul>
+        <p className={styles.also}>
+          <span>{copy.alsoLabel}</span>
+          {also.map(({ key, to }) => (
+            <Link key={key} to={to}>
+              {copy.actions[key]}
+            </Link>
+          ))}
+        </p>
       </div>
 
       <div className={styles.cards}>
@@ -216,17 +255,6 @@ export function PassportResult({
             </>
           )}
         </div>
-      </div>
-
-      <div>
-        <h3>{copy.actionsHeading}</h3>
-        <p className={styles.actions}>
-          <Link to={`/leave-behind/${assessmentId}`}>{copy.actions.leaveBehind}</Link>
-          <Link to={`/licensing?assessment=${assessmentId}`}>{copy.actions.licensing}</Link>
-          <Link to={`/deploy?assessment=${assessmentId}`}>{copy.actions.deploy}</Link>
-          <Link to={`/diagnostic/${assessmentId}/readout`}>{copy.actions.readout}</Link>
-          <Link to={`/diagnostic/${assessmentId}`}>{copy.actions.discovery}</Link>
-        </p>
       </div>
     </section>
   );

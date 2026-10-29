@@ -18,3 +18,25 @@ export function ButtonLink({
     </Link>
   );
 }
+
+/** A button that looks like the primary ButtonLink, for an action that saves something instead of going somewhere. */
+export function ActionButton({
+  onClick,
+  describedBy,
+  children,
+}: {
+  onClick: () => void;
+  describedBy?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.button} ${styles.primary} ${styles.action}`}
+      aria-describedby={describedBy}
+      onClick={onClick}
+    >
+      {children}
+    </button>
+  );
+}

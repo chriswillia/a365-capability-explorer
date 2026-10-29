@@ -53,5 +53,5 @@ next:
       to: "/licensing"
     - label: "Compare agents for one customer"
       to: "/portfolio"
-    - label: "Map an agent"
-      to: "/map"
+    - label: "Scope an agent"
+      to: "/patterns"

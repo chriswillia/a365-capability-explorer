@@ -15,6 +15,13 @@
   color: var(--color-white);
 }
 
+/* A real button, so it needs the parts a link does not: no border, a pointer and the page's font. */
+.action {
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .primary:hover {
   background: var(--color-blue-hover);
   color: var(--color-white);

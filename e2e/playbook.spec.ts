@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { content } from './content.ts';
-import { chooseAudience, openViewMenu } from './view.ts';
+import { chooseAudience } from './view.ts';
 import { emptyWorkspace } from '../src/lib/state/diagnostic-model.ts';
 
 const { site } = content;
@@ -57,46 +57,38 @@ const violations = async (page: Page) =>
   );
 
 test.describe('seller playbook navigation', () => {
-  const jobs = ['pitch', 'patterns', 'map', 'licensing', 'deploy'] as const;
-  const library = [
-    'fit',
-    'access',
-    'capabilities',
-    'learn',
-    'portfolio',
-    'workshop',
-    'methodology',
-  ] as const;
+  const steps = ['pitch', 'scope', 'fit', 'licensing', 'deploy'] as const;
+  const reference = ['capabilities', 'access', 'learn', 'methodology'] as const;
 
-  test('lists the jobs and the example agents, and keeps everything else in a More menu', async ({
+  test('lists the steps in order, and keeps the reference pages in a More menu', async ({
     page,
   }) => {
     await page.goto('./');
     const nav = page.getByRole('navigation', { name: site.ui.mainNavLabel });
-    // The More menu is closed, so only the jobs and the example agents are in the page's reading order.
-    await expect(nav.getByRole('link')).toHaveText(jobs.map((key) => site.ui.nav[key]));
+    // The More menu is closed, so only the steps are in the page's reading order.
+    await expect(nav.getByRole('link')).toHaveText(steps.map((key) => site.ui.nav[key]));
     const menu = nav.locator('details');
     const summary = menu.locator('summary');
     await expect(summary).toHaveText(site.ui.nav.library);
-    for (const key of library)
+    for (const key of reference)
       await expect(nav.getByRole('link', { name: site.ui.nav[key], exact: true })).toBeHidden();
 
     await summary.click();
     await expect(nav.getByRole('link')).toHaveText(
-      [...jobs, ...library].map((key) => site.ui.nav[key]),
+      [...steps, ...reference].map((key) => site.ui.nav[key]),
     );
-    for (const key of library)
+    for (const key of reference)
       await expect(nav.getByRole('link', { name: site.ui.nav[key], exact: true })).toBeVisible();
     // One page per row: the header's own list styling must not turn the menu's lists into a wrapped row.
     const tops = await Promise.all(
-      library.map(async (key) => {
+      reference.map(async (key) => {
         const box = await nav
           .getByRole('link', { name: site.ui.nav[key], exact: true })
           .boundingBox();
         return Math.round(box!.y);
       }),
     );
-    expect(new Set(tops).size).toBe(library.length);
+    expect(new Set(tops).size).toBe(reference.length);
     await page.keyboard.press('Escape');
     await expect(menu).not.toHaveAttribute('open', '');
     await expect(summary).toBeFocused();
@@ -112,16 +104,16 @@ test.describe('seller playbook navigation', () => {
     await page.keyboard.press('Enter');
     await page.keyboard.press('Tab');
     await expect(
-      nav.getByRole('link', { name: site.ui.nav[library[0]], exact: true }),
+      nav.getByRole('link', { name: site.ui.nav[reference[0]], exact: true }),
     ).toBeFocused();
     await page.keyboard.press('Enter');
-    const heading = page.getByRole('heading', { level: 1, name: site.routes.fit.title });
+    const heading = page.getByRole('heading', { level: 1, name: site.routes.capabilities.title });
     await expect(heading).toBeFocused();
     await expect(nav.locator('details')).not.toHaveAttribute('open', '');
-    await expect(page).toHaveTitle(`${site.routes.fit.title} · ${site.productName}`);
+    await expect(page).toHaveTitle(`${site.routes.capabilities.title} · ${site.productName}`);
   });
 
-  test('the home page offers each job as a link, and the hero opens the pitch', async ({
+  test('the home page offers each other job as a link, and the hero opens the pitch', async ({
     page,
   }) => {
     await page.goto('./');
@@ -133,6 +125,24 @@ test.describe('seller playbook navigation', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
     ).toBeVisible();
+  });
+
+  test('the Workshop kit and the Agent portfolio are one link from the home page, not in the header', async ({
+    page,
+  }) => {
+    await page.goto('./');
+    const nav = page.getByRole('navigation', { name: site.ui.mainNavLabel });
+    for (const key of site.overview.jobs.packKeys) {
+      await expect(nav.getByRole('link', { name: site.routes[key].title })).toHaveCount(0);
+      await page
+        .getByRole('region', { name: site.overview.jobs.heading })
+        .getByRole('link', { name: site.routes[key].title, exact: true })
+        .click();
+      await expect(
+        page.getByRole('heading', { level: 1, name: site.routes[key].title }),
+      ).toBeVisible();
+      await page.goto('./');
+    }
   });
 
   test('keeps an old conversation link working, landing on the guide with its query string', async ({
@@ -148,24 +158,37 @@ test.describe('seller playbook navigation', () => {
 });
 
 test.describe('Selling as', () => {
-  test('changes the pitch, is remembered after a reload and stores nothing but the choice', async ({
+  test('sits on the pitch it changes, is remembered after a reload and stores nothing but the choice', async ({
     page,
   }) => {
     await page.goto('pitch');
+    // It is not a header setting any more: the header has the one Technical detail switch.
+    await expect(
+      page.locator('header').getByRole('group', { name: site.ui.audience.groupLabel }),
+    ).toHaveCount(0);
     await chooseAudience(page, 'security');
     const pitch = content.value.pitch.audiences.security.opening;
     await expect(page.getByText(pitch)).toBeVisible();
     expect(await page.evaluate((key) => localStorage.getItem(key), audienceKey)).toBe('security');
     await page.reload();
-    const menu = await openViewMenu(page);
     await expect(
-      menu.getByRole('button', { name: site.ui.audience.security, exact: true }),
+      page
+        .getByRole('group', { name: site.ui.audience.groupLabel })
+        .getByRole('button', { name: site.ui.audience.security, exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
-    // The menu says what is chosen without being opened.
-    await expect(menu.locator('summary')).toContainText(site.ui.audience.security);
     await expect(page.getByText(pitch)).toBeVisible();
     const keys = await page.evaluate(() => Object.keys(localStorage));
     expect(keys.filter((key) => key !== audienceKey)).toEqual([]);
+  });
+
+  test('is offered again on the value brief, which it changes too', async ({ page }) => {
+    await page.goto('pitch?view=brief');
+    const group = page.getByRole('group', { name: site.ui.audience.groupLabel });
+    await expect(group).toBeVisible();
+    await chooseAudience(page, 'ai');
+    await expect(
+      group.getByRole('button', { name: site.ui.audience.ai, exact: true }),
+    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('is listed on the privacy page with the other stored choices', async ({ page }) => {

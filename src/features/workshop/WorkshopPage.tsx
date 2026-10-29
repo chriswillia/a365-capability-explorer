@@ -199,7 +199,7 @@ export function Component() {
                   <p>{pattern.narrative}</p>
                   <Evidence {...pattern} />
                   <Link to={`/diagnostic?pattern=${pattern.id}`}>
-                    {content.site.mapping.startAssessment}
+                    {content.site.diagnostic.startFromPattern}
                   </Link>
                   {stamp}
                 </div>

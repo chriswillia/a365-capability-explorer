@@ -1,20 +1,21 @@
 import { lazy, Suspense, useState } from 'react';
-import { Link, NavLink, useLocation } from 'react-router';
+import { Link, matchPath, useLocation } from 'react-router';
 import { content } from '../lib/content/index.ts';
 import type { Site } from '../lib/content/schemas.ts';
 import { LibraryMenu } from './LibraryMenu.tsx';
-import { ViewMenu } from './ViewMenu.tsx';
+import { TechnicalSwitch } from './TechnicalSwitch.tsx';
 import styles from './SiteHeader.module.css';
 
-// The customer shortcut reads local storage, so it loads after the first paint instead of with the landing page.
-const CurrentCustomer = lazy(() => import('./CurrentCustomer.tsx'));
+// The link to the agent a seller is working on reads local storage, so it loads after the first paint instead of
+// with the landing page.
+const WorkingOn = lazy(() => import('./WorkingOn.tsx'));
 
-// What a seller does, in order, with the example agents ahead of the customer's own agent. The logo is the link
-// home. The reference material lives in the More menu.
-const NAV: { key: keyof Site['ui']['nav']; to: string }[] = [
+// What a seller does, in order. Scoping an agent starts at the examples and goes on to the agent's passport, so
+// both pages mark it as current. The logo is the link home. The reference material lives in the More menu.
+const NAV: { key: keyof Site['ui']['nav']; to: string; also?: string[] }[] = [
   { key: 'pitch', to: '/pitch' },
-  { key: 'patterns', to: '/patterns' },
-  { key: 'map', to: '/map' },
+  { key: 'scope', to: '/patterns', also: ['/map'] },
+  { key: 'fit', to: '/fit' },
   { key: 'licensing', to: '/licensing' },
   { key: 'deploy', to: '/deploy' },
 ];
@@ -26,6 +27,7 @@ export function SiteHeader() {
   // closes by itself after a link is followed, with no effect to wait for.
   const [openOn, setOpenOn] = useState<string | null>(null);
   const open = openOn === pathname;
+  const within = (path: string) => matchPath({ path, end: false }, pathname) !== null;
 
   return (
     <header className={styles.header} data-no-print>
@@ -50,26 +52,28 @@ export function SiteHeader() {
         <div id="site-links" className={open ? `${styles.links} ${styles.open}` : styles.links}>
           <nav aria-label={ui.mainNavLabel} className={styles.nav}>
             <ul>
-              {NAV.map((item) => (
-                <li key={item.key}>
-                  <NavLink
-                    to={item.to}
-                    className={({ isActive }) =>
-                      isActive ? `${styles.link} ${styles.active}` : styles.link
-                    }
-                  >
-                    {ui.nav[item.key]}
-                  </NavLink>
-                </li>
-              ))}
+              {NAV.map((item) => {
+                const current = [item.to, ...(item.also ?? [])].some(within);
+                return (
+                  <li key={item.key}>
+                    <Link
+                      to={item.to}
+                      className={current ? `${styles.link} ${styles.active}` : styles.link}
+                      aria-current={pathname === item.to ? 'page' : current ? 'true' : undefined}
+                    >
+                      {ui.nav[item.key]}
+                    </Link>
+                  </li>
+                );
+              })}
               <LibraryMenu />
             </ul>
           </nav>
           <div className={styles.end}>
             <Suspense fallback={null}>
-              <CurrentCustomer />
+              <WorkingOn />
             </Suspense>
-            <ViewMenu />
+            <TechnicalSwitch />
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
@@ -26,6 +27,7 @@ function Canvas({ report, assessmentId }: { report?: Readout; assessmentId?: str
   usePageTitle('canvas');
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessmentId} />
       <PresentationControls />
       <div className={styles.actions} data-no-print data-presentation-hide>
         <Link to={assessmentId ? `/diagnostic/${assessmentId}/readout` : '/diagnostic'}>

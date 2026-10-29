@@ -166,9 +166,22 @@
   gap: var(--space-4);
 }
 
+.toolbar:empty {
+  display: none;
+}
+
 .toolbar > div {
   display: grid;
   gap: var(--space-2);
+}
+
+/* The switch for comparing sits beside the view, so it lines up with the selects' own boxes. */
+.compareToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: end;
+  padding-block: var(--space-2);
 }
 
 .group {

@@ -87,7 +87,7 @@ test.describe('sample customer', () => {
     await expect(region.getByRole('button', { name: sample.load })).toBeVisible();
     await region.getByRole('button', { name: sample.load }).click();
 
-    await expect(page).toHaveURL(/\/map\?assessment=[0-9a-f-]{36}$/);
+    await expect(page).toHaveURL(/\/map\?assessment=[0-9a-f-]{36}#passport-heading$/);
     await expect(
       page.getByRole('heading', { level: 1, name: site.routes.map.title }),
     ).toBeVisible();
@@ -136,6 +136,80 @@ test.describe('sample customer', () => {
   });
 });
 
+test.describe('scoping from an example agent', () => {
+  test('goes from an example to its leave-behind in two clicks, with the example answers marked as assumed', async ({
+    page,
+  }) => {
+    await page.goto('patterns/customer-agent');
+    // Opening the example saves nothing.
+    expect(await page.evaluate((key) => localStorage.getItem(key), storageKey)).toBeNull();
+    await page.getByRole('button', { name: site.mapping.use.button }).click();
+
+    await expect(page).toHaveURL(/\/map\?assessment=[0-9a-f-]{36}$/);
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.map.title }),
+    ).toBeVisible();
+    await expect(page.getByText(passport.assumed.badge)).toHaveCount(passport.questions.length);
+    const result = page.getByRole('region', { name: passport.result.heading });
+    await expect(result).toBeVisible();
+    expect(await violations(page)).toEqual([]);
+
+    await result.getByRole('link', { name: passport.result.actions.leaveBehind }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.leaveBehind.title }),
+    ).toBeVisible();
+    // The header link goes back to the agent from any page for it.
+    await page
+      .getByRole('banner')
+      .getByRole('link', { name: new RegExp(`^${site.ui.working.label}:`) })
+      .click();
+    await expect(page.getByRole('region', { name: passport.result.heading })).toBeInViewport();
+  });
+
+  test('adds a second example to the same customer, or starts a new one, as the seller chooses', async ({
+    page,
+  }) => {
+    await page.goto('patterns/customer-agent');
+    await page.getByRole('button', { name: site.mapping.use.button }).click();
+    await expect(page.getByRole('region', { name: passport.result.heading })).toBeVisible();
+
+    await page.goto('patterns/knowledge-agent');
+    const customer = page.getByLabel(site.mapping.use.customerLabel);
+    await expect(customer).toBeVisible();
+    await page.getByRole('button', { name: site.mapping.use.button }).click();
+    await expect(page.getByRole('region', { name: passport.result.heading })).toBeVisible();
+    let saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), storageKey);
+    expect(saved.organizations).toHaveLength(1);
+    expect(saved.assessments).toHaveLength(2);
+    // With two agents for one customer, the passport offers to compare them.
+    await expect(
+      page.getByRole('link', { name: passport.result.actions.portfolio, exact: true }),
+    ).toBeVisible();
+
+    await page.goto('patterns/local-agent');
+    await page.getByLabel(site.mapping.use.customerLabel).selectOption({
+      label: site.mapping.use.newCustomer,
+    });
+    await page.getByRole('button', { name: site.mapping.use.button }).click();
+    await expect(page.getByRole('region', { name: passport.result.heading })).toBeVisible();
+    saved = await page.evaluate((key) => JSON.parse(localStorage.getItem(key)!), storageKey);
+    expect(saved.organizations).toHaveLength(2);
+    expect(saved.assessments).toHaveLength(3);
+  });
+
+  test('offers six questions for an agent no example looks like', async ({ page }) => {
+    await page.goto('patterns');
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.patterns.title }),
+    ).toBeVisible();
+    await page.getByRole('link', { name: site.mapping.startBlankCta, exact: true }).click();
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.map.title }),
+    ).toBeVisible();
+    await expect(page.getByRole('region', { name: passport.result.heading })).toHaveCount(0);
+  });
+});
+
 test.describe('agent passport', () => {
   test('turns six answers into a passport that survives a reload and keeps names out of the address', async ({
     page,
@@ -177,7 +251,14 @@ test.describe('agent passport', () => {
     await expect(page.getByLabel(passport.setup.agentLabel)).toHaveValue(
       'Fictional passport agent',
     );
-    for (const action of ['licensing', 'deploy', 'leaveBehind', 'readout', 'discovery'] as const)
+    for (const action of [
+      'licensing',
+      'deploy',
+      'leaveBehind',
+      'readout',
+      'canvas',
+      'discovery',
+    ] as const)
       await expect(
         page
           .getByRole('region', { name: passport.result.heading })

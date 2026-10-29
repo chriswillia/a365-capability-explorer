@@ -1,11 +1,12 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import type { PillarDef, Question, Site } from '../src/lib/content/schemas.ts';
+import type { PassportCopy, PillarDef, Question, Site } from '../src/lib/content/schemas.ts';
 import { renderTemplate } from '../src/lib/content/template.ts';
 import { chooseDepth } from './view.ts';
 
 const site = JSON.parse(readFileSync('src/generated/site.json', 'utf8')) as Site;
+const passport = JSON.parse(readFileSync('src/generated/passport.json', 'utf8')) as PassportCopy;
 const questions = JSON.parse(readFileSync('src/generated/questions.json', 'utf8')) as Question[];
 const pillars = JSON.parse(readFileSync('src/generated/pillars.json', 'utf8')) as PillarDef[];
 const copy = site.diagnostic;
@@ -110,8 +111,7 @@ test.describe('Phase 4 diagnostic', () => {
   test('a sample starter preserves organization context and supports management confirmations', async ({
     page,
   }) => {
-    await page.goto('patterns/process-agent?sample=askhr');
-    await page.getByRole('link', { name: copy.startFromPattern, exact: true }).click();
+    await page.goto('diagnostic?pattern=process-agent&sample=askhr');
     await expect(page).toHaveURL(/diagnostic\?pattern=process-agent&sample=askhr$/);
     await page
       .getByRole('textbox', { name: copy.newOrganization })
@@ -304,21 +304,23 @@ test.describe('seller flow', () => {
     ).toBeVisible();
   });
 
-  test('the header keeps the customer in reach and opens their comparison', async ({ page }) => {
+  test('the header keeps the agent in reach and opens its passport, where every step starts', async ({
+    page,
+  }) => {
     await start(page);
-    const chip = page.locator('summary', { hasText: `${site.ui.customer.label}:` });
-    const menu = page.locator('details').filter({ has: chip });
+    const chip = page.getByRole('link', { name: new RegExp(`^${site.ui.working.label}:`) });
     await expect(chip).toContainText('Fictional browser organization');
-    await chip.click();
-    await expect(menu).toHaveAttribute('open', '');
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-    await page.getByRole('link', { name: site.ui.customer.compare, exact: true }).click();
+    await chip.click();
     await expect(
-      page.getByRole('heading', { level: 1, name: site.routes.portfolio.title }),
+      page.getByRole('heading', { level: 1, name: site.routes.map.title }),
     ).toBeVisible();
-    await expect(page.getByRole('combobox', { name: site.portfolio.organization })).toContainText(
-      'Fictional browser organization',
-    );
-    await expect(menu).not.toHaveAttribute('open', '');
+    await expect(page).toHaveURL(/map\?assessment=[0-9a-f-]{36}#passport-heading$/);
+    const result = page.getByRole('region', { name: passport.result.heading });
+    for (const step of ['licensing', 'deploy', 'leaveBehind', 'readout'] as const)
+      await expect(
+        result.getByRole('link', { name: passport.result.actions[step], exact: true }),
+      ).toBeVisible();
+    await expect(chip).toHaveAttribute('aria-current', 'page');
   });
 });

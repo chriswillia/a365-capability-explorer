@@ -30,10 +30,12 @@ export default function RecentCustomers() {
               <p>{renderTemplate(copy.useCases, { count: assessments.length })}</p>
               <p className={styles.links}>
                 {latest === undefined ? (
-                  <Link to="/map">{copy.start}</Link>
+                  <Link to="/patterns">{copy.start}</Link>
                 ) : (
                   <>
-                    <Link to={`/map?assessment=${latest.id}`}>{copy.passport}</Link>
+                    <Link to={`/map?assessment=${latest.id}#passport-heading`}>
+                      {copy.passport}
+                    </Link>
                     <Link to={`/diagnostic/${latest.id}/readout`}>{copy.readout}</Link>
                     <Link to={`/licensing?assessment=${latest.id}`}>{copy.licensing}</Link>
                     <Link to={`/diagnostic/${latest.id}`}>{copy.edit}</Link>

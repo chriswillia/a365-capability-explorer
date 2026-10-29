@@ -360,7 +360,10 @@ test.describe('capabilities page', () => {
       await expect(
         page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
       ).toBeVisible();
-      await expect(page.getByRole('checkbox'), kpi.id).toHaveCount(expected[kpi.valueKey]!);
+      // The status line counts what the list shows, so it is the same number the overview tile said.
+      await expect(page.getByRole('status'), kpi.id).toContainText(
+        new RegExp(`^${expected[kpi.valueKey]!} of `),
+      );
     }
   });
   test('keeps lenses, views and comparison in the URL through refresh and history', async ({
@@ -369,15 +372,23 @@ test.describe('capabilities page', () => {
     const copy = site.capabilities.explorer;
     await page.goto('capabilities?lens=layer&group=data&view=cards');
     const expected = capabilities.filter((c) => c.controlPoints.includes('data'));
-    await expect(page.getByRole('checkbox')).toHaveCount(expected.length);
+    // Comparing is off until asked for: the only checkbox is the switch, and the lens opened its drawer.
+    const toggle = page.getByLabel(copy.compareToggle, { exact: true });
+    await expect(page.getByRole('checkbox')).toHaveCount(1);
+    await toggle.check();
+    await expect(page.getByRole('checkbox')).toHaveCount(expected.length + 1);
     await page.getByLabel(copy.view, { exact: true }).selectOption('matrix');
     await expect(page).toHaveURL(/view=matrix/);
     await page.reload();
     await expect(page.getByLabel(copy.view, { exact: true })).toHaveValue('matrix');
-    const checkbox = page.getByRole('checkbox').first();
+    // A reload starts with comparing off again, because nothing is selected.
+    await toggle.check();
+    const checkbox = page.getByRole('checkbox').nth(1);
     await checkbox.click();
     await expect(checkbox).toBeChecked();
     await expect(page).toHaveURL(/compare=/);
+    // With something selected, comparing stays on and the switch cannot be turned off under it.
+    await expect(toggle).toBeDisabled();
     await page.goBack();
     await expect(page).not.toHaveURL(/compare=/);
     await page.goBack();
@@ -402,6 +413,8 @@ test.describe('capabilities page', () => {
     expect(
       await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
     ).toBe(true);
+    // The view is one of the ways to browse behind the drawer.
+    await page.getByText(site.capabilities.explorer.more, { exact: true }).click();
     await page.getByLabel(site.capabilities.explorer.view, { exact: true }).selectOption('matrix');
     await expect(
       page.getByRole('region', { name: site.capabilities.scrollRegionLabel }).first(),

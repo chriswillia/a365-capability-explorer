@@ -15,8 +15,8 @@ steps:
     title: "Describe the agent"
     instruction: "Capture the users, data, actions and tools, and whether the agent acts for a user, as itself or through its own account. Start from the closest scenario, then correct its assumptions with the customer; answers you did not hear from the customer stay marked as assumed."
     action:
-      label: "Map an agent"
-      to: "/map"
+      label: "Scope an agent"
+      to: "/patterns"
   - id: walk
     title: "Walk through each requirement area"
     instruction: "Discuss security, governance and observability in turn using the sections below: what the customer needs, which capabilities apply, who configures them and what to flag."
@@ -48,8 +48,8 @@ assumptionsClear: "All {total} myth-and-fact answers name their Microsoft source
 assumptionsLink: "Open myths and facts"
 nextTitle: "After the conversation"
 next:
-  - label: "Map an agent"
-    to: "/map"
+  - label: "Scope an agent"
+    to: "/patterns"
   - label: "See how the way the agent acts changes the answer"
     to: "/access"
   - label: "Check licensing and prerequisites"

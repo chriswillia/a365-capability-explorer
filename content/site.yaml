@@ -23,32 +23,22 @@ ui:
   homeLinkLabel: "A365 Explorer, home"
   menuLabel: Menu
   depth:
-    groupLabel: Detail level
-    label: "Detail level"
-    hint: "Executive shows outcomes in plain language. Technical adds where each capability is configured, the layer it acts on, and the evidence behind each statement."
-    executive: Executive
-    technical: Technical
+    technical: "Technical detail"
+    "on": "On"
+    "off": "Off"
+    hint: "Off shows outcomes in plain language. On adds where each capability is configured, the layer it acts on, and the evidence behind each statement."
   nav:
     overview: Home
     pitch: Pitch
-    map: "Map an agent"
+    scope: "Scope an agent"
+    fit: "Stack fit"
     licensing: Licensing
     deploy: Deploy
     library: More
-    fit: "Stack fit"
     access: "How agents act"
     capabilities: Capabilities
-    patterns: "Example agents"
     learn: Learn
-    portfolio: "Agent portfolio"
-    workshop: "Workshop kit"
     methodology: "How recommendations work"
-  library:
-    exploreHeading: Explore
-    packHeading: "Customer pack"
-  view:
-    label: View
-    summary: "{label}: {audience} · {depth}"
   views:
     label: "Parts of this page"
     pagerLabel: "Previous and next part"
@@ -80,15 +70,10 @@ ui:
     joint: Both
   loading: "Loading…"
   customer:
-    label: Customer
-    useCases: "Use cases"
-    empty: "No use cases yet."
     edit: Edit
-    readout: Readout
-    canvas: Canvas
-    licensing: Licensing
-    compare: "Agent portfolio"
-    switch: "Switch customer or map an agent"
+  working:
+    label: "Working on"
+    back: "Back to the passport for {name}"
   footer:
     privacy: Privacy
     reportIssue: "Report an issue or suggest a correction"
@@ -144,7 +129,7 @@ routes:
     title: "How an agent acts"
     description: "Delegated access, own access and an agent account in Microsoft's terms: what each means, who to license, what applies differently and how it changes the capabilities for an assessment."
   map:
-    title: "Map an agent"
+    title: "Agent passport"
     description: "Answer six questions about one agent to get its passport: how it acts, the controls that matter most, what must be in place, who to license and the risks to cover."
   leaveBehind:
     title: "Leave-behind"
@@ -159,8 +144,8 @@ routes:
     title: Capability brief
     description: "A one-page brief for each capability: the official wording, what it does, where it acts, who owns it and when it applies."
   patterns:
-    title: "Example agents"
-    description: "Common types of agent, and the security, governance and observability controls Agent 365 recommends for each."
+    title: "Scope an agent"
+    description: "Start from the example agent closest to your customer's, or answer six questions about it. See the security, governance and observability controls Agent 365 recommends for it."
   pattern:
     title: "Example agent"
     description: "One type of agent: what it is, the platforms it typically runs on, and the controls and risks that apply."
@@ -206,15 +191,16 @@ routes:
 
 overview:
   heroEyebrow: "For Microsoft AI and security sellers"
-  heroLede: "Make the value case, map the agent, size the licenses and plan the go-live."
+  heroLede: "Make the value case, scope the agent, check the fit, size the licenses and plan the go-live."
   ctaPrimary: "Start with the pitch"
-  ctaSecondary: "Map an agent"
+  ctaSecondary: "Scope an agent"
   examples:
-    heading: "Start from an example agent"
-    intro: "Pick the one that looks most like your customer's agent to see the controls Agent 365 recommends for it."
+    heading: "Scope an agent: start from an example"
+    intro: "Pick the one that looks most like your customer's agent to see the controls Agent 365 recommends for it, then use it for your customer."
     all: "Compare all example agents"
+    blank: "Not like any of these? Answer six questions about your customer's agent."
   jobs:
-    heading: "What do you need right now?"
+    heading: "What else do you need?"
     intro: "Each job works for any agent. Take the one you need, or work through them in order."
     tiles:
       - id: pitch
@@ -223,12 +209,12 @@ overview:
         body: "A 60-second pitch, the problem every agent creates and answers to pushback. It works before you know the use case."
         cta: "Open the pitch"
         to: "/pitch"
-      - id: map
-        question: "What does this agent need?"
-        title: "Map an agent"
-        body: "Answer six questions about one agent and get its passport: the controls, what must be in place, who to license and the risks."
-        cta: "Map an agent"
-        to: "/map"
+      - id: fit
+        question: "How does it fit the customer's stack?"
+        title: "Stack fit"
+        body: "How each agent platform connects to Agent 365, what it adds to the Microsoft tools the customer already runs, and what stays where it is."
+        cta: "Check the fit"
+        to: "/fit"
       - id: licensing
         question: "Who has to be licensed, and what must be in place first?"
         title: "Licensing and prerequisites"
@@ -241,7 +227,9 @@ overview:
         body: "The go-live baseline by gate, and a 30, 60 and 90 day plan for an agent."
         cta: "Plan go-live"
         to: "/deploy"
-    libraryNote: "Need the detail? The More menu holds stack fit, how agents act, the capabilities, Learn, the agent portfolio and the workshop kit."
+    libraryNote: "Need the detail? The More menu holds the capabilities, how agents act, Learn and how recommendations work."
+    packNote: "For a customer session:"
+    packKeys: [workshop, portfolio]
   recent:
     heading: "Pick up where you left off"
     useCases: "{count} {count?use case|use cases}"
@@ -249,7 +237,7 @@ overview:
     readout: Readout
     licensing: Licensing
     edit: Edit
-    start: "Map an agent"
+    start: "Scope an agent"
 
 capabilities:
   intro: "Browse the service description by area: Observe, Govern and Secure. Search the questions customers ask, filter by where a capability is configured, whether it needs Agent 365 or its GCC availability, compare capabilities, or open a brief."
@@ -382,8 +370,8 @@ capabilities:
       pillar: Area
       console: "Where it's configured"
       none: "No grouping"
-    more: "More filters"
-    moreActive: "More filters ({count} active)"
+    more: "More ways to browse"
+    moreActive: "More ways to browse ({count} active)"
     lens: "Explore by"
     noLens: "No lens"
     group: "Show only"
@@ -407,6 +395,7 @@ capabilities:
     shortcutLabel: "{label} ({count})"
     reset: "Clear filters"
     compare: Compare
+    compareToggle: "Compare capabilities"
     comparison: "Capability comparison"
     comparisonHint: "Select up to {n} capabilities. Selected capabilities remain here when you change filters."
     compareBar: "{count} selected for comparison"
@@ -433,7 +422,7 @@ capabilities:
     accessIntro: "Whether Microsoft's documentation treats delegated access and own access differently for this capability."
     accessUnsplit: "Microsoft's documentation describes how this applies to an agent or agent instance. It does not say whether agents that act for a user, as themselves or through an agent account are treated differently. Treat it as applying to every pattern, and confirm before you claim a difference."
     accessLink: "Compare the ways an agent acts"
-    mapCta: "Map an agent"
+    mapCta: "Scope an agent"
     talkTrack: "Say this"
     copyTalkTrack: "Copy talk track"
     talkTrackCopied: "Copied to the clipboard"
@@ -447,7 +436,7 @@ capabilities:
     docs: "Official documentation"
     verified: "Service description last verified"
     correction: "Suggest a correction"
-    assessmentPending: "This brief is not an assessment. The rules and typical scenarios below explain planning relevance. To get a result for one customer agent, map it."
+    assessmentPending: "This brief is not an assessment. The rules and typical scenarios below explain planning relevance. To get a result for one customer agent, scope it."
     evidence:
       stated: Stated
       inferred: Inferred
@@ -473,8 +462,8 @@ learn:
   frontierNote: "An organizational model, not a licensing tier, access-model rule or technical maturity score. Organizations can operate across these phases at the same time. Do not confuse it with the Frontier preview program."
   nextHeading: "Next"
   next:
-    - label: "Next: map an agent"
-      to: "/map"
+    - label: "Next: scope an agent"
+      to: "/patterns"
     - label: "Next: check licensing"
       to: "/licensing"
   flowNote: "This is a conceptual guide, not a guaranteed runtime sequence or a promise that controls are enabled. Coverage depends on the platform, integration, licensing and configuration. Read the steps in order."
@@ -504,7 +493,7 @@ diagnostic:
   selectOrganization: "Customer or engagement"
   deleteOrganization: "Delete customer"
   organizationInUse: "Delete linked assessments before deleting this customer."
-  noOrganization: "No customers saved yet. Name one when you map an agent."
+  noOrganization: "No customers saved yet. Name one when you scope an agent."
   start: "Start assessment"
   startHeading: "Start a new assessment"
   startPrivacy: "Saved on this device only. Nothing is uploaded."
@@ -594,7 +583,7 @@ portfolio:
   select: Select use cases
   selectAll: Select all use cases
   clear: Clear selection
-  empty: "No saved use cases for this customer. Map an agent to start a comparison."
+  empty: "No saved use cases for this customer. Scope an agent to start a comparison."
   selectionEmpty: Select at least one use case to compare.
   note: "A local planning comparison, not a financial valuation, risk score or deployment approval. Each comparison uses one saved customer profile; shared foundations are never combined across customers."
   current: "Results are recomputed with the current content version. Saved answers and their original versions are unchanged."
@@ -795,7 +784,7 @@ readout:
       prompt: Name the accountable owner and sponsor during the workshop.
 
 mapping:
-  intro: "Pick an example agent to see the security, governance and observability controls Agent 365 recommends for it. The same rules generate every recommendation."
+  intro: "Start from the example agent closest to your customer's to see the security, governance and observability controls Agent 365 recommends for it, then use it for your customer. The same rules generate every recommendation."
   neutralNote: "Results use a neutral commercial customer: one agent, no organization-wide governance or security-operations priorities, and no declared shadow-AI concern. Licensing, enrollment and platform readiness are unknown until verified. The answers are examples, not facts about your customer."
   matrix: "Compare all example agents"
   views:
@@ -904,9 +893,16 @@ mapping:
     - "Stated identifies a source-backed applicability claim; inferred identifies a deduction; recommendation (needs review) identifies an editorial choice. Recommendation levels, canonical scenarios, risk associations and operating-model groupings are planning advice, not official mandates."
     - "The matrix is generated from canonical scenario answers and the displayed neutral customer. It does not add large-estate or security-operations priorities. Readiness and licensing are never inferred from a scenario alone."
     - "Every scenario and sample is checked automatically for the capabilities it must include and exclude. Automated agreement is not SME approval."
-  pendingDiagnostic: "These are read-only planning results. Map an agent to get the same view for one customer agent, then save it as a readout and canvas."
-  startAssessment: "Map an agent"
-  back: "Back to example agents"
+  pendingDiagnostic: "These are read-only planning results for an example. Use the example for your customer's agent to change the answers, check licensing and plan go-live."
+  use:
+    button: "Use this for my customer's agent"
+    hint: "Saves a copy in this browser, with this example's answers marked as assumptions to confirm with the customer, and opens its passport."
+    customerLabel: "For customer"
+    newCustomer: "New customer"
+    error: "The agent could not be saved. Check that this browser allows local storage."
+  startBlank: "Not like any of these?"
+  startBlankCta: "Answer six questions about your customer's agent"
+  back: "Back to the examples"
   typicalPatterns: "Example agents that use it"
   whenInScope: "When this capability is in scope"
   why: "Reason and evidence"
@@ -930,7 +926,7 @@ privacy:
     where: Where
     why: Why
   stored:
-    - what: "Your detail level choice (Executive or Technical)"
+    - what: "Your Technical detail switch (on or off)"
       where: "Local storage, key cpcompass:depth"
       why: "So the site remembers your choice on your next visit"
     - what: "Whether you sell as an AI seller, a Security seller or both"
@@ -938,7 +934,7 @@ privacy:
       why: "So the pitch and talk tracks match your role on your next visit"
     - what: "Customer profiles, assessment answers, which answers came from a starting scenario and are not yet confirmed, optional names, optional normalized PNG logos and their descriptions, assessment mode and current section, and the fictional sample customer if you load it"
       where: "Local storage, key cpcompass:diagnostic"
-      why: "Autosave and resume local assessments, and let the header link back to the customer you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page. Reset or remove the sample customer from the home page; that never touches your own customers."
+      why: "Autosave and resume local assessments, and let the header link back to the agent you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page. Reset or remove the sample customer from the home page; that never touches your own customers."
     - what: "Navigation scroll positions managed by React Router"
       where: "Session storage, key react-router-scroll-positions"
       why: "Restore scroll position during navigation. This is not assessment answer storage."

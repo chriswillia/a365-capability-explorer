@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router';
+import { AudienceToggle } from '../../components/AudienceToggle.tsx';
 import { content } from '../../lib/content/index.ts';
 import {
   briefText,
@@ -64,6 +65,7 @@ export function ValueBrief() {
       <div data-no-print className={styles.builder}>
         <h2 id="brief-heading">{copy.heading}</h2>
         <p>{copy.intro}</p>
+        <AudienceToggle />
         <div className={styles.field}>
           <label htmlFor="brief-customer">{copy.customerLabel}</label>
           <input

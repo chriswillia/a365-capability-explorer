@@ -1,8 +1,9 @@
-import { act, fireEvent, screen, within } from '@testing-library/react';
+import { act, cleanup, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { content } from '../../lib/content/index.ts';
-import { loadDiagnostics } from '../../lib/state/diagnostic-storage.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
+import { loadDiagnostics, saveDiagnostics } from '../../lib/state/diagnostic-storage.ts';
 import { optionLabel, renderRoute, seedAssessment } from '../../test-support/playbook.tsx';
 import './PassportPage.tsx';
 
@@ -176,7 +177,7 @@ describe('agent passport', () => {
     ).toBeGreaterThan(0);
   });
 
-  it('links the passport to the leave-behind, licensing, go-live and full discovery for that agent', async () => {
+  it('starts the result with the next steps for that agent, in the order a seller takes them', async () => {
     const user = userEvent.setup();
     await open();
     await user.selectOptions(
@@ -185,6 +186,19 @@ describe('agent passport', () => {
     );
     const id = saved().assessments[0]!.id;
     const region = within(resultRegion());
+    // The steps come before the details, so the way on is in view as soon as the result is.
+    const steps = region.getByRole('heading', { level: 3, name: copy.result.actionsHeading });
+    const first = region.getByRole('heading', { level: 3, name: copy.result.accessHeading });
+    expect(steps.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const list = within(steps.parentElement!.querySelector('ul')!);
+    expect(list.getAllByRole('link').map((link) => link.textContent)).toEqual([
+      copy.result.actions.licensing,
+      copy.result.actions.deploy,
+      copy.result.actions.leaveBehind,
+      copy.result.actions.readout,
+    ]);
+    for (const key of ['licensing', 'deploy', 'leaveBehind', 'readout'] as const)
+      expect(list.getByText(copy.result.actionNotes[key])).toBeInTheDocument();
     expect(region.getByRole('link', { name: copy.result.actions.leaveBehind })).toHaveAttribute(
       'href',
       `/leave-behind/${id}`,
@@ -197,10 +211,91 @@ describe('agent passport', () => {
       'href',
       `/deploy?assessment=${id}`,
     );
+    expect(region.getByRole('link', { name: copy.result.actions.readout })).toHaveAttribute(
+      'href',
+      `/diagnostic/${id}/readout`,
+    );
+    // The rest is one line of links.
+    expect(region.getByRole('link', { name: copy.result.actions.canvas })).toHaveAttribute(
+      'href',
+      `/canvas/${id}`,
+    );
     expect(region.getByRole('link', { name: copy.result.actions.discovery })).toHaveAttribute(
       'href',
       `/diagnostic/${id}`,
     );
+  });
+
+  it("offers comparing the customer's agents only once there is more than one", async () => {
+    const { organization, assessment } = seedAssessment({ accessModel: 'delegated' });
+    await open(`/map?assessment=${assessment.id}`);
+    expect(
+      within(resultRegion()).queryByRole('link', { name: copy.result.actions.portfolio }),
+    ).not.toBeInTheDocument();
+
+    const data = saved();
+    data.assessments.push({
+      ...structuredClone(assessment),
+      id: crypto.randomUUID(),
+      answers: { ...assessment.answers, useCaseName: 'Second fictional agent' },
+    });
+    saveDiagnostics(loadDiagnostics(), data);
+    cleanup();
+    await open(`/map?assessment=${assessment.id}`);
+    expect(
+      within(resultRegion()).getByRole('link', { name: copy.result.actions.portfolio }),
+    ).toHaveAttribute('href', `/portfolio?customer=${organization.id}`);
+  });
+
+  it('marks answers that came from an example, and confirms them one at a time', async () => {
+    const user = userEvent.setup();
+    const { assessment } = seedAssessment({
+      accessModel: 'delegated',
+      buildPlatform: 'copilot-studio',
+      stage: 'production',
+    });
+    const data = saved();
+    const agent = data.assessments[0]!;
+    agent.patternId = 'knowledge-agent';
+    agent.assumedQuestionIds = ['accessModel', 'buildPlatform', 'stage'];
+    saveDiagnostics(loadDiagnostics(), data);
+    await open(`/map?assessment=${assessment.id}`);
+
+    const note = renderTemplate(copy.assumed.note, {
+      example: content.patterns.find((p) => p.id === 'knowledge-agent')!.title,
+    });
+    expect(screen.getByText(note)).toBeInTheDocument();
+    expect(screen.getAllByText(copy.assumed.badge)).toHaveLength(2);
+    expect(screen.getByText(copy.setup.stageAssumed, { exact: false })).toBeInTheDocument();
+
+    const confirm = (ask: string) =>
+      user.click(screen.getByRole('button', { name: `${copy.assumed.confirm} — ${ask}` }));
+    await confirm(question('accessModel').ask);
+    expect(saved().assessments[0]!.assumedQuestionIds).toEqual(['buildPlatform', 'stage']);
+    expect(saved().assessments[0]!.answers.accessModel).toBe('delegated');
+    expect(screen.getAllByText(copy.assumed.badge)).toHaveLength(1);
+
+    await confirm(question('buildPlatform').ask);
+    // The stage is still assumed, but the six questions are all confirmed, so the note goes.
+    expect(screen.queryByText(note)).not.toBeInTheDocument();
+    await confirm(copy.setup.stageLabel);
+    expect(saved().assessments[0]!.assumedQuestionIds).toBeUndefined();
+    expect(screen.queryByText(copy.setup.stageAssumed, { exact: false })).not.toBeInTheDocument();
+  });
+
+  it('changing an answer confirms it too', async () => {
+    const user = userEvent.setup();
+    const { assessment } = seedAssessment({ accessModel: 'delegated' });
+    const data = saved();
+    data.assessments[0]!.assumedQuestionIds = ['accessModel'];
+    saveDiagnostics(loadDiagnostics(), data);
+    await open(`/map?assessment=${assessment.id}`);
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: question('accessModel').ask }),
+      'own-teammate',
+    );
+    expect(saved().assessments[0]!.assumedQuestionIds).toBeUndefined();
+    expect(screen.queryByText(copy.assumed.badge)).not.toBeInTheDocument();
   });
 
   it('opens a saved agent, and adds another agent to the same customer', async () => {

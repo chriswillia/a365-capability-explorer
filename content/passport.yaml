@@ -2,7 +2,7 @@
 # editorial. The questions themselves are in questions.yaml, so the rules that read the answers keep working.
 # Everything here is draft until subject-matter-expert review.
 reviewStatus: draft
-intro: "Answer six questions about one agent to get its passport: how it acts, the controls that matter most, what must be in place, who to license and the risks to cover. It saves in this browser and feeds the rest of the site."
+intro: "Answer six questions about one agent to get its passport: how it acts, the controls that matter most, what must be in place, who to license and the risks to cover. It saves in this browser, and every next step for the agent starts from it."
 notice: "A starting point for the conversation, built from this tool's rules. An answer you leave open shows as a question to confirm, never as a gap."
 setup:
   heading: "About this agent"
@@ -19,6 +19,10 @@ setup:
   stageLabel: "Going to production?"
   stageHint: "Leave it off for a pilot. Turn it on to see what changes when the agent goes to production."
   stageAssumed: "This stage is assumed. Confirm it with the customer."
+assumed:
+  note: "These answers came from the example “{example}”. Confirm each one with the customer, or change it."
+  badge: "Assumed from the example"
+  confirm: "Confirm answer"
 questionsHeading: "Six questions"
 questions:
   - id: accessModel
@@ -56,7 +60,7 @@ helper:
     unclear: "None of the three applies. Confirm how the agent acts before you go further."
   use: "Use this answer: {label}"
 result:
-  heading: "Agent passport"
+  heading: "What this agent needs"
   title: "{agent} for {customer}"
   untitledAgent: "Untitled agent"
   saved: "Saved in this browser. Nothing is sent anywhere."
@@ -79,10 +83,18 @@ result:
   riskControls: "{count} {count?control|controls} in scope"
   riskPossible: "Possible: depends on an answer still to be given"
   risksNone: "No risks identified yet. Answer more questions to see them."
-  actionsHeading: "Next"
+  actionsHeading: "Next steps for this agent"
   actions:
-    leaveBehind: "Create leave-behind"
     licensing: "Check licensing"
     deploy: "Plan go-live"
+    leaveBehind: "Create leave-behind"
     readout: "Open readout"
-    discovery: "Full discovery"
+    canvas: "Open canvas"
+    discovery: "Add detail with Full discovery"
+    portfolio: "Compare this customer's agents"
+  actionNotes:
+    licensing: "Who to license for how this agent acts, and what must be on first."
+    deploy: "The go-live baseline by gate, and a 30, 60 and 90 day plan."
+    leaveBehind: "A one-page summary and three slides to send the customer."
+    readout: "A customer-ready readout of every answer, with exports."
+  alsoLabel: "Also:"

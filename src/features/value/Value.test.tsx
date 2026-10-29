@@ -42,21 +42,20 @@ describe('Pitch', () => {
   it('opens with the pitch for both sellers and follows the Selling as switch', async () => {
     const user = userEvent.setup();
     await renderPage();
-    expect(
-      screen.getByText(
-        renderTemplate(copy.audienceNote, { label: copy.pitch.audiences.joint.label }),
-      ),
-    ).toBeInTheDocument();
     const group = screen.getByRole('group', { name: site.ui.audience.groupLabel });
+    // The switch sits in the page it changes, and says so in words.
+    expect(screen.getByRole('main')).toContainElement(group);
+    expect(group).toHaveAccessibleDescription(site.ui.audience.hint);
     expect(within(group).getByRole('button', { name: site.ui.audience.joint })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
 
     await user.click(within(group).getByRole('button', { name: site.ui.audience.ai }));
-    expect(
-      screen.getByText(renderTemplate(copy.audienceNote, { label: copy.pitch.audiences.ai.label })),
-    ).toBeInTheDocument();
+    expect(within(group).getByRole('button', { name: site.ui.audience.ai })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     expect(window.localStorage.getItem(`${STORAGE_PREFIX}${AUDIENCE_STORAGE_KEY}`)).toBe('ai');
     const pitch = within(document.getElementById('pitch')!);
     for (const beat of copy.pitch.audiences.ai.beats)
@@ -180,7 +179,15 @@ describe('Pitch: where to start', () => {
       'gcc',
     ])
       expect(ids).toContain(id);
-    const pages = new Set(['/map', '/fit', '/licensing', '/capabilities', '/pitch', '/diagnostic']);
+    const pages = new Set([
+      '/map',
+      '/patterns',
+      '/fit',
+      '/licensing',
+      '/capabilities',
+      '/pitch',
+      '/diagnostic',
+    ]);
     for (const link of copy.entryPoints.items.flatMap((item) => item.links))
       expect(pages.has(link.to.split('#')[0]!)).toBe(true);
   });

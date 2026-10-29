@@ -143,8 +143,7 @@
   margin: 0;
 }
 
-.outcome button,
-.actions a {
+.outcome button {
   justify-self: start;
   padding: var(--space-2) var(--space-3);
   font: inherit;
@@ -229,12 +228,69 @@
   gap: var(--space-2);
 }
 
-.actions {
-  display: flex;
-  flex-wrap: wrap;
+/* Where every step for this agent starts: a plain list of what each step gives, in the order a seller takes them. */
+.next {
+  display: grid;
   gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-tint);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
 }
 
-.actions a {
-  text-decoration: none;
+.steps {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps > li {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-top: 1px solid var(--color-hairline);
+}
+
+.steps > li:first-child {
+  border-top: 0;
+}
+
+.steps a {
+  display: inline-block;
+  padding-block: var(--space-1);
+  font-weight: 600;
+}
+
+.also {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+  margin: 0;
+}
+
+.also a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}
+
+.assumed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0;
+}
+
+.assumed button {
+  padding: var(--space-1) var(--space-3);
+  font: inherit;
+  font-size: var(--text-14);
+  color: var(--color-ink);
+  background: var(--color-white);
+  border: 1px solid var(--color-control-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
 }

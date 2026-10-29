@@ -1,6 +1,5 @@
 import { Link, useParams, useSearchParams } from 'react-router';
 import { Badge } from '../../components/Badge.tsx';
-import { ButtonLink } from '../../components/ButtonLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PageIntro } from '../../components/PageIntro.tsx';
@@ -18,6 +17,7 @@ import { useView, type PageView } from '../../lib/useView.ts';
 import { Component as NotFound } from '../not-found/NotFoundPage.tsx';
 import { Evidence } from './Evidence.tsx';
 import { MappingReport } from './MappingReport.tsx';
+import { UseExample } from './UseExample.tsx';
 import styles from './Mapping.module.css';
 
 const copy = content.site.mapping;
@@ -63,12 +63,10 @@ function Brief({ pattern, sample }: { pattern: Pattern; sample?: Sample }) {
       >
         {sample?.summary ?? pattern.summary}
       </PageIntro>
-      <p className={styles.actions}>
+      <div className={styles.actions}>
         {access !== null && <Badge tone="outline">{access}</Badge>}
-        <ButtonLink to={`/diagnostic?pattern=${pattern.id}${sample ? `&sample=${sample.id}` : ''}`}>
-          {content.site.diagnostic.startFromPattern}
-        </ButtonLink>
-      </p>
+        <UseExample patternId={pattern.id} {...(sample ? { sampleId: sample.id } : {})} />
+      </div>
       <ViewSwitcher views={views} current={part} />
 
       <ViewPane view={part} id="controls">

@@ -1,0 +1,8 @@
+.back {
+  margin: 0 0 var(--space-2);
+}
+
+.back a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}

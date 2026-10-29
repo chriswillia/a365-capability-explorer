@@ -7,6 +7,7 @@ import { PageIntro } from '../../components/PageIntro.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Answers } from '../../lib/content/schemas.ts';
+import { renderTemplate } from '../../lib/content/template.ts';
 import { answerErrors, knownAnswer } from '../../lib/engine/answers.ts';
 import { buildPassport } from '../../lib/engine/passport.ts';
 import { standingAssumptions } from '../../lib/state/assumptions.ts';
@@ -106,14 +107,20 @@ export function Component() {
     setParams({ assessment: assessmentId }, { replace: true, preventScrollReset: true });
   };
 
+  const dropAssumption = (draft: DiagnosticWorkspace, assessmentId: string, id: string) => {
+    const entity = draft.assessments.find((a) => a.id === assessmentId)!;
+    const remaining = (entity.assumedQuestionIds ?? []).filter((item) => item !== id);
+    if (remaining.length > 0) entity.assumedQuestionIds = remaining;
+    else delete entity.assumedQuestionIds;
+  };
   const setAnswer = (id: string, value: Answers[string]) =>
     write((draft, ids) => {
-      const entity = draft.assessments.find((a) => a.id === ids.assessmentId)!;
-      entity.answers[id] = value;
-      const remaining = (entity.assumedQuestionIds ?? []).filter((item) => item !== id);
-      if (remaining.length > 0) entity.assumedQuestionIds = remaining;
-      else delete entity.assumedQuestionIds;
+      draft.assessments.find((a) => a.id === ids.assessmentId)!.answers[id] = value;
+      dropAssumption(draft, ids.assessmentId, id);
     });
+  // Keeping an answer the seller has asked the customer about, which stops it being an assumption.
+  const confirmAnswer = (id: string) =>
+    write((draft, ids) => dropAssumption(draft, ids.assessmentId, id));
   const setOrganizationAnswer = (id: string, value: Answers[string]) =>
     write((draft, ids) => {
       const entity = draft.organizations.find((o) => o.id === ids.organizationId)!;
@@ -137,7 +144,18 @@ export function Component() {
       : DEFAULT_CLOUD;
   const stage = typed(useCase.stage);
   const goingToProduction = PRODUCTION_STAGES.includes(stage);
-  const stageAssumed = saved && standingAssumptions(assessment).includes('stage');
+  const assumed = new Set(saved ? standingAssumptions(assessment) : []);
+  const stageAssumed = assumed.has('stage');
+  // The example the agent started from, while some of its answers have not been confirmed yet.
+  const exampleTitle =
+    assessment === undefined
+      ? undefined
+      : (content.samples.find((candidate) => candidate.id === assessment.sampleId)?.title ??
+        content.patterns.find((candidate) => candidate.id === assessment.patternId)?.title);
+  const exampleNote =
+    exampleTitle !== undefined && copy.questions.some((question) => assumed.has(question.id))
+      ? renderTemplate(copy.assumed.note, { example: exampleTitle })
+      : null;
 
   const incompatible =
     saved &&
@@ -279,12 +297,21 @@ export function Component() {
               {copy.setup.stageHint}
               {stageAssumed && <> {copy.setup.stageAssumed}</>}
             </p>
+            {stageAssumed && (
+              <p className={styles.assumed}>
+                <button type="button" onClick={() => confirmAnswer('stage')}>
+                  {copy.assumed.confirm}{' '}
+                  <span className="visually-hidden">— {copy.setup.stageLabel}</span>
+                </button>
+              </p>
+            )}
           </div>
         </div>
       </section>
 
       <section aria-labelledby="questions-heading" className={styles.section}>
         <h2 id="questions-heading">{copy.questionsHeading}</h2>
+        {exampleNote !== null && <p className={styles.hint}>{exampleNote}</p>}
         <ol className={styles.questions}>
           {copy.questions.map((question, index) => (
             <PassportQuestion
@@ -295,6 +322,8 @@ export function Component() {
               hint={question.hint}
               answer={useCase[question.id]}
               onChange={(value) => setAnswer(question.id, value)}
+              assumed={assumed.has(question.id)}
+              onConfirm={() => confirmAnswer(question.id)}
             >
               {question.id === 'accessModel' && (
                 <AccessHelper onUse={(answer) => setAnswer('accessModel', answer)} />
@@ -308,6 +337,10 @@ export function Component() {
         <PassportResult
           passport={passport}
           assessmentId={assessment.id}
+          organizationId={organization.id}
+          customerAgents={
+            workspace.assessments.filter((a) => a.organizationId === organization.id).length
+          }
           customer={customerName}
           agent={agentName}
           sample={organization.sample === true}

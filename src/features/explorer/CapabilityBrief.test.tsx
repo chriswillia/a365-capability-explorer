@@ -107,12 +107,12 @@ describe('capability brief: what to say', () => {
 });
 
 describe('capability brief: starting a map', () => {
-  it('links to map an agent instead of only naming it', async () => {
+  it('links to scoping an agent instead of only naming it', async () => {
     const capability = content.capabilities[0]!;
     await renderRoute(`/capabilities/${capability.id}`, capability.shortName);
     expect(
       within(screen.getByRole('main')).getByRole('link', { name: brief.mapCta }),
-    ).toHaveAttribute('href', '/map');
+    ).toHaveAttribute('href', '/patterns');
   });
 });
 

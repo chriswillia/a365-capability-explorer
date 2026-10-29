@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router';
 import { AnchoredDetails } from '../../components/AnchoredDetails.tsx';
 import { Badge, type BadgeTone } from '../../components/Badge.tsx';
 import { ReviewBadge } from '../../components/VerifiedBadge.tsx';
+import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { AssessmentPicker } from '../../components/AssessmentPicker.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
@@ -186,6 +187,7 @@ export function Component() {
 
   return (
     <PageContainer>
+      <AgentBackLink assessmentId={assessment?.id} />
       <PageHeading>{site.routes.licensing.title}</PageHeading>
       <PageIntro
         notice={

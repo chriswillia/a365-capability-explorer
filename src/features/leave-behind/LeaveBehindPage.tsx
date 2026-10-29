@@ -111,7 +111,7 @@ export function Component() {
           <button type="button" onClick={() => void download()} disabled={exporting === 'busy'}>
             {copy.toolbar.powerpoint}
           </button>
-          <Link to={`/map?assessment=${assessment.id}`}>{copy.toolbar.back}</Link>
+          <Link to={`/map?assessment=${assessment.id}#passport-heading`}>{copy.toolbar.back}</Link>
           <span role="status" className={styles.status}>
             {exporting === 'busy' ? copy.toolbar.exporting : ''}
           </span>

@@ -88,6 +88,19 @@
   margin: 0;
 }
 
+/* Two or three plain links under a list, such as "Compare all" and the way in for an agent no example matches. */
+.exampleLinks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-4);
+}
+
+.exampleLinks a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}
+
 .hint {
   color: var(--color-slate);
   font-size: var(--text-14);

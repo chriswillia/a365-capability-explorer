@@ -112,7 +112,7 @@ describe('leave-behind page', () => {
     await open(`/leave-behind/${assessment.id}`);
     expect(screen.getByRole('link', { name: copy.toolbar.back })).toHaveAttribute(
       'href',
-      `/map?assessment=${assessment.id}`,
+      `/map?assessment=${assessment.id}#passport-heading`,
     );
   });
 

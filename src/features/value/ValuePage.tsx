@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { Badge, type BadgeTone } from '../../components/Badge.tsx';
+import { AudienceToggle } from '../../components/AudienceToggle.tsx';
 import { DataTable, type Column } from '../../components/DataTable.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
@@ -428,9 +429,9 @@ export function Component() {
       </div>
 
       <ViewPane view={view} id="say">
-        <p className={styles.audience} data-no-print>
-          {renderTemplate(copy.audienceNote, { label: copy.pitch.audiences[audience].label })}
-        </p>
+        <div className={styles.audience} data-no-print>
+          <AudienceToggle />
+        </div>
         <PitchSection audience={audience} />
         <ProblemSection />
         <OutcomesSection audience={audience} />
