@@ -6,7 +6,7 @@ import { postbuild } from './postbuild.ts';
  * Builds the site twice, the way GitHub Pages can serve it: from the root ("/") and from a project path
  * ("/<repo>/"). End-to-end tests and CI run against both, so a hard-coded base path can't slip through.
  */
-const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'a365-capability-explorer';
+const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'a365-explorer';
 
 const targets = [
   { name: 'root', base: '/', outDir: 'dist-root' },

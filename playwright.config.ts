@@ -4,7 +4,7 @@ import { defineConfig, devices } from '@playwright/test';
  * End-to-end tests run against the built site, served the way GitHub Pages serves it (404.html fallback with
  * HTTP 404), once from the root and once from a project path. Set LIVE_URL to run them against a deployed site.
  */
-const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'a365-capability-explorer';
+const repo = process.env.GITHUB_REPOSITORY?.split('/')[1] ?? 'a365-explorer';
 const live = process.env.LIVE_URL;
 const withSlash = (url: string) => (url.endsWith('/') ? url : `${url}/`);
 

@@ -392,10 +392,7 @@ test.describe('capabilities page', () => {
     await expect(page.getByText(c.source.featureText, { exact: true })).toBeVisible();
     await expect(
       page.getByRole('link', { name: site.capabilities.brief.correction, exact: true }),
-    ).toHaveAttribute(
-      'href',
-      /github\.com\/chriswillia\/a365-capability-explorer\/issues\/new\?title=/,
-    );
+    ).toHaveAttribute('href', /github\.com\/chriswillia\/a365-explorer\/issues\/new\?title=/);
   });
 
   test('cards and matrix remain usable on a narrow screen', async ({ page }) => {

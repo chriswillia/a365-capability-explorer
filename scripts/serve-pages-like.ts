@@ -9,7 +9,7 @@ import { parseArgs } from 'node:util';
  * - a path with no file answers with 404.html and HTTP status 404;
  * - /page is served from page.html with HTTP 200 and no redirect (but /page/ is not), the way Pages does;
  * - a directory without a trailing slash redirects to the slash form, keeping the query string.
- * Usage: tsx scripts/serve-pages-like.ts --dir dist-repo --base /a365-capability-explorer/ --port 4174
+ * Usage: tsx scripts/serve-pages-like.ts --dir dist-repo --base /a365-explorer/ --port 4174
  */
 const { values } = parseArgs({
   options: {

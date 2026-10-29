@@ -2,13 +2,13 @@
 # {placeholders} are filled from numbers computed at render time (src/lib/content/metrics.ts).
 # The build fails on a placeholder it does not know.
 
-productName: A365 Capability Explorer
+productName: A365 Explorer
 tagline: "Map any agent use case to Microsoft Agent 365."
 description: "For Microsoft AI and security sellers: explain the value of Agent 365 for any agent, scope how an agent acts and what guardrails it needs, fit it to the customer's stack, and check licensing and prerequisites."
 
 # While false, every page carries a noindex tag. Set to true at launch (Phase 7).
 indexable: false
-repoUrl: "https://github.com/chriswillia/a365-capability-explorer"
+repoUrl: "https://github.com/chriswillia/a365-explorer"
 # TODO(verify): add a contact address to turn on the mailto fallback for "Suggest a correction".
 feedbackEmail:
 
@@ -20,7 +20,7 @@ ui:
   skipToContent: Skip to main content
   mainNavLabel: Main navigation
   scrollHint: "This table is wider than the screen. Scroll sideways to see every column."
-  homeLinkLabel: "A365 Capability Explorer, home"
+  homeLinkLabel: "A365 Explorer, home"
   menuLabel: Menu
   depth:
     groupLabel: Detail level
@@ -734,13 +734,13 @@ readout:
   sharingNote: "Downloads and copied text contain customer details and answers. Review before sharing. Nothing is uploaded; exported files are not encrypted by this app."
   backup: Download workspace JSON backup
   import: Import JSON backup
-  importNote: "Choose an A365 Capability Explorer JSON export, up to 5 MiB. Review before importing. Every organization and assessment is added as a new copy; nothing is replaced or merged by name. Older answers are preserved for explicit correction."
+  importNote: "Choose an A365 Explorer JSON export, up to 5 MiB. Review before importing. Every organization and assessment is added as a new copy; nothing is replaced or merged by name. Older answers are preserved for explicit correction."
   importConfirm: "Import {count} assessments as new local copies?"
   importSuccess: "Imported copies are available below. Check the save status: a storage failure leaves them in memory until saving succeeds."
   importErrors:
     size: "This file exceeds the 5 MiB import limit. Export a single assessment instead of the whole workspace."
     json: "This is not valid JSON. Choose a JSON backup exported by this app."
-    format: "This file is not a supported A365 Capability Explorer backup, or its entity relationships are invalid. No local data has changed."
+    format: "This file is not a supported A365 Explorer backup, or its entity relationships are invalid. No local data has changed."
     read: "The file could not be read. Check access to the file and try again."
   cancelImport: Cancel import
   applyImport: Import as new copies

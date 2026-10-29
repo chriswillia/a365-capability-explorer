@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-28 · Renamed to A365 Explorer
+
+affects: [all]
+
+The project is now called A365 Explorer, shortened from A365 Capability Explorer. The name in the header, the page titles, the home page, the import and backup messages and the PowerPoint exports reads A365 Explorer. The GitHub repository and the live address changed with it, to a365-explorer, so the old address no longer opens the site: update any bookmark. Browser-storage keys are unchanged, so saved customers and choices are kept, and a JSON backup made under the old name still imports; new backups are labelled a365-explorer. Product statements, sources, rules and recommendations are unchanged.
+
 ## 2026-10-28 · One part at a time: Pitch, Licensing, Deploy and the example agents
 
 affects: [all]

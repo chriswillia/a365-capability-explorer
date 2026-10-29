@@ -1,8 +1,8 @@
 {
-  "name": "a365-capability-explorer",
+  "name": "a365-explorer",
   "private": true,
   "version": "0.1.0",
-  "description": "A365 Capability Explorer: map any agent use case to Microsoft Agent 365. An independent project.",
+  "description": "A365 Explorer: map any agent use case to Microsoft Agent 365. An independent project.",
   "license": "UNLICENSED",
   "type": "module",
   "engines": {

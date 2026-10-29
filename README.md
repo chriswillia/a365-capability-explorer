@@ -1,12 +1,12 @@
-# A365 Capability Explorer
+# A365 Explorer
 
 **Map any agent use case to Microsoft Agent 365.**
 
-Live site: <https://chriswillia.github.io/a365-capability-explorer/>
+Live site: <https://chriswillia.github.io/a365-explorer/>
 
 > Independent project, not an official Microsoft site. Microsoft product names are trademarks of the Microsoft group of companies.
 
-A365 Capability Explorer helps Microsoft AI sellers and Security sellers explain the value of Microsoft Agent 365 to a customer, whatever the agent is, and then map it: how the agent acts (delegated or own access), which capabilities and production guardrails apply, how it fits the customer's stack, and who needs which license and prerequisites.
+A365 Explorer helps Microsoft AI sellers and Security sellers explain the value of Microsoft Agent 365 to a customer, whatever the agent is, and then map it: how the agent acts (delegated or own access), which capabilities and production guardrails apply, how it fits the customer's stack, and who needs which license and prerequisites.
 
 ## Status
 
@@ -14,7 +14,7 @@ Preview. Built around the jobs a seller does with a customer: pitch the value of
 
 Portfolios, the workshop kit and presentation mode are available. Phase 7's source watch, assessment re-run deltas, content health and launch readiness remain in development.
 
-Previously named Control Plane Compass. The repository and GitHub Pages path now use `a365-capability-explorer`. Update bookmarks to the live URL above; browser-storage keys are unchanged.
+Previously named Control Plane Compass, then A365 Capability Explorer. The repository and GitHub Pages path now use `a365-explorer`, so the old live URLs no longer work: update bookmarks to the live URL above. Browser-storage keys are unchanged, and a JSON backup made under the previous name still imports.
 
 ## How to use
 

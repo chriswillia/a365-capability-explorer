@@ -1,4 +1,4 @@
-# A365 Capability Explorer: project guidelines
+# A365 Explorer: project guidelines
 
 A static GitHub Pages app (Vite, React, TypeScript strict, Fluent UI v9) that maps agent use cases to Microsoft Agent 365. It is built in phases from the [build brief](../docs/A365-Navigator-Build-Brief.md), which predates the project's rename. See [architecture](../docs/ARCHITECTURE.md), [how to update content](../docs/HOW-TO-UPDATE.md), [writing style](../docs/CONTENT-STYLE.md) and [design system](../docs/DESIGN-SYSTEM.md).
 
@@ -25,6 +25,7 @@ A static GitHub Pages app (Vite, React, TypeScript strict, Fluent UI v9) that ma
 - **Accessibility is a requirement.** Semantic HTML, keyboard support, visible focus, color never the only signal, a table alternative for every chart. The axe tests must stay at zero violations.
 - **Never hard-code the base path.** Use `import.meta.env.BASE_URL` for the router basename, links and assets. The deploy workflow sets `BASE_PATH` from `actions/configure-pages`.
 - **Private by design.** No backend, cookies, analytics or runtime third-party requests. Anything stored in the browser goes through `src/lib/state/storage.ts` and is listed on the Privacy page.
+- **Saved work must survive a rename.** Renaming the app changes the display name (`productName`), the repository and the base path, nothing else. The storage prefix (`cpcompass:`) never changes, and the backup file's `format` id in `src/lib/state/diagnostic-transfer.ts` gets the new name for new backups while every earlier id stays accepted on import.
 - **The lockfile points at the public npm registry.** If you install through a private npm proxy, run `npm run lockfile:fix` before committing. A test fails otherwise, because a proxy's URLs would publish its hostname in this public repository and break installs and Dependabot. Never add a registry URL to the repo, for example in `.npmrc`.
 - **Engine changes need tests.** Table-driven tests for rules, and updated golden scenarios.
 - **Log content changes** in `content/changelog.md`, with an `affects:` line of capability ids.

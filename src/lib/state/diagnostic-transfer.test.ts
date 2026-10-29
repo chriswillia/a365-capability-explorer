@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { emptyWorkspace } from './diagnostic-model.ts';
 import {
   appendDiagnosticBundle,
+  BUNDLE_FORMAT,
   diagnosticBundle,
   MAX_IMPORT_BYTES,
   parseDiagnosticBundle,
@@ -62,6 +63,18 @@ describe('portable diagnostic bundles', () => {
     expect(next.organizations[1]!.id).not.toBe(original.organizations[0]!.id);
     expect(new Set(again.assessments.map((a) => a.id)).size).toBe(3);
   });
+  it('names the app in the format it writes, and still imports a backup written under the previous name', () => {
+    const data = workspace();
+    const bundle = diagnosticBundle(data, 'v2');
+    expect(bundle.format).toBe(BUNDLE_FORMAT);
+    expect(BUNDLE_FORMAT).toBe('a365-explorer');
+
+    const older = { ...bundle, format: 'a365-capability-explorer' as const };
+    expect(parseDiagnosticBundle(JSON.stringify(older))).toEqual({ ok: true, bundle: older });
+    const merged = appendDiagnosticBundle(workspace(), older);
+    expect(merged.assessments).toHaveLength(2);
+    expect(merged.assessments[1]!.answers).toEqual(data.assessments[0]!.answers);
+  });
   it.each(['{broken', '', '<html>not a backup</html>'])('rejects malformed JSON: %s', (raw) => {
     expect(parseDiagnosticBundle(raw)).toEqual({ ok: false, error: 'json' });
   });
@@ -69,6 +82,8 @@ describe('portable diagnostic bundles', () => {
     const bundle = diagnosticBundle(workspace(), 'v2');
     for (const invalid of [
       { ...bundle, formatVersion: 2 },
+      { ...bundle, format: 'another-app' },
+      { ...bundle, format: '' },
       { ...bundle, extra: true },
       { ...bundle, workspace: { ...bundle.workspace, organizations: [] } },
       {

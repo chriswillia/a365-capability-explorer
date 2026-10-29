@@ -46,7 +46,7 @@ describe('seller playbook content', () => {
   });
 
   it('says "Agent 365", not "A365", in text people read, except in the product name', () => {
-    expect(offenders(/\bA365\b(?! Capability Explorer)/, playbookStrings)).toEqual([]);
+    expect(offenders(/\bA365\b(?! Explorer)/, playbookStrings)).toEqual([]);
   });
 
   it('calls it own access, as Microsoft describes it, and never "owned access"', () => {

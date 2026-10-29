@@ -2,8 +2,15 @@ import { z } from 'zod';
 import { DiagnosticWorkspaceSchema, type DiagnosticWorkspace } from './diagnostic-model.ts';
 
 export const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
+/** The format id written to every new backup. It names the app. */
+export const BUNDLE_FORMAT = 'a365-explorer';
+/**
+ * Backups made under an earlier name carry that name, and people keep them. An id is never removed, so they
+ * still import; new backups always use BUNDLE_FORMAT.
+ */
+const LEGACY_BUNDLE_FORMATS = ['a365-capability-explorer'] as const;
 export const DiagnosticBundleSchema = z.strictObject({
-  format: z.literal('a365-capability-explorer'),
+  format: z.enum([BUNDLE_FORMAT, ...LEGACY_BUNDLE_FORMATS]),
   formatVersion: z.literal(1),
   exportedAt: z.iso.datetime(),
   contentVersion: z.string().min(1),
@@ -45,7 +52,7 @@ export function diagnosticBundle(
     data.organizations = data.organizations.filter((o) => organizations.has(o.id));
   }
   return DiagnosticBundleSchema.parse({
-    format: 'a365-capability-explorer',
+    format: BUNDLE_FORMAT,
     formatVersion: 1,
     exportedAt: new Date().toISOString(),
     contentVersion,
