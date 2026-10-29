@@ -216,7 +216,6 @@ test.describe('Understand and Learn', () => {
     if (path === '/learn') return site.routes.learn.title;
     if (path === '/capabilities') return site.routes.capabilities.title;
     if (path === '/conversation') return site.routes.conversation.title;
-    if (path === '/pitch') return site.routes.pitch.title;
     if (path === '/fit') return site.routes.fit.title;
     throw new Error(`No page title is known for ${href}`);
   };
@@ -225,7 +224,7 @@ test.describe('Understand and Learn', () => {
     baseURL,
   }) => {
     for (const persona of personas) {
-      await page.goto('learn');
+      await page.goto('learn?view=journey');
       await page.getByRole('link', { name: persona.startLabel, exact: true }).click();
       const expected = new URL(persona.href.slice(1), baseURL);
       await expect(page).toHaveURL(expected.href);
@@ -240,7 +239,7 @@ test.describe('Understand and Learn', () => {
   test('the concept table lists every concept and shows technical detail on request', async ({
     page,
   }) => {
-    await page.goto('learn');
+    await page.goto('learn?view=works');
     const table = page.getByRole('table', { name: site.learn.flowTable });
     await expect(table.getByRole('row')).toHaveCount(learn.flow.length + 1);
     await expect(page.getByRole('button', { name: /^(next|previous)\b/i })).toHaveCount(0);
@@ -251,29 +250,45 @@ test.describe('Understand and Learn', () => {
     await setDepth(page, 'technical');
     expect(await proseOf(row)).toContain(learn.flow[1]!.technical!);
   });
-  test('the sections of Learn follow the order of a customer conversation', async ({ page }) => {
+  test('Learn reads in four parts, in the order of a customer conversation', async ({ page }) => {
+    const sections = site.learn.sections;
+    const parts: [string, string, string[]][] = [
+      ['learn', site.learn.views.fit, [sections.positioning, sections.myths]],
+      [
+        'learn?view=works',
+        site.learn.views.works,
+        [sections.concepts, sections.integration, sections.buildingBlocks],
+      ],
+      ['learn?view=journey', site.learn.views.journey, [sections.roles, sections.frontier]],
+      ['learn?view=glossary', site.learn.views.glossary, [sections.glossary]],
+    ];
     await page.goto('learn');
-    await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
-      site.learn.sections.positioning,
-      site.learn.sections.myths,
-      site.learn.sections.concepts,
-      site.learn.sections.integration,
-      site.learn.sections.buildingBlocks,
-      site.learn.sections.frontier,
-      site.learn.sections.roles,
-      site.learn.sections.glossary,
-      site.learn.nextHeading,
-    ]);
+    await expect(
+      page.getByRole('navigation', { name: site.ui.views.label }).getByRole('link'),
+    ).toHaveText(parts.map(([, label]) => label));
+    for (const [path, label, headings] of parts) {
+      await page.goto(path);
+      await expect(
+        page.getByRole('navigation', { name: site.ui.views.label }).getByRole('link', {
+          name: label,
+          exact: true,
+        }),
+      ).toHaveAttribute('aria-current', 'true');
+      await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveText([
+        ...headings,
+        site.learn.nextHeading,
+      ]);
+    }
     await expect(
       page
         .getByRole('main')
         .getByRole('link', { name: site.routes.conversation.title, exact: true }),
-    ).toHaveAttribute('href', /pitch#conversation$/);
+    ).toHaveAttribute('href', /patterns\?view=conversation$/);
   });
   test('glossary links expose keyboard tooltips and survive refresh at the definition', async ({
     page,
   }) => {
-    await page.goto('learn');
+    await page.goto('learn?view=works');
     const link = page.locator('main a[href$="#glossary-sdk"]').first();
     await link.focus();
     const description = await link.getAttribute('aria-describedby');
@@ -289,7 +304,14 @@ test.describe('Understand and Learn', () => {
   });
   test('Learn and persona cards fit a narrow screen without page overflow', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 });
-    for (const path of ['./', 'learn', 'learn#glossary', 'pitch']) {
+    for (const path of [
+      './',
+      'learn',
+      'learn#glossary',
+      'learn?view=works',
+      'brief',
+      'patterns?view=conversation',
+    ]) {
       await page.goto(path);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       expect(
@@ -472,10 +494,13 @@ test.describe('keyboard and focus', () => {
     page,
   }) => {
     await page.goto('./');
-    await page.getByRole('navigation').getByRole('link', { name: site.ui.nav.pitch }).click();
-    const heading = page.getByRole('heading', { level: 1, name: site.routes.pitch.title });
+    await page
+      .getByRole('navigation')
+      .getByRole('link', { name: site.ui.nav.capabilities })
+      .click();
+    const heading = page.getByRole('heading', { level: 1, name: site.routes.capabilities.title });
     await expect(heading).toBeFocused();
-    await expect(page).toHaveTitle(`${site.routes.pitch.title} · ${site.productName}`);
+    await expect(page).toHaveTitle(`${site.routes.capabilities.title} · ${site.productName}`);
   });
 
   test('the capabilities table scroll region can be reached by keyboard', async ({ page }) => {
@@ -489,7 +514,7 @@ test.describe('keyboard and focus', () => {
 test.describe('accessibility (axe, WCAG 2.2 AA)', () => {
   const pages = [
     './',
-    'pitch',
+    'brief',
     'licensing',
     'licensing?access=own-teammate',
     'map',

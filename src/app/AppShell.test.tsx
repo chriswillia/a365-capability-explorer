@@ -13,7 +13,6 @@ import { STORAGE_PREFIX } from '../lib/state/storage.ts';
 import { fluentTheme } from '../theme/fluentTheme.ts';
 import '../features/explorer/CapabilitiesPage.tsx';
 import '../features/explorer/CapabilityPage.tsx';
-import '../features/value/ValuePage.tsx';
 import { routes } from './routes.tsx';
 
 function renderApp(path = '/') {
@@ -61,8 +60,8 @@ describe('layout shell', () => {
   it('lists the steps in order, keeps the reference pages under More, and also links Methodology in the footer', async () => {
     renderApp();
     const nav = await screen.findByRole('navigation', { name: site.ui.mainNavLabel });
-    const steps = ['pitch', 'scope', 'fit', 'licensing', 'deploy'] as const;
-    const reference = ['capabilities', 'access', 'learn', 'methodology'] as const;
+    const steps = ['capabilities', 'scope', 'fit', 'licensing', 'deploy'] as const;
+    const reference = ['access', 'learn', 'methodology'] as const;
     // A closed menu hides its links from the accessibility tree, so ask for them explicitly.
     const links = within(nav).getAllByRole('link', { hidden: true });
     expect(links.map((l) => l.textContent)).toEqual(
@@ -82,7 +81,12 @@ describe('layout shell', () => {
     expect(
       within(screen.getByRole('banner')).getByRole('link', { name: site.ui.homeLinkLabel }),
     ).toHaveAttribute('href', '/');
-    // Scoping an agent starts at the examples, and the stack fit is a step of its own.
+    // Seeing what Agent 365 does comes first, and the stack fit is a step of its own.
+    expect(within(nav).getByRole('link', { name: site.ui.nav.capabilities })).toHaveAttribute(
+      'href',
+      '/capabilities',
+    );
+    // Scoping an agent starts at the examples.
     expect(within(nav).getByRole('link', { name: site.ui.nav.scope })).toHaveAttribute(
       'href',
       '/patterns',
@@ -103,7 +107,7 @@ describe('layout shell', () => {
       'aria-current',
       'true',
     );
-    expect(within(nav).getByRole('link', { name: site.ui.nav.pitch })).not.toHaveAttribute(
+    expect(within(nav).getByRole('link', { name: site.ui.nav.capabilities })).not.toHaveAttribute(
       'aria-current',
     );
     await first.navigate('/map');
@@ -128,8 +132,8 @@ describe('layout shell', () => {
     expect(summary).toHaveFocus();
 
     await userEvent.click(summary);
-    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.capabilities }));
-    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.access }));
+    await screen.findByRole('heading', { level: 1, name: site.routes.access.title });
     const afterNavigation = within(
       await screen.findByRole('navigation', { name: site.ui.mainNavLabel }),
     ).getByText(site.ui.nav.library);
@@ -137,8 +141,8 @@ describe('layout shell', () => {
   });
 
   it('keeps one setting in the header, a Technical detail switch, and no View menu', async () => {
-    renderApp('/pitch');
-    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
+    renderApp('/brief');
+    await screen.findByRole('heading', { level: 1, name: site.routes.brief.title });
     const banner = within(screen.getByRole('banner'));
     const switchButton = banner.getByRole('button', { name: site.ui.depth.technical });
     expect(switchButton).toHaveAccessibleDescription(site.ui.depth.hint);
@@ -146,10 +150,10 @@ describe('layout shell', () => {
     expect(banner.queryByRole('group', { name: site.ui.audience.groupLabel })).toBeNull();
     // One setting only: the header holds a single control that is on or off.
     expect(screen.getByRole('banner').querySelectorAll('[aria-pressed]')).toHaveLength(1);
-    // Selling as changes only the pitch, so it sits with the pitch and not in the header.
+    // Selling as changes only the value brief, so it sits with the brief and not in the header.
     expect(banner.queryByText(site.ui.audience.label)).toBeNull();
-    const pitch = within(screen.getByRole('main'));
-    expect(pitch.getByRole('group', { name: site.ui.audience.groupLabel })).toBeInTheDocument();
+    const brief = within(screen.getByRole('main'));
+    expect(brief.getByRole('group', { name: site.ui.audience.groupLabel })).toBeInTheDocument();
   });
 
   it('keeps the header links behind one Menu button on a phone, and closes them after a page change', async () => {
@@ -162,8 +166,8 @@ describe('layout shell', () => {
 
     await userEvent.click(button);
     expect(button).toHaveAttribute('aria-expanded', 'true');
-    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.pitch }));
-    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
+    await userEvent.click(within(nav).getByRole('link', { name: site.ui.nav.capabilities }));
+    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
     expect(screen.getByRole('button', { name: site.ui.menuLabel })).toHaveAttribute(
       'aria-expanded',
       'false',
@@ -179,14 +183,14 @@ describe('layout shell', () => {
 
   it('moves focus to the new page heading after navigating', async () => {
     renderApp();
-    await userEvent.click(await screen.findByRole('link', { name: site.ui.nav.pitch }));
+    await userEvent.click(await screen.findByRole('link', { name: site.ui.nav.capabilities }));
     const heading = await screen.findByRole('heading', {
       level: 1,
-      name: site.routes.pitch.title,
+      name: site.routes.capabilities.title,
     });
     // Focus moves in an effect after the new page renders, so the heading can exist a moment before it has focus.
     await waitFor(() => expect(heading).toHaveFocus());
-    expect(document.title).toBe(`${site.routes.pitch.title} · ${site.productName}`);
+    expect(document.title).toBe(`${site.routes.capabilities.title} · ${site.productName}`);
   });
 
   it('shows a page-not-found message for an unknown address', async () => {
@@ -235,13 +239,13 @@ describe('Technical detail switch', () => {
 });
 
 describe('Overview', () => {
-  it('opens with the pitch and scope actions, then one tile for each other job', async () => {
+  it('opens with the capabilities and scope actions, then one tile for each other job', async () => {
     renderApp();
     await screen.findByRole('heading', { level: 1 });
     const { overview } = site;
     expect(screen.getByRole('link', { name: overview.ctaPrimary })).toHaveAttribute(
       'href',
-      '/pitch',
+      '/capabilities',
     );
     expect(
       screen
@@ -253,7 +257,7 @@ describe('Overview', () => {
     expect(tiles).toHaveLength(overview.jobs.tiles.length);
     // Scoping an agent is the section of examples above, so the tiles are the other steps in the header.
     expect(overview.jobs.tiles.map((tile) => tile.to)).toEqual([
-      '/pitch',
+      '/capabilities',
       '/fit',
       '/licensing',
       '/deploy',
@@ -345,6 +349,18 @@ describe('Capabilities page', () => {
     await userEvent.click(screen.getByRole('button', { name: explorer.reset }));
     expect(router.state.location.search).not.toContain('group=');
     expect(compareBoxes()).toHaveLength(content.capabilities.length);
+  });
+
+  it('offers a one-page value brief for the customer meeting', async () => {
+    renderApp('/capabilities');
+    await screen.findByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    expect(
+      screen.getByText(site.capabilities.valueBrief.text, { exact: false }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: site.capabilities.valueBrief.cta })).toHaveAttribute(
+      'href',
+      '/brief',
+    );
   });
 
   it('groups capabilities under Observability, Governance and Security, with counts', async () => {

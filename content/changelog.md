@@ -8,6 +8,12 @@ Every content change gets an entry, newest first. Format:
 
 The newest entry's date becomes part of the content version shown in the footer and in every export.
 
+## 2026-10-29 · Capabilities first, no Pitch page, and every long page shows one part at a time
+
+affects: [all]
+
+Capabilities now takes the place of Pitch: the header reads Capabilities, Scope an agent, Stack fit, Licensing and Deploy, the home page opens on the capabilities, and More holds how agents act, Learn and how recommendations work. The Pitch page is gone. What a seller can still use moved to where it is needed: the customer conversation guide, the joint AI and Security plan and the one-agent proof of value are now Run the conversation, the third part of Scope an agent; the answers to pushback are a section of Stack fit; and the value brief is its own page, linked from Capabilities and from Home, where Selling as now sits. The 60-second pitch, the problem statements shown on the page, what the customer may lack, the proof points, the buyer cards, the openings by customer situation, the question picker and the page's own boundary notes were removed, along with the two third-party sources that only they cited (the leave-behind still quotes the problem statements). An old link to the Pitch page still works and goes to where the part it pointed at moved, and anything else to the capabilities; the persona starts for sellers and executives now open the capabilities and where Agent 365 fits. Learn, the agent portfolio, the workshop kit and the readout no longer run down one long page: each shows one part at a time, as Licensing and Deploy already did. Learn has Where it fits, How it works, Who it is for and Glossary; the portfolio has the comparison, what the agents share and what stands in the way; the workshop kit has the guide, the checklist and the two card sets, with the capability cards folded by area; the readout has Summary, Controls and risks, Guardrails and owners, and Licensing and next steps, with Readiness detail and the Appendix added in the Technical view, and its long tables folded until opened. Every part still prints and presents, so a readout is whole on paper and on the wall, and its exhibit numbers still run 1, 2, 3 from part to part. Product statements, sources, rules and recommendations are unchanged.
+
 ## 2026-10-28 · Simpler: one path from an example to the customer's agent, and one setting in the header
 
 affects: [all]

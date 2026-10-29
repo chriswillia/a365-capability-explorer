@@ -32,6 +32,9 @@ function Probe() {
           Typed work <input />
         </label>
       </ViewPane>
+      <ViewPane view={view} id="four" printed>
+        <h2 id="delta">Printed part</h2>
+      </ViewPane>
       <ViewPager views={VIEWS} current={view} />
     </>
   );
@@ -124,5 +127,21 @@ describe('views of a long page', () => {
     await user.click(switcher().getByRole('link', { name: 'Three' }));
     expect(screen.getByLabelText('Typed work')).toHaveValue('a note');
     expect(screen.getByLabelText('Typed work')).toBeVisible();
+  });
+
+  it('keeps a part of a printed document in the page, hidden and marked, so print and presenting show it', async () => {
+    const user = userEvent.setup();
+    renderAt('/page');
+    const pane = document.getElementById('delta')!.parentElement!;
+    expect(pane).toHaveAttribute('data-print-visible');
+    expect(pane).toHaveProperty('hidden', true);
+    // The other kinds of part carry no mark, so only a printed part is shown on paper.
+    expect(document.getElementById('alpha')!.parentElement).not.toHaveAttribute(
+      'data-print-visible',
+    );
+    expect(document.getElementById('beta')).toBeNull();
+    await user.click(switcher().getByRole('link', { name: 'Two' }));
+    expect(screen.getByRole('heading', { name: 'Second part' })).toBeVisible();
+    expect(document.getElementById('delta')).not.toBeNull();
   });
 });

@@ -1,10 +1,17 @@
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-6);
 }
 
 .page section {
   min-width: 0;
+}
+
+/* A cell that lists several agents keeps each link a 24px target, as WCAG 2.2 asks. */
+.page .cases a {
+  display: inline-block;
+  min-height: 1.5rem;
 }
 
 .page p,

@@ -6,7 +6,7 @@ import JSZip from 'jszip';
 import { content, contentMeta } from './content.ts';
 import { chooseDepth } from './view.ts';
 import { patternAnswers } from '../src/lib/engine/evaluate.ts';
-import { exhibitId, exhibitPlan, type ExhibitKey } from '../src/lib/readout/plan.ts';
+import { exhibitId, exhibitPlan, readoutParts, type ExhibitKey } from '../src/lib/readout/plan.ts';
 import { buildReadout } from '../src/lib/readout/report.ts';
 import { emptyWorkspace, type DiagnosticWorkspace } from '../src/lib/state/diagnostic-model.ts';
 import { MAX_IMPORT_BYTES, parseDiagnosticBundle } from '../src/lib/state/diagnostic-transfer.ts';
@@ -101,14 +101,26 @@ test.describe('Phase 5 readouts and portable assessments', () => {
       await expect(page.getByText(line, { exact: true })).toBeVisible();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     const executive = exhibitPlan(false);
-    for (const [key, title] of Object.entries(copy.exhibits))
-      await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(
-        executive.includes(key as ExhibitKey) ? 1 : 0,
-      );
+    const address = `diagnostic/${assessment.id}/readout`;
+    // One part is on screen at a time: its exhibits are in the page, and those of the other parts are not.
+    for (const part of readoutParts(false)) {
+      await page.goto(part.id === 'summary' ? address : `${address}?view=${part.id}`);
+      for (const [key, title] of Object.entries(copy.exhibits))
+        await expect(
+          page.getByRole('heading', { name: title, exact: true }),
+          `${part.id} › ${key}`,
+        ).toHaveCount(
+          executive.includes(key as ExhibitKey) && part.exhibits.includes(key as ExhibitKey)
+            ? 1
+            : 0,
+        );
+    }
+    await page.goto(address);
     const contents = page.getByRole('navigation', { name: copy.contents });
     await expect(contents.getByRole('link')).toHaveCount(executive.length);
     await contents.getByRole('link', { name: copy.exhibits.licensing, exact: true }).click();
     await expect(page).toHaveURL(/#exhibit-licensing$/);
+    await expect(page.locator('#exhibit-licensing h2')).toBeInViewport();
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     await open(page, copy.moreShare);
     await page.getByRole('button', { name: copy.copySummary }).click();
@@ -118,8 +130,15 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     expect(clipboard).toContain(content.site.disclaimer);
     const before = await saved(page);
     await chooseDepth(page, 'technical');
-    for (const title of Object.values(copy.exhibits))
-      await expect(page.getByRole('heading', { name: title, exact: true })).toHaveCount(1);
+    for (const part of readoutParts(true)) {
+      await page.goto(part.id === 'summary' ? address : `${address}?view=${part.id}`);
+      for (const [key, title] of Object.entries(copy.exhibits))
+        await expect(
+          page.getByRole('heading', { name: title, exact: true }),
+          `${part.id} › ${key} (Technical)`,
+        ).toHaveCount(part.exhibits.includes(key as ExhibitKey) ? 1 : 0);
+    }
+    await page.goto(`${address}?view=next`);
     await page
       .getByLabel(content.site.mapping.whatIfs, { exact: true })
       .selectOption(content.whatIfs[0]!.id);
@@ -129,6 +148,10 @@ test.describe('Phase 5 readouts and portable assessments', () => {
     expect(await saved(page)).toBe(before);
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.emulateMedia({ media: 'print' });
+    // Every part of the readout prints, whichever one is on screen.
+    for (const key of exhibitPlan(true))
+      await expect(page.locator(`#${exhibitId(key)} h2`), key).toBeVisible();
+    await expect(page.locator('#readout-appendix')).toBeVisible();
     for (const format of ['A4', 'Letter'] as const) {
       const pdf = await page.pdf({ format });
       expect(pdf.subarray(0, 4).toString()).toBe('%PDF');

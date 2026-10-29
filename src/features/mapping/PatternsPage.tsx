@@ -14,6 +14,8 @@ import { pillarRows } from '../../lib/engine/pillars.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
 import { useView, type PageView } from '../../lib/useView.ts';
+import { ConversationGuide } from '../conversation/ConversationGuide.tsx';
+import { JointPlan, ProofOfValue } from '../conversation/TeamAndProof.tsx';
 import styles from './Mapping.module.css';
 
 const patterns = evaluatePatterns(content, contentMeta.contentVersion);
@@ -21,10 +23,17 @@ const orderedCapabilities = [...content.capabilities].sort(
   (a, b) => pillarById(a.pillar)!.order - pillarById(b.pillar)!.order,
 );
 
-// The cards are the way in; the grid that compares every example is for the seller who wants the whole picture.
+// The cards are the way in; the grid that compares every example is for the seller who wants the whole picture; the
+// conversation guide is for the call with the customer.
 const VIEWS: PageView[] = [
   { id: 'cards', label: content.site.mapping.views.cards, sections: [] },
   { id: 'compare', label: content.site.mapping.views.compare, sections: ['compare'] },
+  {
+    id: 'conversation',
+    label: content.site.mapping.views.conversation,
+    sections: ['conversation', 'team', 'proof-of-value'],
+    prefixes: ['conversation-', 'requirement-'],
+  },
 ];
 
 export function Component() {
@@ -144,6 +153,11 @@ export function Component() {
             scrollLabel={copy.matrix}
           />
         </section>
+      </ViewPane>
+      <ViewPane view={part} id="conversation">
+        <ConversationGuide />
+        <JointPlan />
+        <ProofOfValue />
       </ViewPane>
       <ViewPager views={VIEWS} current={part} />
     </PageContainer>

@@ -2,14 +2,14 @@
 - id: seller-partner
   label: "Microsoft seller or partner"
   need: "Explain why Agent 365 matters to a customer, then map the agent, fit it to their stack and check licensing."
-  startLabel: "Start with the pitch"
-  href: "/pitch"
+  startLabel: "Start with the capabilities"
+  href: "/capabilities"
   reviewStatus: draft
 - id: executive
   label: "Executive or business leader"
   need: "Understand the value, boundaries and investment questions before discussing controls."
-  startLabel: "Read the pitch"
-  href: "/pitch"
+  startLabel: "Read where it fits"
+  href: "/learn#positioning"
   reviewStatus: draft
 - id: administrator
   label: "Security or compliance administrator"

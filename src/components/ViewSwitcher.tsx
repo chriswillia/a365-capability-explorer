@@ -6,22 +6,30 @@ import styles from './ViewSwitcher.module.css';
 
 /**
  * What one view shows. A view that holds typed-in work passes `keep`, so it stays mounted but hidden when another
- * view is showing and leaving it does not lose what was entered.
+ * view is showing and leaving it does not lose what was entered. A view that is part of a document that prints or
+ * is presented passes `printed`: it stays mounted too, and shows for print and for presentation mode, so a part
+ * switcher never cuts the document short.
  */
 export function ViewPane({
   view,
   id,
   keep = false,
+  printed = false,
   children,
 }: {
   view: PageView;
   id: string;
   keep?: boolean;
+  printed?: boolean;
   children: ReactNode;
 }) {
   const showing = view.id === id;
-  if (!showing && !keep) return null;
-  return <div hidden={!showing}>{children}</div>;
+  if (!showing && !keep && !printed) return null;
+  return (
+    <div hidden={!showing} data-print-visible={printed ? '' : undefined}>
+      {children}
+    </div>
+  );
 }
 
 // Set when a seller steps to the next or previous view, so focus can follow them to the top of the new one.

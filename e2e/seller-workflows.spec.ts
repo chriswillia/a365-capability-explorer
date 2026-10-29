@@ -408,50 +408,22 @@ test.describe('licensing calculator', () => {
   });
 });
 
-test.describe('pitch', () => {
-  test('offers an opening for each customer situation, with its licensing path', async ({
+test.describe('pushback', () => {
+  test('answers the pushback on the stack fit page, each answer behind its question', async ({
     page,
   }) => {
-    await page.goto('pitch#entry');
-    const entry = page.locator('#entry');
+    await page.goto('fit#pushback');
+    const section = page.locator('#pushback');
     await expect(
-      entry.getByRole('heading', { level: 2, name: value.entryPoints.heading }),
+      section.getByRole('heading', { level: 2, name: value.objections.heading }),
     ).toBeVisible();
-    await expect(entry.getByRole('heading', { level: 3 })).toHaveText(
-      value.entryPoints.items.map((item) => item.situation),
-    );
-    await expect(entry.getByText(value.entryPoints.licensingLabel, { exact: true })).toHaveCount(
-      value.entryPoints.items.length,
-    );
-  });
-
-  test('builds a meeting agenda from the questions picked, stops at the limit and stores nothing', async ({
-    page,
-    context,
-  }) => {
-    await context.grantPermissions(['clipboard-read', 'clipboard-write']);
-    const copy = value.discovery;
-    await page.goto('pitch#questions');
-    const picker = page.locator('#questions');
-    const areas = picker.locator('details');
-    await areas.first().locator('summary').click();
-    const boxes = areas.first().getByRole('checkbox');
-    const available = await boxes.count();
-    const picks = Math.min(copy.limit, available);
-    for (let i = 0; i < picks; i++) await boxes.nth(i).check();
-    const status =
-      picks === copy.limit
-        ? copy.limitReached.replace('{limit}', String(copy.limit))
-        : copy.counter.replace('{count}', String(picks)).replace('{limit}', String(copy.limit));
-    await expect(picker.getByRole('status').filter({ hasText: status })).toBeVisible();
-
-    if (available > copy.limit) await expect(boxes.nth(copy.limit)).toBeDisabled();
-    await picker.getByRole('button', { name: copy.copy }).click();
-    await expect(picker.getByText(copy.copied)).toBeVisible();
-    const agenda = await clipboard(page);
-    expect(agenda.split('\n')[0]).toBe(`# ${copy.agendaTitle}`);
-    expect(agenda.split('\n').filter((line) => /^\d+\. /.test(line))).toHaveLength(picks);
-    expect(await page.evaluate(() => Object.keys(localStorage))).toEqual([]);
+    await expect(section).toBeInViewport();
+    for (const item of value.objections.items) {
+      const details = section.locator('details', { hasText: item.objection });
+      await expect(details).toHaveJSProperty('open', false);
+      await details.locator(':scope > summary').click();
+      await expect(details.getByText(item.answer)).toBeVisible();
+    }
     expect(await violations(page)).toEqual([]);
   });
 });
@@ -512,7 +484,7 @@ test.describe('hosting', () => {
       'deploy',
       `deploy?assessment=${assessment.id}`,
       'licensing',
-      'pitch',
+      'brief',
       'fit',
       `leave-behind/${assessment.id}`,
     ]) {
@@ -540,16 +512,15 @@ test.describe('narrow screens', () => {
         'licensing?view=plans',
         'licensing?view=needs',
         'licensing?view=specialist',
-        'pitch#entry',
-        'pitch#questions',
-        'pitch?view=run',
-        'pitch?view=brief',
+        'brief',
+        'patterns?view=conversation',
         'deploy?view=production',
         'deploy?view=plan',
         'patterns?view=compare',
         'patterns/ai-teammate?view=risks',
         'patterns/ai-teammate?view=rollout',
         'fit#connected',
+        'fit#pushback',
       ]) {
         await page.goto(path);
         await expect(page.getByRole('heading', { level: 1 })).toBeVisible();

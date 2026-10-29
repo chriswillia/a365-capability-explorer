@@ -321,6 +321,9 @@ export function Component() {
     <PageContainer>
       <PageHeading>{site.routes.capabilities.title}</PageHeading>
       <p className={styles.intro}>{copy.intro}</p>
+      <p className={styles.intro}>
+        {copy.valueBrief.text} <Link to="/brief">{copy.valueBrief.cta}</Link>
+      </p>
       <details className={styles.glance}>
         <summary>{copy.glance.heading}</summary>
         <CatalogGlance />

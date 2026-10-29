@@ -70,13 +70,19 @@ describe('learning schemas', () => {
     for (const href of [
       '/learn#integration',
       '/capabilities?lens=layer',
-      '/pitch',
+      '/capabilities',
       '/fit',
       '/licensing',
     ]) {
       expect(PersonaSchema.safeParse({ ...persona, href }).success).toBe(true);
     }
-    for (const href of ['//evil.example', 'https://example.com', '/diagnostic', '/patterns']) {
+    for (const href of [
+      '//evil.example',
+      'https://example.com',
+      '/diagnostic',
+      '/patterns',
+      '/pitch',
+    ]) {
       expect(PersonaSchema.safeParse({ ...persona, href }).success).toBe(false);
     }
   });

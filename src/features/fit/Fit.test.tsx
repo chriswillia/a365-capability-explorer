@@ -28,6 +28,26 @@ describe('stack fit', () => {
     for (const item of copy.boundaries.items) expect(screen.getByText(item)).toBeInTheDocument();
   });
 
+  it('answers the pushback a seller meets, each answer behind its question', async () => {
+    const user = userEvent.setup();
+    await open();
+    const { objections } = content.value;
+    const pushback = section('pushback');
+    expect(screen.getByRole('heading', { level: 2, name: objections.heading })).toBeInTheDocument();
+    expect(pushback.getByText(objections.intro)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: objections.heading })).toHaveAttribute(
+      'href',
+      '#pushback',
+    );
+    for (const item of objections.items) {
+      const details = pushback.getByText(item.objection).closest('details')!;
+      expect(details.open).toBe(false);
+      await user.click(pushback.getByText(item.objection));
+      expect(details.open).toBe(true);
+      expect(within(details).getByText(item.answer)).toBeVisible();
+    }
+  });
+
   it('shows how each chosen platform connects, in a table, and keeps the choice in the address', async () => {
     const user = userEvent.setup();
     const router = await open();

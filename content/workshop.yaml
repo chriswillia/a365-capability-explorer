@@ -71,6 +71,11 @@ printPatterns: "Print scenario cards / save PDF"
 printCapabilities: Print capability cards / save PDF
 printChecklist: "Print requirements checklist / save PDF"
 printError: Printing could not start. Try your browser's print command.
+views:
+  guide: "Facilitator guide"
+  checklist: Checklist
+  patterns: "Example agent cards"
+  capabilities: "Capability cards"
 guide: Facilitator guide
 checklistTitle: "Security, governance and observability requirements checklist"
 checklistNote: "A leave-behind for a customer conversation, built from the catalog. Tick what to discuss, write the customer's requirement and agree an owner and priority. Availability comes from the service description; confirm licensing with your account team."

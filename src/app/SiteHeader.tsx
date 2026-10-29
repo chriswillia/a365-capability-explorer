@@ -10,10 +10,11 @@ import styles from './SiteHeader.module.css';
 // with the landing page.
 const WorkingOn = lazy(() => import('./WorkingOn.tsx'));
 
-// What a seller does, in order. Scoping an agent starts at the examples and goes on to the agent's passport, so
-// both pages mark it as current. The logo is the link home. The reference material lives in the More menu.
+// What a seller does, in order: see what Agent 365 does, then scope the agent. Scoping an agent starts at the examples and
+// goes on to the agent's passport, so both pages mark it as current. The logo is the link home. The reference material
+// lives in the More menu.
 const NAV: { key: keyof Site['ui']['nav']; to: string; also?: string[] }[] = [
-  { key: 'pitch', to: '/pitch' },
+  { key: 'capabilities', to: '/capabilities' },
   { key: 'scope', to: '/patterns', also: ['/map'] },
   { key: 'fit', to: '/fit' },
   { key: 'licensing', to: '/licensing' },

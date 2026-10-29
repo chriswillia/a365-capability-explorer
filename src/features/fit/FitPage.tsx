@@ -159,6 +159,7 @@ export function Component() {
     ['connected', copy.connected.heading],
     ['stack', copy.stack.heading],
     ['new', copy.netNew.heading],
+    ['pushback', content.value.objections.heading],
     ['limits', copy.boundaries.heading],
   ];
 
@@ -303,6 +304,20 @@ export function Component() {
           })}
         </ul>
         <SourceNote sourceIds={copy.netNew.sourceIds} evidence={copy.netNew.evidence} />
+      </section>
+
+      <section id="pushback" aria-labelledby="pushback-heading" className={styles.section}>
+        <h2 id="pushback-heading">{content.value.objections.heading}</h2>
+        <p>{content.value.objections.intro}</p>
+        <div className={styles.objections}>
+          {content.value.objections.items.map((item) => (
+            <details key={item.id} className={styles.objection}>
+              <summary>{item.objection}</summary>
+              <p>{item.answer}</p>
+              <SourceNote sourceIds={item.sourceIds} evidence={item.evidence} />
+            </details>
+          ))}
+        </div>
       </section>
 
       <section id="limits" aria-labelledby="limits-heading" className={styles.section}>

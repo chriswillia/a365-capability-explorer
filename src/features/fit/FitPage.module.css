@@ -74,3 +74,29 @@
   color: var(--color-slate);
   font-size: var(--text-14);
 }
+
+.objections {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 52rem;
+}
+
+.objection {
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  border: 1px solid var(--color-hairline);
+  border-radius: var(--radius-md);
+}
+
+.objection > summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.objection[open] > summary {
+  margin-bottom: var(--space-3);
+}
+
+.objection > p {
+  margin-bottom: var(--space-2);
+}

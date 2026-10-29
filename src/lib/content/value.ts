@@ -50,16 +50,11 @@ export function themeViews(data: Content): ThemeView[] {
     .map((entry) => entry.view);
 }
 
-/** The outcomes pre-selected for a seller type: those of the buyers marked defaultFor that audience. */
+/** The outcomes pre-selected for a seller type: those marked defaultFor that audience. */
 export function defaultConcerns(data: Content, audience: AudienceId): string[] {
-  const wanted = new Set(
-    data.value.buyers.items
-      .filter((buyer) => buyer.defaultFor.includes(audience))
-      .flatMap((buyer) => buyer.themeIds),
-  );
   return themeViews(data)
-    .map((view) => view.theme.id)
-    .filter((id) => wanted.has(id));
+    .filter((view) => view.theme.defaultFor.includes(audience))
+    .map((view) => view.theme.id);
 }
 
 /** Reads the `concerns` address parameter, keeping only themes that exist. "none" means the seller cleared them all. */
@@ -102,7 +97,7 @@ export function buildBrief(
   data: Content,
   input: { audience: AudienceId; themeIds: string[]; customer: string },
 ): Brief {
-  const { brief, pitch, themes } = data.value;
+  const { brief, themes } = data.value;
   const chosen = new Set(input.themeIds);
   const views = themeViews(data).filter((view) => chosen.has(view.theme.id));
   const customer = input.customer.trim();
@@ -122,8 +117,8 @@ export function buildBrief(
       });
     }
   const angleFor = (theme: Theme): BriefOutcome['angles'] => {
-    const ai = { label: pitch.audiences.ai.label, text: theme.angle.ai };
-    const security = { label: pitch.audiences.security.label, text: theme.angle.security };
+    const ai = { label: brief.audiences.ai, text: theme.angle.ai };
+    const security = { label: brief.audiences.security, text: theme.angle.security };
     return input.audience === 'ai'
       ? [ai]
       : input.audience === 'security'
@@ -134,7 +129,7 @@ export function buildBrief(
     title:
       customer === '' ? brief.untitledTitle : renderTemplate(brief.titleTemplate, { customer }),
     audienceLine: renderTemplate(brief.audienceLine, {
-      label: pitch.audiences[input.audience].label,
+      label: brief.audiences[input.audience],
     }),
     outcomesHeading: themes.heading,
     outcomes: views.map((view) => ({
@@ -172,47 +167,4 @@ export function briefText(data: Content, brief: Brief): string {
   brief.nextItems.forEach((item, index) => lines.push(`${index + 1}. ${item}`));
   lines.push('', brief.footnote);
   return lines.join('\n');
-}
-
-export interface DiscoveryQuestion {
-  /** Stable for the page: the capability and the position of the question in its list. */
-  key: string;
-  question: string;
-  /** The short name of the capability that suggests the question. */
-  capability: string;
-}
-export interface DiscoveryArea {
-  pillar: PillarDef;
-  questions: DiscoveryQuestion[];
-}
-
-/** Every question the capabilities suggest asking, by requirement area in area order, then in catalog order. */
-export function discoveryAreas(data: Content): DiscoveryArea[] {
-  return [...data.pillars]
-    .sort((a, b) => a.order - b.order)
-    .map((pillar) => ({
-      pillar,
-      questions: data.capabilities
-        .filter((capability) => capability.pillar === pillar.id)
-        .flatMap((capability) =>
-          (capability.discoveryQuestions ?? []).map((question, index) => ({
-            key: `${capability.id}:${index}`,
-            question,
-            capability: capability.shortName,
-          })),
-        ),
-    }))
-    .filter((area) => area.questions.length > 0);
-}
-
-/** A meeting agenda as plain Markdown, for the questions picked, in the order they were picked. */
-export function agendaText(data: Content, picks: readonly { question: string }[]): string {
-  const { agendaTitle, agendaIntro } = data.value.discovery;
-  return [
-    `# ${agendaTitle}`,
-    '',
-    agendaIntro,
-    '',
-    ...picks.map((pick, index) => `${index + 1}. ${pick.question}`),
-  ].join('\n');
 }

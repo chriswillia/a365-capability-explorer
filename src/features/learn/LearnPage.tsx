@@ -5,10 +5,12 @@ import { createGlossaryAnnotator } from '../../lib/content/annotateGlossary.tsx'
 import { LearningEvidence } from '../../components/LearningEvidence.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
+import { ViewPager, ViewPane, ViewSwitcher } from '../../components/ViewSwitcher.tsx';
 import { content, sourceById } from '../../lib/content/index.ts';
 import type { LearningItem } from '../../lib/content/schemas.ts';
 import { useDepth } from '../../lib/state/depth.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { useView, type PageView } from '../../lib/useView.ts';
 import styles from './LearnPage.module.css';
 
 function CapabilityLinks({ ids }: { ids: string[] }) {
@@ -24,22 +26,27 @@ function CapabilityLinks({ ids }: { ids: string[] }) {
   );
 }
 
+const copy = content.site.learn;
+
+// The page reads in the order of a customer conversation, and each part is a few screens: where it fits, how it
+// works, who it is for, and the words. A link to a section opens the part that holds it.
+const VIEWS: PageView[] = [
+  { id: 'fit', label: copy.views.fit, sections: ['positioning', 'myths'] },
+  {
+    id: 'works',
+    label: copy.views.works,
+    sections: ['concepts', 'integration', 'building-blocks'],
+  },
+  { id: 'journey', label: copy.views.journey, sections: ['roles', 'frontier'] },
+  { id: 'glossary', label: copy.views.glossary, sections: ['glossary'], prefixes: ['glossary-'] },
+];
+
 export function Component() {
   usePageTitle('learn');
   const { depth } = useDepth();
   const { site, learn } = content;
-  const copy = site.learn;
+  const part = useView(VIEWS);
   const annotate = createGlossaryAnnotator();
-  const anchors = [
-    ['positioning', copy.sections.positioning],
-    ['myths', copy.sections.myths],
-    ['concepts', copy.sections.concepts],
-    ['integration', copy.sections.integration],
-    ['building-blocks', copy.sections.buildingBlocks],
-    ['frontier', copy.sections.frontier],
-    ['roles', copy.sections.roles],
-    ['glossary', copy.sections.glossary],
-  ] as const;
   const renderTechnical = (item: LearningItem) => {
     const technicalSource = item.technicalSourceId ? sourceById(item.technicalSourceId) : undefined;
     return (
@@ -76,117 +83,119 @@ export function Component() {
       <p className={styles.intro}>{copy.intro}</p>
       {depth === 'technical' && <p>{copy.draftNote}</p>}
       <p>
-        <Link to="/pitch#conversation">{site.routes.conversation.title}</Link>
+        <Link to="/patterns?view=conversation">{site.routes.conversation.title}</Link>
       </p>
-      <nav aria-label={copy.contents} className={styles.contents}>
-        {anchors.map(([id, label]) => (
-          <a key={id} href={`#${id}`}>
-            {label}
-          </a>
-        ))}
-      </nav>
-      <section id="positioning" className={styles.section}>
-        <h2>{copy.sections.positioning}</h2>
-        <div className={styles.grid}>{learn.positioning.map(renderItem)}</div>
-      </section>
-      <section id="myths" className={styles.section}>
-        <h2>{copy.sections.myths}</h2>
-        <div className={styles.grid}>
-          {content.faq.map((item) => (
-            <article key={item.id} className={styles.card}>
-              <p>{copy.mythLabel}</p>
-              <h3>{item.myth}</h3>
-              <h4>{copy.factLabel}</h4>
-              <p>{item.fact === null ? copy.pending : annotate(item.fact)}</p>
-              <LearningEvidence item={item} />
-            </article>
-          ))}
-        </div>
-      </section>
-      <section id="concepts" className={styles.section}>
-        <h2>{copy.sections.concepts}</h2>
-        <p>{copy.flowNote}</p>
-        <DataTable
-          caption={copy.flowTable}
-          scrollLabel={copy.flowTable}
-          rows={learn.flow}
-          rowKey={(item) => item.id}
-          columns={[
-            {
-              key: 'step',
-              header: copy.flowColumns.step,
-              render: (item) => learn.flow.indexOf(item) + 1,
-            },
-            {
-              key: 'concept',
-              header: copy.flowColumns.concept,
-              rowHeader: true,
-              render: (item) => (
-                <>
-                  <h3>{item.title}</h3>
-                  <p>{item.summary === null ? copy.pending : annotate(item.summary)}</p>
-                  {renderTechnical(item)}
-                  <LearningEvidence item={item} />
-                </>
-              ),
-            },
-            {
-              key: 'capabilities',
-              header: copy.flowColumns.capabilities,
-              render: (item) => <CapabilityLinks ids={item.capabilityIds} />,
-            },
-          ]}
-        />
-      </section>
-      <section id="integration" className={styles.section}>
-        <h2>{copy.sections.integration}</h2>
-        <div className={styles.grid}>{learn.integration.map(renderItem)}</div>
-      </section>
-      <section id="building-blocks" className={styles.section}>
-        <h2>{copy.sections.buildingBlocks}</h2>
-        <p>{copy.buildingBlocksNote}</p>
-        <div className={styles.grid}>{content.buildingBlocks.map(renderItem)}</div>
-      </section>
-      <section id="frontier" className={styles.section}>
-        <h2>{copy.sections.frontier}</h2>
-        <p>{copy.frontierNote}</p>
-        <ol className={styles.grid}>
-          {learn.frontier.map((phase) => (
-            <li key={phase.id} className={styles.card}>
-              <h3>{phase.title}</h3>
-              <p>{phase.summary === null ? copy.pending : annotate(phase.summary)}</p>
-              <LearningEvidence item={phase} />
-            </li>
-          ))}
-        </ol>
-      </section>
-      <section id="roles" className={styles.section}>
-        <h2>{copy.sections.roles}</h2>
-        <p>{copy.rolesNote}</p>
-        <ul className={styles.grid}>
-          {content.personas.map((persona) => (
-            <li key={persona.id} className={styles.card}>
-              <h3>{persona.label}</h3>
-              <p>{persona.need}</p>
-              <Link to={persona.href}>{persona.startLabel}</Link>
-            </li>
-          ))}
-        </ul>
-      </section>
-      <section id="glossary" className={styles.section}>
-        <h2>{copy.sections.glossary}</h2>
-        <dl className={styles.grid}>
-          {content.glossary.map((entry) => (
-            <div key={entry.id} id={`glossary-${entry.id}`} className={styles.card}>
-              <dt>{entry.term}</dt>
-              <dd>
-                <p>{entry.definition}</p>
-                <LearningEvidence item={entry} />
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <ViewSwitcher views={VIEWS} current={part} />
+      <ViewPane view={part} id="fit">
+        <section id="positioning" className={styles.section}>
+          <h2>{copy.sections.positioning}</h2>
+          <div className={styles.grid}>{learn.positioning.map(renderItem)}</div>
+        </section>
+        <section id="myths" className={styles.section}>
+          <h2>{copy.sections.myths}</h2>
+          <div className={styles.grid}>
+            {content.faq.map((item) => (
+              <article key={item.id} className={styles.card}>
+                <p>{copy.mythLabel}</p>
+                <h3>{item.myth}</h3>
+                <h4>{copy.factLabel}</h4>
+                <p>{item.fact === null ? copy.pending : annotate(item.fact)}</p>
+                <LearningEvidence item={item} />
+              </article>
+            ))}
+          </div>
+        </section>
+      </ViewPane>
+      <ViewPane view={part} id="works">
+        <section id="concepts" className={styles.section}>
+          <h2>{copy.sections.concepts}</h2>
+          <p>{copy.flowNote}</p>
+          <DataTable
+            caption={copy.flowTable}
+            scrollLabel={copy.flowTable}
+            rows={learn.flow}
+            rowKey={(item) => item.id}
+            columns={[
+              {
+                key: 'step',
+                header: copy.flowColumns.step,
+                render: (item) => learn.flow.indexOf(item) + 1,
+              },
+              {
+                key: 'concept',
+                header: copy.flowColumns.concept,
+                rowHeader: true,
+                render: (item) => (
+                  <>
+                    <h3>{item.title}</h3>
+                    <p>{item.summary === null ? copy.pending : annotate(item.summary)}</p>
+                    {renderTechnical(item)}
+                    <LearningEvidence item={item} />
+                  </>
+                ),
+              },
+              {
+                key: 'capabilities',
+                header: copy.flowColumns.capabilities,
+                render: (item) => <CapabilityLinks ids={item.capabilityIds} />,
+              },
+            ]}
+          />
+        </section>
+        <section id="integration" className={styles.section}>
+          <h2>{copy.sections.integration}</h2>
+          <div className={styles.grid}>{learn.integration.map(renderItem)}</div>
+        </section>
+        <section id="building-blocks" className={styles.section}>
+          <h2>{copy.sections.buildingBlocks}</h2>
+          <p>{copy.buildingBlocksNote}</p>
+          <div className={styles.grid}>{content.buildingBlocks.map(renderItem)}</div>
+        </section>
+      </ViewPane>
+      <ViewPane view={part} id="journey">
+        <section id="roles" className={styles.section}>
+          <h2>{copy.sections.roles}</h2>
+          <p>{copy.rolesNote}</p>
+          <ul className={styles.grid}>
+            {content.personas.map((persona) => (
+              <li key={persona.id} className={styles.card}>
+                <h3>{persona.label}</h3>
+                <p>{persona.need}</p>
+                <Link to={persona.href}>{persona.startLabel}</Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+        <section id="frontier" className={styles.section}>
+          <h2>{copy.sections.frontier}</h2>
+          <p>{copy.frontierNote}</p>
+          <ol className={styles.grid}>
+            {learn.frontier.map((phase) => (
+              <li key={phase.id} className={styles.card}>
+                <h3>{phase.title}</h3>
+                <p>{phase.summary === null ? copy.pending : annotate(phase.summary)}</p>
+                <LearningEvidence item={phase} />
+              </li>
+            ))}
+          </ol>
+        </section>
+      </ViewPane>
+      <ViewPane view={part} id="glossary">
+        <section id="glossary" className={styles.section}>
+          <h2>{copy.sections.glossary}</h2>
+          <dl className={styles.grid}>
+            {content.glossary.map((entry) => (
+              <div key={entry.id} id={`glossary-${entry.id}`} className={styles.card}>
+                <dt>{entry.term}</dt>
+                <dd>
+                  <p>{entry.definition}</p>
+                  <LearningEvidence item={entry} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      </ViewPane>
       <section aria-labelledby="learn-next" className={styles.section}>
         <h2 id="learn-next">{copy.nextHeading}</h2>
         <ul className={styles.next}>
@@ -197,6 +206,7 @@ export function Component() {
           ))}
         </ul>
       </section>
+      <ViewPager views={VIEWS} current={part} />
     </PageContainer>
   );
 }

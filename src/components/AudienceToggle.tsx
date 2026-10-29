@@ -6,8 +6,8 @@ import { useAudience } from '../lib/state/audience.ts';
 import styles from './AudienceToggle.module.css';
 
 /**
- * The global Selling as switch: AI seller, Security seller or both. It changes the pitch and talk tracks on the
- * value pages. The facts, sources and recommendations never change with it.
+ * The Selling as switch: AI seller, Security seller or both. It changes the angle of the value brief. The facts,
+ * sources and recommendations never change with it.
  */
 export function AudienceToggle() {
   const { audience, setAudience } = useAudience();

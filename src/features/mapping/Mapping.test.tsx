@@ -63,15 +63,20 @@ describe('Phase 3 mapping views', () => {
     }
     expect(screen.queryByText(site.ui.comingSoon.status)).not.toBeInTheDocument();
   });
-  it('shows the example agents first and the comparison of all of them as the second part', async () => {
+  it('shows the example agents first, then the comparison of all of them, then how to run the conversation', async () => {
     renderPage('/patterns');
     await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
     const links = within(
       screen.getByRole('navigation', { name: site.ui.views.label }),
     ).getAllByRole('link');
-    expect(links.map((link) => link.textContent)).toEqual([copy.views.cards, copy.views.compare]);
+    expect(links.map((link) => link.textContent)).toEqual([
+      copy.views.cards,
+      copy.views.compare,
+      copy.views.conversation,
+    ]);
     expect(links[0]).toHaveAttribute('aria-current', 'true');
     expect(links[1]).toHaveAttribute('href', '/patterns?view=compare');
+    expect(links[2]).toHaveAttribute('href', '/patterns?view=conversation');
     for (const pattern of content.patterns)
       expect(screen.getByRole('heading', { level: 2, name: pattern.title })).toBeVisible();
     expect(screen.queryByRole('table', { name: copy.matrix })).not.toBeInTheDocument();
@@ -80,6 +85,35 @@ describe('Phase 3 mapping views', () => {
     expect(
       screen.queryByRole('heading', { level: 2, name: content.patterns[0]!.title }),
     ).not.toBeInTheDocument();
+    await userEvent.click(part(copy.views.conversation));
+    expect(
+      screen.getByRole('heading', { level: 2, name: content.conversation.title }),
+    ).toBeVisible();
+    expect(screen.queryByRole('table', { name: copy.matrix })).not.toBeInTheDocument();
+  });
+
+  it('gives AI and Security sellers a joint plan and a proof of value after the conversation guide', async () => {
+    renderPage('/patterns?view=conversation');
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    const { jointPlan, proofOfValue } = content.value;
+    expect(screen.getByRole('heading', { level: 2, name: jointPlan.heading })).toBeVisible();
+    const table = within(document.getElementById('team')!).getByRole('table');
+    expect(within(table).getAllByRole('row')).toHaveLength(jointPlan.rows.length + 1);
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((header) => header.textContent),
+    ).toEqual([
+      jointPlan.columns.topic,
+      jointPlan.columns.ai,
+      jointPlan.columns.security,
+      jointPlan.columns.together,
+    ]);
+    const proof = within(document.getElementById('proof-of-value')!);
+    for (const step of proofOfValue.steps)
+      expect(proof.getByText(step.title, { exact: false })).toBeInTheDocument();
+    for (const measure of proofOfValue.measures)
+      expect(proof.getByText(measure)).toBeInTheDocument();
   });
   it('shows how the agent acts on every scenario card and brief, including the mixed scenario', async () => {
     renderPage('/patterns');

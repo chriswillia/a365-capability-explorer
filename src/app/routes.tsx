@@ -20,9 +20,15 @@ export const routes: RouteObject[] = [
     children: [
       { index: true, handle: { routeKey: 'overview' satisfies RouteKey }, Component: OverviewPage },
       {
+        // The Pitch page is gone. Its address still answers and leads to where each part of it moved.
         path: 'pitch',
-        handle: { routeKey: 'pitch' satisfies RouteKey },
-        lazy: () => import('../features/value/ValuePage.tsx'),
+        handle: { routeKey: 'capabilities' satisfies RouteKey },
+        lazy: () => import('./RedirectFromPitch.tsx'),
+      },
+      {
+        path: 'brief',
+        handle: { routeKey: 'brief' satisfies RouteKey },
+        lazy: () => import('../features/value/BriefPage.tsx'),
       },
       {
         path: 'licensing',
@@ -127,7 +133,7 @@ export const routes: RouteObject[] = [
       {
         path: 'conversation',
         handle: { routeKey: 'conversation' satisfies RouteKey },
-        lazy: () => import('./RedirectToPitch.tsx'),
+        lazy: () => import('./RedirectToConversation.tsx'),
       },
       {
         path: 'methodology',

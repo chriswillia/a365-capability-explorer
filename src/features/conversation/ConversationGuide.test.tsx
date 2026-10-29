@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { cleanup, render, screen, waitFor, within } from '@testing-library/react';
 import { createMemoryRouter, matchRoutes } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -11,11 +11,10 @@ import { DEPTH_STORAGE_KEY } from '../../lib/state/depth.ts';
 import { StateProviders } from '../../lib/state/StateProviders.tsx';
 import { STORAGE_PREFIX } from '../../lib/state/storage.ts';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
-import '../value/ValuePage.tsx';
 
 const { site, conversation: copy } = content;
 
-async function renderPage(path = '/pitch#conversation') {
+async function renderPage(path = '/patterns?view=conversation') {
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
@@ -24,7 +23,7 @@ async function renderPage(path = '/pitch#conversation') {
       </StateProviders>
     </FluentProvider>,
   );
-  await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
+  await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
   return router;
 }
 
@@ -34,7 +33,7 @@ const area = (pillarId: string) =>
 
 afterEach(() => window.localStorage.clear());
 
-describe('customer conversation guide on the Pitch page', () => {
+describe('customer conversation guide on the Scope an agent page', () => {
   it('opens with the introduction and the five steps in order', async () => {
     await renderPage();
     expect(guide().getByText(copy.introduction)).toBeInTheDocument();
@@ -121,7 +120,7 @@ describe('customer conversation guide on the Pitch page', () => {
   });
 
   it('opens the requirement area a link points at, and only that one', async () => {
-    await renderPage('/pitch#requirement-secure');
+    await renderPage('/patterns#requirement-secure');
     await waitFor(() => expect(area('secure').open).toBe(true));
     for (const { pillar } of requirementGuides(content))
       if (pillar.id !== 'secure') expect(area(pillar.id).open).toBe(false);
@@ -190,7 +189,7 @@ describe('customer conversation guide on the Pitch page', () => {
 });
 
 describe('the old conversation address', () => {
-  it('lands on the guide on the Pitch page', async () => {
+  it('lands on the guide on the Scope an agent page', async () => {
     const router = createMemoryRouter(routes, { initialEntries: ['/conversation'] });
     render(
       <FluentProvider theme={fluentTheme}>
@@ -199,8 +198,9 @@ describe('the old conversation address', () => {
         </StateProviders>
       </FluentProvider>,
     );
-    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
-    expect(router.state.location.pathname).toBe('/pitch');
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    expect(router.state.location.pathname).toBe('/patterns');
+    expect(router.state.location.search).toBe('?view=conversation');
     expect(router.state.location.hash).toBe('#conversation');
   });
 
@@ -215,10 +215,45 @@ describe('the old conversation address', () => {
         </StateProviders>
       </FluentProvider>,
     );
-    await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
-    expect(router.state.location.pathname).toBe('/pitch');
-    // The page names its part in the address in an effect, after it first shows.
-    await waitFor(() => expect(router.state.location.search).toBe('?audience=security&view=run'));
+    await screen.findByRole('heading', { level: 1, name: site.routes.patterns.title });
+    expect(router.state.location.pathname).toBe('/patterns');
+    expect(router.state.location.search).toBe('?audience=security&view=conversation');
     expect(router.state.location.hash).toBe('#requirement-secure');
+  });
+});
+
+describe('the old Pitch address', () => {
+  const open = async (path: string, heading: string) => {
+    const router = createMemoryRouter(routes, { initialEntries: [path] });
+    render(
+      <FluentProvider theme={fluentTheme}>
+        <StateProviders>
+          <RouterProvider router={router} />
+        </StateProviders>
+      </FluentProvider>,
+    );
+    await screen.findByRole('heading', { level: 1, name: heading });
+    return router;
+  };
+
+  it('leads to the capabilities, where a seller now starts', async () => {
+    const router = await open('/pitch', site.routes.capabilities.title);
+    expect(router.state.location.pathname).toBe('/capabilities');
+  });
+
+  it('leads a link to the conversation guide to Scope an agent', async () => {
+    const router = await open('/pitch#conversation', site.routes.patterns.title);
+    expect(router.state.location.pathname).toBe('/patterns');
+    expect(router.state.location.search).toBe('?view=conversation');
+  });
+
+  it('leads a link to the pushback answers to Stack fit, and to the value brief to its own page', async () => {
+    const fit = await open('/pitch#pushback', site.routes.fit.title);
+    expect(fit.state.location.pathname).toBe('/fit');
+    expect(fit.state.location.hash).toBe('#pushback');
+    cleanup();
+    const brief = await open('/pitch?view=brief&concerns=protect-data', site.routes.brief.title);
+    expect(brief.state.location.pathname).toBe('/brief');
+    expect(brief.state.location.search).toBe('?concerns=protect-data');
   });
 });

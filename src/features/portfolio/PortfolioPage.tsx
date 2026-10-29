@@ -5,6 +5,7 @@ import { KpiStrip } from '../../components/KpiStrip.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
+import { ViewPager, ViewPane, ViewSwitcher } from '../../components/ViewSwitcher.tsx';
 import { content, contentMeta, pillarById } from '../../lib/content/index.ts';
 import { computePortfolioMetrics } from '../../lib/content/metrics.ts';
 import { formatNumber, renderTemplate } from '../../lib/content/template.ts';
@@ -21,6 +22,7 @@ import {
 import { displayName } from '../../lib/state/diagnostic-model.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { useView, type PageView } from '../../lib/useView.ts';
 import { DiagnosticTransfer } from '../diagnostic/DiagnosticTransfer.tsx';
 import { Evidence } from '../mapping/Evidence.tsx';
 import { PortfolioChart } from './PortfolioChart.tsx';
@@ -38,7 +40,7 @@ const caseLinks = (items: PortfolioCase[]) =>
   items.length === 0 ? (
     mapping.unknownAnswer
   ) : (
-    <ul>
+    <ul className={styles.cases}>
       {items.map((item) => (
         <li key={item.assessment.id}>
           <Link to={`/diagnostic/${item.assessment.id}/readout`}>{item.name}</Link>
@@ -55,7 +57,16 @@ const capabilityColumn: Column<PortfolioCapability> = {
   ),
 };
 
+// The comparison first, then what the agents share, then what stands in the way. Every part stays in the page for
+// print and for presenting, so the whole portfolio still reads as one document.
+const VIEWS: PageView[] = [
+  { id: 'compare', label: copy.views.compare, sections: ['chart', 'matrix'] },
+  { id: 'foundations', label: copy.views.foundations, sections: ['foundations'] },
+  { id: 'readiness', label: copy.views.readiness, sections: ['readiness', 'licensing'] },
+];
+
 function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
+  const part = useView(VIEWS);
   const metrics = computePortfolioMetrics(portfolio);
   const cases = portfolio.cases;
   const columns: Column<PortfolioCase>[] = [
@@ -121,239 +132,260 @@ function PortfolioResults({ portfolio }: { portfolio: Portfolio }) {
       )}
       {cases.length > 0 && (
         <>
-          <section>
-            <h2>{copy.chart}</h2>
-            <p>
-              {renderTemplate(copy.chartNote, { count: copy.valueCutoff, n: copy.intensityCutoff })}
-            </p>
-            <p>{mapping.intensityNote}</p>
-            <p>{copy.bubbleNote}</p>
-            <PortfolioChart cases={cases} />
-            <DataTable
-              caption={copy.table}
-              columns={columns}
-              rows={cases}
-              rowKey={(item) => item.assessment.id}
-              scrollLabel={copy.table}
-            />
-          </section>
-          <section>
-            <h2>{copy.matrix}</h2>
-            <p>{copy.matrixNote}</p>
-            <DataTable
-              caption={copy.matrix}
-              hideCaption
-              scrollLabel={renderTemplate(content.site.readout.tableLabel, { label: copy.matrix })}
-              rows={[...portfolio.capabilities].sort(
-                (a, b) =>
-                  pillarById(a.capability.pillar)!.order - pillarById(b.capability.pillar)!.order,
-              )}
-              rowKey={({ capability }) => capability.id}
-              columns={[
-                capabilityColumn,
-                {
-                  key: 'pillar',
-                  header: content.site.capabilities.columns.pillar,
-                  nowrap: true,
-                  render: ({ capability }) => pillarById(capability.pillar)?.requirement,
-                },
-                ...cases.map((item): Column<PortfolioCapability> => ({
-                  key: item.assessment.id,
-                  header: item.name,
-                  render: (row) => {
-                    const level = portfolioLevel(row, item.assessment.id);
-                    return level === null ? (
-                      <span aria-label={mapping.notInScope}>—</span>
-                    ) : (
-                      <span className={`${styles.level} ${styles[level]}`}>
-                        {mapping.levels[level]}
-                      </span>
-                    );
-                  },
-                })),
-              ]}
-            />
-          </section>
-          <section>
-            <h2>{copy.foundations}</h2>
-            <p>{copy.foundationsNote}</p>
-            {portfolio.foundations.length === 0 ? (
-              <p>{content.site.readout.empty}</p>
-            ) : (
+          <div data-presentation-hide>
+            <ViewSwitcher views={VIEWS} current={part} />
+          </div>
+          <ViewPane view={part} id="compare" printed>
+            <section id="chart">
+              <h2>{copy.chart}</h2>
+              <p>
+                {renderTemplate(copy.chartNote, {
+                  count: copy.valueCutoff,
+                  n: copy.intensityCutoff,
+                })}
+              </p>
+              <p>{mapping.intensityNote}</p>
+              <p>{copy.bubbleNote}</p>
+              <PortfolioChart cases={cases} />
               <DataTable
-                caption={copy.foundations}
+                caption={copy.table}
+                columns={columns}
+                rows={cases}
+                rowKey={(item) => item.assessment.id}
+                scrollLabel={copy.table}
+              />
+            </section>
+            <section id="matrix">
+              <h2>{copy.matrix}</h2>
+              <p>{copy.matrixNote}</p>
+              <DataTable
+                caption={copy.matrix}
                 hideCaption
                 scrollLabel={renderTemplate(content.site.readout.tableLabel, {
-                  label: copy.foundations,
+                  label: copy.matrix,
                 })}
-                rows={portfolio.foundations}
+                rows={[...portfolio.capabilities].sort(
+                  (a, b) =>
+                    pillarById(a.capability.pillar)!.order - pillarById(b.capability.pillar)!.order,
+                )}
                 rowKey={({ capability }) => capability.id}
                 columns={[
                   capabilityColumn,
                   {
-                    key: 'owner',
-                    header: content.site.capabilities.brief.owner,
-                    render: ({ uses }) => uses[0]!.row.ownerTeam,
+                    key: 'pillar',
+                    header: content.site.capabilities.columns.pillar,
+                    nowrap: true,
+                    render: ({ capability }) => pillarById(capability.pillar)?.requirement,
                   },
-                  {
-                    key: 'uses',
-                    header: copy.selected,
-                    render: ({ uses }) => (
-                      <>
-                        {renderTemplate(copy.benefits, { count: uses.length })}
-                        {caseLinks(uses.map((use) => use.useCase))}
-                      </>
-                    ),
-                  },
-                  {
-                    key: 'setup',
-                    header: content.site.capabilities.columns.setup,
-                    render: ({ capability }) =>
-                      capability.setup === 'both'
-                        ? copy.agentFollowup
-                        : content.site.ui.setup.platform,
-                  },
+                  ...cases.map((item): Column<PortfolioCapability> => ({
+                    key: item.assessment.id,
+                    header: item.name,
+                    render: (row) => {
+                      const level = portfolioLevel(row, item.assessment.id);
+                      return level === null ? (
+                        <span aria-label={mapping.notInScope}>—</span>
+                      ) : (
+                        <span className={`${styles.level} ${styles[level]}`}>
+                          {mapping.levels[level]}
+                        </span>
+                      );
+                    },
+                  })),
                 ]}
               />
-            )}
-          </section>
-          <section>
-            <h2>{copy.readiness}</h2>
-            <p>{copy.readinessNote}</p>
-            <p>
-              {mapping.readinessLabel}: {describeReadiness(metrics.readiness, mapping)}
-            </p>
-            {portfolio.checks.length === 0 ? (
-              <p>{mapping.noChecks}</p>
-            ) : (
+            </section>
+          </ViewPane>
+          <ViewPane view={part} id="foundations" printed>
+            <section id="foundations">
+              <h2>{copy.foundations}</h2>
+              <p>{copy.foundationsNote}</p>
+              {portfolio.foundations.length === 0 ? (
+                <p>{content.site.readout.empty}</p>
+              ) : (
+                <DataTable
+                  caption={copy.foundations}
+                  hideCaption
+                  scrollLabel={renderTemplate(content.site.readout.tableLabel, {
+                    label: copy.foundations,
+                  })}
+                  rows={portfolio.foundations}
+                  rowKey={({ capability }) => capability.id}
+                  columns={[
+                    capabilityColumn,
+                    {
+                      key: 'owner',
+                      header: content.site.capabilities.brief.owner,
+                      render: ({ uses }) => uses[0]!.row.ownerTeam,
+                    },
+                    {
+                      key: 'uses',
+                      header: copy.selected,
+                      render: ({ uses }) => (
+                        <>
+                          {renderTemplate(copy.benefits, { count: uses.length })}
+                          {caseLinks(uses.map((use) => use.useCase))}
+                        </>
+                      ),
+                    },
+                    {
+                      key: 'setup',
+                      header: content.site.capabilities.columns.setup,
+                      render: ({ capability }) =>
+                        capability.setup === 'both'
+                          ? copy.agentFollowup
+                          : content.site.ui.setup.platform,
+                    },
+                  ]}
+                />
+              )}
+            </section>
+          </ViewPane>
+          <ViewPane view={part} id="readiness" printed>
+            <section id="readiness">
+              <h2>{copy.readiness}</h2>
+              <p>{copy.readinessNote}</p>
+              <p>
+                {mapping.readinessLabel}: {describeReadiness(metrics.readiness, mapping)}
+              </p>
+              {portfolio.checks.length === 0 ? (
+                <p>{mapping.noChecks}</p>
+              ) : (
+                <DataTable
+                  caption={copy.readiness}
+                  hideCaption
+                  scrollLabel={renderTemplate(content.site.readout.tableLabel, {
+                    label: copy.readiness,
+                  })}
+                  rows={portfolio.checks}
+                  rowKey={(check) => check.id}
+                  columns={[
+                    {
+                      key: 'check',
+                      header: mapping.readiness,
+                      rowHeader: true,
+                      render: (check) => check.gap,
+                    },
+                    {
+                      key: 'ready',
+                      header: mapping.readinessStatuses.ready,
+                      render: (check) => check.ready.length,
+                    },
+                    {
+                      key: 'gap',
+                      header: mapping.readinessStatuses.gap,
+                      render: (check) => check.gapCases.length,
+                    },
+                    {
+                      key: 'unknown',
+                      header: mapping.readinessStatuses.unknown,
+                      render: (check) => check.unknown.length,
+                    },
+                    {
+                      key: 'affected',
+                      header: copy.affected,
+                      render: (check) =>
+                        check.gapCases.length + check.unknown.length === 0
+                          ? content.site.readout.empty
+                          : caseLinks([...check.gapCases, ...check.unknown]),
+                    },
+                  ]}
+                />
+              )}
+              <ul>
+                {cases
+                  .filter((item) => item.result.readiness.uncheckedCapabilities.length > 0)
+                  .map((item) => (
+                    <li key={item.assessment.id}>
+                      <Link to={`/diagnostic/${item.assessment.id}/readout`}>{item.name}</Link>:{' '}
+                      {mapping.noChecks}{' '}
+                      {item.result.readiness.uncheckedCapabilities
+                        .map(
+                          (id) =>
+                            content.capabilities.find((capability) => capability.id === id)!
+                              .shortName,
+                        )
+                        .join('; ')}
+                    </li>
+                  ))}
+              </ul>
+            </section>
+            <section id="licensing">
+              <h2>{copy.licensing}</h2>
+              <p>{copy.licensingNote}</p>
+              <p>{content.site.readout.eligibility}</p>
+              <dl>
+                <dt>{copy.uniqueCapabilities}</dt>
+                <dd>{metrics.uniqueCapabilities}</dd>
+                <dt>{content.site.readout.foundational}</dt>
+                <dd>{metrics.foundational}</dd>
+                <dt>{content.site.readout.premium}</dt>
+                <dd>{metrics.premium}</dd>
+              </dl>
               <DataTable
-                caption={copy.readiness}
+                caption={copy.licensing}
                 hideCaption
                 scrollLabel={renderTemplate(content.site.readout.tableLabel, {
-                  label: copy.readiness,
+                  label: copy.licensing,
                 })}
-                rows={portfolio.checks}
-                rowKey={(check) => check.id}
+                rows={cases}
+                rowKey={(item) => item.assessment.id}
                 columns={[
+                  nameColumn,
                   {
-                    key: 'check',
-                    header: mapping.readiness,
-                    rowHeader: true,
-                    render: (check) => check.gap,
+                    key: 'basis',
+                    header: mapping.licensing,
+                    render: (item) => item.result.licensing.basis ?? mapping.licenseBasisConfirm,
                   },
                   {
-                    key: 'ready',
-                    header: mapping.readinessStatuses.ready,
-                    render: (check) => check.ready.length,
+                    key: 'users',
+                    header: mapping.expectedUsers,
+                    render: (item) =>
+                      answerLabel(content, item.assessment.answers, 'expectedUsers'),
                   },
                   {
-                    key: 'gap',
-                    header: mapping.readinessStatuses.gap,
-                    render: (check) => check.gapCases.length,
-                  },
-                  {
-                    key: 'unknown',
-                    header: mapping.readinessStatuses.unknown,
-                    render: (check) => check.unknown.length,
-                  },
-                  {
-                    key: 'affected',
-                    header: copy.affected,
-                    render: (check) =>
-                      check.gapCases.length + check.unknown.length === 0
-                        ? content.site.readout.empty
-                        : caseLinks([...check.gapCases, ...check.unknown]),
+                    key: 'gcc',
+                    header: mapping.gcc,
+                    render: (item) => describeGcc(item.result, mapping),
                   },
                 ]}
               />
-            )}
-            <ul>
-              {cases
-                .filter((item) => item.result.readiness.uncheckedCapabilities.length > 0)
-                .map((item) => (
-                  <li key={item.assessment.id}>
-                    <Link to={`/diagnostic/${item.assessment.id}/readout`}>{item.name}</Link>:{' '}
-                    {mapping.noChecks}{' '}
-                    {item.result.readiness.uncheckedCapabilities
-                      .map(
-                        (id) =>
-                          content.capabilities.find((capability) => capability.id === id)!
-                            .shortName,
-                      )
-                      .join('; ')}
-                  </li>
+              <p>
+                <Link to="/methodology">{mapping.methodology}</Link>
+              </p>
+              {portfolio.capabilities
+                .filter(({ capability }) => capability.sourceNotes?.some((note) => note.differs))
+                .map(({ capability }) => (
+                  <div key={capability.id}>
+                    <h3>
+                      <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
+                    </h3>
+                    {capability.sourceNotes
+                      ?.filter((note) => note.differs)
+                      .map((note) => (
+                        <div key={note.sourceId}>
+                          <p>
+                            <strong>{content.site.capabilities.sourcesDifferNote}</strong>{' '}
+                            {note.note}
+                          </p>
+                          <Evidence
+                            sourceIds={[note.sourceId]}
+                            evidence="stated"
+                            reviewStatus={capability.reviewStatus}
+                          />
+                        </div>
+                      ))}
+                  </div>
                 ))}
-            </ul>
-          </section>
-          <section>
-            <h2>{copy.licensing}</h2>
-            <p>{copy.licensingNote}</p>
-            <p>{content.site.readout.eligibility}</p>
-            <dl>
-              <dt>{copy.uniqueCapabilities}</dt>
-              <dd>{metrics.uniqueCapabilities}</dd>
-              <dt>{content.site.readout.foundational}</dt>
-              <dd>{metrics.foundational}</dd>
-              <dt>{content.site.readout.premium}</dt>
-              <dd>{metrics.premium}</dd>
-            </dl>
-            <DataTable
-              caption={copy.licensing}
-              hideCaption
-              scrollLabel={renderTemplate(content.site.readout.tableLabel, {
-                label: copy.licensing,
-              })}
-              rows={cases}
-              rowKey={(item) => item.assessment.id}
-              columns={[
-                nameColumn,
-                {
-                  key: 'basis',
-                  header: mapping.licensing,
-                  render: (item) => item.result.licensing.basis ?? mapping.licenseBasisConfirm,
-                },
-                {
-                  key: 'users',
-                  header: mapping.expectedUsers,
-                  render: (item) => answerLabel(content, item.assessment.answers, 'expectedUsers'),
-                },
-                {
-                  key: 'gcc',
-                  header: mapping.gcc,
-                  render: (item) => describeGcc(item.result, mapping),
-                },
-              ]}
-            />
-            <Link to="/methodology">{mapping.methodology}</Link>
-            {portfolio.capabilities
-              .filter(({ capability }) => capability.sourceNotes?.some((note) => note.differs))
-              .map(({ capability }) => (
-                <div key={capability.id}>
-                  <h3>
-                    <Link to={`/capabilities/${capability.id}`}>{capability.shortName}</Link>
-                  </h3>
-                  {capability.sourceNotes
-                    ?.filter((note) => note.differs)
-                    .map((note) => (
-                      <div key={note.sourceId}>
-                        <p>
-                          <strong>{content.site.capabilities.sourcesDifferNote}</strong> {note.note}
-                        </p>
-                        <Evidence
-                          sourceIds={[note.sourceId]}
-                          evidence="stated"
-                          reviewStatus={capability.reviewStatus}
-                        />
-                      </div>
-                    ))}
-                </div>
-              ))}
-            <Evidence
-              sourceIds={content.mappingConfig.licensingSourceIds}
-              evidence="judgment"
-              reviewStatus="draft"
-            />
-          </section>
+              <Evidence
+                sourceIds={content.mappingConfig.licensingSourceIds}
+                evidence="judgment"
+                reviewStatus="draft"
+              />
+            </section>
+          </ViewPane>
+          <div data-presentation-hide>
+            <ViewPager views={VIEWS} current={part} />
+          </div>
         </>
       )}
     </>
@@ -442,7 +474,7 @@ export function Component() {
               ))}
             </fieldset>
           )}
-          <Link to="/map">{content.site.routes.map.title}</Link>
+          <Link to="/patterns">{content.site.routes.patterns.title}</Link>
         </div>
         {organization && (
           <h2>

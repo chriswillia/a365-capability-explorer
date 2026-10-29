@@ -185,7 +185,7 @@ test.describe('Phase 4 diagnostic', () => {
       .getByRole('textbox', { name: label('useCaseName'), exact: true })
       .fill('In-memory draft');
     await expect(page.getByRole('alert')).toContainText(copy.storageQuota);
-    await page.getByRole('link', { name: site.ui.nav.pitch, exact: true }).click();
+    await page.getByRole('link', { name: site.ui.nav.capabilities, exact: true }).click();
     const dialog = page.getByRole('alertdialog');
     const cancel = dialog.getByRole('button', { name: copy.cancel });
     await expect(cancel).toBeFocused();

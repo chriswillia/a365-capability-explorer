@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -15,8 +15,8 @@ import './WorkshopPage.tsx';
 const { site, workshop: copy } = content;
 const pillars = [...content.pillars].sort((a, b) => a.order - b.order);
 
-async function renderPage() {
-  const router = createMemoryRouter(routes, { initialEntries: ['/workshop'] });
+async function renderPage(path = '/workshop') {
+  const router = createMemoryRouter(routes, { initialEntries: [path] });
   render(
     <FluentProvider theme={fluentTheme}>
       <StateProviders>
@@ -31,7 +31,7 @@ afterEach(() => vi.restoreAllMocks());
 
 describe('workshop kit', () => {
   it('has a requirements checklist with one table per requirement area and one row per capability', async () => {
-    await renderPage();
+    await renderPage('/workshop?view=checklist');
     const section = document.getElementById('checklist')!;
     expect(section).toHaveAttribute('data-workshop-part', 'checklist');
     const checklist = within(section);
@@ -120,16 +120,57 @@ describe('workshop kit', () => {
     );
   });
 
-  it('links to the checklist, the customer conversation guide and the blank canvas', async () => {
+  it('shows one part at a time, keeps every part in the page so each still prints, and folds the capability cards by area', async () => {
+    await renderPage('/workshop?view=capabilities');
+    const links = within(
+      screen.getByRole('navigation', { name: site.ui.views.label }),
+    ).getAllByRole('link');
+    expect(links.map((link) => link.textContent)).toEqual([
+      copy.views.guide,
+      copy.views.checklist,
+      copy.views.patterns,
+      copy.views.capabilities,
+    ]);
+    expect(links[3]).toHaveAttribute('aria-current', 'true');
+    expect(links[1]).toHaveAttribute('href', '/workshop?view=checklist');
+    for (const part of document.querySelectorAll('[data-workshop-part]')) {
+      const shown = part.getAttribute('data-workshop-part') === 'capabilities';
+      const pane = part.closest('[data-print-visible]') as HTMLElement;
+      expect(pane.hidden, part.getAttribute('data-workshop-part')!).toBe(!shown);
+    }
+    expect(document.querySelectorAll('[data-pattern-card]')).toHaveLength(content.patterns.length);
+    expect(document.querySelectorAll('[data-capability-card]')).toHaveLength(
+      content.capabilities.length,
+    );
+    for (const pillar of pillars) {
+      const panel = document.getElementById(`cards-${pillar.id}`) as HTMLDetailsElement;
+      expect(panel.open).toBe(false);
+      expect(panel.querySelectorAll('[data-capability-card]')).toHaveLength(
+        content.capabilities.filter((c) => c.pillar === pillar.id).length,
+      );
+    }
+  });
+
+  it('opens the area of capability cards that a link points at', async () => {
+    await renderPage('/workshop#cards-secure');
+    const panel = document.getElementById('cards-secure') as HTMLDetailsElement;
+    await waitFor(() => expect(panel.open).toBe(true));
+    expect(screen.getByRole('link', { name: copy.views.capabilities })).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+  });
+
+  it('links to the parts, the customer conversation guide and the blank canvas', async () => {
     await renderPage();
     const tools = within(screen.getByRole('main'));
-    expect(tools.getByRole('link', { name: copy.checklistTitle })).toHaveAttribute(
+    expect(tools.getByRole('link', { name: copy.views.checklist })).toHaveAttribute(
       'href',
-      '#checklist',
+      '/workshop?view=checklist',
     );
     expect(tools.getByRole('link', { name: site.routes.conversation.title })).toHaveAttribute(
       'href',
-      '/pitch#conversation',
+      '/patterns?view=conversation',
     );
     expect(tools.getByRole('link', { name: site.readout.blankCanvas })).toHaveAttribute(
       'href',

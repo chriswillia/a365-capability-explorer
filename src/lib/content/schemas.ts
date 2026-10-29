@@ -426,7 +426,6 @@ export const CapabilitySchema = z.strictObject({
 
 export const ROUTE_KEYS = [
   'overview',
-  'pitch',
   'licensing',
   'fit',
   'access',
@@ -445,6 +444,7 @@ export const ROUTE_KEYS = [
   'portfolio',
   'workshop',
   'conversation',
+  'brief',
   'methodology',
   'whatsNew',
   'contentHealth',
@@ -498,7 +498,7 @@ export const PersonaSchema = z.strictObject({
   startLabel: Text,
   href: Text.refine(
     (value) =>
-      /^\/(?:learn(?:#[a-z0-9-]+)?|conversation|pitch|licensing|fit|capabilities(?:\?[a-z]+=[A-Za-z0-9._%+-]+(?:&[a-z]+=[A-Za-z0-9._%+-]+)*)?)$/.test(
+      /^\/(?:learn(?:#[a-z0-9-]+)?|conversation|licensing|fit|capabilities(?:\?[a-z]+=[A-Za-z0-9._%+-]+(?:&[a-z]+=[A-Za-z0-9._%+-]+)*)?)$/.test(
         value,
       ),
     'must target an available learning, conversation, playbook or explorer route',
@@ -577,6 +577,8 @@ export const PortfolioCopySchema = z.strictObject({
   licensing: Text,
   licensingNote: Text,
   uniqueCapabilities: Text,
+  // The parts of the portfolio, one on screen at a time. All of them print and present.
+  views: z.strictObject({ compare: Text, foundations: Text, readiness: Text }),
   export: Text,
   index: Text,
 });
@@ -616,6 +618,8 @@ export const WorkshopSchema = z.strictObject({
   printCapabilities: Text,
   printChecklist: Text,
   printError: Text,
+  // The parts of the kit, one on screen at a time. All of them print.
+  views: z.strictObject({ guide: Text, checklist: Text, patterns: Text, capabilities: Text }),
   guide: Text,
   checklistTitle: Text,
   checklistNote: Text,
@@ -632,7 +636,7 @@ export const WorkshopSchema = z.strictObject({
 });
 
 const ConversationLink = Text.regex(
-  /^\/(?:diagnostic|map|workshop|learn|capabilities|patterns|portfolio|pitch|access|licensing|fit)(?:#[a-z0-9-]+)?$/,
+  /^\/(?:diagnostic|map|workshop|learn|capabilities|patterns|portfolio|access|licensing|fit|brief)(?:#[a-z0-9-]+)?$/,
   'must target a page of this site',
 );
 export const ConversationSchema = z.strictObject({
@@ -704,48 +708,18 @@ const AccessAnswer = z.enum(['delegated', 'own-teammate', 'own-background', 'mix
 const CalcField = z.strictObject({ label: Text, hint: Text });
 const CalcResult = z.strictObject({ label: Text, basis: maxWords(50) });
 
+// Seller guidance for any agent. The statements say why it matters and the leave-behind quotes them, the outcomes are
+// what the value brief is built from, and the rest helps a seller run the conversation.
 export const ValueSchema = z.strictObject({
   reviewStatus: z.enum(REVIEW_STATUSES),
-  intro: Text,
   notice: Text,
-  // The four parts of the Pitch page, one on screen at a time.
-  views: z.strictObject({ say: Text, prepare: Text, run: Text, brief: Text }),
-  pitch: z.strictObject({
-    heading: Text,
-    intro: Text,
-    beatsLabel: Text,
-    askLabel: Text,
-    othersLabel: Text,
-    audiences: ByAudience(
-      z.strictObject({
-        label: Text,
-        opening: maxWords(45),
-        beats: z.array(maxWords(35)).min(3).max(5),
-        ask: maxWords(35),
-      }),
-    ),
-    ...EditorialEvidence,
-  }),
   problem: z.strictObject({
-    heading: Text,
-    intro: Text,
     statements: z
       .array(z.strictObject({ id: Id, text: maxWords(40), caveat: Text.optional(), ...Sourced }))
       .min(3),
   }),
-  gaps: z.strictObject({
-    heading: Text,
-    intro: Text,
-    items: z.array(z.strictObject({ id: Id, text: maxWords(30), themeId: Id, ...Sourced })).min(1),
-  }),
   themes: z.strictObject({
     heading: Text,
-    intro: Text,
-    angleLabel: Text,
-    aiAngleLabel: Text,
-    securityAngleLabel: Text,
-    capabilitiesLabel: Text,
-    ownersLabel: Text,
     items: z
       .array(
         z.strictObject({
@@ -755,28 +729,9 @@ export const ValueSchema = z.strictObject({
           outcome: maxWords(30),
           angle: z.strictObject({ ai: maxWords(30), security: maxWords(30) }),
           capabilityIds: uniqueList(Id),
-          reviewStatus: z.enum(REVIEW_STATUSES),
-        }),
-      )
-      .min(1),
-  }),
-  buyers: z.strictObject({
-    heading: Text,
-    intro: Text,
-    asksLabel: Text,
-    leadLabel: Text,
-    themesLabel: Text,
-    items: z
-      .array(
-        z.strictObject({
-          id: Id,
-          label: Text,
-          asks: z.array(Text).min(2),
-          lead: maxWords(40),
-          themeIds: uniqueList(Id),
-          // The Selling as choices for which this buyer's outcomes are pre-selected in the brief builder.
+          // The Selling as choices for which this outcome is pre-selected in the brief builder.
           defaultFor: z.array(z.enum(AUDIENCES)),
-          ...EditorialEvidence,
+          reviewStatus: z.enum(REVIEW_STATUSES),
         }),
       )
       .min(1),
@@ -789,55 +744,6 @@ export const ValueSchema = z.strictObject({
         z.strictObject({ id: Id, objection: Text, answer: maxWords(70), ...EditorialEvidence }),
       )
       .min(1),
-  }),
-  proof: z.strictObject({
-    heading: Text,
-    intro: Text,
-    kinds: z.strictObject({ customer: Text, partner: Text, research: Text }),
-    items: z
-      .array(
-        z.strictObject({
-          id: Id,
-          kind: z.enum(['customer', 'partner', 'research']),
-          who: Text,
-          summary: maxWords(40),
-          caveat: Text.optional(),
-          ...Sourced,
-        }),
-      )
-      .min(1),
-  }),
-  // How to start the conversation for a customer's situation, with the licensing path it leads to.
-  entryPoints: z.strictObject({
-    heading: Text,
-    intro: Text,
-    conversationLabel: Text,
-    licensingLabel: Text,
-    items: z
-      .array(
-        z.strictObject({
-          id: Id,
-          situation: Text,
-          conversation: maxWords(60),
-          licensing: maxWords(60),
-          links: z.array(z.strictObject({ label: Text, to: ConversationLink })).min(1),
-          ...Sourced,
-        }),
-      )
-      .min(5),
-  }),
-  // The questions each capability suggests asking, to pick from and take into a meeting.
-  discovery: z.strictObject({
-    heading: Text,
-    intro: Text,
-    limit: z.int().min(3).max(10),
-    counter: Template,
-    limitReached: Text,
-    copy: Text,
-    copied: Text,
-    clear: Text,
-    agendaTitle: Text,
-    agendaIntro: Text,
   }),
   jointPlan: z.strictObject({
     heading: Text,
@@ -857,10 +763,11 @@ export const ValueSchema = z.strictObject({
     note: Text,
     reviewStatus: z.enum(REVIEW_STATUSES),
   }),
-  boundaries: z.strictObject({ heading: Text, items: z.array(Text).min(2) }),
   brief: z.strictObject({
     heading: Text,
     intro: Text,
+    // How each Selling as choice reads in the brief.
+    audiences: ByAudience(Text),
     customerLabel: Text,
     customerHint: Text,
     concernsLegend: Text,
@@ -1414,6 +1321,16 @@ export const ReadoutCopySchema = z.strictObject({
   licenseNeeds: Text,
   licenseOpen: Text,
   accessOpen: Text,
+  // One part of the readout on screen at a time. Every part still prints, so the document is whole on paper.
+  views: z.strictObject({
+    summary: Text,
+    controls: Text,
+    golive: Text,
+    detail: Text,
+    next: Text,
+    appendix: Text,
+  }),
+  capabilityTable: Template,
   exhibits: z.strictObject({
     pillars: Text,
     access: Text,
@@ -1685,19 +1602,18 @@ export const SiteSchema = z.strictObject({
     homeLinkLabel: Text,
     // The button that opens the header's links on a phone.
     menuLabel: Text,
-    // The one setting in the header: a switch that adds the technical detail. Selling as sits on the Pitch page.
+    // The one setting in the header: a switch that adds the technical detail. Selling as sits on the value brief.
     depth: z.strictObject({ technical: Text, on: Text, off: Text, hint: Text }),
     // The steps in the order a seller does them, then the reference pages behind More.
     nav: z.strictObject({
       overview: Text,
-      pitch: Text,
+      capabilities: Text,
       scope: Text,
       fit: Text,
       licensing: Text,
       deploy: Text,
       library: Text,
       access: Text,
-      capabilities: Text,
       learn: Text,
       methodology: Text,
     }),
@@ -1790,14 +1706,17 @@ export const SiteSchema = z.strictObject({
             title: Text,
             body: Text,
             cta: Text,
-            to: Text.regex(/^\/(?:pitch|patterns|fit|licensing|deploy)$/, 'must target a job page'),
+            to: Text.regex(
+              /^\/(?:capabilities|patterns|fit|licensing|deploy)$/,
+              'must target a job page',
+            ),
           }),
         )
         .min(3),
       libraryNote: Text,
       // The customer-session pages, named by route so their titles are not written twice.
       packNote: Text,
-      packKeys: z.array(z.enum(['workshop', 'portfolio'])).min(1),
+      packKeys: z.array(z.enum(['workshop', 'portfolio', 'brief'])).min(1),
     }),
     recent: z.strictObject({
       heading: Text,
@@ -1811,6 +1730,8 @@ export const SiteSchema = z.strictObject({
   }),
   capabilities: z.strictObject({
     intro: Text,
+    // The way from the capabilities to a page for the customer meeting.
+    valueBrief: z.strictObject({ text: Text, cta: Text }),
     draftNote: Text,
     // The catalog at a glance: the numbers and exhibits that used to open the home page.
     glance: z.strictObject({
@@ -1972,7 +1893,8 @@ export const SiteSchema = z.strictObject({
   }),
   learn: z.strictObject({
     intro: Text,
-    contents: Text,
+    // The parts of the Learn page, one on screen at a time.
+    views: z.strictObject({ fit: Text, works: Text, journey: Text, glossary: Text }),
     draftNote: Text,
     pending: Text,
     verified: Text,
@@ -2107,10 +2029,11 @@ export const SiteSchema = z.strictObject({
     intro: Text,
     neutralNote: Text,
     matrix: Text,
-    // The parts of the example agents pages, one on screen at a time.
+    // The parts of Scope an agent and of the example agents pages, one on screen at a time.
     views: z.strictObject({
       cards: Text,
       compare: Text,
+      conversation: Text,
       controls: Text,
       risks: Text,
       rollout: Text,

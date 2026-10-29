@@ -5,12 +5,13 @@ import { AgentBackLink } from '../../components/AgentBackLink.tsx';
 import { PageContainer } from '../../components/PageContainer.tsx';
 import { PageHeading } from '../../components/PageHeading.tsx';
 import { PresentationControls } from '../../components/PresentationControls.tsx';
+import { ViewPager, ViewSwitcher } from '../../components/ViewSwitcher.tsx';
 import { content, contentMeta } from '../../lib/content/index.ts';
 import type { Answers } from '../../lib/content/schemas.ts';
 import { formatNumber } from '../../lib/content/template.ts';
 import { answerErrors } from '../../lib/engine/answers.ts';
 import { describeReadiness } from '../../lib/engine/readiness.ts';
-import { exhibitId, exhibitPlan } from '../../lib/readout/plan.ts';
+import { exhibitId, exhibitPlan, readoutParts } from '../../lib/readout/plan.ts';
 import { answerLabel, buildReadout, readoutMarkdown } from '../../lib/readout/report.ts';
 import { downloadBlob, downloadText } from '../../lib/readout/files.ts';
 import { PresentationError, readoutPowerPoint } from '../../lib/readout/powerpoint.ts';
@@ -19,6 +20,7 @@ import { diagnosticBundle } from '../../lib/state/diagnostic-transfer.ts';
 import { useDiagnostics } from '../../lib/state/diagnostics.ts';
 import type { Assessment, Organization } from '../../lib/state/diagnostic-model.ts';
 import { usePageTitle } from '../../lib/usePageTitle.ts';
+import { useView, type PageView } from '../../lib/useView.ts';
 import { QuestionInput } from '../diagnostic/QuestionInput.tsx';
 import { BrandingEditor } from './BrandingEditor.tsx';
 import { ReadoutExhibits } from './ReadoutExhibits.tsx';
@@ -40,6 +42,17 @@ function Readout({
   const { result, metrics } = report;
   const technical = useDepth().depth === 'technical';
   const plan = exhibitPlan(technical);
+  // One part on screen at a time. Every part stays in the page and prints, so the readout is still printed whole.
+  const parts: PageView[] = readoutParts(technical).map((part) => ({
+    id: part.id,
+    label: copy.views[part.id],
+    sections: [
+      ...part.anchors,
+      ...part.exhibits.filter((key) => plan.includes(key)).map(exhibitId),
+    ],
+    prefixes: part.prefixes,
+  }));
+  const current = useView(parts);
   const [message, setMessage] = useState<'copied' | 'error' | null>(null);
   const [exporting, setExporting] = useState(false);
   const [wide] = useState(
@@ -271,39 +284,52 @@ function Readout({
               <p role="note">{content.site.diagnostic.oldContent}</p>
             )}
           </header>
-          <section>
-            <h2>{copy.summary}</h2>
-            <ol>
-              {report.summary.map((text) => (
-                <li key={text}>{text}</li>
-              ))}
-            </ol>
-            <KpiStrip
-              items={[
-                ...(['essential', 'recommended', 'consider'] as const).map((id) => ({
-                  id,
-                  label: mapping.levels[id],
-                  value: formatNumber(metrics.levels[id]),
-                })),
-                {
-                  id: 'foundational',
-                  label: copy.foundational,
-                  value: formatNumber(metrics.foundational),
-                },
-                { id: 'premium', label: copy.premium, value: formatNumber(metrics.premium) },
-                { id: 'platform', label: copy.platform, value: formatNumber(metrics.platform) },
-                { id: 'both', label: copy.both, value: formatNumber(metrics.both) },
-                { id: 'agent', label: copy.agent, value: formatNumber(metrics.agent) },
-                {
-                  id: 'readiness',
-                  label: mapping.readinessLabel,
-                  value: describeReadiness(metrics.readiness, mapping),
-                },
-              ]}
-            />
-            <p>{copy.setupNote}</p>
-          </section>
-          <ReadoutExhibits report={report} assessment={assessment} organization={organization} />
+          <div data-presentation-hide>
+            <ViewSwitcher views={parts} current={current} />
+          </div>
+          <ReadoutExhibits
+            report={report}
+            assessment={assessment}
+            organization={organization}
+            part={current}
+            lead={
+              <section id="readout-summary">
+                <h2>{copy.summary}</h2>
+                <ol>
+                  {report.summary.map((text) => (
+                    <li key={text}>{text}</li>
+                  ))}
+                </ol>
+                <KpiStrip
+                  items={[
+                    ...(['essential', 'recommended', 'consider'] as const).map((id) => ({
+                      id,
+                      label: mapping.levels[id],
+                      value: formatNumber(metrics.levels[id]),
+                    })),
+                    {
+                      id: 'foundational',
+                      label: copy.foundational,
+                      value: formatNumber(metrics.foundational),
+                    },
+                    { id: 'premium', label: copy.premium, value: formatNumber(metrics.premium) },
+                    { id: 'platform', label: copy.platform, value: formatNumber(metrics.platform) },
+                    { id: 'both', label: copy.both, value: formatNumber(metrics.both) },
+                    { id: 'agent', label: copy.agent, value: formatNumber(metrics.agent) },
+                    {
+                      id: 'readiness',
+                      label: mapping.readinessLabel,
+                      value: describeReadiness(metrics.readiness, mapping),
+                    },
+                  ]}
+                />
+                <p>{copy.setupNote}</p>
+              </section>
+            }
+          />
+          <div data-presentation-hide>
+            <ViewPager views={parts} current={current} />
+          </div>
           <p className={styles.disclaimer}>
             {copy.draft} · {result.contentVersion}
             <span data-print-only>

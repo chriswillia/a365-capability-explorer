@@ -29,14 +29,13 @@ ui:
     hint: "Off shows outcomes in plain language. On adds where each capability is configured, the layer it acts on, and the evidence behind each statement."
   nav:
     overview: Home
-    pitch: Pitch
+    capabilities: Capabilities
     scope: "Scope an agent"
     fit: "Stack fit"
     licensing: Licensing
     deploy: Deploy
     library: More
     access: "How agents act"
-    capabilities: Capabilities
     learn: Learn
     methodology: "How recommendations work"
   views:
@@ -64,7 +63,7 @@ ui:
   audience:
     groupLabel: "Selling as"
     label: "Selling as"
-    hint: "Changes the pitch and talk tracks. The facts stay the same."
+    hint: "Changes the angle of the value brief. The facts stay the same."
     ai: "AI seller"
     security: "Security seller"
     joint: Both
@@ -116,9 +115,6 @@ routes:
   overview:
     title: Home
     description: "Explain the value of Agent 365 for any agent, map the agent, check licensing and prerequisites, and leave the customer with a clear summary."
-  pitch:
-    title: Pitch
-    description: "What to say about Agent 365 for any agent: a 60-second pitch for AI and Security sellers, the problem, the outcomes by capability, who you are talking to, answers to pushback, and how to run the conversation."
   licensing:
     title: "Licensing and prerequisites"
     description: "Who needs an Agent 365 license by how the agent acts, which plans and underlying services are required, and what each capability needs to work."
@@ -172,7 +168,10 @@ routes:
     description: "A facilitator guide, printable scenario and capability cards, a requirements checklist and a blank canvas for a 90-minute session."
   conversation:
     title: "Run a customer conversation"
-    description: "The conversation guide now lives on the Pitch page: the questions to ask across security, governance and observability, who to involve and what to flag."
+    description: "The conversation guide is a part of Scope an agent: the questions to ask across security, governance and observability, who to involve and what to flag."
+  brief:
+    title: "Value brief"
+    description: "A one-page brief for a customer meeting: the outcomes that matter to them, the capabilities behind each and the licensing line."
   methodology:
     title: "How recommendations work"
     description: "How recommendations are made: levels, evidence tags, the rules, the sources and the disclaimers."
@@ -191,8 +190,8 @@ routes:
 
 overview:
   heroEyebrow: "For Microsoft AI and security sellers"
-  heroLede: "Make the value case, scope the agent, check the fit, size the licenses and plan the go-live."
-  ctaPrimary: "Start with the pitch"
+  heroLede: "See what Agent 365 does, scope the agent, check the fit, size the licenses and plan the go-live."
+  ctaPrimary: "Explore the capabilities"
   ctaSecondary: "Scope an agent"
   examples:
     heading: "Scope an agent: start from an example"
@@ -203,12 +202,12 @@ overview:
     heading: "What else do you need?"
     intro: "Each job works for any agent. Take the one you need, or work through them in order."
     tiles:
-      - id: pitch
-        question: "What do I say?"
-        title: Pitch
-        body: "A 60-second pitch, the problem every agent creates and answers to pushback. It works before you know the use case."
-        cta: "Open the pitch"
-        to: "/pitch"
+      - id: capabilities
+        question: "What does Agent 365 do for the customer?"
+        title: Capabilities
+        body: "Every capability in the service description, by what it does for a customer: observe, govern and secure agents. Open a one-page brief for any of them."
+        cta: "Browse the capabilities"
+        to: "/capabilities"
       - id: fit
         question: "How does it fit the customer's stack?"
         title: "Stack fit"
@@ -227,9 +226,9 @@ overview:
         body: "The go-live baseline by gate, and a 30, 60 and 90 day plan for an agent."
         cta: "Plan go-live"
         to: "/deploy"
-    libraryNote: "Need the detail? The More menu holds the capabilities, how agents act, Learn and how recommendations work."
+    libraryNote: "Need the detail? The More menu holds how agents act, Learn and how recommendations work."
     packNote: "For a customer session:"
-    packKeys: [workshop, portfolio]
+    packKeys: [workshop, portfolio, brief]
   recent:
     heading: "Pick up where you left off"
     useCases: "{count} {count?use case|use cases}"
@@ -241,6 +240,9 @@ overview:
 
 capabilities:
   intro: "Browse the service description by area: Observe, Govern and Secure. Search the questions customers ask, filter by where a capability is configured, whether it needs Agent 365 or its GCC availability, compare capabilities, or open a brief."
+  valueBrief:
+    text: "Preparing for a customer meeting?"
+    cta: "Make a one-page value brief"
   draftNote: "Summaries are editorial and need SME review. The official wording and the availability columns come from the service description."
   glance:
     heading: "The catalog at a glance"
@@ -444,7 +446,11 @@ capabilities:
 
 learn:
   intro: "Start with where Agent 365 fits and the assumptions customers bring, then follow a conceptual request, explore integration paths, and check terminology."
-  contents: "On this page"
+  views:
+    fit: "Where it fits"
+    works: "How it works"
+    journey: "Your role and the journey"
+    glossary: Glossary
   draftNote: "Editorial explanations and capability associations need SME review. Evidence labels describe the source basis, not approval."
   pending: "Answer pending verification. Read the official source; do not treat the question's premise as a confirmed fact."
   verified: "Source checked"
@@ -619,6 +625,10 @@ portfolio:
   licensing: Who to license, across these use cases
   licensingNote: "Capability counts are deduplicated across selected use cases, not license quantities. Who to license stays per use case, because it follows how each agent acts. Do not sum user bands: users may overlap. Verify cloud availability, source differences and licensing with the official sources and your account team."
   uniqueCapabilities: Unique in-scope capabilities
+  views:
+    compare: "Compare the agents"
+    foundations: "What they share"
+    readiness: "Readiness and licensing"
   export: Download selected portfolio JSON
   index: Chart number
 
@@ -687,6 +697,14 @@ readout:
   licenseNeeds: "What the capabilities need to work"
   licenseOpen: "Open licensing and prerequisites for this assessment"
   accessOpen: "See how agents act, with this assessment"
+  views:
+    summary: Summary
+    controls: Controls and risks
+    golive: Guardrails and owners
+    detail: Readiness detail
+    next: Licensing and next steps
+    appendix: Appendix
+  capabilityTable: "Show the table of {count} in-scope {count?capability|capabilities}"
   exhibits:
     pillars: "Security, governance and observability"
     access: "How the agent acts"
@@ -790,6 +808,7 @@ mapping:
   views:
     cards: "Browse examples"
     compare: "Compare controls"
+    conversation: "Run the conversation"
     controls: "Recommended controls"
     risks: "Risks and mitigations"
     rollout: "Rollout and licensing"
@@ -931,7 +950,7 @@ privacy:
       why: "So the site remembers your choice on your next visit"
     - what: "Whether you sell as an AI seller, a Security seller or both"
       where: "Local storage, key cpcompass:audience"
-      why: "So the pitch and talk tracks match your role on your next visit"
+      why: "So the value brief matches your role on your next visit"
     - what: "Customer profiles, assessment answers, which answers came from a starting scenario and are not yet confirmed, optional names, optional normalized PNG logos and their descriptions, assessment mode and current section, and the fictional sample customer if you load it"
       where: "Local storage, key cpcompass:diagnostic"
       why: "Autosave and resume local assessments, and let the header link back to the agent you are working on. Nothing is uploaded. Delete individual assessments or unused customers from the assessment page. Reset or remove the sample customer from the home page; that never touches your own customers."
@@ -940,4 +959,4 @@ privacy:
       why: "Restore scroll position during navigation. This is not assessment answer storage."
   selfHostedHeading: "Fonts and other files"
   selfHosted: "Fonts and every other file are served from this site. Pages make no requests to other sites."
-  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. Portfolio views reuse those assessments; portfolio selection and presentation mode are temporary and add no stored preference. The numbers you enter to size licenses and the questions you pick for a meeting agenda stay on the page and are not stored. The leave-behind, the go-live plan and the agent passport read the saved assessment. JSON backups and selected portfolio bundles, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."
+  futureNote: "Saved assessments remain local to this browser profile, not your account or another device. Portfolio views reuse those assessments; portfolio selection and presentation mode are temporary and add no stored preference. The numbers you enter to size licenses stay on the page and are not stored. The leave-behind, the go-live plan and the agent passport read the saved assessment. JSON backups and selected portfolio bundles, Markdown, copied summaries, PDF and PowerPoint contain your answers and optional names. JSON, PDF and PowerPoint also include any selected logo. Review them before sharing; exported files are not encrypted by this app. Import reads a selected file locally and adds copies without uploading it or overwriting existing data. A storage error is shown explicitly; unsaved changes may be lost if you refresh or leave."

@@ -8,7 +8,6 @@ type NavKey = keyof Site['ui']['nav'];
 
 // Reference pages a seller opens now and then, behind the steps they do in order.
 const REFERENCE: { key: NavKey; to: string }[] = [
-  { key: 'capabilities', to: '/capabilities' },
   { key: 'access', to: '/access' },
   { key: 'learn', to: '/learn' },
   { key: 'methodology', to: '/methodology' },
@@ -43,7 +42,7 @@ function MoreDetails({ active }: { active: boolean }) {
   );
 }
 
-/** The capabilities, how agents act, Learn and how recommendations work: the reference pages behind the steps. */
+/** How agents act, Learn and how recommendations work: the reference pages behind the steps. */
 export function LibraryMenu() {
   const { pathname } = useLocation();
   const active = REFERENCE.some(

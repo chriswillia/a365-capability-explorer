@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { content } from '../content/index.ts';
-import { EXHIBIT_KEYS, exhibitId, exhibitPlan } from './plan.ts';
+import { EXHIBIT_KEYS, READOUT_PARTS, exhibitId, exhibitPlan, readoutParts } from './plan.ts';
 
 const technicalOnly = ['capabilities', 'readiness', 'operatingModel', 'integration', 'whatIfs'];
 
@@ -32,5 +32,35 @@ describe('readout exhibit plan', () => {
     const ids = EXHIBIT_KEYS.map(exhibitId);
     expect(new Set(ids).size).toBe(ids.length);
     expect(ids).toContain('exhibit-pillars');
+  });
+});
+
+describe('readout parts', () => {
+  it('has a label in the content for every part and no label without a part', () => {
+    expect(READOUT_PARTS.map((part) => part.id).sort()).toEqual(
+      Object.keys(content.site.readout.views).sort(),
+    );
+  });
+
+  it('holds every exhibit once, in plan order, so the numbers read in sequence from part to part', () => {
+    expect(READOUT_PARTS.flatMap((part) => part.exhibits)).toEqual(EXHIBIT_KEYS);
+  });
+
+  it('offers every part in the Technical view, and in the Executive view only the parts that have an exhibit to show', () => {
+    expect(readoutParts(true)).toEqual(READOUT_PARTS);
+    const plan = exhibitPlan(false);
+    const executive = readoutParts(false);
+    expect(executive.map((part) => part.id)).toEqual(['summary', 'controls', 'golive', 'next']);
+    for (const part of executive)
+      expect(
+        part.exhibits.some((key) => plan.includes(key)),
+        part.id,
+      ).toBe(true);
+  });
+
+  it('names each section a link can point at once, apart from the exhibits', () => {
+    const named = READOUT_PARTS.flatMap((part) => part.anchors);
+    expect(new Set(named).size).toBe(named.length);
+    for (const anchor of named) expect(EXHIBIT_KEYS.map(exhibitId)).not.toContain(anchor);
   });
 });

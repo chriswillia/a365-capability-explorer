@@ -94,24 +94,8 @@ export function validatePlaybook(
     value.problem.statements.map((s) => s.id),
   );
   duplicates(
-    'value.yaml gaps',
-    value.gaps.items.map((g) => g.id),
-  );
-  duplicates(
-    'value.yaml buyers',
-    value.buyers.items.map((b) => b.id),
-  );
-  duplicates(
     'value.yaml objections',
     value.objections.items.map((o) => o.id),
-  );
-  duplicates(
-    'value.yaml proof',
-    value.proof.items.map((p) => p.id),
-  );
-  duplicates(
-    'value.yaml entryPoints',
-    value.entryPoints.items.map((e) => e.id),
   );
   duplicates(
     'value.yaml jointPlan',
@@ -133,10 +117,6 @@ export function validatePlaybook(
   }
   for (const id of capabilityIds)
     if (!themeOf.has(id)) errors.push(`value.yaml: capability "${id}" is not in any value theme`);
-  for (const gap of value.gaps.items)
-    known(`value.yaml › gaps › ${gap.id}`, 'theme', gap.themeId, themeIds);
-  for (const buyer of value.buyers.items)
-    for (const id of buyer.themeIds) known(`value.yaml › ${buyer.id}`, 'theme', id, themeIds);
 
   // ---------- licensing.yaml ----------
   const licensing = content.licensing;

@@ -9,8 +9,8 @@ steps:
     title: "Frame the outcome"
     instruction: "Start with what the agent should achieve and who is accountable for it. Treat Agent 365 requirements as the way to make that outcome safe, governed and observable, rather than as a product list."
     action:
-      label: "Start with the 60-second pitch"
-      to: "/pitch#pitch"
+      label: "Browse the capabilities"
+      to: "/capabilities"
   - id: describe
     title: "Describe the agent"
     instruction: "Capture the users, data, actions and tools, and whether the agent acts for a user, as itself or through its own account. Start from the closest scenario, then correct its assumptions with the customer; answers you did not hear from the customer stay marked as assumed."
@@ -58,5 +58,7 @@ next:
     to: "/fit"
   - label: "Compare agents for one customer"
     to: "/portfolio"
+  - label: "Make a one-page value brief"
+    to: "/brief"
   - label: "Print the requirements checklist"
     to: "/workshop#checklist"

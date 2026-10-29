@@ -25,7 +25,7 @@ export async function chooseDepth(page: Page, depth: 'executive' | 'technical') 
   if (on !== (depth === 'technical')) await button.click();
 }
 
-/** Selling as sits on the Pitch page, in the parts the choice changes. */
+/** Selling as sits on the value brief, which it changes. */
 export async function chooseAudience(page: Page, audience: 'ai' | 'security' | 'joint') {
   const group = page.getByRole('group', { name: site.ui.audience.groupLabel });
   await group.getByRole('button', { name: site.ui.audience[audience], exact: true }).click();

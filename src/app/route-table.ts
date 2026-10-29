@@ -8,9 +8,13 @@ import type { RouteKey } from '../lib/content/schemas.ts';
  * Pages addressed by an id (a capability, a scenario, a saved assessment) are not listed: a folder named like a
  * page that also has an `.html` file would make Pages redirect to the folder, so those addresses keep using the
  * 404.html fallback, which loads the same app.
+ *
+ * A retired page (Pitch) is listed with the key of the page that took its place, so an old shared link is still
+ * answered with HTTP 200 and the app then sends it on.
  */
 export const PAGE_ROUTES = [
-  { path: 'pitch', key: 'pitch' },
+  { path: 'pitch', key: 'capabilities' },
+  { path: 'brief', key: 'brief' },
   { path: 'licensing', key: 'licensing' },
   { path: 'fit', key: 'fit' },
   { path: 'access', key: 'access' },

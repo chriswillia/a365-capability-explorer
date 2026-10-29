@@ -3,6 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { content } from './content.ts';
 import { chooseAudience } from './view.ts';
 import { emptyWorkspace } from '../src/lib/state/diagnostic-model.ts';
+import { renderTemplate } from '../src/lib/content/template.ts';
 
 const { site } = content;
 const storageKey = 'cpcompass:diagnostic';
@@ -57,8 +58,8 @@ const violations = async (page: Page) =>
   );
 
 test.describe('seller playbook navigation', () => {
-  const steps = ['pitch', 'scope', 'fit', 'licensing', 'deploy'] as const;
-  const reference = ['capabilities', 'access', 'learn', 'methodology'] as const;
+  const steps = ['capabilities', 'scope', 'fit', 'licensing', 'deploy'] as const;
+  const reference = ['access', 'learn', 'methodology'] as const;
 
   test('lists the steps in order, and keeps the reference pages in a More menu', async ({
     page,
@@ -107,13 +108,13 @@ test.describe('seller playbook navigation', () => {
       nav.getByRole('link', { name: site.ui.nav[reference[0]], exact: true }),
     ).toBeFocused();
     await page.keyboard.press('Enter');
-    const heading = page.getByRole('heading', { level: 1, name: site.routes.capabilities.title });
+    const heading = page.getByRole('heading', { level: 1, name: site.routes.access.title });
     await expect(heading).toBeFocused();
     await expect(nav.locator('details')).not.toHaveAttribute('open', '');
-    await expect(page).toHaveTitle(`${site.routes.capabilities.title} · ${site.productName}`);
+    await expect(page).toHaveTitle(`${site.routes.access.title} · ${site.productName}`);
   });
 
-  test('the home page offers each other job as a link, and the hero opens the pitch', async ({
+  test('the home page offers each other job as a link, and the hero opens the capabilities', async ({
     page,
   }) => {
     await page.goto('./');
@@ -123,7 +124,7 @@ test.describe('seller playbook navigation', () => {
       await expect(tiles.getByRole('link', { name: tile.cta, exact: true })).toBeVisible();
     await page.getByRole('link', { name: site.overview.ctaPrimary, exact: true }).click();
     await expect(
-      page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
+      page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
     ).toBeVisible();
   });
 
@@ -150,25 +151,55 @@ test.describe('seller playbook navigation', () => {
   }) => {
     await page.goto('conversation?audience=security');
     await expect(
-      page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
+      page.getByRole('heading', { level: 1, name: site.routes.patterns.title }),
     ).toBeVisible();
-    await expect(page).toHaveURL(/pitch\?audience=security&view=run#conversation$/);
+    await expect(page).toHaveURL(/patterns\?audience=security&view=conversation#conversation$/);
     await expect(page.locator('#conversation')).toBeInViewport();
+  });
+
+  test('keeps an old Pitch link working: it leads to where the part it pointed at moved', async ({
+    page,
+  }) => {
+    await page.goto('pitch');
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/capabilities$/);
+
+    await page.goto('pitch#pushback');
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.fit.title }),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/fit#pushback$/);
+    await expect(page.locator('#pushback')).toBeInViewport();
+
+    await page.goto('pitch?view=brief&concerns=protect-data');
+    await expect(
+      page.getByRole('heading', { level: 1, name: site.routes.brief.title }),
+    ).toBeVisible();
+    await expect(page).toHaveURL(/brief\?concerns=protect-data$/);
+    await expect(
+      page
+        .getByRole('group', { name: content.value.brief.concernsLegend })
+        .getByRole('checkbox', { checked: true }),
+    ).toHaveCount(1);
   });
 });
 
 test.describe('Selling as', () => {
-  test('sits on the pitch it changes, is remembered after a reload and stores nothing but the choice', async ({
+  test('sits on the value brief it changes, is remembered after a reload and stores nothing but the choice', async ({
     page,
   }) => {
-    await page.goto('pitch');
-    // It is not a header setting any more: the header has the one Technical detail switch.
+    await page.goto('brief');
+    // It is not a header setting: the header has the one Technical detail switch.
     await expect(
       page.locator('header').getByRole('group', { name: site.ui.audience.groupLabel }),
     ).toHaveCount(0);
     await chooseAudience(page, 'security');
-    const pitch = content.value.pitch.audiences.security.opening;
-    await expect(page.getByText(pitch)).toBeVisible();
+    const line = renderTemplate(content.value.brief.audienceLine, {
+      label: content.value.brief.audiences.security,
+    });
+    await expect(page.getByText(line)).toBeVisible();
     expect(await page.evaluate((key) => localStorage.getItem(key), audienceKey)).toBe('security');
     await page.reload();
     await expect(
@@ -176,19 +207,9 @@ test.describe('Selling as', () => {
         .getByRole('group', { name: site.ui.audience.groupLabel })
         .getByRole('button', { name: site.ui.audience.security, exact: true }),
     ).toHaveAttribute('aria-pressed', 'true');
-    await expect(page.getByText(pitch)).toBeVisible();
+    await expect(page.getByText(line)).toBeVisible();
     const keys = await page.evaluate(() => Object.keys(localStorage));
     expect(keys.filter((key) => key !== audienceKey)).toEqual([]);
-  });
-
-  test('is offered again on the value brief, which it changes too', async ({ page }) => {
-    await page.goto('pitch?view=brief');
-    const group = page.getByRole('group', { name: site.ui.audience.groupLabel });
-    await expect(group).toBeVisible();
-    await chooseAudience(page, 'ai');
-    await expect(
-      group.getByRole('button', { name: site.ui.audience.ai, exact: true }),
-    ).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('is listed on the privacy page with the other stored choices', async ({ page }) => {
@@ -201,7 +222,7 @@ test.describe('value brief', () => {
   test('keeps its choice in the address, keeps the customer name out of it and prints alone', async ({
     page,
   }) => {
-    await page.goto('pitch?view=brief');
+    await page.goto('brief');
     const boxes = page
       .getByRole('group', { name: content.value.brief.concernsLegend })
       .getByRole('checkbox');
@@ -224,7 +245,7 @@ test.describe('value brief', () => {
 
     await page.getByLabel(content.value.brief.customerLabel).fill('Fictional Customer');
     await page.emulateMedia({ media: 'print' });
-    await expect(page.locator('#pitch')).toBeHidden();
+    await expect(page.locator('h1')).toBeHidden();
     await expect(page.locator('header')).toBeHidden();
     const brief = page.locator('[data-print-document]');
     await expect(brief).toBeVisible();
@@ -332,15 +353,16 @@ test.describe('how an agent acts, guardrails and the readout', () => {
   }) => {
     const assessment = await seed(page);
     await page.goto(`diagnostic/${assessment.id}/readout`);
-    for (const key of ['access', 'guardrails'] as const) {
-      const exhibit = page.locator(`#exhibit-${key}`);
-      await expect(exhibit.getByRole('heading', { level: 2 })).toHaveText(
-        content.site.readout.exhibits[key],
-      );
-    }
+    const exhibitHeading = (key: 'access' | 'guardrails') =>
+      page.locator(`#exhibit-${key}`).getByRole('heading', { level: 2 });
+    await expect(exhibitHeading('access')).toHaveText(content.site.readout.exhibits.access);
+    // The guardrails and the licensing are in the parts after the first.
+    await page.goto(`diagnostic/${assessment.id}/readout?view=golive`);
+    await expect(exhibitHeading('guardrails')).toHaveText(content.site.readout.exhibits.guardrails);
     await expect(
       page.locator('#exhibit-guardrails').getByText(content.guardrails.statusLabels.gap).first(),
     ).toBeVisible();
+    await page.goto(`diagnostic/${assessment.id}/readout?view=next`);
     await expect(
       page.locator('#exhibit-licensing').getByRole('link', {
         name: content.site.readout.licenseOpen,
@@ -355,7 +377,7 @@ test.describe('narrow screens', () => {
       await page.setViewportSize({ width, height: 800 });
       const assessment = await seed(page);
       for (const path of [
-        'pitch',
+        'brief',
         'licensing',
         `licensing?assessment=${assessment.id}`,
         'fit?platforms=copilot-studio,cloud-registry-sync&tools=stack-purview,stack-defender',
@@ -384,9 +406,9 @@ test.describe('narrow screens', () => {
     await expect(nav.getByRole('link', { name: site.ui.nav.access, exact: true })).toBeVisible();
     expect(await noOverflow(page)).toBe(true);
     // Choosing a page closes the menu again.
-    await nav.getByRole('link', { name: site.ui.nav.pitch, exact: true }).click();
+    await nav.getByRole('link', { name: site.ui.nav.capabilities, exact: true }).click();
     await expect(
-      page.getByRole('heading', { level: 1, name: site.routes.pitch.title }),
+      page.getByRole('heading', { level: 1, name: site.routes.capabilities.title }),
     ).toBeVisible();
     await expect(nav).toBeHidden();
   });

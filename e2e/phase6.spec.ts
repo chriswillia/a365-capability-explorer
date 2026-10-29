@@ -122,7 +122,11 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
         .locator('circle')
         .count(),
     ).toBe(2);
+    // The eligibility note sits with the licensing counts, in the readiness part.
+    const parts = page.getByRole('navigation', { name: content.site.ui.views.label, exact: true });
+    await parts.getByRole('link', { name: copy.views.readiness, exact: true }).click();
     await expect(page.getByText(content.site.readout.eligibility, { exact: true })).toBeVisible();
+    await parts.getByRole('link', { name: copy.views.compare, exact: true }).click();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.getByRole('checkbox', { name: 'Fictional operations agent', exact: true }).uncheck();
     await expect(
@@ -243,7 +247,7 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
     await page.goto('workshop');
     await page.getByRole('button', { name: presentation.enter, exact: true }).click();
     await page
-      .getByRole('link', { name: content.site.routes.capability.title, exact: true })
+      .getByRole('link', { name: content.site.routes.pattern.title, exact: true })
       .first()
       .click();
     await expect(page.getByRole('banner')).toBeVisible();
@@ -301,10 +305,14 @@ test.describe('Phase 6 portfolio and workshop kit', () => {
     await page.screenshot({ path: test.info().outputPath('workshop-mobile.png'), fullPage: true });
     await page.setViewportSize({ width: 1440, height: 1000 });
     await page.screenshot({ path: test.info().outputPath('workshop-desktop.png'), fullPage: true });
+    // The cards sit in their own parts, and the capability cards behind a closed panel for each area.
+    await page.goto('workshop?view=capabilities');
+    await page.locator('details[id^="cards-"] > summary').first().click();
     await page
       .locator('[data-capability-card]')
       .first()
       .screenshot({ path: test.info().outputPath('capability-card.png') });
+    await page.goto('workshop?view=patterns');
     await page
       .locator('[data-pattern-card]')
       .first()

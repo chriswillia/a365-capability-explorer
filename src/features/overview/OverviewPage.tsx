@@ -26,7 +26,7 @@ export function Component() {
         tagline={site.tagline}
         lede={overview.heroLede}
       >
-        <ButtonLink to="/pitch" variant="onDark">
+        <ButtonLink to="/capabilities" variant="onDark">
           {overview.ctaPrimary}
         </ButtonLink>
         <ButtonLink to="/patterns" variant="onDarkOutline">

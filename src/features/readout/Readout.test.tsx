@@ -1,5 +1,5 @@
 import { FluentProvider } from '@fluentui/react-components';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
@@ -9,11 +9,19 @@ import { content, contentMeta, pillarName } from '../../lib/content/index.ts';
 import { renderTemplate } from '../../lib/content/template.ts';
 import { patternAnswers } from '../../lib/engine/evaluate.ts';
 import { peopleRows } from '../../lib/engine/pillars.ts';
-import { EXHIBIT_KEYS, exhibitId, exhibitPlan } from '../../lib/readout/plan.ts';
+import {
+  EXHIBIT_KEYS,
+  exhibitId,
+  exhibitPlan,
+  readoutParts,
+  type ReadoutPartId,
+} from '../../lib/readout/plan.ts';
 import { answerLabel, buildReadout } from '../../lib/readout/report.ts';
 import { StateProviders } from '../../lib/state/StateProviders.tsx';
+import { DEPTH_STORAGE_KEY } from '../../lib/state/depth.ts';
 import { emptyWorkspace, type Assessment } from '../../lib/state/diagnostic-model.ts';
 import { loadDiagnostics, saveDiagnostics } from '../../lib/state/diagnostic-storage.ts';
+import { STORAGE_PREFIX } from '../../lib/state/storage.ts';
 import { fluentTheme } from '../../theme/fluentTheme.ts';
 import '../diagnostic/DiagnosticLayout.tsx';
 import './CanvasPage.tsx';
@@ -69,6 +77,24 @@ const renderReadout = (assessment: Assessment, title: string) =>
   renderAt(`/diagnostic/${assessment.id}/readout`, title);
 const eyebrow = (number: number, key: (typeof EXHIBIT_KEYS)[number]) =>
   renderTemplate(site.ui.exhibit.eyebrow, { number, label: copy.exhibits[key] });
+const partLinks = () =>
+  within(screen.getByRole('navigation', { name: site.ui.views.label })).getAllByRole('link');
+// One part is on screen at a time; the others stay in the page, hidden.
+const paneOf = (id: string) =>
+  document.getElementById(id)!.closest('[data-print-visible]') as HTMLElement;
+async function goToPart(
+  router: Awaited<ReturnType<typeof renderReadout>>,
+  assessment: Assessment,
+  part: ReadoutPartId,
+) {
+  await router.navigate(`/diagnostic/${assessment.id}/readout?view=${part}`);
+  await waitFor(() =>
+    expect(partLinks().find((link) => link.textContent === copy.views[part])).toHaveAttribute(
+      'aria-current',
+      'true',
+    ),
+  );
+}
 
 describe('readout page', () => {
   it('numbers the executive exhibits 1, 2, 3… in reading order and matches the contents list', async () => {
@@ -120,9 +146,107 @@ describe('readout page', () => {
     expect(document.getElementById('readout-appendix')).not.toBeNull();
   });
 
+  it('shows one part at a time, and keeps every part in the page so the readout still prints whole', async () => {
+    const { assessment, report } = seed();
+    const router = await renderReadout(assessment, report.title);
+    const parts = readoutParts(false);
+    expect(partLinks().map((link) => link.textContent)).toEqual(
+      parts.map((part) => copy.views[part.id]),
+    );
+    expect(partLinks()[0]).toHaveAttribute('aria-current', 'true');
+    expect(partLinks()[1]).toHaveAttribute(
+      'href',
+      `/diagnostic/${assessment.id}/readout?view=controls`,
+    );
+    const plan = exhibitPlan(false);
+    for (const part of parts)
+      for (const key of part.exhibits.filter((candidate) => plan.includes(candidate)))
+        expect(paneOf(exhibitId(key)).hidden, key).toBe(part.id !== 'summary');
+    // The summary opens the first part, ahead of the exhibits.
+    expect(paneOf('readout-summary')).toBe(paneOf(exhibitId('pillars')));
+    expect(paneOf('readout-summary').hidden).toBe(false);
+    for (const pane of document.querySelectorAll('[data-print-visible]'))
+      expect(pane).toHaveAttribute('data-print-visible');
+
+    await goToPart(router, assessment, 'controls');
+    expect(paneOf(exhibitId('anatomy')).hidden).toBe(false);
+    expect(paneOf(exhibitId('pillars')).hidden).toBe(true);
+    expect(screen.getByRole('heading', { level: 2, name: copy.exhibits.anatomy })).toBeVisible();
+    expect(screen.queryByRole('heading', { level: 2, name: copy.exhibits.pillars })).toBeNull();
+  });
+
+  it('opens the part that holds an exhibit a link points at, and says so in the address', async () => {
+    const { assessment, report } = seed();
+    const router = await renderReadout(assessment, report.title);
+    await router.navigate(`/diagnostic/${assessment.id}/readout#${exhibitId('licensing')}`);
+    await waitFor(() => expect(router.state.location.search).toBe('?view=next'));
+    expect(router.state.location.hash).toBe(`#${exhibitId('licensing')}`);
+    expect(paneOf(exhibitId('licensing')).hidden).toBe(false);
+    expect(partLinks().find((link) => link.textContent === copy.views.next)).toHaveAttribute(
+      'aria-current',
+      'true',
+    );
+  });
+
+  it('steps from part to part from the foot of the page', async () => {
+    const user = userEvent.setup();
+    const { assessment, report } = seed();
+    const router = await renderReadout(assessment, report.title);
+    const parts = readoutParts(false);
+    const pager = () => within(screen.getByRole('navigation', { name: site.ui.views.pagerLabel }));
+    expect(pager().queryByRole('link', { name: new RegExp(site.ui.views.previous) })).toBeNull();
+    await user.click(
+      pager().getByRole('link', {
+        name: `${site.ui.views.next}: ${copy.views[parts[1]!.id]}`,
+      }),
+    );
+    expect(router.state.location.search).toBe('?view=controls');
+  });
+
+  it('adds the readiness detail and the appendix in Technical, and folds the long tables into closed panels', async () => {
+    const user = userEvent.setup();
+    const { assessment, report } = seed();
+    const router = await renderReadout(assessment, report.title);
+    await user.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    expect(partLinks().map((link) => link.textContent)).toEqual(
+      readoutParts(true).map((part) => copy.views[part.id]),
+    );
+    const table = document.getElementById('exhibit-capabilities-table') as HTMLDetailsElement;
+    expect(table.open).toBe(false);
+    expect(table.querySelector('summary')).toHaveTextContent(
+      renderTemplate(copy.capabilityTable, { count: report.result.inScope.length }),
+    );
+    const appendix = ['scope', 'discovery', 'advisories', 'intensity', 'answers', 'sources'];
+    for (const id of appendix)
+      expect((document.getElementById(`appendix-${id}`) as HTMLDetailsElement).open, id).toBe(
+        false,
+      );
+    await goToPart(router, assessment, 'detail');
+    expect(paneOf(exhibitId('readiness')).hidden).toBe(false);
+    expect(paneOf(exhibitId('integration')).hidden).toBe(false);
+
+    // A link to a panel opens the part that holds it, and the panel.
+    await router.navigate(`/diagnostic/${assessment.id}/readout#appendix-sources`);
+    await waitFor(() => expect(router.state.location.search).toBe('?view=appendix'));
+    await waitFor(() =>
+      expect((document.getElementById('appendix-sources') as HTMLDetailsElement).open).toBe(true),
+    );
+  });
+
+  it('falls back to the first part when the Technical view is turned off on a part only it has', async () => {
+    window.localStorage.setItem(`${STORAGE_PREFIX}${DEPTH_STORAGE_KEY}`, 'technical');
+    const user = userEvent.setup();
+    const { assessment, report } = seed();
+    const router = await renderReadout(assessment, report.title);
+    await goToPart(router, assessment, 'detail');
+    await user.click(screen.getByRole('button', { name: site.ui.depth.technical }));
+    await waitFor(() => expect(router.state.location.search).toBe(''));
+    expect(partLinks()[0]).toHaveAttribute('aria-current', 'true');
+  });
+
   it('opens with the requirement areas and names the teams to involve', async () => {
     const { assessment, report } = seed();
-    await renderReadout(assessment, report.title);
+    const router = await renderReadout(assessment, report.title);
     const areas = within(document.getElementById(exhibitId('pillars'))!);
     for (const row of report.pillars) {
       const card = areas
@@ -135,6 +259,7 @@ describe('readout page', () => {
         }),
       );
     }
+    await goToPart(router, assessment, 'golive');
     const people = within(within(document.getElementById(exhibitId('people'))!).getByRole('table'));
     const teams = peopleRows(content, report.result.inScope);
     expect(people.getAllByRole('row')).toHaveLength(teams.length + 1);
@@ -144,7 +269,7 @@ describe('readout page', () => {
 
   it('shows how the agent acts, the production guardrails and who to license', async () => {
     const { assessment, report } = seed();
-    await renderReadout(assessment, report.title);
+    const router = await renderReadout(assessment, report.title);
     const access = within(document.getElementById(exhibitId('access'))!);
     expect(access.getByText(copy.accessNote)).toBeInTheDocument();
     expect(access.getByRole('link', { name: copy.accessOpen })).toHaveAttribute(
@@ -159,6 +284,7 @@ describe('readout page', () => {
       }),
     ).toBeInTheDocument();
 
+    await goToPart(router, assessment, 'golive');
     const guardrails = within(document.getElementById(exhibitId('guardrails'))!);
     expect(
       guardrails.getByText(renderTemplate(content.guardrails.summary, report.guardrails.counts)),
@@ -166,6 +292,7 @@ describe('readout page', () => {
     for (const { items } of report.guardrails.gates)
       for (const { item } of items) expect(guardrails.getByText(item.title)).toBeInTheDocument();
 
+    await goToPart(router, assessment, 'next');
     const licensing = within(document.getElementById(exhibitId('licensing'))!);
     expect(report.license.populations.length).toBeGreaterThan(0);
     for (const { population } of report.license.populations)
