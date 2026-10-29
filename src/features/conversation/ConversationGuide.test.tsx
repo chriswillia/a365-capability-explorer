@@ -217,7 +217,8 @@ describe('the old conversation address', () => {
     );
     await screen.findByRole('heading', { level: 1, name: site.routes.pitch.title });
     expect(router.state.location.pathname).toBe('/pitch');
-    expect(router.state.location.search).toBe('?audience=security&view=run');
+    // The page names its part in the address in an effect, after it first shows.
+    await waitFor(() => expect(router.state.location.search).toBe('?audience=security&view=run'));
     expect(router.state.location.hash).toBe('#requirement-secure');
   });
 });
